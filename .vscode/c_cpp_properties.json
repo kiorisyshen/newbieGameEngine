@@ -11,7 +11,8 @@
             "includePath": [
                 "${workspaceFolder}",
                 "${workspaceFolder}/Framework/Interface",
-                "${workspaceFolder}/Framework/Common"
+                "${workspaceFolder}/Framework/Common",
+                "/System/Library/Frameworks/Kernel.framework/Versions/A/Headers/sys"
             ],
             "defines": [],
             "macFrameworkPath": [
