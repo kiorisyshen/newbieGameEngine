@@ -1,0 +1,5 @@
+/Users/shensijie/Learning/Game/newbieGameEngine/Platform/Darwin/Project/CMakeFiles/ALL_BUILD.dir
+/Users/shensijie/Learning/Game/newbieGameEngine/Platform/Darwin/Project/CMakeFiles/ZERO_CHECK.dir
+/Users/shensijie/Learning/Game/newbieGameEngine/Platform/Darwin/Project/Framework/Common/CMakeFiles/Common.dir
+/Users/shensijie/Learning/Game/newbieGameEngine/Platform/Darwin/Project/Platform/Empty/CMakeFiles/Empty.dir
+/Users/shensijie/Learning/Game/newbieGameEngine/Platform/Darwin/Project/Platform/Darwin/CMakeFiles/NewbieGameEngineCocoa.dir
