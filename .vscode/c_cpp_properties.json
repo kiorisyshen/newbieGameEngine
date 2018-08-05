@@ -2,17 +2,11 @@
     "configurations": [
         {
             "name": "Mac",
-            "browse": {
-                "path": [
-                    "${workspaceFolder}"
-                ],
-                "limitSymbolsToIncludedHeaders": true
-            },
             "includePath": [
-                "${workspaceFolder}",
-                "${workspaceFolder}/Framework/Interface",
+                "${workspaceFolder}/**",
                 "${workspaceFolder}/Framework/Common",
-                "/System/Library/Frameworks/Kernel.framework/Versions/A/Headers/sys"
+                "${workspaceFolder}/Framework/Interface",
+                "/System/Library/Frameworks/Kernel.framework/Versions/A/Headers"
             ],
             "defines": [],
             "macFrameworkPath": [
@@ -22,7 +16,8 @@
             "compilerPath": "/usr/bin/clang",
             "cStandard": "c11",
             "cppStandard": "c++17",
-            "intelliSenseMode": "clang-x64"
+            "intelliSenseMode": "clang-x64",
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json"
         }
     ],
     "version": 4

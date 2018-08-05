@@ -1,5 +1,17 @@
 {
+    "C_Cpp.configurationWarnings": "Disabled",
     "files.associations": {
-        "windowsx.h": "c"
-    }
+        "__config": "cpp",
+        "__nullptr": "cpp",
+        "cstddef": "cpp",
+        "exception": "cpp",
+        "initializer_list": "cpp",
+        "new": "cpp",
+        "stdexcept": "cpp",
+        "type_traits": "cpp",
+        "typeinfo": "cpp",
+        "algorithm": "cpp",
+        "iterator": "cpp"
+    },
+    "cmake.configureOnOpen": false
 }

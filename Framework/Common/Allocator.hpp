@@ -1,12 +1,12 @@
 #include <cstddef>
-#include <cstdint>
+#include <stdint.h>
 
 namespace newbieGE
 {
 
 struct BlockHeader
 {
-    // union-ed with data (when the block contains valid data, pNext point to the data, otherwise point to the next block)
+    // union-ed with data
     BlockHeader *pNext;
 };
 
@@ -27,7 +27,6 @@ class Allocator
     static const uint8_t PATTERN_ALLOC = 0xFD;
     static const uint8_t PATTERN_FREE = 0xFE;
 
-    // sizeof(data), page_size*1 byte, how many bytes could be operated at a time in the platform
     Allocator();
     Allocator(size_t data_size, size_t page_size, size_t alignment);
     ~Allocator();

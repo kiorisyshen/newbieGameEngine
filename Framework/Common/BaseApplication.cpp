@@ -1,10 +1,22 @@
 #include "BaseApplication.hpp"
 
+using namespace newbieGE;
+
+bool newbieGE::BaseApplication::m_bQuit = false;
+
+newbieGE::BaseApplication::BaseApplication(GfxConfiguration& cfg)
+    :m_Config(cfg)
+{
+}
+
 // Parse command line, read configuration, initialize all sub modules
 int newbieGE::BaseApplication::Initialize()
 {
-    m_bQuit = false;
-    return 0;
+    int result = 0;
+
+    std::wcout << m_Config;
+
+	return result;
 }
 
 
