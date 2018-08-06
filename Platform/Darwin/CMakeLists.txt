@@ -22,7 +22,7 @@ target_link_libraries(NewbieGameEngineCocoa
 # __add_xg_platform_dependencies(NewbieGameEngineCocoa)
 
 # # MyGameEngineCocoaOpenGL
-# add_executable(MyGameEngineCocoaOpenGL MACOSX_BUNDLE
+# add_executable(NewbieGameEngineCocoaOpenGL MACOSX_BUNDLE
 #         CocoaApplication.mm 
 #         CocoaOpenGLApplication.mm
 #         CocoaOpenGLApplicationConfig.cpp
@@ -30,14 +30,14 @@ target_link_libraries(NewbieGameEngineCocoa
 #         WindowDelegate.m
 #         GLView.mm
 #     )
-# target_link_libraries(MyGameEngineCocoaOpenGL 
-#         OpenGLRHI 
-#         Common 
-#         ${OPENGEX_LIBRARY} 
-#         ${OPENDDL_LIBRARY} 
-#         ${XG_LIBRARY} 
+# target_link_libraries(NewbieGameEngineCocoaOpenGL 
+#         OpenGLRHI
+#         Common
+#         # ${OPENGEX_LIBRARY} 
+#         # ${OPENDDL_LIBRARY} 
+#         # ${XG_LIBRARY} 
 #         ${COCOA_LIBRARY} 
 #         ${OPENGL_LIBRARY}
-#         dl
+#         # dl
 #         )
-# __add_xg_platform_dependencies(MyGameEngineCocoaOpenGL)
+# # __add_xg_platform_dependencies(MyGameEngineCocoaOpenGL)

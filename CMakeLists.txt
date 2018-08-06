@@ -19,5 +19,5 @@ include_directories("${PROJECT_SOURCE_DIR}/Framework/Interface")
 
 add_subdirectory(Framework)
 add_subdirectory(Platform)
-# add_subdirectory(RHI)
+# add_subdirectory(RHI) # Rendering Hardware Interface
 # add_subdirectory(Empty)
