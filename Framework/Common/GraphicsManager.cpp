@@ -15,3 +15,11 @@ void newbieGE::GraphicsManager::Finalize()
 void newbieGE::GraphicsManager::Tick()
 {
 }
+
+void GraphicsManager::Clear()
+{
+}
+
+void GraphicsManager::Draw()
+{
+}

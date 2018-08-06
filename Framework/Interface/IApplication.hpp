@@ -17,4 +17,6 @@ namespace newbieGE
 
         virtual GfxConfiguration& GetConfiguration() = 0;
     };
+
+    extern IApplication* g_pApp;
 } // namespace newbieGE

@@ -10,7 +10,8 @@ project (newbieGameEngine)
 include_directories("${PROJECT_SOURCE_DIR}/Framework/Common")
 include_directories("${PROJECT_SOURCE_DIR}/Framework/Interface")
 # include_directories("${PROJECT_SOURCE_DIR}/Platform/${CMAKE_SYSTEM_NAME}/")
-# include_directories("${PROJECT_SOURCE_DIR}/RHI")
+include_directories("${PROJECT_SOURCE_DIR}/RHI")
+include_directories("${PROJECT_SOURCE_DIR}/Platform/Empty/")
 
 # find_library(XG_LIBRARY xg PATHS ${MYGE_EXTERNAL_LIBRARY_PATH})
 # find_library(OPENDDL_LIBRARY OpenDDL PATHS ${MYGE_EXTERNAL_LIBRARY_PATH})
@@ -19,5 +20,5 @@ include_directories("${PROJECT_SOURCE_DIR}/Framework/Interface")
 
 add_subdirectory(Framework)
 add_subdirectory(Platform)
-# add_subdirectory(RHI) # Rendering Hardware Interface
+add_subdirectory(RHI) # Rendering Hardware Interface
 # add_subdirectory(Empty)
