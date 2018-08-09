@@ -1,7 +1,15 @@
 #include <stdio.h>
-#include "EmptyApplication.hpp"
+#include "IApplication.hpp"
+#include "GraphicsManager.hpp"
+#include "MemoryManager.hpp"
 
 using namespace newbieGE;
+
+namespace newbieGE {
+	extern IApplication*    g_pApp;
+    extern MemoryManager*   g_pMemoryManager;
+    extern GraphicsManager* g_pGraphicsManager;
+}
 
 int main(int argc, char **argv)
 {
@@ -22,28 +30,14 @@ int main(int argc, char **argv)
         printf("Graphics Manager Initialize failed, will exit now.");
         return ret;
     }
-    
-    // if ((ret = g_pAssetLoader->Initialize()) != 0) {
-    //     printf("Asset Loader Initialize failed, will exit now.");
-    //     return ret;
-    // }
-    
-    // if ((ret = g_pSceneManager->Initialize()) != 0) {
-    //     printf("Scene Manager Initialize failed, will exit now.");
-    //     return ret;
-    // }
 
     while (!g_pApp->IsQuit())
     {
         g_pApp->Tick();
         g_pMemoryManager->Tick();
         g_pGraphicsManager->Tick();
-        // g_pAssetLoader->Tick();
-        // g_pSceneManager->Tick();
     }
 
-    // g_pSceneManager->Finalize();
-    // g_pAssetLoader->Finalize();
     g_pGraphicsManager->Finalize();
     g_pMemoryManager->Finalize();
 	g_pApp->Finalize();

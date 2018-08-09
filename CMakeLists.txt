@@ -6,7 +6,7 @@ set (CMAKE_CXX_STANDARD 11)
 project (newbieGameEngine)
 include_directories("${PROJECT_SOURCE_DIR}/Framework/Common")
 include_directories("${PROJECT_SOURCE_DIR}/Framework/Interface")
-# include_directories("${PROJECT_SOURCE_DIR}/Framework/GeomMath")
+include_directories("${PROJECT_SOURCE_DIR}/Framework/GeomMath")
 include_directories("${PROJECT_SOURCE_DIR}/RHI")
 include_directories("${PROJECT_SOURCE_DIR}/Platform/Empty/")
 
