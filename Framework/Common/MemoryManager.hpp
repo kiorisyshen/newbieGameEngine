@@ -1,7 +1,7 @@
 #pragma once
+#include <new>
 #include "IRuntimeModule.hpp"
 #include "Allocator.hpp"
-#include <new>
 
 namespace newbieGE {
     class MemoryManager : implements IRuntimeModule
@@ -16,7 +16,7 @@ namespace newbieGE {
         template<typename T>
         void Delete(T *p)
         {
-            reinterpret_cast<T*>(p)->~T();
+            p->~T();
             Free(p, sizeof(T));
         }
 
@@ -28,6 +28,7 @@ namespace newbieGE {
         virtual void Tick();
 
         void* Allocate(size_t size);
+        void* Allocate(size_t size, size_t alignment);
         void  Free(void* p, size_t size);
     private:
         static size_t*        m_pBlockSizeLookup;

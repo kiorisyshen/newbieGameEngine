@@ -11,7 +11,9 @@
         "type_traits": "cpp",
         "typeinfo": "cpp",
         "algorithm": "cpp",
-        "iterator": "cpp"
+        "iterator": "cpp",
+        "memory": "cpp",
+        "vector": "cpp"
     },
     "cmake.configureOnOpen": false
 }
