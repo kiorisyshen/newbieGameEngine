@@ -80,11 +80,11 @@ newbieGE::AssetLoader::AssetFilePtr newbieGE::AssetLoader::OpenFile(const char* 
 #endif
             switch(mode) {
                 case MY_OPEN_TEXT:
-                fp = fopen(fullPath.c_str(), "r");
-                break;
+                    fp = fopen(fullPath.c_str(), "r");
+                    break;
                 case MY_OPEN_BINARY:
-                fp = fopen(fullPath.c_str(), "rb");
-                break;
+                    fp = fopen(fullPath.c_str(), "rb");
+                    break;
             }
 
             if (fp)

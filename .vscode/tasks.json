@@ -1,0 +1,35 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build all Release",
+            "type": "shell",
+            "command": "cd build/Release && cmake ../.. && cmake --build . --config Release -- -j 4 && cd ../..",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "build all Debug",
+            "type": "shell",
+            "command": "cd build/Debug && cmake ../.. && cmake --build . --config Debug -- -j 4 && cd ../.."
+        },
+        {
+            "label": "Cmake Test Release",
+            "type": "shell",
+            "command": "cd build/Release && cmake ../.. && cmake --build . --config Release -- -j 4 && cmake --build . --config Release --target test && cd ../..",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Cmake Test Debug",
+            "type": "shell",
+            "command": "cd build/Debug && cmake ../.. && cmake --build . --config Debug -- -j 4 && cmake --build . --config Release --target test && cd ../.."
+        }
+    ]
+}
