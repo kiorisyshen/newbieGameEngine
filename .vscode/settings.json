@@ -13,7 +13,9 @@
         "algorithm": "cpp",
         "iterator": "cpp",
         "memory": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "string": "cpp",
+        "string_view": "cpp"
     },
     "cmake.configureOnOpen": false
 }
