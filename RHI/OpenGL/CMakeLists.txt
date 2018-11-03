@@ -1,5 +1,5 @@
 add_library(OpenGLRHI
         OpenGLGraphicsManager.cpp
-        ${PROJECT_SOURCE_DIR}/External/glad/src/glad.c
+        ${PROJECT_SOURCE_DIR}/External/Darwin/glad/src/glad.c
 )
-target_include_directories(OpenGLRHI PRIVATE "${PROJECT_SOURCE_DIR}/External/glad/include")
+target_include_directories(OpenGLRHI PRIVATE "${PROJECT_SOURCE_DIR}/External/Darwin/glad/include")
