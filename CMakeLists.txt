@@ -27,5 +27,4 @@ add_subdirectory(RHI) # Rendering Hardware Interface
 
 # the short system name, e.g. "Linux", "FreeBSD" or "Windows"
 MESSAGE( STATUS "CMAKE_SYSTEM_NAME: " ${CMAKE_SYSTEM_NAME} )
-
 MESSAGE( STATUS "XG_LIBRARY: " ${XG_LIBRARY} )
