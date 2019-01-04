@@ -88,7 +88,7 @@ namespace newbieGE{
         kVertexDataTypeDouble1   = "DUB1"_i32,
         kVertexDataTypeDouble2   = "DUB2"_i32,
         kVertexDataTypeDouble3   = "DUB3"_i32,
-        kVertexDataTypeDouble4   = "DUB3"_i32
+        kVertexDataTypeDouble4   = "DUB4"_i32
     };
 
     class SceneObjectVertexArray : public BaseSceneObject
@@ -98,8 +98,7 @@ namespace newbieGE{
             uint32_t    m_MorphTargetIndex;
             VertexDataType m_DataType;
 
-            void*      m_pDataFloat;
-
+            void*      m_pData;
             size_t      m_szData;
 
         public:
@@ -119,7 +118,6 @@ namespace newbieGE{
             IndexDataType m_DataType;
 
             void*       m_pData;
-
             size_t      m_szData;
 
         public:
