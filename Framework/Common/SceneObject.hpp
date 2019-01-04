@@ -102,7 +102,7 @@ namespace newbieGE{
             size_t      m_szData;
 
         public:
-            SceneObjectVertexArray(const char* attr, void* data, size_t data_size, VertexDataType data_type, uint32_t morph_index = 0) : BaseSceneObject(SceneObjectType::kSceneObjectTypeVertexArray), m_Attribute(attr), m_MorphTargetIndex(morph_index), m_DataType(data_type), m_pDataFloat(data), m_szData(data_size) {};
+            SceneObjectVertexArray(const char* attr, void* data, size_t data_size, VertexDataType data_type, uint32_t morph_index = 0) : BaseSceneObject(SceneObjectType::kSceneObjectTypeVertexArray), m_Attribute(attr), m_MorphTargetIndex(morph_index), m_DataType(data_type), m_pData(data), m_szData(data_size) {};
     };
 
     ENUM(IndexDataType) {

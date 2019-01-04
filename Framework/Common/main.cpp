@@ -5,12 +5,6 @@
 
 using namespace newbieGE;
 
-namespace newbieGE {
-	extern IApplication*    g_pApp;
-    extern MemoryManager*   g_pMemoryManager;
-    extern GraphicsManager* g_pGraphicsManager;
-}
-
 int main(int argc, char **argv)
 {
     int ret;
