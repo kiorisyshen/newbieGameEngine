@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include "geommath.hpp"
 
 namespace newbieGE {
@@ -12,4 +13,7 @@ namespace newbieGE {
         size_t  data_size;
     } Image;
 
+    std::ostream& operator<<(std::ostream& out, const Image& image);
 }
+
+

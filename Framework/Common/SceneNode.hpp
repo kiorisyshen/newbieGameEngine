@@ -2,8 +2,8 @@
 #include <iostream>
 #include <list>
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 #include "SceneObject.hpp"
 
 namespace newbieGE {
