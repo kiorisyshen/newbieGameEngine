@@ -1,9 +1,18 @@
 cmake_minimum_required (VERSION 3.1)
+project (newbieGameEngine)
 
 set (CMAKE_C_STANDARD 11)
 set (CMAKE_CXX_STANDARD 11)
 
-project (newbieGameEngine)
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+include(TargetArchDetect)
+target_architecture(TARGET_ARCH)
+
+if((TARGET_ARCH MATCHES "x86_64" OR TARGET_ARCH MATCHES "ia64") AND NOT OF_32BIT)
+        set(ARCH_BIT 64)
+else()
+        set(ARCH_BIT 32)
+endif()
 
 set(NBGE_EXTERNAL_ROOT ${PROJECT_SOURCE_DIR}/External/${CMAKE_SYSTEM_NAME})
 set(NBGE_EXTERNAL_INCLUDE_PATH ${NBGE_EXTERNAL_ROOT}/include)
@@ -23,6 +32,7 @@ find_library(XG_LIBRARY xg PATHS ${NBGE_EXTERNAL_LIBRARY_PATH})
 
 include(CTest)
 include(CheckCXXSourceCompiles)
+include(PlatformDependencies)
 CHECK_CXX_SOURCE_COMPILES(
 "#include <memory>
 int main(int argc, char** argv)
@@ -216,6 +226,8 @@ MESSAGE( STATUS "CMAKE_RANLIB: " ${CMAKE_RANLIB} )
 MESSAGE( STATUS "CMAKE_CROSSCOMPILING: " ${CMAKE_CROSSCOMPILING} )
 
 MESSAGE( STATUS "TARGET_ARCH: " ${TARGET_ARCH} )
+
+MESSAGE( STATUS "ARCH_BIT: " ${ARCH_BIT} )
 
 MESSAGE( STATUS "XG_LIBRARY: " ${XG_LIBRARY} )
 
