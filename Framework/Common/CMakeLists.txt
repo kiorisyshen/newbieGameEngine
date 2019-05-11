@@ -6,6 +6,7 @@ add_library(Common
     Image.cpp
     MemoryManager.cpp
     SceneObject.cpp
+    SceneManager.cpp
     main.cpp
 )
 

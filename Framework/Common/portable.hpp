@@ -1,11 +1,25 @@
 #pragma once
 #include <cstdint>
 #include <climits>
+#include <memory>
+#include "config.h"
+
+typedef int32_t four_char_enum;
 
 #if __cplusplus >= 201103L && !defined(__ORBIS__)
-#define ENUM(e) enum struct e : uint32_t
+#define ENUM(e) enum class e : four_char_enum 
 #else
-#define ENUM(e) enum e
+#define ENUM(e) enum e : four_char_enum
+#endif
+
+#ifndef HAVE_MAKE_UNIQUE 
+namespace std {
+    template<typename T, typename... Args>
+    std::unique_ptr<T> make_unique(Args&&... args)
+    {
+            return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+    }
+}
 #endif
 
 template <typename T>

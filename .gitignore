@@ -2,3 +2,4 @@ build
 Project
 *.exe
 install
+config.h
