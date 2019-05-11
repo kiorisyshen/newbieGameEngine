@@ -14,3 +14,10 @@ For runing test:
 ```shell
 cmake --build . --config Debug --target test
 ```
+
+## Generate xcode project
+```shell
+mkdir build
+cd build
+cmake -G Xcode ..
+```
