@@ -4,9 +4,9 @@
 [submodule "External/src/ispc"]
 	path = External/src/ispc
 	url = https://github.com/ispc/ispc.git
-[submodule "External/src/opengex"]
-	path = External/src/opengex
-	url = https://github.com/kiorisyshen/OpenGEX.git
 [submodule "External/src/crossguid"]
 	path = External/src/crossguid
 	url = https://github.com/kiorisyshen/crossguid.git
+[submodule "External/src/opengex"]
+	path = External/src/opengex
+	url = https://github.com/kiorisyshen/OpenGEX.git
