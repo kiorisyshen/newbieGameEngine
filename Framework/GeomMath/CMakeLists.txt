@@ -29,5 +29,3 @@ set_target_properties(GeomMath
         )
 
 add_subdirectory(ispc)
-add_subdirectory(test)
-
