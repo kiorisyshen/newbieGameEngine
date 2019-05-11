@@ -29,7 +29,8 @@ include_directories("${PROJECT_SOURCE_DIR}/Platform/Empty")
 include_directories("${PROJECT_SOURCE_DIR}/Platform/Darwin/${CMAKE_SYSTEM_NAME}")
 
 find_library(XG_LIBRARY xg PATHS ${NBGE_EXTERNAL_LIBRARY_PATH})
-
+find_library(OPENDDL_LIBRARY OpenDDL PATHS ${NBGE_EXTERNAL_LIBRARY_PATH})
+find_library(OPENGEX_LIBRARY OpenGEX PATHS ${NBGE_EXTERNAL_LIBRARY_PATH})
 include(CTest)
 include(CheckCXXSourceCompiles)
 include(PlatformDependencies)
