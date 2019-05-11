@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "crossguid/guid.hpp"
+#include "crossguid/Guid.hpp"
 #include "Image.hpp"
 #include "portable.hpp"
 #include "geommath.hpp"

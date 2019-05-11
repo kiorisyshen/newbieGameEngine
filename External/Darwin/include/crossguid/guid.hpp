@@ -53,18 +53,13 @@ public:
 	Guid(const unsigned char *bytes);
 	Guid(const std::string &fromString);
 	Guid();
-	
-	Guid(const Guid &other) = default;
-	Guid &operator=(const Guid &other) = default;
-	Guid(Guid &&other) = default;
-	Guid &operator=(Guid &&other) = default;
-
+	Guid(const Guid &other);
+	Guid &operator=(const Guid &other);
 	bool operator==(const Guid &other) const;
 	bool operator!=(const Guid &other) const;
 
 	std::string str() const;
 	operator std::string() const;
-	const std::array<unsigned char, 16>& bytes() const;
 	void swap(Guid &other);
 	bool isValid() const;
 
@@ -76,7 +71,6 @@ private:
 
 	// make the << operator a friend so it can access _bytes
 	friend std::ostream &operator<<(std::ostream &s, const Guid &guid);
-	friend bool operator<(const Guid &lhs, const Guid &rhs);
 };
 
 Guid newGuid();
@@ -109,7 +103,7 @@ namespace std
 	// Template specialization for std::swap<Guid>() --
 	// See guid.cpp for the function definition
 	template <>
-	void swap(xg::Guid &guid0, xg::Guid &guid1) noexcept;
+	void swap(xg::Guid &guid0, xg::Guid &guid1);
 
 	// Specialization for std::hash<Guid> -- this implementation
 	// uses std::hash<std::string> on the stringification of the guid

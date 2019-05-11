@@ -20,7 +20,7 @@ include(CTest) # use --target test to run test cases
                #    --clean-first
 include_directories("${NBGE_EXTERNAL_INCLUDE_PATH}")
 
-find_library(XG_LIBRARY crossguid PATHS ${NBGE_EXTERNAL_LIBRARY_PATH})
+find_library(XG_LIBRARY xg PATHS ${NBGE_EXTERNAL_LIBRARY_PATH})
 
 add_subdirectory(Framework)
 add_subdirectory(Platform)
