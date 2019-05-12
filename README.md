@@ -10,7 +10,6 @@ Currently only support MacOS
     cd External
     ./build_crossguid.sh
     ```
-    Then copy External/install/* into your platform (eg. External/Darwin/)
 
 
 # Build
