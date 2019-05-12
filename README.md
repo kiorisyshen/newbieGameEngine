@@ -3,14 +3,21 @@ A simple repo for learning creating a game engine. Reference: https://zhuanlan.z
 Currently only support MacOS
 
 # Pre-requiresite
-- Download ISPC compiler from: https://ispc.github.io/downloads.html
-  or build from source at External/src/ispc
-- Build crossguid at External/src/crossguid using:
+- ISPC
+  - Download bin from [official](https://ispc.github.io/downloads.html) and place it to External/[your platform]/bin
+  - Or build from source at External/src/ispc
+- Crossguid
+  - Build crossguid at External/src/crossguid using:
     ```shell
     cd External
     ./build_crossguid.sh
     ```
-
+- OpenGEX
+  - Build OpenGEX at External/src/opengex using:
+    ```shell
+    cd External
+    ./build_opengex.sh
+    ```
 
 # Build
 ```shell
