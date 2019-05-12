@@ -20,3 +20,5 @@ target_link_libraries(NewbieGameEngineCocoaOpenGL
         ${OPENGL_LIBRARY}
         # dl
         )
+
+__add_xg_platform_dependencies(NewbieGameEngineCocoaOpenGL)
