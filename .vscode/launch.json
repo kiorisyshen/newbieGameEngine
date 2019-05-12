@@ -29,6 +29,19 @@
             "externalConsole": false,
             "MIMode": "lldb",
             "preLaunchTask": "build all Debug"
+        },
+        {
+            "name": "(lldb) SceneObjectTest",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/Debug/Test/SceneObjectTest",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "build all Debug"
         }
     ]
 }

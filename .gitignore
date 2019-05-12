@@ -2,3 +2,4 @@ build
 Project
 *.exe
 config.h
+.vscode/ipch
