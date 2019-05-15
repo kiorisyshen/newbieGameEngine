@@ -7,10 +7,11 @@ add_library(Common
     MemoryManager.cpp
     SceneObject.cpp
     SceneManager.cpp
+    SceneParser.cpp
     main.cpp
 )
 
-target_link_libraries(Common GeomMath ${XG_LIBRARY})
+target_link_libraries(Common GeomMath)
 
 if(WIN32)
     add_definitions(-DGUID_WINDOWS)
