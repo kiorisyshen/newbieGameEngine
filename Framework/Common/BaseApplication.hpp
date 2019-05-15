@@ -1,5 +1,9 @@
 #pragma once
 #include "IApplication.hpp"
+#include "GraphicsManager.hpp"
+#include "MemoryManager.hpp"
+#include "AssetLoader.hpp"
+#include "SceneManager.hpp"
 
 namespace newbieGE {
     class BaseApplication : implements IApplication
@@ -15,8 +19,8 @@ namespace newbieGE {
 
         inline GfxConfiguration& GetConfiguration() { return m_Config; };
 
-    // protected:
-    //     virtual void OnDraw() {};
+    protected:
+        virtual void OnDraw() {};
 
     protected:
         // Flag if need quit the main loop of the application
@@ -28,3 +32,4 @@ namespace newbieGE {
         BaseApplication(){};
     };
 }
+

@@ -16,9 +16,12 @@ add_executable(NewbieGameEngineCocoaOpenGL MACOSX_BUNDLE
 target_link_libraries(NewbieGameEngineCocoaOpenGL 
         OpenGLRHI
         Common
+        ${OPENGEX_LIBRARY} 
+        ${OPENDDL_LIBRARY} 
+        ${XG_LIBRARY} 
         ${COCOA_LIBRARY} 
         ${OPENGL_LIBRARY}
         # dl
         )
-
+target_include_directories(NewbieGameEngineCocoaOpenGL PRIVATE "${PROJECT_SOURCE_DIR}/External/glad/include")
 __add_xg_platform_dependencies(NewbieGameEngineCocoaOpenGL)
