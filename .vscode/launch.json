@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "(lldb) AssetLoaderTest",
             "type": "cppdbg",
@@ -35,6 +36,19 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/Debug/Test/SceneObjectTest",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "build all Debug"
+        },
+        {
+            "name": "(lldb) SceneLoadingTest",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/Debug/Test/SceneLoadingTest",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
