@@ -13,14 +13,28 @@ int CocoaOpenGLApplication::Initialize()
     result = CocoaApplication::Initialize();
 
     if (!result) {
-        NSOpenGLPixelFormatAttribute attrs[] = {
-            NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
-            NSOpenGLPFAColorSize,32,
-            NSOpenGLPFADepthSize,16,
-            NSOpenGLPFADoubleBuffer,
-            NSOpenGLPFAAccelerated,
-            0
-        };
+//        NSOpenGLPixelFormatAttribute attrs[] = {
+//            NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
+//            NSOpenGLPFAColorSize,32,
+//            NSOpenGLPFADepthSize,16,
+//            NSOpenGLPFADoubleBuffer,
+//            NSOpenGLPFAAccelerated,
+//            0
+//        };
+
+         NSOpenGLPixelFormatAttribute attrs[] = {
+             NSOpenGLPFAAccelerated,
+             NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
+             NSOpenGLPFAColorSize,32,
+             NSOpenGLPFADepthSize,24,
+             NSOpenGLPFAStencilSize,8,
+             NSOpenGLPFADoubleBuffer,
+             NSOpenGLPFAAccelerated,
+             NSOpenGLPFAMultisample,
+             NSOpenGLPFASampleBuffers,1,
+             NSOpenGLPFASamples,4, // 4x MSAA
+             0
+         };
 
         GLView* pGLView = [GLView new];
         pGLView.pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
