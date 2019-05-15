@@ -44,9 +44,9 @@ include_directories("${PROJECT_SOURCE_DIR}/RHI")
 include_directories("${PROJECT_SOURCE_DIR}/Platform/Empty")
 include_directories("${PROJECT_SOURCE_DIR}/Platform/${NBGE_TARGET_PLATFORM}")
 
-find_library(XG_LIBRARY xg PATHS ${NBGE_EXTERNAL_LIBRARY_PATH})
-find_library(OPENDDL_LIBRARY OpenDDL PATHS ${NBGE_EXTERNAL_LIBRARY_PATH})
-find_library(OPENGEX_LIBRARY OpenGEX PATHS ${NBGE_EXTERNAL_LIBRARY_PATH})
+find_library(XG_LIBRARY xg PATHS ${NBGE_EXTERNAL_LIBRARY_PATH} NO_CMAKE_FIND_ROOT_PATH)
+find_library(OPENDDL_LIBRARY OpenDDL PATHS ${NBGE_EXTERNAL_LIBRARY_PATH} NO_CMAKE_FIND_ROOT_PATH)
+find_library(OPENGEX_LIBRARY OpenGEX PATHS ${NBGE_EXTERNAL_LIBRARY_PATH} NO_CMAKE_FIND_ROOT_PATH)
 include(CTest)
 include(CheckCXXSourceCompiles)
 include(PlatformDependencies)
@@ -61,7 +61,6 @@ int main(int argc, char** argv)
 "
 HAVE_MAKE_UNIQUE)
 configure_file(${PROJECT_SOURCE_DIR}/config.h.in ${PROJECT_SOURCE_DIR}/config.h)
-
 add_subdirectory(Framework)
 add_subdirectory(Platform)
 add_subdirectory(RHI) # Rendering Hardware Interface
