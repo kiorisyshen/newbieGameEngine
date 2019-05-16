@@ -26,6 +26,7 @@ namespace newbieGE {
     _openGLContext = [[NSOpenGLContext alloc] initWithFormat:_pixelFormat shareContext:nil];
 
     [_openGLContext makeCurrentContext];
+    [_openGLContext setView:self];
 
     [[NSNotificationCenter defaultCenter] addObserver:self
         selector:@selector(_surfaceNeedsUpdate:)
