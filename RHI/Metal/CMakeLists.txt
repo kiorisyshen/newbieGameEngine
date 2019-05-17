@@ -28,7 +28,7 @@ MESSAGE( STATUS "MTK_LIBRARY: " ${MTK_LIBRARY} )
 add_library(MetalRHI
     MetalRenderer.mm
     MetalGraphicsManager.mm
-    # ${PROJECT_SOURCE_DIR}/Asset/Shaders/basic.metal
+    ${PROJECT_SOURCE_DIR}/Asset/Shaders/basic.metal
     # Main.metallib
     )
 
