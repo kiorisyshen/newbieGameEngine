@@ -20,7 +20,7 @@
         {
             "label": "build Xcode project",
             "type": "shell",
-            "command": "mkdir -p build/Xcode && cd build/Xcode && cmake -G Xcode ../.."
+            "command": "mkdir -p build/Xcode && rm -rf build/Xcode && cd build && mkdir Xcode && cd Xcode && cmake -G Xcode ../.."
         },
         {
             "label": "Cmake Test Release",
