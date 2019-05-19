@@ -59,6 +59,9 @@ void CocoaApplication::Tick()
     {
         case NSEventTypeKeyDown:
             NSLog(@"Key Down Event Received!");
+            if ([event keyCode] == 0x0C) {
+                m_bQuit = true;
+            }
             break;
         default:
             break;
