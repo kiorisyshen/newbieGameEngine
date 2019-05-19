@@ -1,6 +1,8 @@
 #pragma once
 #import <MetalKit/MetalKit.h>
 #import "GraphicsManager.hpp"
+#include "geommath.hpp"
+#include "SceneObject.hpp"
 
 namespace newbieGE {
     struct MtlDrawBatchContext {
@@ -20,6 +22,14 @@ namespace newbieGE {
 
 -(void)tick;
 
--(void)initialize;
+- (void)createVertexBuffer:(const newbieGE::SceneObjectVertexArray&)v_property_array;
+
+- (void)createIndexBuffer:(const newbieGE::SceneObjectIndexArray&)index_array;
+
+- (void)setShaderWorldM:(newbieGE::Matrix4X4f*_Nonnull)worldMatrix viewM:(newbieGE::Matrix4X4f*_Nonnull)viewMatrix projectionM:(newbieGE::Matrix4X4f*_Nonnull)projectionMatrix;
+
+- (std::vector<std::shared_ptr<newbieGE::MtlDrawBatchContext> >&)getVAO;
+
+- (void)loadMetal;
 
 @end

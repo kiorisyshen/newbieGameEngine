@@ -54,7 +54,7 @@ using namespace newbieGE;
 
 - (void)drawRect:(CGRect)drawRect {
     g_pGraphicsManager->Tick();
-    NSLog(@"draw.");
+//    NSLog(@"draw.");
 }
 
 @end

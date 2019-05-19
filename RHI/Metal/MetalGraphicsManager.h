@@ -24,7 +24,7 @@ namespace newbieGE {
         void SetRenderer(MetalRenderer* renderer) { m_pRenderer = renderer; }
 
     private:
-        bool SetShaderParameters(float* worldMatrix, float* viewMatrix, float* projectionMatrix);
+        bool SetShaderParameters(Matrix4X4f* worldMatrix, Matrix4X4f* viewMatrix, Matrix4X4f* projectionMatrix);
 
         void InitializeBuffers();
         void RenderBuffers();
@@ -47,7 +47,6 @@ namespace newbieGE {
         //     GLsizei count;
         // };
 
-        // std::vector<DrawBatchContext> m_VAO;
         std::unordered_map<std::string, unsigned int> m_Buffers;
 
         float m_positionX = 0, m_positionY = 0, m_positionZ = -10;

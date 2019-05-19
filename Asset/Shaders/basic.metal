@@ -7,9 +7,9 @@ using namespace metal;
 
 struct PerFrameConstants
 {
+    float4x4 worldMatrix;
     float4x4 viewMatrix;
     float4x4 projectionMatrix;
-    float4x4 worldMatrix;
 };
 
 struct basic_vert_main_out
@@ -38,7 +38,7 @@ vertex basic_vert_main_out basic_vert_main(basic_vert_main_in in [[stage_in]], c
     return out;
 }
 
-fragment float4 fragmentShader(basic_vert_main_out in [[stage_in]])
+fragment float4 basic_frag_main(basic_vert_main_out in [[stage_in]])
 {
     // Return the interpolated color.
     return float4(1.0, 1.0, 1.0, 1.0);
