@@ -51,9 +51,9 @@ void CocoaApplication::Finalize()
 void CocoaApplication::Tick()
 {
     NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny
-    untilDate:nil
-    inMode:NSDefaultRunLoopMode
-    dequeue:YES];
+                                        untilDate:nil
+                                           inMode:NSDefaultRunLoopMode
+                                          dequeue:YES];
 
     switch([(NSEvent *)event type])
     {
