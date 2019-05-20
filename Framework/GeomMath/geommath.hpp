@@ -10,6 +10,8 @@
 #include "include/Transpose.h"
 #include "include/AddByElement.h"
 #include "include/SubByElement.h"
+#include "include/MatrixExchangeYandZ.h"
+#include "include/InverseMatrix4X4f.h"
 
 #ifndef PI
 #define PI 3.14159265358979323846f
@@ -123,6 +125,7 @@ namespace newbieGE {
             T data[4];
             struct { T x, y, z, w; };
             struct { T r, g, b, a; };
+		    swizzle<newbieGE::Vector3Type, T, 0, 1, 2> xyz;
 		    swizzle<newbieGE::Vector3Type, T, 0, 2, 1> xzy;
 		    swizzle<newbieGE::Vector3Type, T, 1, 0, 2> yxz;
 		    swizzle<newbieGE::Vector3Type, T, 1, 2, 0> yzx;
@@ -387,6 +390,12 @@ namespace newbieGE {
         return;
     }
 
+    template <typename T, int ROWS, int COLS>
+    inline void ExchangeYandZ(Matrix<T,ROWS,COLS>& matrix)
+    {
+        ispc::MatrixExchangeYandZ(matrix, ROWS, COLS);
+    }
+
     inline void BuildViewMatrix(Matrix4X4f& result, const Vector3f position, const Vector3f lookAt, const Vector3f up)
     {
         Vector3f zAxis, xAxis, yAxis;
@@ -449,6 +458,19 @@ namespace newbieGE {
         return;
     }
 
+    inline void BuildPerspectiveFovRHMatrix(Matrix4X4f& matrix, const float fieldOfView, const float screenAspect, const float screenNear, const float screenDepth)
+    {
+        Matrix4X4f perspective = {{{
+            { 1.0f / (screenAspect * tanf(fieldOfView * 0.5f)), 0.0f, 0.0f, 0.0f },
+            { 0.0f, 1.0f / tanf(fieldOfView * 0.5f), 0.0f, 0.0f },
+            { 0.0f, 0.0f, screenDepth / (screenNear - screenDepth), -1.0f },
+            { 0.0f, 0.0f, (-screenNear * screenDepth) / (screenDepth - screenNear), 0.0f }
+        }}};
+
+        matrix = perspective;
+
+        return;
+    }
 
     inline void MatrixTranslation(Matrix4X4f& matrix, const float x, const float y, const float z)
     {
@@ -551,6 +573,11 @@ namespace newbieGE {
         }}};
 
         matrix = rotation;
+    }
+
+    inline bool InverseMatrix4X4f(Matrix4X4f& matrix)
+    {
+        return ispc::InverseMatrix4X4f(matrix);
     }
 }
 
