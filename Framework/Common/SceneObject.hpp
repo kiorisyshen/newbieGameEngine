@@ -452,6 +452,14 @@ namespace newbieGE {
                 }
             };
 
+            void SetAttenuation(AttenFunc func)
+            {
+                m_LightAttenuation = func;
+            }
+
+            const Color& GetColor() { return m_LightColor; };
+            float GetIntensity() { return m_fIntensity; };
+
         protected:
             // can only be used as base class of delivered lighting objects
             SceneObjectLight(void) : BaseSceneObject(SceneObjectType::kSceneObjectTypeLight), m_LightColor(Vector4f(1.0f)), m_fIntensity(100.0f), m_LightAttenuation(DefaultAttenFunc), m_bCastShadows(false) {};
@@ -506,6 +514,9 @@ namespace newbieGE {
                 // TODO: extension
             };
 
+            float GetNearClipDistance() const { return m_fNearClipDistance; };
+            float GetFarClipDistance() const { return m_fFarClipDistance; };
+
         protected:
             // can only be used as base class
             SceneObjectCamera(void) : BaseSceneObject(SceneObjectType::kSceneObjectTypeCamera), m_fAspect(16.0f / 9.0f), m_fNearClipDistance(1.0f), m_fFarClipDistance(100.0f) {};
@@ -533,10 +544,12 @@ namespace newbieGE {
                 if(attrib == "fov") {
                     m_fFov = param; 
                 }
+                SceneObjectCamera::SetParam(attrib, param);
             };
 
         public:
             SceneObjectPerspectiveCamera(float fov = PI / 2.0) : SceneObjectCamera(), m_fFov(fov) {};
+            float GetFov() const { return m_fFov; };
 
         friend std::ostream& operator<<(std::ostream& out, const SceneObjectPerspectiveCamera& obj);
     };
@@ -551,6 +564,9 @@ namespace newbieGE {
             SceneObjectTransform() { BuildIdentityMatrix(m_matrix); m_bSceneObjectOnly = false; };
 
             SceneObjectTransform(const Matrix4X4f& matrix, const bool object_only = false) { m_matrix = matrix; m_bSceneObjectOnly = object_only; };
+
+            operator Matrix4X4f() { return m_matrix; };
+            operator const Matrix4X4f() const { return m_matrix; };
 
         friend std::ostream& operator<<(std::ostream& out, const SceneObjectTransform& obj);
     };
