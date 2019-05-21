@@ -26,6 +26,11 @@ struct PerFrameConstants
     Vector3f    m_lightPosition;
     Vector4f    m_lightColor;
 };
+    
+struct PerBatchConstants
+{
+    Matrix4X4f m_objectLocalMatrix;
+};
 
 extern GraphicsManager *g_pGraphicsManager;
 } // namespace newbieGE

@@ -5,7 +5,7 @@
 #include "SceneObject.hpp"
 
 namespace newbieGE {
-    struct MtlDrawBatchContext {
+    struct MtlDrawBatchContext : PerBatchConstants{
         uint32_t batchIndex;
         uint32_t index_count;
         uint32_t index_offset;
@@ -13,7 +13,6 @@ namespace newbieGE {
         MTLIndexType index_type;
         uint32_t property_count;
         uint32_t property_offset;
-        std::shared_ptr<Matrix4X4f> transform;
     };
 }
 
@@ -29,7 +28,7 @@ namespace newbieGE {
 
 - (void)setPerFrameContext:(const newbieGE::PerFrameConstants&)pfc;
 
-- (std::vector<std::shared_ptr<newbieGE::MtlDrawBatchContext> >&)getVAO;
+- (std::vector<std::shared_ptr<newbieGE::MtlDrawBatchContext> >&)getPBC;
 
 - (void)loadMetal;
 

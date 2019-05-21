@@ -53,7 +53,6 @@ void MetalGraphicsManager::Draw()
     CalculateLights();
 
     // Set the color shader as the current shader program and set the matrices that it will use for rendering.
-//    [m_pRenderer loadMetal];
     SetShaderParameters();
 
     [m_pRenderer tick];
@@ -153,9 +152,9 @@ void MetalGraphicsManager::InitializeBuffers()
         dbc->index_type = type;
         dbc->property_offset = v_property_offset;
         dbc->property_count = vertexPropertiesCount;
-        dbc->transform = pGeometryNode->GetCalculatedTransform();
-        std::vector<std::shared_ptr<MtlDrawBatchContext> >& VAO_ref = [m_pRenderer getVAO];
-        VAO_ref.push_back(dbc);
+        dbc->m_objectLocalMatrix = *(pGeometryNode->GetCalculatedTransform()).get();
+        std::vector<std::shared_ptr<MtlDrawBatchContext> >& PBC_ref = [m_pRenderer getPBC];
+        PBC_ref.push_back(dbc);
 
         pGeometryNode = scene.GetNextGeometryNode();
     }

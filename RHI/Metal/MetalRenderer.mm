@@ -2,6 +2,7 @@
 
 #import "MetalRenderer.h"
 #import "MetalGraphicsManager.h"
+#include "IApplication.hpp"
 
 using namespace newbieGE;
 
@@ -11,6 +12,7 @@ using namespace newbieGE;
 
 // CB size is required to be 256-byte aligned.
 const size_t kSizePerFrameConstantBuffer = ALIGN_TMP(sizeof(PerFrameConstants), 256);
+const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 256);
 
 @implementation MetalRenderer
 {
@@ -20,19 +22,16 @@ const size_t kSizePerFrameConstantBuffer = ALIGN_TMP(sizeof(PerFrameConstants), 
     id <MTLCommandQueue> _commandQueue;
     id<MTLCommandBuffer> _commandBuffer;
     MTLRenderPassDescriptor* _renderPassDescriptor;
-    id<MTLRenderCommandEncoder> _renderEncoder;
     
     id<MTLRenderPipelineState> _pipelineState;
+    id<MTLDepthStencilState> _depthState;
 
     std::vector<id<MTLBuffer>> _vertexBuffers;
     std::vector<id<MTLBuffer>> _indexBuffers;
     id<MTLBuffer> _uniformBuffers;
-//
-//    Matrix4X4f* m_worldMatrix;
-//    Matrix4X4f* m_viewMatrix;
-//    Matrix4X4f* m_projectionMatrix;
+    
     PerFrameConstants _PFC;
-    std::vector<std::shared_ptr<MtlDrawBatchContext> > m_VAO;
+    std::vector<std::shared_ptr<MtlDrawBatchContext> > _PBC;
     
     // Vertex descriptor specifying how vertices will by laid out for input into our render
     // pipeline and how ModelIO should layout vertices
@@ -94,10 +93,14 @@ const size_t kSizePerFrameConstantBuffer = ALIGN_TMP(sizeof(PerFrameConstants), 
     
     _pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor
                                                              error:&error];
-    
-    _uniformBuffers = [_device newBufferWithLength:kSizePerFrameConstantBuffer
+    _uniformBuffers = [_device newBufferWithLength:kSizePerFrameConstantBuffer + kSizePerBatchConstantBuffer * GfxConfiguration::kMaxSceneObjectCount
                                            options:MTLResourceStorageModeShared];
     _uniformBuffers.label = [NSString stringWithFormat:@"uniformBuffer"];
+    
+    MTLDepthStencilDescriptor *depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
+    depthStateDesc.depthCompareFunction = MTLCompareFunctionLess;
+    depthStateDesc.depthWriteEnabled = YES;
+    _depthState = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
     
     if (!_pipelineState)
     {
@@ -142,17 +145,28 @@ const size_t kSizePerFrameConstantBuffer = ALIGN_TMP(sizeof(PerFrameConstants), 
         [render_encoder setRenderPipelineState:_pipelineState];
         [render_encoder setFrontFacingWinding:MTLWindingCounterClockwise];
         [render_encoder setCullMode:MTLCullModeBack];
+        [render_encoder setDepthStencilState:_depthState];
         // Push a debug group allowing us to identify render commands in the GPU Frame Capture tool
         [render_encoder pushDebugGroup:@"DrawMesh"];
 
         std::memcpy(_uniformBuffers.contents, &(_PFC), sizeof(PerFrameConstants));
-
         [render_encoder setVertexBuffer:_uniformBuffers
                                  offset:0
                                 atIndex:10];
+        [render_encoder setFragmentBuffer:_uniformBuffers
+                                   offset:0
+                                  atIndex:10];
 
-        for (const auto& pDbc : m_VAO)
+        for (const auto& pDbc : _PBC)
         {
+            std::memcpy(reinterpret_cast<uint8_t*>(_uniformBuffers.contents)
+                        + kSizePerFrameConstantBuffer + pDbc->batchIndex * kSizePerBatchConstantBuffer
+                        , &static_cast<const PerBatchConstants&>(*pDbc), sizeof(PerBatchConstants));
+            
+            [render_encoder setVertexBuffer:_uniformBuffers
+                                     offset:kSizePerFrameConstantBuffer + pDbc->batchIndex * kSizePerBatchConstantBuffer
+                                    atIndex:11];
+            
             const MtlDrawBatchContext& dbc = dynamic_cast<const MtlDrawBatchContext&>(*pDbc);
             // Set mesh's vertex buffers
             for (uint32_t bufferIndex = 0; bufferIndex < dbc.property_count; bufferIndex++)
@@ -201,9 +215,9 @@ const size_t kSizePerFrameConstantBuffer = ALIGN_TMP(sizeof(PerFrameConstants), 
     _PFC = pfc;
 }
 
-- (std::vector<std::shared_ptr<MtlDrawBatchContext> >&)getVAO
+- (std::vector<std::shared_ptr<MtlDrawBatchContext> >&)getPBC
 {
-    return m_VAO;
+    return _PBC;
 }
 
 @end
