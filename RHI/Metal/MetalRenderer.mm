@@ -9,13 +9,6 @@ using namespace newbieGE;
 #define ALIGN_TMP(x, a)         (((x) + ((a) - 1)) & ~((a) - 1))
 //#endif
 
-struct PerFrameConstants
-{
-    Matrix4X4f     worldMatrix;                     // 64 bytes
-    Matrix4X4f     viewMatrix;                      // 64 bytes
-    Matrix4X4f     projectionMatrix;                // 64 bytes
-};
-
 // CB size is required to be 256-byte aligned.
 const size_t kSizePerFrameConstantBuffer = ALIGN_TMP(sizeof(PerFrameConstants), 256);
 
@@ -34,10 +27,11 @@ const size_t kSizePerFrameConstantBuffer = ALIGN_TMP(sizeof(PerFrameConstants), 
     std::vector<id<MTLBuffer>> _vertexBuffers;
     std::vector<id<MTLBuffer>> _indexBuffers;
     id<MTLBuffer> _uniformBuffers;
-
-    Matrix4X4f* m_worldMatrix;
-    Matrix4X4f* m_viewMatrix;
-    Matrix4X4f* m_projectionMatrix;
+//
+//    Matrix4X4f* m_worldMatrix;
+//    Matrix4X4f* m_viewMatrix;
+//    Matrix4X4f* m_projectionMatrix;
+    PerFrameConstants _PFC;
     std::vector<std::shared_ptr<MtlDrawBatchContext> > m_VAO;
     
     // Vertex descriptor specifying how vertices will by laid out for input into our render
@@ -151,11 +145,7 @@ const size_t kSizePerFrameConstantBuffer = ALIGN_TMP(sizeof(PerFrameConstants), 
         // Push a debug group allowing us to identify render commands in the GPU Frame Capture tool
         [render_encoder pushDebugGroup:@"DrawMesh"];
 
-        PerFrameConstants tmpPFC;
-        tmpPFC.worldMatrix = *m_worldMatrix;
-        tmpPFC.viewMatrix = *m_viewMatrix;
-        tmpPFC.projectionMatrix = *m_projectionMatrix;
-        std::memcpy(_uniformBuffers.contents, &(tmpPFC), sizeof(PerFrameConstants));
+        std::memcpy(_uniformBuffers.contents, &(_PFC), sizeof(PerFrameConstants));
 
         [render_encoder setVertexBuffer:_uniformBuffers
                                  offset:0
@@ -206,11 +196,9 @@ const size_t kSizePerFrameConstantBuffer = ALIGN_TMP(sizeof(PerFrameConstants), 
     _indexBuffers.push_back(indexBuffer);
 }
 
-- (void)setShaderWorldM:(Matrix4X4f*)worldMatrix viewM:(Matrix4X4f*)viewMatrix projectionM:(Matrix4X4f*)projectionMatrix
+- (void)setPerFrameContext:(const PerFrameConstants&)pfc
 {
-    m_worldMatrix = worldMatrix;
-    m_viewMatrix = viewMatrix;
-    m_projectionMatrix = projectionMatrix;
+    _PFC = pfc;
 }
 
 - (std::vector<std::shared_ptr<MtlDrawBatchContext> >&)getVAO

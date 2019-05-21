@@ -1,6 +1,6 @@
 #pragma once
 #import <MetalKit/MetalKit.h>
-#import "GraphicsManager.hpp"
+#include "GraphicsManager.hpp"
 #include "geommath.hpp"
 #include "SceneObject.hpp"
 
@@ -13,6 +13,7 @@ namespace newbieGE {
         MTLIndexType index_type;
         uint32_t property_count;
         uint32_t property_offset;
+        std::shared_ptr<Matrix4X4f> transform;
     };
 }
 
@@ -26,7 +27,7 @@ namespace newbieGE {
 
 - (void)createIndexBuffer:(const newbieGE::SceneObjectIndexArray&)index_array;
 
-- (void)setShaderWorldM:(newbieGE::Matrix4X4f*_Nonnull)worldMatrix viewM:(newbieGE::Matrix4X4f*_Nonnull)viewMatrix projectionM:(newbieGE::Matrix4X4f*_Nonnull)projectionMatrix;
+- (void)setPerFrameContext:(const newbieGE::PerFrameConstants&)pfc;
 
 - (std::vector<std::shared_ptr<newbieGE::MtlDrawBatchContext> >&)getVAO;
 

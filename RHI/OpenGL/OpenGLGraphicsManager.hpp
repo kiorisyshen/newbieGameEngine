@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
+#include <memory>
 #include "glad/glad.h"
 
 namespace newbieGE {
@@ -20,11 +21,13 @@ namespace newbieGE {
         virtual void Draw();
 
     private:
-        bool SetShaderParameters(float* worldMatrix, float* viewMatrix, float* projectionMatrix);
+        bool SetPerBatchShaderParameters(const char* paramName, float* param);
+        bool SetPerFrameShaderParameters();
 
         void InitializeBuffers();
         void RenderBuffers();
-        void CalculateCameraPosition();
+        void CalculateCameraMatrix();
+        void CalculateLights();
         bool InitializeShader(const char* vsFilename, const char* fsFilename);
 
     private:
@@ -32,25 +35,27 @@ namespace newbieGE {
         unsigned int m_fragmentShader;
         unsigned int m_shaderProgram;
 
-        const bool VSYNC_ENABLED = true;
-        const float screenDepth = 1000.0f;
-        const float screenNear = 0.1f;
+        struct DrawFrameContext {
+            Matrix4X4f  m_worldMatrix;
+            Matrix4X4f  m_viewMatrix;
+            Matrix4X4f  m_projectionMatrix;
+            Vector3f    m_lightPosition;
+            Vector4f    m_lightColor;
+        };
 
         struct DrawBatchContext {
             GLuint  vao;
             GLenum  mode;
             GLenum  type;
             GLsizei count;
+            std::shared_ptr<Matrix4X4f> transform;
         };
 
-        std::vector<DrawBatchContext> m_VAO;
-        std::unordered_map<std::string, unsigned int> m_Buffers;
-
-        float m_positionX = 0, m_positionY = 0, m_positionZ = -10;
-        float m_rotationX = 0, m_rotationY = 0, m_rotationZ = 0;
-        Matrix4X4f m_worldMatrix;
-        Matrix4X4f m_viewMatrix;
-        Matrix4X4f m_projectionMatrix;
+        DrawFrameContext    m_DrawFrameContext;
+        std::vector<DrawBatchContext> m_DrawBatchContext;
+        std::vector<GLuint> m_Buffers;
     };
 
 }
+
+
