@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
         g_pAssetLoader->Tick();
         g_pSceneManager->Tick();
         g_pGraphicsManager->Tick();
-        std::this_thread::sleep_for(std::chrono::microseconds(1000));
+        std::this_thread::sleep_for(std::chrono::microseconds(10000)); // 100 FPS
 	}
 
     g_pGraphicsManager->Finalize();

@@ -50,23 +50,24 @@ void CocoaApplication::Finalize()
 
 void CocoaApplication::Tick()
 {
-    NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny
-                                        untilDate:nil
-                                           inMode:NSDefaultRunLoopMode
-                                          dequeue:YES];
-
-    switch([(NSEvent *)event type])
+    while(NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny
+                                              untilDate:nil
+                                                 inMode:NSDefaultRunLoopMode
+                                                dequeue:YES])
     {
-        case NSEventTypeKeyDown:
-            NSLog(@"Key Down Event Received!");
-            if ([event keyCode] == 0x0C) {
-                m_bQuit = true;
-            }
-            break;
-        default:
-            break;
+        switch([(NSEvent *)event type])
+        {
+            case NSEventTypeKeyDown:
+                NSLog(@"Key Down Event Received!");
+                if ([event keyCode] == 0x0C) {
+                    m_bQuit = true;
+                }
+                break;
+            default:
+                break;
+        }
+        [NSApp sendEvent:event];
+        [NSApp updateWindows];
+        [event release];
     }
-    [NSApp sendEvent:event];
-    [NSApp updateWindows];
-    [event release];
 }
