@@ -140,10 +140,6 @@ void MetalGraphicsManager::InitializeBuffers()
                 continue;
         }
 
-        // auto material_index = index_array.GetMaterialIndex();
-        // auto material_key = pGeometryNode->GetMaterialRef(material_index);
-        // auto material = scene.GetMaterial(material_key);
-
         auto dbc = make_shared<MtlDrawBatchContext>();
         dbc->batchIndex = batch_index++;
         dbc->index_offset = index_offset++;
@@ -155,6 +151,8 @@ void MetalGraphicsManager::InitializeBuffers()
         dbc->m_objectLocalMatrix = *(pGeometryNode->GetCalculatedTransform()).get();
         std::vector<std::shared_ptr<MtlDrawBatchContext> >& PBC_ref = [m_pRenderer getPBC];
         PBC_ref.push_back(dbc);
+        
+        v_property_offset += vertexPropertiesCount;
 
         pGeometryNode = scene.GetNextGeometryNode();
     }

@@ -171,7 +171,7 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
             // Set mesh's vertex buffers
             for (uint32_t bufferIndex = 0; bufferIndex < dbc.property_count; bufferIndex++)
             {
-                id<MTLBuffer> vertexBuffer = _vertexBuffers[dbc.batchIndex + bufferIndex];
+                id<MTLBuffer> vertexBuffer = _vertexBuffers[dbc.property_offset + bufferIndex];
                 [render_encoder setVertexBuffer:vertexBuffer
                                          offset:0
                                         atIndex:bufferIndex];
@@ -179,7 +179,7 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
             [render_encoder drawIndexedPrimitives:dbc.index_mode
                                        indexCount:dbc.index_count
                                         indexType:dbc.index_type
-                                      indexBuffer:_indexBuffers[dbc.batchIndex]
+                                      indexBuffer:_indexBuffers[dbc.index_offset]
                                 indexBufferOffset:0];
         }
         [render_encoder popDebugGroup];
