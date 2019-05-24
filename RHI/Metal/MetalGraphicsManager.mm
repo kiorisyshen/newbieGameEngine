@@ -216,7 +216,7 @@ void MetalGraphicsManager::CalculateLights()
     }
     else {
         // use default build-in light
-        m_DrawFrameContext.m_lightPosition = { 10.0f, 10.0f, -10.0f};
+        m_DrawFrameContext.m_lightPosition = { -1.0f, -5.0f, 0.0f};
         m_DrawFrameContext.m_lightColor = { 1.0f, 1.0f, 1.0f, 1.0f };
     }
 }
