@@ -181,11 +181,14 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
                                          offset:0
                                         atIndex:bufferIndex];
             }
-            [render_encoder drawIndexedPrimitives:dbc.index_mode
-                                       indexCount:dbc.index_count
-                                        indexType:dbc.index_type
-                                      indexBuffer:_indexBuffers[dbc.index_offset]
-                                indexBufferOffset:0];
+            for (size_t i = 0; i < dbc.index_counts.size(); i++)
+            {
+                [render_encoder drawIndexedPrimitives:dbc.index_mode
+                                           indexCount:dbc.index_counts[i]
+                                            indexType:dbc.index_types[i]
+                                          indexBuffer:_indexBuffers[dbc.index_offset+i]
+                                    indexBufferOffset:0];
+            }
         }
         [render_encoder popDebugGroup];
         

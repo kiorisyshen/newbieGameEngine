@@ -75,11 +75,19 @@ void MetalGraphicsManager::InitializeBuffers()
 
     while (pGeometryNode)
     {
+        if (!pGeometryNode->Visible())
+        {
+            pGeometryNode = scene.GetNextGeometryNode();
+            continue;
+        }
+
+        
         auto pGeometry = scene.GetGeometry(pGeometryNode->GetSceneObjectRef());
         assert(pGeometry);
         auto pMesh = pGeometry->GetMesh().lock();
         if (!pMesh) return;
 
+        // -- For vertex --
         // Set the number of vertex properties.
         auto vertexPropertiesCount = pMesh->GetVertexPropertiesCount();
 
@@ -93,9 +101,9 @@ void MetalGraphicsManager::InitializeBuffers()
             [m_pRenderer createVertexBuffer:v_property_array];
         }
 
-        const SceneObjectIndexArray& index_array = pMesh->GetIndexArray(0);
-            [m_pRenderer createIndexBuffer:index_array];
-
+        // -- For index --
+        // const SceneObjectIndexArray& index_array = pMesh->GetIndexArray(0);
+        
         MTLPrimitiveType mode;
         switch(pMesh->GetPrimitiveType())
         {
@@ -119,39 +127,48 @@ void MetalGraphicsManager::InitializeBuffers()
                 continue;
         }
 
-        MTLIndexType type;
-        switch(index_array.GetIndexType())
+        auto dbc = make_shared<MtlDrawBatchContext>();
+
+        auto indexGroupCount = pMesh->GetIndexGroupCount();
+        for (decltype(indexGroupCount) i = 0; i < indexGroupCount; i++)
         {
-            case IndexDataType::kIndexDataTypeInt8:
-                // not supported
-                assert(0);
-                break;
-            case IndexDataType::kIndexDataTypeInt16:
-                type = MTLIndexTypeUInt16;
-                break;
-            case IndexDataType::kIndexDataTypeInt32:
-                type = MTLIndexTypeUInt32;
-                break;
-            default:
-                // not supported by OpenGL
-                cerr << "Error: Unsupported Index Type " << index_array << endl;
-                cerr << "Mesh: " << *pMesh << endl;
-                cerr << "Geometry: " << *pGeometry << endl;
-                continue;
+            const SceneObjectIndexArray& index_array = pMesh->GetIndexArray(i);
+            [m_pRenderer createIndexBuffer:index_array];
+
+            MTLIndexType type;
+            switch(index_array.GetIndexType())
+            {
+                case IndexDataType::kIndexDataTypeInt8:
+                    // not supported
+                    assert(0);
+                    break;
+                case IndexDataType::kIndexDataTypeInt16:
+                    type = MTLIndexTypeUInt16;
+                    break;
+                case IndexDataType::kIndexDataTypeInt32:
+                    type = MTLIndexTypeUInt32;
+                    break;
+                default:
+                    // not supported by OpenGL
+                    cerr << "Error: Unsupported Index Type " << index_array << endl;
+                    cerr << "Mesh: " << *pMesh << endl;
+                    cerr << "Geometry: " << *pGeometry << endl;
+                    continue;
+            }
+
+            (dbc->index_counts).emplace_back((uint32_t)index_array.GetIndexCount());
+            (dbc->index_types).emplace_back(type);
         }
 
-        auto dbc = make_shared<MtlDrawBatchContext>();
         dbc->batchIndex = batch_index++;
-        dbc->index_offset = index_offset++;
-        dbc->index_count = (uint32_t)index_array.GetIndexCount();
+        dbc->index_offset = index_offset;
         dbc->index_mode = mode;
-        dbc->index_type = type;
         dbc->property_offset = v_property_offset;
         dbc->property_count = vertexPropertiesCount;
         dbc->m_objectLocalMatrix = *(pGeometryNode->GetCalculatedTransform()).get();
-        std::vector<std::shared_ptr<MtlDrawBatchContext> >& PBC_ref = [m_pRenderer getPBC];
-        PBC_ref.push_back(dbc);
-        
+        [m_pRenderer getPBC].emplace_back(dbc);
+
+        index_offset += indexGroupCount;
         v_property_offset += vertexPropertiesCount;
 
         pGeometryNode = scene.GetNextGeometryNode();

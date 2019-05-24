@@ -7,10 +7,10 @@
 namespace newbieGE {
     struct MtlDrawBatchContext : PerBatchConstants{
         uint32_t batchIndex;
-        uint32_t index_count;
         uint32_t index_offset;
         MTLPrimitiveType index_mode;
-        MTLIndexType index_type;
+        std::vector<uint32_t> index_counts;
+        std::vector<MTLIndexType> index_types;
         uint32_t property_count;
         uint32_t property_offset;
     };
