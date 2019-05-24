@@ -3,3 +3,4 @@ Project
 *.exe
 config.h
 .vscode/ipch
+.DS_Store
