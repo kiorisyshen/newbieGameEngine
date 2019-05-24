@@ -22,7 +22,7 @@ int MetalGraphicsManager::Initialize()
 
 void MetalGraphicsManager::Finalize()
 {
-    
+    [m_pRenderer Finalize];
 }
 
 void MetalGraphicsManager::Tick()

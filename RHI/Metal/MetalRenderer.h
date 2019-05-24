@@ -32,4 +32,6 @@ namespace newbieGE {
 
 - (void)loadMetal;
 
+- (void)Finalize;
+
 @end

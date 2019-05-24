@@ -42,7 +42,7 @@ using namespace newbieGE;
     self.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
     self.depthStencilPixelFormat = MTLPixelFormatDepth32Float;
     self.framebufferOnly = YES;
-    // self.sampleCount = 4;
+    self.sampleCount = 4;
     
     self.paused = YES;
     self.enableSetNeedsDisplay = YES;

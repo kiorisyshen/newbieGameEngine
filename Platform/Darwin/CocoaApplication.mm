@@ -32,7 +32,7 @@ int CocoaApplication::Initialize()
     [NSApp finishLaunching];
 
     NSInteger style = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |
-                      NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
+    NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskBorderless; // | NSWindowStyleMaskResizable;
 
     m_pWindow = [[NSWindow alloc] initWithContentRect:CGRectMake(0, 0, m_Config.screenWidth, m_Config.screenHeight) styleMask:style backing:NSBackingStoreBuffered defer:NO];
     [m_pWindow setTitle:appName];

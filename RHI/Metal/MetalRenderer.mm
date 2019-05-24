@@ -29,6 +29,7 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
     std::vector<id<MTLBuffer>> _vertexBuffers;
     std::vector<id<MTLBuffer>> _indexBuffers;
     id<MTLBuffer> _uniformBuffers;
+    MTLSamplePosition *_samplePosition;
     
     PerFrameConstants _PFC;
     std::vector<std::shared_ptr<MtlDrawBatchContext> > _PBC;
@@ -45,6 +46,9 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
     {
         _mtkView = view;
         _device = view.device;
+        _samplePosition = new MTLSamplePosition[_mtkView.sampleCount];
+        [_device getDefaultSamplePositions:_samplePosition count:_mtkView.sampleCount];
+    
         _inFlightSemaphore = dispatch_semaphore_create(2);
         view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
         _commandQueue = [_device newCommandQueue];
@@ -85,6 +89,7 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
     
     MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
     pipelineStateDescriptor.label = @"Simple Pipeline";
+    pipelineStateDescriptor.sampleCount = _mtkView.sampleCount;
     pipelineStateDescriptor.vertexFunction = vertexFunction;
     pipelineStateDescriptor.fragmentFunction = fragmentFunction;
     pipelineStateDescriptor.vertexDescriptor = _mtlVertexDescriptor;
@@ -132,9 +137,9 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
     // Obtain a renderPassDescriptor generated from the view's drawable textures
     _renderPassDescriptor = _mtkView.currentRenderPassDescriptor;
     _renderPassDescriptor.colorAttachments[0].loadAction=MTLLoadActionClear;
-    _renderPassDescriptor.colorAttachments[0].storeAction=MTLStoreActionStore;
+    _renderPassDescriptor.colorAttachments[0].storeAction=MTLStoreActionStoreAndMultisampleResolve;
     _renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
-    
+    [_renderPassDescriptor setSamplePositions:_samplePosition count:4];
     
     // beginPass
     if(_renderPassDescriptor != nil)
@@ -218,6 +223,12 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
 - (std::vector<std::shared_ptr<MtlDrawBatchContext> >&)getPBC
 {
     return _PBC;
+}
+
+- (void)Finalize
+{
+    if (_samplePosition) delete[] _samplePosition;
+    _samplePosition = nil;
 }
 
 @end
