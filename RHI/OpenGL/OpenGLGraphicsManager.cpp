@@ -108,7 +108,7 @@ int OpenGLGraphicsManager::Initialize()
         result = 0;
         cout << "OpenGL Version " << GLVersion.major << "." << GLVersion.minor << " loaded" << endl;
 
-        if (GLAD_GL_VERSION_3_0) {
+        if (GLAD_GL_VERSION_3_3) {
             // Set the depth buffer to be entirely cleared to 1.0 values.
             glClearDepth(1.0f);
 
@@ -250,142 +250,149 @@ void OpenGLGraphicsManager::InitializeBuffers()
     auto pGeometryNode = scene.GetFirstGeometryNode(); 
     while (pGeometryNode)
     {
-        auto pGeometry = scene.GetGeometry(pGeometryNode->GetSceneObjectRef());
-        assert(pGeometry);
-        auto pMesh = pGeometry->GetMesh().lock();
-        if (!pMesh) return;
-
-        // Set the number of vertex properties.
-        auto vertexPropertiesCount = pMesh->GetVertexPropertiesCount();
-
-        // Set the number of vertices in the vertex array.
-        auto vertexCount = pMesh->GetVertexCount();
-
-        // Allocate an OpenGL vertex array object.
-        GLuint vao;
-        glGenVertexArrays(1, &vao);
-
-        // Bind the vertex array object to store all the buffers and vertex attributes we create here.
-        glBindVertexArray(vao);
-
-        GLuint buffer_id;
-
-        for (int32_t i = 0; i < vertexPropertiesCount; i++)
+        if (pGeometryNode->Visible()) 
         {
-            const SceneObjectVertexArray& v_property_array = pMesh->GetVertexPropertyArray(i);
-            auto v_property_array_data_size = v_property_array.GetDataSize();
-            auto v_property_array_data = v_property_array.GetData();
+            auto pGeometry = scene.GetGeometry(pGeometryNode->GetSceneObjectRef());
+            assert(pGeometry);
+            auto pMesh = pGeometry->GetMesh().lock();
+            if (!pMesh) return;
 
-            // Generate an ID for the vertex buffer.
-            glGenBuffers(1, &buffer_id);
+            // Set the number of vertex properties.
+            auto vertexPropertiesCount = pMesh->GetVertexPropertiesCount();
 
-            // Bind the vertex buffer and load the vertex (position and color) data into the vertex buffer.
-            glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
-            glBufferData(GL_ARRAY_BUFFER, v_property_array_data_size, v_property_array_data, GL_STATIC_DRAW);
+            // Set the number of vertices in the vertex array.
+            auto vertexCount = pMesh->GetVertexCount();
 
-            glEnableVertexAttribArray(i);
+            // Allocate an OpenGL vertex array object.
+            GLuint vao;
+            glGenVertexArrays(1, &vao);
 
-            glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
-            switch (v_property_array.GetDataType()) {
-                case VertexDataType::kVertexDataTypeFloat1:
-                    glVertexAttribPointer(i, 1, GL_FLOAT, false, 0, 0);
-                    break;
-                case VertexDataType::kVertexDataTypeFloat2:
-                    glVertexAttribPointer(i, 2, GL_FLOAT, false, 0, 0);
-                    break;
-                case VertexDataType::kVertexDataTypeFloat3:
-                    glVertexAttribPointer(i, 3, GL_FLOAT, false, 0, 0);
-                    break;
-                case VertexDataType::kVertexDataTypeFloat4:
-                    glVertexAttribPointer(i, 4, GL_FLOAT, false, 0, 0);
-                    break;
-                case VertexDataType::kVertexDataTypeDouble1:
-                    glVertexAttribPointer(i, 1, GL_DOUBLE, false, 0, 0);
-                    break;
-                case VertexDataType::kVertexDataTypeDouble2:
-                    glVertexAttribPointer(i, 2, GL_DOUBLE, false, 0, 0);
-                    break;
-                case VertexDataType::kVertexDataTypeDouble3:
-                    glVertexAttribPointer(i, 3, GL_DOUBLE, false, 0, 0);
-                    break;
-                case VertexDataType::kVertexDataTypeDouble4:
-                    glVertexAttribPointer(i, 4, GL_DOUBLE, false, 0, 0);
-                    break;
-                default:
-                    assert(0);
+            // Bind the vertex array object to store all the buffers and vertex attributes we create here.
+            glBindVertexArray(vao);
+
+            GLuint buffer_id;
+
+            for (int32_t i = 0; i < vertexPropertiesCount; i++)
+            {
+                const SceneObjectVertexArray& v_property_array = pMesh->GetVertexPropertyArray(i);
+                auto v_property_array_data_size = v_property_array.GetDataSize();
+                auto v_property_array_data = v_property_array.GetData();
+
+                // Generate an ID for the vertex buffer.
+                glGenBuffers(1, &buffer_id);
+
+                // Bind the vertex buffer and load the vertex (position and color) data into the vertex buffer.
+                glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+                glBufferData(GL_ARRAY_BUFFER, v_property_array_data_size, v_property_array_data, GL_STATIC_DRAW);
+
+                glEnableVertexAttribArray(i);
+
+                switch (v_property_array.GetDataType()) {
+                    case VertexDataType::kVertexDataTypeFloat1:
+                        glVertexAttribPointer(i, 1, GL_FLOAT, false, 0, 0);
+                        break;
+                    case VertexDataType::kVertexDataTypeFloat2:
+                        glVertexAttribPointer(i, 2, GL_FLOAT, false, 0, 0);
+                        break;
+                    case VertexDataType::kVertexDataTypeFloat3:
+                        glVertexAttribPointer(i, 3, GL_FLOAT, false, 0, 0);
+                        break;
+                    case VertexDataType::kVertexDataTypeFloat4:
+                        glVertexAttribPointer(i, 4, GL_FLOAT, false, 0, 0);
+                        break;
+                    case VertexDataType::kVertexDataTypeDouble1:
+                        glVertexAttribPointer(i, 1, GL_DOUBLE, false, 0, 0);
+                        break;
+                    case VertexDataType::kVertexDataTypeDouble2:
+                        glVertexAttribPointer(i, 2, GL_DOUBLE, false, 0, 0);
+                        break;
+                    case VertexDataType::kVertexDataTypeDouble3:
+                        glVertexAttribPointer(i, 3, GL_DOUBLE, false, 0, 0);
+                        break;
+                    case VertexDataType::kVertexDataTypeDouble4:
+                        glVertexAttribPointer(i, 4, GL_DOUBLE, false, 0, 0);
+                        break;
+                    default:
+                        assert(0);
+                }
+
+                m_Buffers.push_back(buffer_id);
             }
 
-            m_Buffers.push_back(buffer_id);
+            auto indexGroupCount = pMesh->GetIndexGroupCount();
+
+            GLenum  mode;
+            switch(pMesh->GetPrimitiveType())
+            {
+                case PrimitiveType::kPrimitiveTypePointList:
+                    mode = GL_POINTS;
+                    break;
+                case PrimitiveType::kPrimitiveTypeLineList:
+                    mode = GL_LINES;
+                    break;
+                case PrimitiveType::kPrimitiveTypeLineStrip:
+                    mode = GL_LINE_STRIP;
+                    break;
+                case PrimitiveType::kPrimitiveTypeTriList:
+                    mode = GL_TRIANGLES;
+                    break;
+                case PrimitiveType::kPrimitiveTypeTriStrip:
+                    mode = GL_TRIANGLE_STRIP;
+                    break;
+                case PrimitiveType::kPrimitiveTypeTriFan:
+                    mode = GL_TRIANGLE_FAN;
+                    break;
+                default:
+                    // ignore
+                    continue;
+            }
+
+            for (decltype(indexGroupCount) i = 0; i < indexGroupCount; i++)
+            {
+                // Generate an ID for the index buffer.
+                glGenBuffers(1, &buffer_id);
+
+                const SceneObjectIndexArray& index_array      = pMesh->GetIndexArray(i);
+                auto index_array_size = index_array.GetDataSize();
+                auto index_array_data = index_array.GetData();
+
+                // Bind the index buffer and load the index data into it.
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer_id);
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_array_size, index_array_data, GL_STATIC_DRAW);
+
+                // Set the number of indices in the index array.
+                GLsizei indexCount = static_cast<GLsizei>(index_array.GetIndexCount());
+                GLenum type;
+                switch(index_array.GetIndexType())
+                {
+                    case IndexDataType::kIndexDataTypeInt8:
+                        type = GL_UNSIGNED_BYTE;
+                        break;
+                    case IndexDataType::kIndexDataTypeInt16:
+                        type = GL_UNSIGNED_SHORT;
+                        break;
+                    case IndexDataType::kIndexDataTypeInt32:
+                        type = GL_UNSIGNED_INT;
+                        break;
+                    default:
+                        // not supported by OpenGL
+                        cerr << "Error: Unsupported Index Type " << index_array << endl;
+                        cerr << "Mesh: " << *pMesh << endl;
+                        cerr << "Geometry: " << *pGeometry << endl;
+                        continue;
+                }
+
+                m_Buffers.push_back(buffer_id);
+
+                DrawBatchContext& dbc = *(new DrawBatchContext);
+                dbc.vao     = vao;
+                dbc.mode    = mode;
+                dbc.type    = type;
+                dbc.counts.push_back(indexCount);
+                dbc.transform = pGeometryNode->GetCalculatedTransform();
+                m_DrawBatchContext.push_back(std::move(dbc));
+            }
         }
-
-        // Generate an ID for the index buffer.
-        glGenBuffers(1, &buffer_id);
-
-        const SceneObjectIndexArray& index_array      = pMesh->GetIndexArray(0);
-        auto index_array_size = index_array.GetDataSize();
-        auto index_array_data = index_array.GetData();
-
-        // Bind the index buffer and load the index data into it.
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer_id);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_array_size, index_array_data, GL_STATIC_DRAW);
-
-        // Set the number of indices in the index array.
-        GLsizei indexCount = static_cast<GLsizei>(index_array.GetIndexCount());
-        GLenum  mode;
-        switch(pMesh->GetPrimitiveType())
-        {
-            case PrimitiveType::kPrimitiveTypePointList:
-                mode = GL_POINTS;
-                break;
-            case PrimitiveType::kPrimitiveTypeLineList:
-                mode = GL_LINES;
-                break;
-            case PrimitiveType::kPrimitiveTypeLineStrip:
-                mode = GL_LINE_STRIP;
-                break;
-            case PrimitiveType::kPrimitiveTypeTriList:
-                mode = GL_TRIANGLES;
-                break;
-            case PrimitiveType::kPrimitiveTypeTriStrip:
-                mode = GL_TRIANGLE_STRIP;
-                break;
-            case PrimitiveType::kPrimitiveTypeTriFan:
-                mode = GL_TRIANGLE_FAN;
-                break;
-            default:
-                // ignore
-                continue;
-        }
-
-        GLenum type;
-        switch(index_array.GetIndexType())
-        {
-            case IndexDataType::kIndexDataTypeInt8:
-                type = GL_UNSIGNED_BYTE;
-                break;
-            case IndexDataType::kIndexDataTypeInt16:
-                type = GL_UNSIGNED_SHORT;
-                break;
-            case IndexDataType::kIndexDataTypeInt32:
-                type = GL_UNSIGNED_INT;
-                break;
-            default:
-                // not supported by OpenGL
-                cerr << "Error: Unsupported Index Type " << index_array << endl;
-                cerr << "Mesh: " << *pMesh << endl;
-                cerr << "Geometry: " << *pGeometry << endl;
-                continue;
-        }
-
-        m_Buffers.push_back(buffer_id);
-
-        DrawBatchContext& dbc = *(new DrawBatchContext);
-        dbc.vao     = vao;
-        dbc.mode    = mode;
-        dbc.type    = type;
-        dbc.count   = indexCount;
-        dbc.transform = pGeometryNode->GetCalculatedTransform();
-        m_DrawBatchContext.push_back(std::move(dbc));
 
         pGeometryNode = scene.GetNextGeometryNode();
     }
@@ -398,8 +405,8 @@ void OpenGLGraphicsManager::RenderBuffers()
     static float rotateAngle = 0.0f;
 
     // Update world matrix to rotate the model
-    rotateAngle += PI / 120;
-    Matrix4X4f rotationMatrixY;
+    rotateAngle += PI / 360;
+    //Matrix4X4f rotationMatrixY;
     Matrix4X4f rotationMatrixZ;
     //MatrixRotationY(rotationMatrixY, rotateAngle);
     MatrixRotationZ(rotationMatrixZ, rotateAngle);
@@ -416,12 +423,16 @@ void OpenGLGraphicsManager::RenderBuffers()
     {
         // Set the color shader as the current shader program and set the matrices that it will use for rendering.
         glUseProgram(m_shaderProgram);
-        SetPerBatchShaderParameters("objectLocalMatrix", *dbc.transform);
+        SetPerBatchShaderParameters("modelMatrix", *dbc.transform);
 
 	    glBindVertexArray(dbc.vao);
 
+        auto indexBufferCount = dbc.counts.size();
+        const GLvoid ** pIndicies = new const GLvoid*[indexBufferCount];
+		memset(pIndicies, 0x00, sizeof(GLvoid*) * indexBufferCount);
         // Render the vertex buffer using the index buffer.
-        glDrawElements(dbc.mode, dbc.count, dbc.type, 0);
+        glMultiDrawElements(dbc.mode, dbc.counts.data(), dbc.type, pIndicies, indexBufferCount);
+        delete[] pIndicies;
     }
 
     return;
@@ -437,20 +448,28 @@ void OpenGLGraphicsManager::CalculateCameraMatrix()
     }
     else {
         // use default build-in camera
-        Vector3f position = { 0, 0, 5 }, lookAt = { 0, 0, 0 }, up = { 0, 1, 0 };
+        Vector3f position = { 0, -5, 0 }, lookAt = { 0, 0, 0 }, up = { 0, 0, 1 };
         BuildViewMatrix(m_DrawFrameContext.m_viewMatrix, position, lookAt, up);
     }
 
-    auto pCamera = scene.GetCamera(pCameraNode->GetSceneObjectRef());
+    float fieldOfView = PI / 2.0f;
+    float nearClipDistance = 1.0f;
+    float farClipDistance = 100.0f;
 
-    // Set the field of view and screen aspect ratio.
-    float fieldOfView = dynamic_pointer_cast<SceneObjectPerspectiveCamera>(pCamera)->GetFov();
+    if (pCameraNode) {
+        auto pCamera = scene.GetCamera(pCameraNode->GetSceneObjectRef());
+        // Set the field of view and screen aspect ratio.
+        fieldOfView = dynamic_pointer_cast<SceneObjectPerspectiveCamera>(pCamera)->GetFov();
+        nearClipDistance = pCamera->GetNearClipDistance();
+        farClipDistance = pCamera->GetFarClipDistance();
+    }
+
     const GfxConfiguration& conf = g_pApp->GetConfiguration();
 
     float screenAspect = (float)conf.screenWidth / (float)conf.screenHeight;
 
     // Build the perspective projection matrix.
-    BuildPerspectiveFovRHMatrix(m_DrawFrameContext.m_projectionMatrix, fieldOfView, screenAspect, pCamera->GetNearClipDistance(), pCamera->GetFarClipDistance());
+    BuildPerspectiveFovRHMatrix(m_DrawFrameContext.m_projectionMatrix, fieldOfView, screenAspect, nearClipDistance, farClipDistance);
 }
 
 void OpenGLGraphicsManager::CalculateLights()
@@ -468,7 +487,7 @@ void OpenGLGraphicsManager::CalculateLights()
     }
     else {
         // use default build-in light 
-        m_DrawFrameContext.m_lightPosition = { 10.0f, 10.0f, -10.0f};
+        m_DrawFrameContext.m_lightPosition = { -1.0f, -5.0f, 0.0f};
         m_DrawFrameContext.m_lightColor = { 1.0f, 1.0f, 1.0f, 1.0f };
     }
 }
