@@ -4,7 +4,7 @@
 A simple repo for learning creating a game engine. Reference: https://zhuanlan.zhihu.com/c_119702958
 Currently only support MacOS
 
-Original author repo: https://github.com/netwarm007/GameEngineFromScratch
+Original reference repo: https://github.com/netwarm007/GameEngineFromScratch
 
 # Pre-requiresite
 - ISPC
