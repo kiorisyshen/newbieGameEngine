@@ -1,4 +1,5 @@
 # newbieGameEngine
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/kiorisyshen/newbieGameEngine/master/LICENSE)
 A simple repo for learning creating a game engine. Reference: https://zhuanlan.zhihu.com/c_119702958
 Currently only support MacOS
 
