@@ -54,5 +54,5 @@ fragment float4 basic_frag_main(basic_vert_main_out in [[stage_in]], constant Pe
     float3 R = normalize(2 * dot(L,N) * N - L );
     float3 V = normalize(in.gl_Position.xyz);
     float diffuse = dot(N, L);
-    return float4(v_43.lightColor.xyz * clamp(diffuse + 0.01 * dot(R, V), 0.0f, 1.0f), 1.0f);
+    return float4(0.03f, 0.03, 0.03, 1.0f) + float4(v_43.lightColor.rgb * clamp(diffuse + 0.01 * dot(R, V), 0.0f, 1.0f), 1.0f);
 }
