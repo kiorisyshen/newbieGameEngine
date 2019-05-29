@@ -155,7 +155,20 @@ void MetalGraphicsManager::InitializeBuffers()
                     cerr << "Geometry: " << *pGeometry << endl;
                     continue;
             }
-
+            
+            size_t material_index = index_array.GetMaterialIndex();
+            std::string material_key = pGeometryNode->GetMaterialRef(material_index);
+            auto material = scene.GetMaterial(material_key);
+            
+            if (material) {
+                auto color = material->GetBaseColor();
+                if (color.ValueMap) {
+                    uint32_t texture_id = -1;
+                    const Image& image = color.ValueMap->GetTextureImage();
+                    texture_id = [m_pRenderer createTexture:image];
+                    (dbc->material).emplace_back(texture_id);
+                }
+            }
             (dbc->index_counts).emplace_back((uint32_t)index_array.GetIndexCount());
             (dbc->index_types).emplace_back(type);
         }
@@ -219,7 +232,7 @@ void MetalGraphicsManager::CalculateLights()
         //  z ^  y
         //    | /
         //    |---> x
-        m_DrawFrameContext.m_lightPosition = { 10.0f, -100.0f, 0.0f};   // x, y, z
+        m_DrawFrameContext.m_lightPosition = { 500, -300, 100};   // x, y, z
         m_DrawFrameContext.m_lightColor = { 1.0f, 1.0f, 1.0f, 1.0f };   // A, R, G, B
     }
 }

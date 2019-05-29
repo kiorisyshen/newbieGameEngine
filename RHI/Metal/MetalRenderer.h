@@ -13,6 +13,7 @@ namespace newbieGE {
         std::vector<MTLIndexType> index_types;
         uint32_t property_count;
         uint32_t property_offset;
+        std::vector<uint32_t> material;
     };
 }
 
@@ -21,6 +22,8 @@ namespace newbieGE {
 -(nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view;
 
 -(void)tick;
+
+- (uint32_t)createTexture:(const newbieGE::Image&)image;
 
 - (void)createVertexBuffer:(const newbieGE::SceneObjectVertexArray&)v_property_array;
 

@@ -26,6 +26,8 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
     id<MTLRenderPipelineState> _pipelineState;
     id<MTLDepthStencilState> _depthState;
 
+    std::vector<id<MTLTexture>>  _textures;
+    id<MTLSamplerState> _sampler0;
     std::vector<id<MTLBuffer>> _vertexBuffers;
     std::vector<id<MTLBuffer>> _indexBuffers;
     id<MTLBuffer> _uniformBuffers;
@@ -86,6 +88,29 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
     _mtlVertexDescriptor.layouts[1].stride = 12;
     _mtlVertexDescriptor.layouts[1].stepRate = 1;
     _mtlVertexDescriptor.layouts[1].stepFunction = MTLVertexStepFunctionPerVertex;
+    // Texture UV.
+    _mtlVertexDescriptor.attributes[2].format = MTLVertexFormatFloat2;
+    _mtlVertexDescriptor.attributes[2].offset = 0;
+    _mtlVertexDescriptor.attributes[2].bufferIndex = 2;
+    // Texture UV Buffer Layout
+    _mtlVertexDescriptor.layouts[2].stride = 8;
+    _mtlVertexDescriptor.layouts[2].stepRate = 1;
+    _mtlVertexDescriptor.layouts[2].stepFunction = MTLVertexStepFunctionPerVertex;
+    
+    // PerFrameBuffer
+    _uniformBuffers = [_device newBufferWithLength:kSizePerFrameConstantBuffer + kSizePerBatchConstantBuffer * GfxConfiguration::kMaxSceneObjectCount
+                                           options:MTLResourceStorageModeShared];
+    _uniformBuffers.label = [NSString stringWithFormat:@"uniformBuffer"];
+    
+    // Texture sampler
+    MTLSamplerDescriptor* samplerDescriptor = [[MTLSamplerDescriptor alloc] init];
+    samplerDescriptor.minFilter = MTLSamplerMinMagFilterLinear;
+    samplerDescriptor.magFilter = MTLSamplerMinMagFilterLinear;
+    samplerDescriptor.mipFilter = MTLSamplerMipFilterLinear;
+    samplerDescriptor.rAddressMode = MTLSamplerAddressModeRepeat;
+    samplerDescriptor.sAddressMode = MTLSamplerAddressModeRepeat;
+    samplerDescriptor.tAddressMode = MTLSamplerAddressModeRepeat;
+    _sampler0 = [_device newSamplerStateWithDescriptor:samplerDescriptor];
     
     MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
     pipelineStateDescriptor.label = @"Simple Pipeline";
@@ -98,9 +123,6 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
     
     _pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor
                                                              error:&error];
-    _uniformBuffers = [_device newBufferWithLength:kSizePerFrameConstantBuffer + kSizePerBatchConstantBuffer * GfxConfiguration::kMaxSceneObjectCount
-                                           options:MTLResourceStorageModeShared];
-    _uniformBuffers.label = [NSString stringWithFormat:@"uniformBuffer"];
     
     MTLDepthStencilDescriptor *depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
     depthStateDesc.depthCompareFunction = MTLCompareFunctionLess;
@@ -161,6 +183,7 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
         [render_encoder setFragmentBuffer:_uniformBuffers
                                    offset:0
                                   atIndex:10];
+        [render_encoder setFragmentSamplerState:_sampler0 atIndex:0];
 
         for (const auto& pDbc : _PBC)
         {
@@ -180,6 +203,15 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
                 [render_encoder setVertexBuffer:vertexBuffer
                                          offset:0
                                         atIndex:bufferIndex];
+                
+                /* well, we have different material for each index buffer so we can not draw them together
+                 * in future we should group indicies according to its material and draw them together
+                 */
+                if (bufferIndex<dbc.material.size() && dbc.material[bufferIndex] >= 0)
+                {
+                    [render_encoder setFragmentTexture:_textures[dbc.material[bufferIndex]]
+                                               atIndex:0];
+                }
             }
             for (size_t i = 0; i < dbc.index_counts.size(); i++)
             {
@@ -198,6 +230,63 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
 
     // Finalize rendering here & push the command buffer to the GPU
     [_commandBuffer commit];
+}
+
+static MTLPixelFormat getMtlPixelFormat(const Image& img)
+{
+    MTLPixelFormat format = MTLPixelFormatRGBA8Unorm;
+    
+    switch (img.bitcount)
+    {
+        case 8:
+            format = MTLPixelFormatR8Unorm;
+            break;
+        case 16:
+            format = MTLPixelFormatRG8Unorm;
+            break;
+        case 32:
+            format = MTLPixelFormatRGBA8Unorm;
+            break;
+        case 64:
+            // Unimplemented
+            break;
+        case 128:
+            // Unimplemented
+            break;
+        default:
+            assert(0);
+    }
+    
+    return format;
+}
+
+- (uint32_t)createTexture:(const Image&)image
+{
+    id<MTLTexture> texture;
+    MTLTextureDescriptor* textureDesc = [[MTLTextureDescriptor alloc] init];
+    
+    textureDesc.pixelFormat = getMtlPixelFormat(image);
+    textureDesc.width = image.Width;
+    textureDesc.height = image.Height;
+    
+    // create the texture obj
+    texture = [_device newTextureWithDescriptor:textureDesc];
+    
+    // now upload the data
+    MTLRegion region = {
+        { 0, 0, 0 },                   // MTLOrigin
+        {image.Width, image.Height, 1} // MTLSize
+    };
+    
+    [texture replaceRegion:region
+               mipmapLevel:0
+                 withBytes:image.data
+               bytesPerRow:image.pitch];
+    
+    uint32_t index = _textures.size();
+    _textures.push_back(texture);
+    
+    return index;
 }
 
 - (void)createVertexBuffer:(const SceneObjectVertexArray&)v_property_array

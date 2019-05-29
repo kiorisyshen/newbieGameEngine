@@ -24,12 +24,14 @@ struct basic_vert_main_out
 {
     float4 normal [[user(locn0)]];
     float4 gl_Position [[position]];
+    float2 uv;
 };
 
 struct basic_vert_main_in
 {
     float3 inputPosition [[attribute(0)]];
     float3 inputNormal [[attribute(1)]];
+    float2 inputUV [[attribute(2)]];
 };
 
 vertex basic_vert_main_out basic_vert_main(basic_vert_main_in in [[stage_in]], constant PerFrameConstants& v_43 [[buffer(10)]], constant PerBatchConstants& v_24 [[buffer(11)]])
@@ -43,16 +45,18 @@ vertex basic_vert_main_out basic_vert_main(basic_vert_main_in in [[stage_in]], c
     
     out.normal = transM * float4(in.inputNormal, 0.0f);
     out.normal = v_43.viewMatrix * out.normal;
-    
+    out.uv.x = in.inputUV.x;
+    out.uv.y = 1.0 - in.inputUV.y;
     return out;
 }
 
-fragment float4 basic_frag_main(basic_vert_main_out in [[stage_in]], constant PerFrameConstants& v_43 [[buffer(10)]])
+fragment float4 basic_frag_main(basic_vert_main_out in [[stage_in]], texture2d<float> diffuseMap [[texture(0)]], sampler samp0 [[sampler(0)]], constant PerFrameConstants& v_43 [[buffer(10)]])
 {
     float3 N = normalize(in.normal.xyz);
     float3 L = normalize((v_43.viewMatrix * float4(v_43.lightPosition, 1.0f)).xyz - in.gl_Position.xyz);
     float3 R = normalize(2 * dot(L,N) * N - L );
     float3 V = normalize(in.gl_Position.xyz);
     float diffuse = dot(N, L);
-    return float4(0.03f, 0.03, 0.03, 1.0f) + float4(v_43.lightColor.rgb * clamp(diffuse + 0.01 * dot(R, V), 0.0f, 1.0f), 1.0f);
+    float3 linearColor = diffuseMap.sample(samp0, in.uv).xyz * clamp(diffuse, 0.0f, 1.0f);
+    return float4(0.03f, 0.03, 0.03, 1.0f) + float4(v_43.lightColor.rgb * clamp(linearColor + 0.01 * dot(R, V), 0.0f, 1.0f), 1.0f);
 }
