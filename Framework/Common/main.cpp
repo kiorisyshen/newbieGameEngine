@@ -8,13 +8,15 @@ using namespace newbieGE;
 int main(int argc, char** argv) {
 	int ret;
 
-	if ((ret = g_pApp->Initialize()) != 0) {
-		printf("App Initialize failed, will exit now.");
+	if ((ret = g_pMemoryManager->Initialize()) != 0) {
+		printf("Memory Manager Initialize failed, will exit now.");
 		return ret;
 	}
 
-	if ((ret = g_pMemoryManager->Initialize()) != 0) {
-		printf("Memory Manager Initialize failed, will exit now.");
+    g_pApp->SetCommandLineParameters(argc, argv);
+
+	if ((ret = g_pApp->Initialize()) != 0) {
+		printf("App Initialize failed, will exit now.");
 		return ret;
 	}
 
@@ -28,8 +30,8 @@ int main(int argc, char** argv) {
 		return ret;
 	}
 
-    std::string scene_file_name = "Scene/test.ogex";
-	
+//     std::string scene_file_name = "Scene/test.ogex";
+    std::string scene_file_name = "Scene/aili.ogex";
     if (argc > 1) {
         scene_file_name = argv[1];
     }
@@ -38,6 +40,7 @@ int main(int argc, char** argv) {
         printf("Unable to load scene: %s\n", scene_file_name.c_str());
         return ret;
     }
+	
 	if ((ret = g_pGraphicsManager->Initialize()) != 0) {
 		printf("Graphics Manager Initialize failed, will exit now.");
 		return ret;

@@ -32,7 +32,14 @@ void newbieGE::BaseApplication::Tick()
 {
 }
 
+void newbieGE::BaseApplication::SetCommandLineParameters(int argc, char** argv)
+{
+    m_nArgC = argc;
+    m_ppArgV = argv;
+}
+
 bool newbieGE::BaseApplication::IsQuit()
 {
-    return m_bQuit;
+	return m_bQuit;
 }
+

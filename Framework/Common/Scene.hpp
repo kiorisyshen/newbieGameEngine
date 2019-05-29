@@ -7,6 +7,9 @@
 
 namespace newbieGE {
     class Scene {
+    private:
+        std::shared_ptr<SceneObjectMaterial> m_pDefaultMaterial;
+         
     public:
         std::shared_ptr<BaseSceneNode> SceneGraph;
 
@@ -20,10 +23,15 @@ namespace newbieGE {
         std::unordered_map<std::string, std::shared_ptr<SceneObjectGeometry>>   Geometries;
 
     public:
-        Scene(const std::string& scene_name) :
+        Scene() {
+            m_pDefaultMaterial = std::make_shared<SceneObjectMaterial>("default");
+        }
+
+        Scene(const std::string& scene_name) : 
             SceneGraph(new BaseSceneNode(scene_name))
         {
         }
+
         ~Scene() = default;
 
         const std::shared_ptr<SceneObjectCamera> GetCamera(const std::string& key) const;
@@ -42,6 +50,7 @@ namespace newbieGE {
         const std::shared_ptr<SceneObjectMaterial> GetFirstMaterial() const;
         const std::shared_ptr<SceneObjectMaterial> GetNextMaterial() const;
 
+        void LoadResource(void);
     };
 }
 
