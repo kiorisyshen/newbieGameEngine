@@ -47,6 +47,7 @@ include_directories("${PROJECT_SOURCE_DIR}/Platform/${NBGE_TARGET_PLATFORM}")
 find_library(XG_LIBRARY xg PATHS ${NBGE_EXTERNAL_LIBRARY_PATH} NO_CMAKE_FIND_ROOT_PATH)
 find_library(OPENDDL_LIBRARY OpenDDL PATHS ${NBGE_EXTERNAL_LIBRARY_PATH} NO_CMAKE_FIND_ROOT_PATH)
 find_library(OPENGEX_LIBRARY OpenGEX PATHS ${NBGE_EXTERNAL_LIBRARY_PATH} NO_CMAKE_FIND_ROOT_PATH)
+find_library(ZLIB_LIBRARY NAMES z zlib PATHS ${NBGE_EXTERNAL_LIBRARY_PATH} NO_CMAKE_FIND_ROOT_PATH NO_SYSTEM_ENVIRONMENT_PATH)
 include(CTest)
 include(CheckCXXSourceCompiles)
 include(PlatformDependencies)
@@ -60,6 +61,17 @@ int main(int argc, char** argv)
 }
 "
 HAVE_MAKE_UNIQUE)
+CHECK_CXX_SOURCE_COMPILES(
+"#include <algorithm>
+
+int main(int argc, char** argv)
+{
+    int result = -1;
+    result = std::clamp(result, 0, 1);
+    return result;
+}
+"
+ HAVE_CLAMP)
 configure_file(${PROJECT_SOURCE_DIR}/config.h.in ${PROJECT_SOURCE_DIR}/config.h)
 add_subdirectory(Framework)
 add_subdirectory(Platform)
