@@ -226,8 +226,6 @@ void MetalGraphicsManager::CalculateCameraPosition()
     BuildPerspectiveFovRHMatrix(m_DrawFrameContext.m_projectionMatrix, fieldOfView, screenAspect, nearClipDistance, farClipDistance);
 }
 
-static float x = 10.0f;
-
 void MetalGraphicsManager::CalculateLights()
 {
     auto& scene = g_pSceneManager->GetSceneForRendering();
@@ -246,9 +244,7 @@ void MetalGraphicsManager::CalculateLights()
         //  z ^  y
         //    | /
         //    |---> x
-        m_DrawFrameContext.m_lightPosition = { 300.0f, -300.0f, 2.0f};   // x, y, z
-        std::cout << x << std::endl;
-        x ++;
+        m_DrawFrameContext.m_lightPosition = { 600.0f, -500.0f, 40.0f};   // x, y, z
         m_DrawFrameContext.m_lightColor = { 1.0f, 1.0f, 1.0f, 1.0f };   // A, R, G, B
     }
 }
