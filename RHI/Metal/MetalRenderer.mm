@@ -139,8 +139,14 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
     }
 }
 
+static int tick_c = 2;
+
 - (void)tick
 {
+    if (tick_c > 0) {
+        tick_c --;
+        return;
+    }
     // Wait to ensure only GEFSMaxBuffersInFlight are getting processed by any stage in the Metal
     // pipeline (App, Metal, Drivers, GPU, etc)
     dispatch_semaphore_wait(_inFlightSemaphore, DISPATCH_TIME_FOREVER);
@@ -195,6 +201,10 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
                                      offset:kSizePerFrameConstantBuffer + pDbc->batchIndex * kSizePerBatchConstantBuffer
                                     atIndex:11];
             
+            [render_encoder setFragmentBuffer:_uniformBuffers
+                                       offset:kSizePerFrameConstantBuffer + pDbc->batchIndex * kSizePerBatchConstantBuffer
+                                      atIndex:11];
+            
             const MtlDrawBatchContext& dbc = dynamic_cast<const MtlDrawBatchContext&>(*pDbc);
             // Set mesh's vertex buffers
             for (uint32_t bufferIndex = 0; bufferIndex < dbc.property_count; bufferIndex++)
@@ -203,24 +213,27 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
                 [render_encoder setVertexBuffer:vertexBuffer
                                          offset:0
                                         atIndex:bufferIndex];
-                
-                /* well, we have different material for each index buffer so we can not draw them together
-                 * in future we should group indicies according to its material and draw them together
-                 */
-                if (bufferIndex<dbc.material.size() && dbc.material[bufferIndex] >= 0)
-                {
-                    [render_encoder setFragmentTexture:_textures[dbc.material[bufferIndex]]
-                                               atIndex:0];
-                }
             }
-            for (size_t i = 0; i < dbc.index_counts.size(); i++)
-            {
-                [render_encoder drawIndexedPrimitives:dbc.index_mode
-                                           indexCount:dbc.index_counts[i]
-                                            indexType:dbc.index_types[i]
-                                          indexBuffer:_indexBuffers[dbc.index_offset+i]
-                                    indexBufferOffset:0];
+            /* well, we have different material for each index buffer so we can not draw them together
+             * in future we should group indicies according to its material and draw them together
+             */
+            if (dbc.materialIdx >= 0) {
+                [render_encoder setFragmentTexture:_textures[dbc.materialIdx]
+                                           atIndex:0];
             }
+            if (dbc.property_count<=2) {
+                id<MTLBuffer> vertexBuffer = _vertexBuffers[dbc.property_offset];
+                [render_encoder setVertexBuffer:vertexBuffer
+                                         offset:0
+                                        atIndex:2];
+            }
+            
+            [render_encoder drawIndexedPrimitives:dbc.index_mode
+                                       indexCount:dbc.index_count
+                                        indexType:dbc.index_type
+                                      indexBuffer:_indexBuffers[dbc.index_offset]
+                                indexBufferOffset:0];
+            
         }
         [render_encoder popDebugGroup];
         

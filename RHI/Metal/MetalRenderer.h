@@ -9,11 +9,12 @@ namespace newbieGE {
         uint32_t batchIndex;
         uint32_t index_offset;
         MTLPrimitiveType index_mode;
-        std::vector<uint32_t> index_counts;
-        std::vector<MTLIndexType> index_types;
+        uint32_t index_count;
+        MTLIndexType index_type;
         uint32_t property_count;
         uint32_t property_offset;
-        std::vector<uint32_t> material;
+//        std::shared_ptr<SceneObjectMaterial> material;
+        int32_t materialIdx;
     };
 }
 

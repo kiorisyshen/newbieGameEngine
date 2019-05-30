@@ -17,6 +17,9 @@ struct PerFrameConstants
 struct PerBatchConstants
 {
     float4x4 objectLocalMatrix;
+    float3 diffuseColor;
+    float3 specularColor;
+    float specularPower;
 };
 
 
@@ -50,13 +53,21 @@ vertex basic_vert_main_out basic_vert_main(basic_vert_main_in in [[stage_in]], c
     return out;
 }
 
-fragment float4 basic_frag_main(basic_vert_main_out in [[stage_in]], texture2d<float> diffuseMap [[texture(0)]], sampler samp0 [[sampler(0)]], constant PerFrameConstants& v_43 [[buffer(10)]])
+fragment float4 basic_frag_main(basic_vert_main_out in [[stage_in]], texture2d<float> diffuseMap [[texture(0)]], sampler samp0 [[sampler(0)]], constant PerFrameConstants& v_43 [[buffer(10)]], constant PerBatchConstants& v_24 [[buffer(11)]])
 {
     float3 N = normalize(in.normal.xyz);
     float3 L = normalize((v_43.viewMatrix * float4(v_43.lightPosition, 1.0f)).xyz - in.gl_Position.xyz);
     float3 R = normalize(2 * dot(L,N) * N - L );
     float3 V = normalize(in.gl_Position.xyz);
     float diffuse = dot(N, L);
-    float3 linearColor = diffuseMap.sample(samp0, in.uv).xyz * clamp(diffuse, 0.0f, 1.0f);
-    return float4(0.03f, 0.03, 0.03, 1.0f) + float4(v_43.lightColor.rgb * clamp(linearColor + 0.01 * dot(R, V), 0.0f, 1.0f), 1.0f);
+    
+//    float3 linearColor = diffuseMap.sample(samp0, in.uv).xyz * clamp(diffuse, 0.0f, 1.0f);
+    if (v_24.diffuseColor.r < 0) {
+//        return float4(0.03f, 0.03, 0.03, 1.0f) + float4(v_43.lightColor.rgb * clamp(linearColor + 0.01 * dot(R, V), 0.0f, 1.0f), 1.0f);
+        return float4(0.1f, 0.1f, 0.1f, 1.0f) + float4(v_43.lightColor.rgb * diffuseMap.sample(samp0, in.uv).xyz * (diffuse*1.1 + 0.02 * dot(R, V)), 1.0f);
+    } else {
+//        return float4(float3(0.03f, 0.03, 0.03) + v_43.lightColor.rgb * v_24.diffuseColor.rgb * dot(N, L) + v_24.specularColor.rgb * pow(clamp(dot(R,V), 0.0f, 1.0f), v_24.specularPower), 1.0f);
+        return float4(0.1f, 0.1f, 0.1f, 1.0f) + float4(v_43.lightColor.rgb * v_24.diffuseColor.rgb * (diffuse*1.1 + 0.02 * dot(R, V)), 1.0f);
+//        return float4(0.03f, 0.03, 0.03, 1.0f) + float4(v_43.lightColor.rgb * clamp(diffuse + 0.01 * dot(R, V), 0.0f, 1.0f), 1.0f);
+    }
 }

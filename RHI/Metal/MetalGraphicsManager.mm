@@ -127,8 +127,6 @@ void MetalGraphicsManager::InitializeBuffers()
                 continue;
         }
 
-        auto dbc = make_shared<MtlDrawBatchContext>();
-
         auto indexGroupCount = pMesh->GetIndexGroupCount();
         for (decltype(indexGroupCount) i = 0; i < indexGroupCount; i++)
         {
@@ -160,28 +158,34 @@ void MetalGraphicsManager::InitializeBuffers()
             std::string material_key = pGeometryNode->GetMaterialRef(material_index);
             auto material = scene.GetMaterial(material_key);
             
+            auto dbc = make_shared<MtlDrawBatchContext>();
+            int32_t texture_id = -1;
             if (material) {
                 auto color = material->GetBaseColor();
                 if (color.ValueMap) {
-                    uint32_t texture_id = -1;
                     const Image& image = color.ValueMap->GetTextureImage();
                     texture_id = [m_pRenderer createTexture:image];
-                    (dbc->material).emplace_back(texture_id);
+                    dbc->m_diffuseColor = Vector3f(-1.0f);
+                } else {
+                    dbc->m_diffuseColor = color.Value.rgb;
                 }
+                color = material->GetSpecularColor();
+                dbc->m_specularColor = color.Value.rgb;
+                Parameter param = material->GetSpecularPower();
+                dbc->m_specularPower = param.Value;
             }
-            (dbc->index_counts).emplace_back((uint32_t)index_array.GetIndexCount());
-            (dbc->index_types).emplace_back(type);
+            dbc->materialIdx = texture_id;
+            dbc->index_count = (uint32_t)index_array.GetIndexCount();
+            dbc->index_type = type;
+            dbc->batchIndex = batch_index++;
+            dbc->index_offset = index_offset++;
+            dbc->index_mode = mode;
+            dbc->property_offset = v_property_offset;
+            dbc->property_count = vertexPropertiesCount;
+            dbc->m_objectLocalMatrix = *(pGeometryNode->GetCalculatedTransform()).get();
+            [m_pRenderer getPBC].emplace_back(dbc);
         }
-
-        dbc->batchIndex = batch_index++;
-        dbc->index_offset = index_offset;
-        dbc->index_mode = mode;
-        dbc->property_offset = v_property_offset;
-        dbc->property_count = vertexPropertiesCount;
-        dbc->m_objectLocalMatrix = *(pGeometryNode->GetCalculatedTransform()).get();
-        [m_pRenderer getPBC].emplace_back(dbc);
-
-        index_offset += indexGroupCount;
+        
         v_property_offset += vertexPropertiesCount;
 
         pGeometryNode = scene.GetNextGeometryNode();
@@ -198,21 +202,31 @@ void MetalGraphicsManager::CalculateCameraPosition()
     }
     else {
         // use default build-in camera
-        Vector3f position = { 0, 0, 5 }, lookAt = { 0, 0, 0 }, up = { 0, 1, 0 };
+        Vector3f position = { 0, -5, 0 }, lookAt = { 0, 0, 0 }, up = { 0, 0, 1 };
         BuildViewMatrix(m_DrawFrameContext.m_viewMatrix, position, lookAt, up);
     }
     
-    auto pCamera = scene.GetCamera(pCameraNode->GetSceneObjectRef());
+    float fieldOfView = PI / 2.0f;
+    float nearClipDistance = 1.0f;
+    float farClipDistance = 100.0f;
     
-    // Set the field of view and screen aspect ratio.
-    float fieldOfView = dynamic_pointer_cast<SceneObjectPerspectiveCamera>(pCamera)->GetFov();
+    if (pCameraNode) {
+        auto pCamera = scene.GetCamera(pCameraNode->GetSceneObjectRef());
+        // Set the field of view and screen aspect ratio.
+        fieldOfView = dynamic_pointer_cast<SceneObjectPerspectiveCamera>(pCamera)->GetFov();
+        nearClipDistance = pCamera->GetNearClipDistance();
+        farClipDistance = pCamera->GetFarClipDistance();
+    }
+    
     const GfxConfiguration& conf = g_pApp->GetConfiguration();
     
     float screenAspect = (float)conf.screenWidth / (float)conf.screenHeight;
     
     // Build the perspective projection matrix.
-    BuildPerspectiveFovRHMatrix(m_DrawFrameContext.m_projectionMatrix, fieldOfView, screenAspect, pCamera->GetNearClipDistance(), pCamera->GetFarClipDistance());
+    BuildPerspectiveFovRHMatrix(m_DrawFrameContext.m_projectionMatrix, fieldOfView, screenAspect, nearClipDistance, farClipDistance);
 }
+
+static float x = 10.0f;
 
 void MetalGraphicsManager::CalculateLights()
 {
@@ -232,7 +246,9 @@ void MetalGraphicsManager::CalculateLights()
         //  z ^  y
         //    | /
         //    |---> x
-        m_DrawFrameContext.m_lightPosition = { 500, -300, 100};   // x, y, z
+        m_DrawFrameContext.m_lightPosition = { 300.0f, -300.0f, 2.0f};   // x, y, z
+        std::cout << x << std::endl;
+        x ++;
         m_DrawFrameContext.m_lightColor = { 1.0f, 1.0f, 1.0f, 1.0f };   // A, R, G, B
     }
 }

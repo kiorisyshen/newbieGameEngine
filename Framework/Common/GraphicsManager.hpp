@@ -30,6 +30,9 @@ struct PerFrameConstants
 struct PerBatchConstants
 {
     Matrix4X4f m_objectLocalMatrix;
+    Vector3f   m_diffuseColor;
+    Vector3f   m_specularColor;
+    float      m_specularPower;
 };
 
 extern GraphicsManager *g_pGraphicsManager;
