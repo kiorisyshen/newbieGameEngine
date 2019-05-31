@@ -9,6 +9,10 @@ addons:
     packages:
     - cmake
 
+branches:
+  only:
+  - master
+
 # before_install:
 #   - export PATH=/opt/local/bin:/opt/local/sbin:$PATH
 
