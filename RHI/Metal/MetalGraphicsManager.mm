@@ -42,15 +42,7 @@ void MetalGraphicsManager::Draw()
 }
 
 void MetalGraphicsManager::RenderBuffers()
-{
-     static float rotateAngle = 0.0f;
-
-    // // Update world matrix to rotate the model
-     rotateAngle += PI / 120;
-     Matrix4X4f rotationMatrixZ;
-     MatrixRotationZ(rotationMatrixZ, rotateAngle);
-     m_DrawFrameContext.m_worldMatrix = rotationMatrixZ;
-    
+{    
     // Set the color shader as the current shader program and set the matrices that it will use for rendering.
     SetPerFrameShaderParameters();
 
