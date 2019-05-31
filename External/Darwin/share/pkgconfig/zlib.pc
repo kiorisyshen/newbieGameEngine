@@ -1,0 +1,13 @@
+prefix=/Users/shen/Learning/newbieGameEngine/External
+exec_prefix=/Users/shen/Learning/newbieGameEngine/External
+libdir=/Users/shen/Learning/newbieGameEngine/External/Darwin/lib
+sharedlibdir=/Users/shen/Learning/newbieGameEngine/External/Darwin/lib
+includedir=/Users/shen/Learning/newbieGameEngine/External/Darwin/include
+
+Name: zlib
+Description: zlib compression library
+Version: 1.2.11
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -lz
+Cflags: -I${includedir}

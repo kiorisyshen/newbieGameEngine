@@ -10,3 +10,6 @@
 [submodule "External/src/opengex"]
 	path = External/src/opengex
 	url = https://github.com/kiorisyshen/OpenGEX.git
+[submodule "External/src/zlib"]
+	path = External/src/zlib
+	url = https://github.com/kiorisyshen/zlib.git
