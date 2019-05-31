@@ -48,6 +48,7 @@ target_link_libraries(NewbieGEMetalCocoa
         ${XG_LIBRARY} 
         ${COCOA_LIBRARY} 
         ${OPENGL_LIBRARY}
+        ${ZLIB_LIBRARY}
         # dl
         )
 __add_xg_platform_dependencies(NewbieGEMetalCocoa)

@@ -13,6 +13,7 @@ namespace newbieGE {
         out << "Pitch: " << image.pitch << endl;
         out << "Data Size: " << image.data_size << endl;
 
+#if DUMP_DETAILS
         int byte_count = image.bitcount >> 3;
 
         for (uint32_t i = 0; i < image.Height; i++) {
@@ -24,6 +25,7 @@ namespace newbieGE {
             }
             cout << endl;
         }
+#endif
 
         return out;
     }
