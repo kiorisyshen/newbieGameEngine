@@ -13,7 +13,7 @@ addons:
 #   - export PATH=/opt/local/bin:/opt/local/sbin:$PATH
 
 script:
-  - cd External && ./build_crossguid.sh && ./build_opengex.sh && ./build_zlib.sh
+  - cd External && ./build_crossguid.sh && ./build_opengex.sh && ./build_zlib.sh && cd ..
   - mkdir -p build
   - cd build && cmake -DCMAKE_BUILD_TYPE=Debug .. && cmake --build . --config Debug
-  - cmake --build ./build --target test
+  - cmake --build . --target test
