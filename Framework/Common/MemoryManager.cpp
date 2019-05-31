@@ -1,12 +1,5 @@
 #include "MemoryManager.hpp"
-#ifdef __MACH__
-#include <stdlib.h>
-#else 
-#include <malloc.h>
-#endif
-
-extern "C" void* malloc(size_t size);
-extern "C" void  free(void* p);
+#include <cstdlib>
 
 #ifndef ALIGN
 #define ALIGN(x, a)         (((x) + ((a) - 1)) & ~((a) - 1))
@@ -41,13 +34,12 @@ namespace newbieGE {
 
     size_t*        MemoryManager::m_pBlockSizeLookup;
     Allocator*     MemoryManager::m_pAllocators;
+    bool           MemoryManager::m_bInitialized = false;
 }
 
 int newbieGE::MemoryManager::Initialize()
 {
-    // one-time initialization
-    static bool s_bInitialized = false;
-    if (!s_bInitialized) {
+    if (!m_bInitialized) {
         // initialize block size lookup table
         m_pBlockSizeLookup = new size_t[kMaxBlockSize + 1];
         size_t j = 0;
@@ -62,7 +54,7 @@ int newbieGE::MemoryManager::Initialize()
             m_pAllocators[i].Reset(kBlockSizes[i], kPageSize, kAlignment);
         }
 
-        s_bInitialized = true;
+        m_bInitialized = true;
     }
 
     return 0;
@@ -72,6 +64,7 @@ void newbieGE::MemoryManager::Finalize()
 {
     delete[] m_pAllocators;
     delete[] m_pBlockSizeLookup;
+    m_bInitialized = false;
 }
 
 void newbieGE::MemoryManager::Tick()
@@ -80,7 +73,6 @@ void newbieGE::MemoryManager::Tick()
 
 Allocator* newbieGE::MemoryManager::LookUpAllocator(size_t size)
 {
-
     // check eligibility for lookup
     if (size <= kMaxBlockSize)
         return m_pAllocators + m_pBlockSizeLookup[size];
@@ -114,9 +106,12 @@ void* newbieGE::MemoryManager::Allocate(size_t size, size_t alignment)
 
 void newbieGE::MemoryManager::Free(void* p, size_t size)
 {
-    Allocator* pAlloc = LookUpAllocator(size);
-    if (pAlloc)
-        pAlloc->Free(p);
-    else
-        free(p);
+    if (m_bInitialized) {
+        Allocator* pAlloc = LookUpAllocator(size);
+        if (pAlloc)
+            pAlloc->Free(p);
+        else
+            free(p);
+    }
 }
+

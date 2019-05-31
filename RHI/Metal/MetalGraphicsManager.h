@@ -15,29 +15,21 @@ namespace newbieGE {
         virtual int Initialize();
         virtual void Finalize();
 
-        virtual void Tick();
-
         virtual void Clear();
 
         virtual void Draw();
 
         void SetRenderer(MetalRenderer* renderer) { m_pRenderer = renderer; }
-
-    private:
-        bool SetShaderParameters();
-
+    
+    protected:
+        bool SetPerFrameShaderParameters();
         void InitializeBuffers();
-        void CalculateCameraPosition();
-        void CalculateLights();
-        bool InitializeShader(const char* vsFilename, const char* fsFilename);
+        void RenderBuffers();
 
     private:
         const float screenDepth = 1000.0f;
         const float screenNear = 0.1f;
 
-        std::unordered_map<std::string, unsigned int> m_Buffers;
-
-        PerFrameConstants   m_DrawFrameContext;
         MetalRenderer* m_pRenderer;
     };
 

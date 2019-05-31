@@ -12,12 +12,16 @@ using namespace std;
 
 int MetalGraphicsManager::Initialize()
 {
-    // Initialize the world/model matrix to the identity matrix.
-    BuildIdentityMatrix(m_DrawFrameContext.m_worldMatrix);
-
+    int result = GraphicsManager::Initialize();
+    if (result) {
+        return result;
+    }
+    
+    [m_pRenderer loadMetal];
+    
     InitializeBuffers();
     
-    return 0;
+    return result;
 }
 
 void MetalGraphicsManager::Finalize()
@@ -25,40 +29,35 @@ void MetalGraphicsManager::Finalize()
     [m_pRenderer Finalize];
 }
 
-void MetalGraphicsManager::Tick()
-{
-    Draw();
-}
-
 void MetalGraphicsManager::Clear()
 {
-    
+    GraphicsManager::Clear();
 }
 
 void MetalGraphicsManager::Draw()
 {
-    static float rotateAngle = 0.0f;
+    GraphicsManager::Draw();
 
-    // Update world matrix to rotate the model
-    rotateAngle += PI / 120;
-    Matrix4X4f rotationMatrixY;
-    Matrix4X4f rotationMatrixZ;
-    //MatrixRotationY(rotationMatrixY, rotateAngle);
-    MatrixRotationZ(rotationMatrixZ, rotateAngle);
-    //MatrixMultiply(m_DrawFrameContext.m_worldMatrix, rotationMatrixZ, rotationMatrixY);
-    m_DrawFrameContext.m_worldMatrix = rotationMatrixZ;
+    RenderBuffers();
+}
 
-    // Generate the view matrix based on the camera's position.
-    CalculateCameraPosition();
-    CalculateLights();
+void MetalGraphicsManager::RenderBuffers()
+{
+     static float rotateAngle = 0.0f;
 
+    // // Update world matrix to rotate the model
+     rotateAngle += PI / 120;
+     Matrix4X4f rotationMatrixZ;
+     MatrixRotationZ(rotationMatrixZ, rotateAngle);
+     m_DrawFrameContext.m_worldMatrix = rotationMatrixZ;
+    
     // Set the color shader as the current shader program and set the matrices that it will use for rendering.
-    SetShaderParameters();
+    SetPerFrameShaderParameters();
 
     [m_pRenderer tick];
 }
 
-bool MetalGraphicsManager::SetShaderParameters()
+bool MetalGraphicsManager::SetPerFrameShaderParameters()
 {
     [m_pRenderer setPerFrameContext:m_DrawFrameContext];
     return true;
@@ -80,7 +79,6 @@ void MetalGraphicsManager::InitializeBuffers()
             pGeometryNode = scene.GetNextGeometryNode();
             continue;
         }
-
         
         auto pGeometry = scene.GetGeometry(pGeometryNode->GetSceneObjectRef());
         assert(pGeometry);
@@ -190,66 +188,4 @@ void MetalGraphicsManager::InitializeBuffers()
 
         pGeometryNode = scene.GetNextGeometryNode();
     }
-}
-
-void MetalGraphicsManager::CalculateCameraPosition()
-{
-    auto& scene = g_pSceneManager->GetSceneForRendering();
-    auto pCameraNode = scene.GetFirstCameraNode();
-    if (pCameraNode) {
-        m_DrawFrameContext.m_viewMatrix = *pCameraNode->GetCalculatedTransform();
-        InverseMatrix4X4f(m_DrawFrameContext.m_viewMatrix);
-    }
-    else {
-        // use default build-in camera
-        Vector3f position = { 0, -5, 0 }, lookAt = { 0, 0, 0 }, up = { 0, 0, 1 };
-        BuildViewMatrix(m_DrawFrameContext.m_viewMatrix, position, lookAt, up);
-    }
-    
-    float fieldOfView = PI / 2.0f;
-    float nearClipDistance = 1.0f;
-    float farClipDistance = 100.0f;
-    
-    if (pCameraNode) {
-        auto pCamera = scene.GetCamera(pCameraNode->GetSceneObjectRef());
-        // Set the field of view and screen aspect ratio.
-        fieldOfView = dynamic_pointer_cast<SceneObjectPerspectiveCamera>(pCamera)->GetFov();
-        nearClipDistance = pCamera->GetNearClipDistance();
-        farClipDistance = pCamera->GetFarClipDistance();
-    }
-    
-    const GfxConfiguration& conf = g_pApp->GetConfiguration();
-    
-    float screenAspect = (float)conf.screenWidth / (float)conf.screenHeight;
-    
-    // Build the perspective projection matrix.
-    BuildPerspectiveFovRHMatrix(m_DrawFrameContext.m_projectionMatrix, fieldOfView, screenAspect, nearClipDistance, farClipDistance);
-}
-
-void MetalGraphicsManager::CalculateLights()
-{
-    auto& scene = g_pSceneManager->GetSceneForRendering();
-    auto pLightNode = scene.GetFirstLightNode();
-    if (pLightNode) {
-        m_DrawFrameContext.m_lightPosition = { 0.0f, 0.0f, 0.0f };
-        TransformCoord(m_DrawFrameContext.m_lightPosition, *pLightNode->GetCalculatedTransform());
-        
-        auto pLight = scene.GetLight(pLightNode->GetSceneObjectRef());
-        if (pLight) {
-            m_DrawFrameContext.m_lightColor = pLight->GetColor().Value;
-        }
-    }
-    else {
-        // use default build-in light
-        //  z ^  y
-        //    | /
-        //    |---> x
-        m_DrawFrameContext.m_lightPosition = { 600.0f, -500.0f, 40.0f};   // x, y, z
-        m_DrawFrameContext.m_lightColor = { 1.0f, 1.0f, 1.0f, 1.0f };   // A, R, G, B
-    }
-}
-
-bool MetalGraphicsManager::InitializeShader(const char* vsFilename, const char* fsFilename)
-{
-    return true;
 }

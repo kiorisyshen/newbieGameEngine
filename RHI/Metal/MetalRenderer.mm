@@ -48,9 +48,6 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
     {
         _mtkView = view;
         _device = view.device;
-        _samplePosition = new MTLSamplePosition[_mtkView.sampleCount];
-        [_device getDefaultSamplePositions:_samplePosition count:_mtkView.sampleCount];
-    
         _inFlightSemaphore = dispatch_semaphore_create(2);
         view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
         _commandQueue = [_device newCommandQueue];
@@ -65,9 +62,11 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
 {
     NSError *error = NULL;
     
+    _samplePosition = new MTLSamplePosition[_mtkView.sampleCount];
+    [_device getDefaultSamplePositions:_samplePosition count:_mtkView.sampleCount];
+    
     NSString *libraryFile = [[NSBundle mainBundle] pathForResource:@"Main" ofType:@"metallib"];
     id <MTLLibrary> myLibrary = [_device newLibraryWithFile:libraryFile error:&error];
-//    id<MTLLibrary> defaultLibrary = [_device newDefaultLibrary];
     id<MTLFunction> vertexFunction = [myLibrary newFunctionWithName:@"basic_vert_main"];
     id<MTLFunction> fragmentFunction = [myLibrary newFunctionWithName:@"basic_frag_main"];
     

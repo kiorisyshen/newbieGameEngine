@@ -7,14 +7,14 @@ namespace newbieGE {
     class MemoryManager : implements IRuntimeModule
     {
     public:
-        template<typename T, typename... Arguments>
+        template<class T, typename... Arguments>
         T* New(Arguments... parameters)
         {
             return new (Allocate(sizeof(T))) T(parameters...);
         }
 
-        template<typename T>
-        void Delete(T *p)
+        template<class T>
+        void Delete(T* p)
         {
             p->~T();
             Free(p, sizeof(T));
@@ -33,9 +33,13 @@ namespace newbieGE {
     private:
         static size_t*        m_pBlockSizeLookup;
         static Allocator*     m_pAllocators;
+        static bool           m_bInitialized;
+        
     private:
         static Allocator* LookUpAllocator(size_t size);
+
     };
 
     extern MemoryManager*   g_pMemoryManager;
 }
+
