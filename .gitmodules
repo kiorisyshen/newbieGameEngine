@@ -13,3 +13,6 @@
 [submodule "External/src/zlib"]
 	path = External/src/zlib
 	url = https://github.com/kiorisyshen/zlib.git
+[submodule "External/src/bullet3"]
+	path = External/src/bullet3
+	url = https://github.com/kiorisyshen/bullet3.git
