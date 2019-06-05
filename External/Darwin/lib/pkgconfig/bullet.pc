@@ -1,0 +1,6 @@
+Name: bullet
+Description: Bullet Continuous Collision Detection and Physics Library
+Requires:
+Version: 2.88
+Libs: -L/Users/shen/Learning/newbieGameEngine/External/Darwin/lib -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath
+Cflags: -DBT_USE_DOUBLE_PRECISION -I/Users/shen/Learning/newbieGameEngine/External/Darwin/include/bullet -I/Users/shen/Learning/newbieGameEngine/External/Darwin/include
