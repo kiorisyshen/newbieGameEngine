@@ -12,7 +12,12 @@ add_library(Common
     main.cpp
 )
 
-target_link_libraries(Common GeomMath)
+target_link_libraries(Common 
+        GeomMath
+        ${OPENGEX_LIBRARY} 
+        ${OPENDDL_LIBRARY} 
+        ${XG_LIBRARY} 
+        ${ZLIB_LIBRARY})
 
 if(WIN32)
     add_definitions(-DGUID_WINDOWS)

@@ -43,12 +43,8 @@ set_target_properties(NewbieGEMetalCocoa PROPERTIES
 target_link_libraries(NewbieGEMetalCocoa 
         MetalRHI
         Common
-        ${OPENGEX_LIBRARY}
-        ${OPENDDL_LIBRARY} 
-        ${XG_LIBRARY} 
         ${COCOA_LIBRARY} 
         ${OPENGL_LIBRARY}
-        ${ZLIB_LIBRARY}
         # dl
         )
 __add_xg_platform_dependencies(NewbieGEMetalCocoa)
