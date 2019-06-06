@@ -5,6 +5,7 @@
 #include "AssetLoader.hpp"
 #include "SceneManager.hpp"
 #include "InputManager.hpp"
+#include "PhysicsManager.hpp"
 
 namespace newbieGE {
     class BaseApplication : implements IApplication

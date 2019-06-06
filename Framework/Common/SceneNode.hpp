@@ -91,6 +91,7 @@ namespace newbieGE {
     };
 
     typedef BaseSceneNode SceneEmptyNode;
+
     class SceneGeometryNode : public SceneNode<SceneObjectGeometry> 
     {
         protected:
@@ -98,6 +99,7 @@ namespace newbieGE {
             bool        m_bShadow;
             bool        m_bMotionBlur;
             std::vector<std::string> m_Materials;
+            void*       m_pRigidBody = nullptr;
 
         protected:
             virtual void dump(std::ostream& out) const 
@@ -131,6 +133,21 @@ namespace newbieGE {
                 else
                     return std::string("default");
             };
+
+            void LinkRigidBody(void* rigidBody)
+            {
+                m_pRigidBody = rigidBody;
+            }
+
+            void* UnlinkRigidBody()
+            {
+                void* rigidBody = m_pRigidBody;
+                m_pRigidBody = nullptr;
+
+                return rigidBody;
+            }
+
+            void* RigidBody() { return m_pRigidBody; }
     };
 
     class SceneLightNode : public SceneNode<SceneObjectLight> 

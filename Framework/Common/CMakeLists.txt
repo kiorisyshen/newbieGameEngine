@@ -6,6 +6,7 @@ add_library(Common
     InputManager.cpp
     Image.cpp
     MemoryManager.cpp
+    PhysicsManager.cpp
     SceneObject.cpp
     SceneManager.cpp
     Scene.cpp
@@ -17,7 +18,10 @@ target_link_libraries(Common
         ${OPENGEX_LIBRARY} 
         ${OPENDDL_LIBRARY} 
         ${XG_LIBRARY} 
-        ${ZLIB_LIBRARY})
+        ${ZLIB_LIBRARY}
+        ${BULLET_DYNAMICS_LIBRARY} 
+        ${BULLET_COLLISION_LIBRARY} 
+        ${BULLET_LINEARMATH_LIBRARY})
 
 if(WIN32)
     add_definitions(-DGUID_WINDOWS)

@@ -50,6 +50,7 @@ void CocoaApplication::Finalize()
 
 void CocoaApplication::Tick()
 {
+    BaseApplication::Tick();
     // Process all pending events or return immidiately if no event
     while(NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny
                                               untilDate:nil
@@ -89,8 +90,13 @@ void CocoaApplication::Tick()
                 break;
             case NSEventTypeKeyDown:
                 NSLog(@"[CocoaApp] Key Down Event Received!");
+                
                 if ([event keyCode] == 0x0C) {
                     m_bQuit = true;
+                    break;
+                }
+                if ([event keyCode] == 0x0F) {
+                    g_pInputManager->ResetKeyDown();
                     break;
                 }
                 if ([event modifierFlags] & NSEventModifierFlagNumericPad)

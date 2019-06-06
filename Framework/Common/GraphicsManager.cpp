@@ -26,10 +26,14 @@ void GraphicsManager::Tick()
         cout << "Detected Scene Change, reinitialize Graphics Manager..." << endl;
         Finalize();
         Initialize();
+        g_pSceneManager->NotifySceneIsRenderingQueued();
     }
     // Generate the view matrix based on the camera's position.
     CalculateCameraMatrix();
     CalculateLights();
+
+    Clear();
+    Draw();
 }
 
 void GraphicsManager::Clear()
@@ -91,7 +95,7 @@ void GraphicsManager::CalculateLights()
     auto& scene = g_pSceneManager->GetSceneForRendering();
     auto pLightNode = scene.GetFirstLightNode();
     if (pLightNode) {
-        m_DrawFrameContext.m_lightPosition = { 0.0f, 0.0f, 0.0f };
+        m_DrawFrameContext.m_lightPosition = { 300.0f, 400.0f, 600.0f };
         TransformCoord(m_DrawFrameContext.m_lightPosition, *pLightNode->GetCalculatedTransform());
 
         auto pLight = scene.GetLight(pLightNode->GetSceneObjectRef());
