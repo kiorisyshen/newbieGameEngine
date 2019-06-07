@@ -43,7 +43,7 @@ void PhysicsManager::Tick()
         g_pPhysicsManager->CreateRigidBodies();
     }
 
-    m_btDynamicsWorld->stepSimulation(1.0f / 60.0f, 10);
+    m_btDynamicsWorld->stepSimulation(1.0f / 30.0f, 10);
 }
 
 void PhysicsManager::CreateRigidBody(SceneGeometryNode& node, const SceneObjectGeometry& geometry)
