@@ -43,18 +43,20 @@ void PhysicsManager::Tick()
         g_pPhysicsManager->CreateRigidBodies();
     }
 
-    m_btDynamicsWorld->stepSimulation(1.0f / 30.0f, 10);
+    m_btDynamicsWorld->stepSimulation(1.0f / 60.0f, 10);
 }
 
 void PhysicsManager::CreateRigidBody(SceneGeometryNode& node, const SceneObjectGeometry& geometry)
 {
     btRigidBody* rigidBody = nullptr;
 
+    const float* param = geometry.CollisionParameters();
+
     switch(geometry.CollisionType())
     {
         case SceneObjectCollisionType::kSceneObjectCollisionTypeSphere:
             {
-                btSphereShape* sphere = new btSphereShape(1.0f);
+                btSphereShape* sphere = new btSphereShape(param[0]);
                 m_btCollisionShapes.push_back(sphere);
 
                 const auto trans = node.GetCalculatedTransform();
@@ -76,7 +78,7 @@ void PhysicsManager::CreateRigidBody(SceneGeometryNode& node, const SceneObjectG
             break;
         case SceneObjectCollisionType::kSceneObjectCollisionTypeBox:
             {
-                btBoxShape* box = new btBoxShape(btVector3(5.0f, 5.0f, 0.01f));
+                btBoxShape* box = new btBoxShape(btVector3(param[0], param[1], param[2]));
                 m_btCollisionShapes.push_back(box);
 
                 const auto trans = node.GetCalculatedTransform();
@@ -96,7 +98,7 @@ void PhysicsManager::CreateRigidBody(SceneGeometryNode& node, const SceneObjectG
             break;
         case SceneObjectCollisionType::kSceneObjectCollisionTypePlane:
             {
-                btStaticPlaneShape* plane = new btStaticPlaneShape(btVector3(0.0f, 0.0f, 1.0f), 0);
+                btStaticPlaneShape* plane = new btStaticPlaneShape(btVector3(param[0], param[1], param[2]), param[3]);
                 m_btCollisionShapes.push_back(plane);
 
                 const auto trans = node.GetCalculatedTransform();
@@ -193,3 +195,10 @@ Matrix4X4f PhysicsManager::GetRigidBodyTransform(void* rigidBody)
     return result;
 }
 
+void PhysicsManager::ApplyCentralForce(void* rigidBody, Vector3f force)
+{
+    btRigidBody* _rigidBody = reinterpret_cast<btRigidBody*>(rigidBody);
+    btVector3 _force(force.x, force.y, force.z);
+    _rigidBody->activate(true);
+    _rigidBody->applyCentralForce(_force);
+}

@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.1)
 project (newbieGameEngine)
 
-set (CMAKE_C_STANDARD 11)
+set (CMAKE_C_STANDARD 99)
 set (CMAKE_CXX_STANDARD 11)
 
 IF(${UNIX})
@@ -74,7 +74,7 @@ int main(int argc, char** argv)
     return *my_int;
 }
 "
-HAVE_MAKE_UNIQUE)
+ HAVE_MAKE_UNIQUE)
 CHECK_CXX_SOURCE_COMPILES(
 "#include <algorithm>
 
@@ -86,11 +86,13 @@ int main(int argc, char** argv)
 }
 "
  HAVE_CLAMP)
+
 configure_file(${PROJECT_SOURCE_DIR}/config.h.in ${PROJECT_SOURCE_DIR}/config.h)
 add_subdirectory(Framework)
 add_subdirectory(Platform)
 add_subdirectory(RHI) # Rendering Hardware Interface
 add_subdirectory(Test)
+add_subdirectory(Game)
 
 
 # ------------------------- Begin Generic CMake Variable Logging ------------------

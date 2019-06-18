@@ -6,6 +6,7 @@
 #include "SceneManager.hpp"
 #include "InputManager.hpp"
 #include "PhysicsManager.hpp"
+#include "GameLogic.hpp"
 
 namespace newbieGE {
     class BaseApplication : implements IApplication
@@ -22,8 +23,6 @@ namespace newbieGE {
         virtual bool IsQuit();
 
         inline GfxConfiguration& GetConfiguration() { return m_Config; };
-
-        virtual int LoadScene();
 
         virtual void OnDraw() {};
 

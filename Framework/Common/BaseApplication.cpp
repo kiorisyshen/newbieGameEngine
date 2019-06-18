@@ -60,6 +60,12 @@ int BaseApplication::Initialize()
 	}
     cerr << "Success" << endl;
 
+    cerr << "Initialize Game Logic: ";
+    if ((ret = g_pGameLogic->Initialize()) != 0) {
+        cerr << "Failed. err =" << ret;
+        return ret;
+    }
+
 	return ret;
 }
 
@@ -95,27 +101,6 @@ void BaseApplication::SetCommandLineParameters(int argc, char** argv)
 bool BaseApplication::IsQuit()
 {
 	return m_bQuit;
-}
-
-int BaseApplication::LoadScene()
-{
-    int ret;
-
-//    string scene_file_name = "Scene/test.ogex";
-    string scene_file_name = "Scene/physics_1.ogex";
-    if (m_nArgC > 1) {
-        scene_file_name = m_ppArgV[1];
-    }
-
-    cerr << "Load Scene(" << scene_file_name << "): ";
-    if ((ret = g_pSceneManager->LoadScene(scene_file_name.c_str())) != 0) {
-        cerr << "Failed. err = " << ret;
-        return ret;
-    }
-
-    cerr << "Success" << std::endl;;
-
-    return 0;
 }
 
 
