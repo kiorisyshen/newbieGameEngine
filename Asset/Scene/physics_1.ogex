@@ -1317,7 +1317,7 @@ GeometryObject $geometry3		// Plane
         string {"box"}
         float[3] // size 
         {
-            {5.0, 5.0, 5.0}
+            {5.0, 5.0, 0.001}
         } 
     }
 }
