@@ -10,9 +10,9 @@ namespace newbieGE {
         uint32_t Reserved;
         uint32_t BitsOffset;
     } BITMAP_FILEHEADER;
-    
+
 #define BITMAP_FILEHEADER_SIZE 14
-    
+
     typedef struct _BITMAP_HEADER {
         uint32_t HeaderSize;
         int32_t Width;
@@ -27,11 +27,11 @@ namespace newbieGE {
         uint32_t ClrImportant;
     } BITMAP_HEADER;
 #pragma pack(pop)
-    
+
     class BmpParser : implements ImageParser
     {
     public:
-        virtual Image Parse(const Buffer& buf)
+        virtual Image Parse(Buffer& buf)
         {
             Image img;
             const BITMAP_FILEHEADER* pFileHeader = reinterpret_cast<const BITMAP_FILEHEADER*>(buf.GetData());
@@ -48,7 +48,7 @@ namespace newbieGE {
                 std::cout << "Image BitCount: " << pBmpHeader->BitCount << std::endl;
                 std::cout << "Image Compression: " << pBmpHeader->Compression << std::endl;
                 std::cout << "Image Size: " << pBmpHeader->SizeImage << std::endl;
-                
+
                 img.Width = pBmpHeader->Width;
                 img.Height = pBmpHeader->Height;
                 img.bitcount = 32;
@@ -56,7 +56,7 @@ namespace newbieGE {
                 img.pitch = ((img.Width * byte_count) + 3) & ~3;
                 img.data_size = img.pitch * img.Height;
                 img.data = g_pMemoryManager->Allocate(img.data_size);
-                
+
                 if (img.bitcount < 24) {
                     std::cout << "Sorry, only true color BMP is supported at now." << std::endl;
                 } else {
@@ -68,7 +68,7 @@ namespace newbieGE {
                     }
                 }
             }
-            
+
             return img;
         }
     };

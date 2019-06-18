@@ -36,7 +36,8 @@ namespace newbieGE {
                     break;
                 case OGEX::kStructureGeometryNode:
                     {
-                        auto _node = std::make_shared<SceneGeometryNode>(structure.GetStructureName());
+                        std::string _key = structure.GetStructureName();
+                        auto _node = std::make_shared<SceneGeometryNode>(_key);
 						const OGEX::GeometryNodeStructure& _structure = dynamic_cast<const OGEX::GeometryNodeStructure&>(structure);
 
 						_node->SetVisibility(_structure.GetVisibleFlag());
@@ -44,7 +45,7 @@ namespace newbieGE {
 						_node->SetIfMotionBlur(_structure.GetMotionBlurFlag());
 
                         // ref scene objects
-                        std::string _key = _structure.GetObjectStructure()->GetStructureName();
+                        _key = _structure.GetObjectStructure()->GetStructureName();
                         _node->AddSceneObjectRef(_key);
 
                         // ref materials
@@ -57,6 +58,8 @@ namespace newbieGE {
                             _node->AddMaterialRef(_key);
                         }
 
+                        std::string name = _structure.GetNodeName();
+                        scene.LUT_Name_GeometryNode.emplace(name, _node);
                         scene.GeometryNodes.emplace(_key, _node);
 
                         node = _node;
@@ -113,16 +116,24 @@ namespace newbieGE {
                                 auto _type = _extension->GetTypeString();
                                 if (_type == "collision") {
                                     const ODDL::Structure *sub_structure = _extension->GetFirstCoreSubnode();
-                                    const ODDL::DataStructure<ODDL::StringDataType> *dataStructure = static_cast<const ODDL::DataStructure<ODDL::StringDataType> *>(sub_structure);
-                                    auto collision_type = dataStructure->GetDataElement(0);
+                                    const ODDL::DataStructure<ODDL::StringDataType> *dataStructure1 = static_cast<const ODDL::DataStructure<ODDL::StringDataType> *>(sub_structure);
+                                    auto collision_type = dataStructure1->GetDataElement(0);
+
+                                    sub_structure = _extension->GetLastCoreSubnode();
+                                    const ODDL::DataStructure<ODDL::FloatDataType> *dataStructure2 = static_cast<const ODDL::DataStructure<ODDL::FloatDataType> *>(sub_structure);
+                                    auto elementCount = dataStructure2->GetDataElementCount();
+                                    float* _data = (float*)&dataStructure2->GetDataElement(0);
                                     if (collision_type  == "plane") {
                                         _object->SetCollisionType(SceneObjectCollisionType::kSceneObjectCollisionTypePlane);
+                                        _object->SetCollisionParameters(_data, elementCount);
                                     }
                                     else if (collision_type == "sphere") {
                                         _object->SetCollisionType(SceneObjectCollisionType::kSceneObjectCollisionTypeSphere);
+                                        _object->SetCollisionParameters(_data, elementCount);
                                     }
                                     else if (collision_type == "box") {
                                         _object->SetCollisionType(SceneObjectCollisionType::kSceneObjectCollisionTypeBox);
+                                        _object->SetCollisionParameters(_data, elementCount);
                                     }
                                     break;
                                 }
