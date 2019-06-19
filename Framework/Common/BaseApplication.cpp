@@ -72,6 +72,7 @@ int BaseApplication::Initialize()
 // Finalize all sub modules and clean up all runtime temporary files.
 void BaseApplication::Finalize()
 {
+    g_pGameLogic->Finalize();
     g_pInputManager->Finalize();
     g_pGraphicsManager->Finalize();
     g_pPhysicsManager->Finalize();

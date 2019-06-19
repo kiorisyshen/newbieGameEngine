@@ -216,6 +216,15 @@ namespace newbieGE {
     }
 
     template <template<typename> class TT, typename T>
+    TT<T> operator+(const TT<T>& vec, const T scalar)
+    {
+        TT<T> result(scalar);
+        VectorAdd(result, vec, result);
+
+        return result;
+    }
+
+    template <template<typename> class TT, typename T>
     void VectorSub(TT<T>& result, const TT<T>& vec1, const TT<T>& vec2)
     {
         ispc::SubByElement(vec1, vec2, result, countof(result.data));
@@ -237,7 +246,7 @@ namespace newbieGE {
     }
 
     template <typename T>
-    inline void DotProduct(T& result, const T* a, const T* b, size_t count)
+    inline void DotProduct(T& result, const T* a, const T* b, const size_t count)
     {
         T* _result = new T[count];
 
@@ -258,11 +267,34 @@ namespace newbieGE {
     }
 
     template <typename T>
-    inline void MulByElement(T& result, const T& a, const T& b)
+    inline void MulByElement(T& result, const T& a, const T b)
     {
         ispc::MulByElement(a, b, result, countof(result.data));
     }
 
+    template <template <typename> class TT, typename T>
+    inline void MulByElement(TT<T>& result, const TT<T>& a, const T b)
+    {
+        TT<T> v_b(b);
+        ispc::MulByElement(a, v_b, result, countof(result.data));
+    }
+
+    template <template<typename> class TT, typename T>
+    TT<T> operator*(const TT<T>& vec, const T scalar)
+    {
+        TT<T> result;
+        MulByElement(result, vec, scalar);
+
+        return result;
+    }
+
+    template <template <typename> class TT, typename T>
+    inline T Length(const TT<T>& vec)
+    {
+        T result;
+        DotProduct(result, vec, vec);
+        return static_cast<T>(sqrt(result));
+    }
 
     // Matrix
 
@@ -365,7 +397,6 @@ namespace newbieGE {
         for (int i = 0; i < Da; i++) {
             for (int j = 0; j < Dc; j++) {
                 DotProduct(result[i][j], matrix1[i], matrix2_transpose[j], Db);
-
             }
         }
 
@@ -387,13 +418,34 @@ namespace newbieGE {
         ispc::Transpose(matrix1, result, ROWS, COLS);
     }
 
+    template <template <typename, int, int> class M, template <typename> class V, typename T, int ROWS, int COLS>
+    inline void DotProduct3(V<T>& result, const M<T, ROWS, COLS>& matrix)
+    {
+        static_assert(ROWS >= 3, "[Error] Only 3x3 and above matrix can be passed to this method!");
+        static_assert(COLS >= 3, "[Error] Only 3x3 and above matrix can be passed to this method!");
+        V<T> basis[3] = {{matrix[0][0], matrix[0][1], matrix[0][2]}, 
+                         {matrix[1][0], matrix[1][1], matrix[1][2]},
+                         {matrix[2][0], matrix[2][1], matrix[2][2]},
+                        };
+        DotProduct(result[0], basis[0], basis[0]);
+        DotProduct(result[1], basis[1], basis[1]);
+        DotProduct(result[2], basis[2], basis[2]);
+    }
+
+    template <template <typename, int, int> class M, template <typename> class V, typename T, int ROWS, int COLS>
+    inline void GetOrigin(V<T>& result, const M<T, ROWS, COLS>& matrix)
+    {
+        static_assert(ROWS >= 3, "[Error] Only 3x3 and above matrix can be passed to this method!");
+        static_assert(COLS >= 3, "[Error] Only 3x3 and above matrix can be passed to this method!");
+        result = {matrix[3][0], matrix[3][1], matrix[3][2]}; 
+    }
     template <template <typename> class TT, typename T>
     inline void Normalize(TT<T>& a)
     {
         T length;
         DotProduct(length, static_cast<T*>(a), static_cast<T*>(a), countof(a.data));
         length = sqrt(length);
-        ispc::Normalize(a, length, countof(a.data));
+        ispc::Normalize(countof(a.data), a, length);
     }
 
     inline void MatrixRotationYawPitchRoll(Matrix4X4f& matrix, const float yaw, const float pitch, const float roll)
@@ -425,7 +477,9 @@ namespace newbieGE {
 
     inline void TransformCoord(Vector3f& vector, const Matrix4X4f& matrix)
     {
-        ispc::Transform(vector, matrix);
+		Vector4f tmp (vector, 1.0f);
+        ispc::Transform(tmp, matrix);
+		vector.xyz = tmp.xyz;
     }
 
     inline void Transform(Vector4f& vector, const Matrix4X4f& matrix)
