@@ -5,7 +5,7 @@
 #include "IApplication.hpp"
 #include "SceneManager.hpp"
 #include "MetalRenderer.h"
-#include "PhysicsManager.hpp"
+#include "IPhysicsManager.hpp"
 
 using namespace newbieGE;
 using namespace std;

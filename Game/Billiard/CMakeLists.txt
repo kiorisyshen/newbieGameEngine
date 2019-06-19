@@ -39,9 +39,12 @@ ELSE(ANDROID)
     add_executable(BilliardGame 
         BilliardGameLogic.cpp BilliardGameConfig.cpp)
 ENDIF(ANDROID)
-    target_link_libraries(BilliardGame
-                            newbieGameEngine
-                        )
+
+target_link_libraries(BilliardGame
+                        newbieGameEngine
+                        BulletPhysics
+                    )
+
 IF(WIN32)
     add_custom_command(TARGET BilliardGame POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different

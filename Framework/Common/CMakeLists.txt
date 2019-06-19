@@ -7,7 +7,6 @@ add_library(Common
     InputManager.cpp
     Image.cpp
     MemoryManager.cpp
-    PhysicsManager.cpp
     Scene.cpp
     SceneManager.cpp
     SceneObject.cpp
