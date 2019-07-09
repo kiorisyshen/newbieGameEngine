@@ -1,7 +1,6 @@
 #include <iostream>
 #include "GraphicsManager.hpp"
 #include "SceneManager.hpp"
-#include "cbuffer.h"
 #include "IApplication.hpp"
 #include "SceneManager.hpp"
 
@@ -32,12 +31,7 @@ void GraphicsManager::Tick()
     CalculateCameraMatrix();
     CalculateLights();
 
-    Clear();
     Draw();
-}
-
-void GraphicsManager::Clear()
-{
 }
 
 void GraphicsManager::Draw()
@@ -117,19 +111,5 @@ void GraphicsManager::InitializeBuffers()
 void GraphicsManager::RenderBuffers()
 {
     cout << "[RHI] GraphicsManager::RenderBuffers()" << endl;
-}
-
-void GraphicsManager::WorldRotateX(float radians)
-{
-    Matrix4X4f rotationMatrix;
-    MatrixRotationX(rotationMatrix, radians);
-    m_DrawFrameContext.m_worldMatrix = m_DrawFrameContext.m_worldMatrix * rotationMatrix;
-}
-
-void GraphicsManager::WorldRotateY(float radians)
-{
-    Matrix4X4f rotationMatrix;
-    MatrixRotationY(rotationMatrix, radians);
-    m_DrawFrameContext.m_worldMatrix = m_DrawFrameContext.m_worldMatrix * rotationMatrix;
 }
 

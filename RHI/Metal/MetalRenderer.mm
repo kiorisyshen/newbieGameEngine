@@ -31,7 +31,6 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
     std::vector<id<MTLBuffer>> _vertexBuffers;
     std::vector<id<MTLBuffer>> _indexBuffers;
     id<MTLBuffer> _uniformBuffers;
-    MTLSamplePosition *_samplePosition;
     
     PerFrameConstants _PFC;
     std::vector<std::shared_ptr<MtlDrawBatchContext> > _PBC;
@@ -49,7 +48,6 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
         _mtkView = view;
         _device = view.device;
         _inFlightSemaphore = dispatch_semaphore_create(2);
-        view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
         _commandQueue = [_device newCommandQueue];
         
         [self loadMetal];
@@ -61,9 +59,6 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
 - (void)loadMetal
 {
     NSError *error = NULL;
-    
-    _samplePosition = new MTLSamplePosition[_mtkView.sampleCount];
-    [_device getDefaultSamplePositions:_samplePosition count:_mtkView.sampleCount];
     
     NSString *libraryFile = [[NSBundle mainBundle] pathForResource:@"Main" ofType:@"metallib"];
     id <MTLLibrary> myLibrary = [_device newLibraryWithFile:libraryFile error:&error];
@@ -166,7 +161,6 @@ static int tick_c = 2;
     _renderPassDescriptor.colorAttachments[0].loadAction=MTLLoadActionClear;
     _renderPassDescriptor.colorAttachments[0].storeAction=MTLStoreActionStoreAndMultisampleResolve;
     _renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
-    [_renderPassDescriptor setSamplePositions:_samplePosition count:4];
     
     // beginPass
     if(_renderPassDescriptor != nil)
@@ -331,8 +325,6 @@ static MTLPixelFormat getMtlPixelFormat(const Image& img)
 
 - (void)Finalize
 {
-    if (_samplePosition) delete[] _samplePosition;
-    _samplePosition = nil;
 }
 
 @end

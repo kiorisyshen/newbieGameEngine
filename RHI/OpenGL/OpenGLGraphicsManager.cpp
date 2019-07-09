@@ -168,7 +168,7 @@ void OpenGLGraphicsManager::Finalize()
 
 void OpenGLGraphicsManager::Clear()
 {
-    GraphicsManager::Clear();
+    // GraphicsManager::Clear();
 
     // Set the color to clear the screen to.
     glClearColor(0.2f, 0.3f, 0.4f, 1.0f);

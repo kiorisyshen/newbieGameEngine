@@ -18,8 +18,6 @@ int MetalGraphicsManager::Initialize()
         return result;
     }
     
-    [m_pRenderer loadMetal];
-    
     InitializeBuffers();
     
     return result;
@@ -28,11 +26,6 @@ int MetalGraphicsManager::Initialize()
 void MetalGraphicsManager::Finalize()
 {
     [m_pRenderer Finalize];
-}
-
-void MetalGraphicsManager::Clear()
-{
-    GraphicsManager::Clear();
 }
 
 void MetalGraphicsManager::Draw()

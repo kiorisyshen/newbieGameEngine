@@ -15,8 +15,6 @@ namespace newbieGE {
         virtual int Initialize();
         virtual void Finalize();
 
-        virtual void Clear();
-
         virtual void Draw();
 
         void SetRenderer(MetalRenderer* renderer) { m_pRenderer = renderer; }

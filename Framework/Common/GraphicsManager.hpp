@@ -1,53 +1,54 @@
 #pragma once
 #include "IRuntimeModule.hpp"
 #include "geommath.hpp"
+#include "cbuffer.h"
 
 namespace newbieGE
 {
-    struct PerFrameConstants
-    {
-        Matrix4X4f  m_worldMatrix;
-        Matrix4X4f  m_viewMatrix;
-        Matrix4X4f  m_projectionMatrix;
-        Vector3f    m_lightPosition;
-        Vector4f    m_lightColor;
-    };
-
-    struct PerBatchConstants
-    {
-        Matrix4X4f m_objectLocalMatrix;
-        Vector3f   m_diffuseColor;
-        Vector3f   m_specularColor;
-        float      m_specularPower;
-    };
-    
     class GraphicsManager : implements IRuntimeModule
     {
       public:
-            virtual ~GraphicsManager() {}
+            virtual ~GraphicsManager() = default;
 
-            virtual int Initialize();
-            virtual void Finalize();
+            int Initialize() override;
+            void Finalize() override;
 
-            virtual void Tick();
+            void Tick() override;
 
-            virtual void Clear();
             virtual void Draw();
 
-            // temporary. should be moved to scene manager and script engine (policy engine)
-            void WorldRotateX(float radians);
-            void WorldRotateY(float radians);
+            virtual void DrawBatch(const std::vector<std::shared_ptr<PerBatchConstants>>& batches) {}
 
         protected:
+            virtual void BeginScene() {};
+            virtual void EndScene() {}
+
+            virtual void BeginFrame() {}
+            virtual void EndFrame() {}
+
+            virtual void BeginPass() {}
+            virtual void EndPass() {}
+
+            virtual void BeginCompute() {}
+            virtual void EndCompute() {}
+
             bool SetPerFrameShaderParameters();
 
+        private:
             void InitConstants();
             void InitializeBuffers();
             void CalculateCameraMatrix();
             void CalculateLights();
             void RenderBuffers();
 
+        protected:
             PerFrameConstants m_DrawFrameContext;
+
+            uint32_t m_nFrameIndex = 0;
+
+            // std::vector<Frame>  m_Frames;
+            // std::vector<std::shared_ptr<IDispatchPass>> m_InitPasses;
+            // std::vector<std::shared_ptr<IDrawPass>> m_DrawPasses;
     };
 
     extern GraphicsManager *g_pGraphicsManager;

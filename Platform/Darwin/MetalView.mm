@@ -53,7 +53,6 @@ using namespace newbieGE;
 }
 
 - (void)drawRect:(CGRect)drawRect {
-    g_pGraphicsManager->Clear();
     g_pGraphicsManager->Draw();
 //    NSLog(@"draw.");
 }

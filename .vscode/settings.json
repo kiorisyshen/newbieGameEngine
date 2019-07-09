@@ -65,7 +65,9 @@
         "system_error": "cpp",
         "thread": "cpp",
         "tuple": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "deque": "cpp",
+        "queue": "cpp"
     },
     "cmake.configureOnOpen": false
 }
