@@ -12,21 +12,16 @@ namespace newbieGE {
     class MetalGraphicsManager : public GraphicsManager
     {
     public:
-        virtual int Initialize();
-        virtual void Finalize();
-
-        virtual void Draw();
+        int Initialize() final;
+        void Finalize() final;
 
         void SetRenderer(MetalRenderer* renderer) { m_pRenderer = renderer; }
-    
-    protected:
-        bool SetPerFrameShaderParameters();
-        void InitializeBuffers();
-        void RenderBuffers();
 
     private:
-        const float screenDepth = 1000.0f;
-        const float screenNear = 0.1f;
+        void InitializeBuffers() final;
+        void RenderBuffers() final;
+        void SetPerFrameConstants() final;
+        void SetPerBatchConstants() final;
 
         MetalRenderer* m_pRenderer;
     };

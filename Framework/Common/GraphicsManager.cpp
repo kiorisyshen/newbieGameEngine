@@ -3,6 +3,7 @@
 #include "SceneManager.hpp"
 #include "IApplication.hpp"
 #include "SceneManager.hpp"
+#include "IPhysicsManager.hpp"
 
 using namespace newbieGE;
 using namespace std;
@@ -30,19 +31,40 @@ void GraphicsManager::Tick()
     // Generate the view matrix based on the camera's position.
     CalculateCameraMatrix();
     CalculateLights();
+    
+    UpdateConstants();
+    
+    SetPerFrameConstants();
+    SetPerBatchConstants();
 
-    Draw();
+    RenderBuffers();
 }
 
-void GraphicsManager::Draw()
+void GraphicsManager::UpdateConstants()
 {
+    for (auto pbc : m_DrawBatchContext) {
+        if (void* rigidBody = pbc->node->RigidBody()) {
+            Matrix4X4f trans = *pbc->node->GetCalculatedTransform();
+            // reset the translation part of the matrix
+            memcpy(trans[3], Vector3f(0.0f, 0.0f, 0.0f), sizeof(float) * 3);
+            // the geometry has rigid body bounded, we blend the simlation result here.
+            Matrix4X4f simulated_result = g_pPhysicsManager->GetRigidBodyTransform(rigidBody);
+            // apply the rotation part of the simlation result
+            Matrix4X4f rotation;
+            BuildIdentityMatrix(rotation);
+            memcpy(rotation[0], simulated_result[0], sizeof(float) * 3);
+            memcpy(rotation[1], simulated_result[1], sizeof(float) * 3);
+            memcpy(rotation[2], simulated_result[2], sizeof(float) * 3);
+            trans = trans * rotation;
+
+            // replace the translation part of the matrix with simlation result directly
+            memcpy(trans[3], simulated_result[3], sizeof(float) * 3);
+
+            pbc->m_objectLocalMatrix = trans;
+        }
+    }
 }
 
-bool GraphicsManager::SetPerFrameShaderParameters()
-{
-    cout << "[RHI] GraphicsManager::SetPerFrameShaderParameters(void)" << endl;
-    return true;
-}
 
 void GraphicsManager::InitConstants()
 {
@@ -106,6 +128,7 @@ void GraphicsManager::CalculateLights()
 
 void GraphicsManager::InitializeBuffers()
 {
+    cout << "[RHI] GraphicsManager::InitializeBuffers()" << endl;
 }
 
 void GraphicsManager::RenderBuffers()

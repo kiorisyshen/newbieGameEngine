@@ -2,11 +2,9 @@
 #import <MetalKit/MetalKit.h>
 #include "GraphicsManager.hpp"
 #include "geommath.hpp"
-#include "SceneNode.hpp"
 
 namespace newbieGE {
-    struct MtlDrawBatchContext : PerBatchConstants{
-        uint32_t batchIndex;
+    struct MtlDrawBatchContext : DrawBatchConstants{
         uint32_t index_offset;
         MTLPrimitiveType index_mode;
         uint32_t index_count;
@@ -14,7 +12,6 @@ namespace newbieGE {
         uint32_t property_count;
         uint32_t property_offset;
         int32_t materialIdx;
-        std::shared_ptr<SceneGeometryNode> node;
     };
 }
 

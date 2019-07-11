@@ -2,9 +2,15 @@
 #include "IRuntimeModule.hpp"
 #include "geommath.hpp"
 #include "cbuffer.h"
+#include "Scene.hpp"
 
 namespace newbieGE
 {
+    struct DrawBatchConstants : public PerBatchConstants {
+        uint32_t batchIndex;
+        std::shared_ptr<SceneGeometryNode> node;
+    };
+    
     class GraphicsManager : implements IRuntimeModule
     {
       public:
@@ -15,34 +21,34 @@ namespace newbieGE
 
             void Tick() override;
 
-            virtual void Draw();
-
-            virtual void DrawBatch(const std::vector<std::shared_ptr<PerBatchConstants>>& batches) {}
-
-        protected:
-            virtual void BeginScene() {};
-            virtual void EndScene() {}
-
-            virtual void BeginFrame() {}
-            virtual void EndFrame() {}
-
-            virtual void BeginPass() {}
-            virtual void EndPass() {}
-
-            virtual void BeginCompute() {}
-            virtual void EndCompute() {}
-
-            bool SetPerFrameShaderParameters();
+//        protected:
+//            virtual void BeginScene() {};
+//            virtual void EndScene() {}
+//
+//            virtual void BeginFrame() {}
+//            virtual void EndFrame() {}
+//
+//            virtual void BeginPass() {}
+//            virtual void EndPass() {}
+//
+//            virtual void BeginCompute() {}
+//            virtual void EndCompute() {}
 
         private:
             void InitConstants();
-            void InitializeBuffers();
+        
             void CalculateCameraMatrix();
             void CalculateLights();
-            void RenderBuffers();
+            void UpdateConstants();
+        
+            virtual void InitializeBuffers();
+            virtual void RenderBuffers();
+            virtual void SetPerFrameConstants(){};
+            virtual void SetPerBatchConstants(){};
 
         protected:
             PerFrameConstants m_DrawFrameContext;
+            std::vector<std::shared_ptr<DrawBatchConstants> > m_DrawBatchContext;
 
             uint32_t m_nFrameIndex = 0;
 
