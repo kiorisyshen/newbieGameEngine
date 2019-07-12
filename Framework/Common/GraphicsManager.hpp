@@ -18,10 +18,12 @@ namespace newbieGE
       public:
             virtual ~GraphicsManager() = default;
 
-            int Initialize() override;
-            void Finalize() override;
+            virtual int Initialize() override;
+            virtual void Finalize() override;
 
             void Tick() override;
+        
+            virtual void RenderBuffers();
 
 //        protected:
 //            virtual void BeginScene() {};
@@ -44,7 +46,6 @@ namespace newbieGE
             void UpdateConstants();
         
             virtual void InitializeBuffers();
-            virtual void RenderBuffers();
             virtual void SetPerFrameConstants(){};
             virtual void SetPerBatchConstants(){};
 

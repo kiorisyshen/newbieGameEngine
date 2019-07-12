@@ -16,10 +16,11 @@ namespace newbieGE {
         void Finalize() final;
 
         void SetRenderer(MetalRenderer* renderer) { m_pRenderer = renderer; }
+        
+        void RenderBuffers() final;
 
     private:
         void InitializeBuffers() final;
-        void RenderBuffers() final;
         void SetPerFrameConstants() final;
         void SetPerBatchConstants() final;
 

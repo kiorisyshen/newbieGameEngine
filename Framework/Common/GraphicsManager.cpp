@@ -36,8 +36,6 @@ void GraphicsManager::Tick()
     
     SetPerFrameConstants();
     SetPerBatchConstants();
-
-    RenderBuffers();
 }
 
 void GraphicsManager::UpdateConstants()
@@ -61,6 +59,8 @@ void GraphicsManager::UpdateConstants()
             memcpy(trans[3], simulated_result[3], sizeof(float) * 3);
 
             pbc->m_objectLocalMatrix = trans;
+        } else {
+            pbc->m_objectLocalMatrix = *pbc->node->GetCalculatedTransform();
         }
     }
 }
