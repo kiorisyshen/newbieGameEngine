@@ -73,6 +73,14 @@ int BaseApplication::Initialize()
         return ret;
     }
 
+#ifdef DEBUG
+    if ((ret = g_pDebugManager->Initialize()) != 0)
+    {
+        cerr << "Failed. err =" << ret;
+        return ret;
+    }
+#endif
+
     return ret;
 }
 
@@ -97,6 +105,9 @@ void BaseApplication::Tick()
     g_pInputManager->Tick();
     g_pPhysicsManager->Tick();
     g_pGraphicsManager->Tick();
+#ifdef DEBUG
+    g_pDebugManager->Tick();
+#endif
 }
 
 void BaseApplication::SetCommandLineParameters(int argc, char **argv)

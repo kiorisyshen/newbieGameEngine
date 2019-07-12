@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <functional>
 #include "crossguid/Guid.hpp"
 #include "Image.hpp"
 #include "portable.hpp"
@@ -667,7 +668,7 @@ public:
     friend std::ostream &operator<<(std::ostream &out, const SceneObjectGeometry &obj);
 };
 
-typedef float (*AttenFunc)(float /* Intensity */, float /* Distance */);
+typedef std::function<float(float /* Intensity */, float /* Distance */)> AttenFunc;
 
 float DefaultAttenFunc(float intensity, float distance);
 

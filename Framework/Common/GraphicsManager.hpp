@@ -24,7 +24,27 @@ public:
 
     void Tick() override;
 
-    virtual void RenderBuffers();
+    virtual void RenderBuffers() final;
+    
+    virtual void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstants>>& batches) {}
+#ifdef DEBUG
+    virtual void DrawLine(const Vector3f &from, const Vector3f &to, const Vector3f &color);
+    virtual void DrawBox(const Vector3f &bbMin, const Vector3f &bbMax, const Vector3f &color);
+    virtual void ClearDebugBuffers();
+#endif
+    
+protected:
+    virtual void BeginScene(const Scene& scene);
+    virtual void EndScene() {}
+    
+    virtual void BeginFrame() {}
+    virtual void EndFrame() {}
+    
+    virtual void BeginPass() {}
+    virtual void EndPass() {}
+    
+    virtual void BeginCompute() {}
+    virtual void EndCompute() {}
 
 private:
     void InitConstants();
@@ -33,7 +53,6 @@ private:
     void CalculateLights();
     void UpdateConstants();
 
-    virtual void InitializeBuffers();
     virtual void SetPerFrameConstants(){};
     virtual void SetPerBatchConstants(){};
 

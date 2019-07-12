@@ -21,7 +21,7 @@ struct MtlDrawBatchContext : public DrawBatchConstants
 
 - (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view;
 
-- (void)tick:(const std::vector<std::shared_ptr<DrawBatchConstants>> &)batches;
+- (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstants>> &)batches;
 
 - (uint32_t)createTexture:(const newbieGE::Image &)image;
 
@@ -36,5 +36,18 @@ struct MtlDrawBatchContext : public DrawBatchConstants
 - (void)loadMetal;
 
 - (void)Finalize;
+
+
+- (void)beginFrame;
+
+- (void)endFrame;
+
+- (void)beginPass;
+
+- (void)endPass;
+
+- (void)beginCompute;
+
+- (void)endCompute;
 
 @end

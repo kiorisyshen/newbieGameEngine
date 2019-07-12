@@ -3,6 +3,7 @@
 #include "GraphicsManager.hpp"
 #include "SceneManager.hpp"
 #include "GameLogic.hpp"
+#include "DebugManager.hpp"
 #include "geommath.hpp"
 
 using namespace newbieGE;
@@ -123,3 +124,16 @@ void InputManager::ResetKeyUp()
     cerr << "[InputManager] Reset Key Up!" << endl;
 #endif
 }
+
+#ifdef DEBUG
+void InputManager::DebugKeyDown()
+{
+    cerr << "[InputManager] Debug Key Down!" << endl;
+    g_pDebugManager->ToggleDebugInfo();
+}
+
+void InputManager::DebugKeyUp()
+{
+    cerr << "[InputManager] Debug Key Up!" << endl;
+}
+#endif

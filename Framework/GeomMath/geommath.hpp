@@ -13,6 +13,7 @@
 #include "include/MatrixExchangeYandZ.h"
 #include "include/InverseMatrix4X4f.h"
 #include "include/DCT.h"
+#include "include/Absolute.h"
 
 #ifndef PI
 #define PI 3.14159265358979323846f
@@ -88,12 +89,23 @@ struct Vector2Type
         swizzle<newbieGE::Vector2Type, T, 1, 0> yx;
     };
 
-    Vector2Type<T>(){};
-    Vector2Type<T>(const T &_v) : x(_v), y(_v){};
-    Vector2Type<T>(const T &_x, const T &_y) : x(_x), y(_y){};
+    Vector2Type<T>() {}
+    Vector2Type<T>(const T &_v) : x(_v), y(_v) {}
+    Vector2Type<T>(const T &_x, const T &_y) : x(_x), y(_y) {}
 
     operator T *() { return data; };
-    operator const T *() const { return static_cast<const T *>(data); };
+    operator const T *() const { return static_cast<const T *>(data); }
+
+    void Set(const T &_v)
+    {
+        x = _v;
+        y = _v;
+    }
+    void Set(const T &_x, const T &_y)
+    {
+        x = _x;
+        y = _y;
+    }
 };
 
 typedef Vector2Type<float> Vector2f;
@@ -126,12 +138,25 @@ struct Vector3Type
         swizzle<newbieGE::Vector3Type, T, 0, 1, 2> rgb;
     };
 
-    Vector3Type<T>(){};
-    Vector3Type<T>(const T &_v) : x(_v), y(_v), z(_v){};
-    Vector3Type<T>(const T &_x, const T &_y, const T &_z) : x(_x), y(_y), z(_z){};
+    Vector3Type<T>() {}
+    Vector3Type<T>(const T &_v) : x(_v), y(_v), z(_v) {}
+    Vector3Type<T>(const T &_x, const T &_y, const T &_z) : x(_x), y(_y), z(_z) {}
 
     operator T *() { return data; };
     operator const T *() const { return static_cast<const T *>(data); };
+
+    void Set(const T &_v)
+    {
+        x = _v;
+        y = _v;
+        z = _v;
+    }
+    void Set(const T &_x, const T &_y, const T &_z)
+    {
+        x = _x;
+        y = _y;
+        z = _z;
+    }
 };
 
 typedef Vector3Type<float> Vector3f;
@@ -170,6 +195,22 @@ struct Vector4Type
 
     operator T *() { return data; };
     operator const T *() const { return static_cast<const T *>(data); };
+
+    void Set(const T &_v)
+    {
+        x = _v;
+        y = _v;
+        z = _v;
+        w = _v;
+    }
+    void Set(const T &_x, const T &_y, const T &_z, const T &_w)
+    {
+        x = _x;
+        y = _y;
+        z = _z;
+        w = _w;
+    }
+
     Vector4Type &operator=(const T *f)
     {
         for (int32_t i = 0; i < 4; i++)
@@ -259,6 +300,15 @@ TT<T> operator-(const TT<T> &vec1, const TT<T> &vec2)
 {
     TT<T> result;
     VectorSub(result, vec1, vec2);
+
+    return result;
+}
+
+template <template <typename> class TT, typename T>
+TT<T> operator-(const TT<T> &vec, const T scalar)
+{
+    TT<T> result(scalar);
+    VectorSub(result, vec, result);
 
     return result;
 }
@@ -444,29 +494,48 @@ Matrix<T, ROWS, COLS> operator*(const Matrix<T, ROWS, COLS> &matrix1, const Matr
     return result;
 }
 
+template <typename T, int ROWS1, int COLS1, int ROWS2, int COLS2>
+void Shrink(Matrix<T, ROWS1, COLS1> &matrix1, const Matrix<T, ROWS2, COLS2> &matrix2)
+{
+    static_assert(ROWS1 < ROWS2, "[Error] Target matrix ROWS must smaller than source matrix ROWS!");
+    static_assert(COLS1 < COLS2, "[Error] Target matrix COLS must smaller than source matrix COLS!");
+
+    size_t size = sizeof(T) * COLS1;
+    for (int i = 0; i < ROWS1; i++)
+    {
+        std::memcpy(matrix1[i], matrix2[i], size);
+    }
+}
+
+template <typename T, int ROWS, int COLS>
+void Absolute(Matrix<T, ROWS, COLS> &result, const Matrix<T, ROWS, COLS> &matrix)
+{
+    ispc::Absolute(result, matrix, countof(matrix.data));
+}
+
 template <template <typename, int, int> class TT, typename T, int ROWS, int COLS>
 inline void Transpose(TT<T, ROWS, COLS> &result, const TT<T, ROWS, COLS> &matrix1)
 {
     ispc::Transpose(matrix1, result, ROWS, COLS);
 }
 
-template <template <typename, int, int> class M, template <typename> class V, typename T, int ROWS, int COLS>
-inline void DotProduct3(V<T> &result, const M<T, ROWS, COLS> &matrix)
+template <template <typename, int, int> class M, typename T, int ROWS, int COLS>
+inline void DotProduct3(Vector3Type<T> &result, Vector3Type<T> &source, const M<T, ROWS, COLS> &matrix)
 {
     static_assert(ROWS >= 3, "[Error] Only 3x3 and above matrix can be passed to this method!");
     static_assert(COLS >= 3, "[Error] Only 3x3 and above matrix can be passed to this method!");
-    V<T> basis[3] = {
-        {matrix[0][0], matrix[0][1], matrix[0][2]},
-        {matrix[1][0], matrix[1][1], matrix[1][2]},
-        {matrix[2][0], matrix[2][1], matrix[2][2]},
+    Vector3Type<T> basis[3] = {
+        {matrix[0][0], matrix[1][0], matrix[2][0]},
+        {matrix[0][1], matrix[1][1], matrix[2][1]},
+        {matrix[0][2], matrix[1][2], matrix[2][2]},
     };
-    DotProduct(result[0], basis[0], basis[0]);
-    DotProduct(result[1], basis[1], basis[1]);
-    DotProduct(result[2], basis[2], basis[2]);
+    DotProduct(result[0], source, basis[0]);
+    DotProduct(result[1], source, basis[1]);
+    DotProduct(result[2], source, basis[2]);
 }
 
-template <template <typename, int, int> class M, template <typename> class V, typename T, int ROWS, int COLS>
-inline void GetOrigin(V<T> &result, const M<T, ROWS, COLS> &matrix)
+template <template <typename, int, int> class M, typename T, int ROWS, int COLS>
+inline void GetOrigin(Vector3Type<T> &result, const M<T, ROWS, COLS> &matrix)
 {
     static_assert(ROWS >= 3, "[Error] Only 3x3 and above matrix can be passed to this method!");
     static_assert(COLS >= 3, "[Error] Only 3x3 and above matrix can be passed to this method!");
