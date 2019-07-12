@@ -178,7 +178,7 @@ void OpenGLGraphicsManager::Clear()
 
 void OpenGLGraphicsManager::Draw()
 {
-    GraphicsManager::Draw();
+    // GraphicsManager::Draw();
 
     // Render the model using the color shader.
     RenderBuffers();

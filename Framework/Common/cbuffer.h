@@ -94,6 +94,12 @@ namespace newbieGE {
     };
 
 #ifdef __cplusplus
+const size_t kSizePerFrameConstantBuffer = ALIGN(sizeof(PerFrameConstants), 256); // CB size is required to be 256-byte aligned.
+const size_t kSizePerBatchConstantBuffer = ALIGN(sizeof(PerBatchConstants), 256); // CB size is required to be 256-byte aligned.
+const size_t kSizeLightInfo = ALIGN(sizeof(LightInfo), 256); // CB size is required to be 256-byte aligned.
+#endif
+
+#ifdef __cplusplus
 } // namespace newbieGE
 #endif
 

@@ -6,14 +6,6 @@
 
 using namespace newbieGE;
 
-//#ifndef ALIGN
-#define ALIGN_TMP(x, a)         (((x) + ((a) - 1)) & ~((a) - 1))
-//#endif
-
-// CB size is required to be 256-byte aligned.
-const size_t kSizePerFrameConstantBuffer = ALIGN_TMP(sizeof(PerFrameConstants), 256);
-const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 256);
-
 @implementation MetalRenderer
 {
     dispatch_semaphore_t _inFlightSemaphore;
