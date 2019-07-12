@@ -6,40 +6,41 @@
 
 namespace newbieGE
 {
-    struct DrawBatchConstants : public PerBatchConstants {
-        uint32_t batchIndex;
-        std::shared_ptr<SceneGeometryNode> node;
-        
-        virtual ~DrawBatchConstants() = default;
-    };
-    
-    class GraphicsManager : implements IRuntimeModule
-    {
-      public:
-            virtual ~GraphicsManager() = default;
+struct DrawBatchConstants : public PerBatchConstants
+{
+    uint32_t batchIndex;
+    std::shared_ptr<SceneGeometryNode> node;
 
-            virtual int Initialize() override;
-            virtual void Finalize() override;
+    virtual ~DrawBatchConstants() = default;
+};
 
-            void Tick() override;
-        
-            virtual void RenderBuffers();
+class GraphicsManager : implements IRuntimeModule
+{
+public:
+    virtual ~GraphicsManager() = default;
 
-        private:
-            void InitConstants();
-        
-            void CalculateCameraMatrix();
-            void CalculateLights();
-            void UpdateConstants();
-        
-            virtual void InitializeBuffers();
-            virtual void SetPerFrameConstants(){};
-            virtual void SetPerBatchConstants(){};
+    virtual int Initialize() override;
+    virtual void Finalize() override;
 
-        protected:
-            PerFrameConstants m_DrawFrameContext;
-            std::vector<std::shared_ptr<DrawBatchConstants> > m_DrawBatchContext;
-    };
+    void Tick() override;
 
-    extern GraphicsManager *g_pGraphicsManager;
+    virtual void RenderBuffers();
+
+private:
+    void InitConstants();
+
+    void CalculateCameraMatrix();
+    void CalculateLights();
+    void UpdateConstants();
+
+    virtual void InitializeBuffers();
+    virtual void SetPerFrameConstants(){};
+    virtual void SetPerBatchConstants(){};
+
+protected:
+    PerFrameConstants m_DrawFrameContext;
+    std::vector<std::shared_ptr<DrawBatchConstants>> m_DrawBatchContext;
+};
+
+extern GraphicsManager *g_pGraphicsManager;
 } // namespace newbieGE

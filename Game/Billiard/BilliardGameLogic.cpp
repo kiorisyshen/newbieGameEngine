@@ -25,7 +25,6 @@ void BilliardGameLogic::Finalize()
 
 void BilliardGameLogic::Tick()
 {
-
 }
 
 void BilliardGameLogic::OnLeftKey()

@@ -93,7 +93,7 @@ void InputManager::RightArrowKeyDown()
     cerr << "[InputManager] Right Arrow Key Down!" << endl;
 #endif
     g_pGameLogic->OnRightKeyDown();
-    if(!m_bRightKeyPressed)
+    if (!m_bRightKeyPressed)
     {
         g_pGameLogic->OnRightKey();
         m_bRightKeyPressed = true;
@@ -123,4 +123,3 @@ void InputManager::ResetKeyUp()
     cerr << "[InputManager] Reset Key Up!" << endl;
 #endif
 }
-

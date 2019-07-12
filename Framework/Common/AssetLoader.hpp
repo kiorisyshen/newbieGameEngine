@@ -7,69 +7,73 @@
 #include "IRuntimeModule.hpp"
 #include "Buffer.hpp"
 
-namespace newbieGE {
-	class AssetLoader : public IRuntimeModule {
-    public:
-        virtual ~AssetLoader() {};
+namespace newbieGE
+{
+class AssetLoader : public IRuntimeModule
+{
+public:
+    virtual ~AssetLoader(){};
 
-        virtual int Initialize();
-        virtual void Finalize();
+    virtual int Initialize();
+    virtual void Finalize();
 
-        virtual void Tick();
+    virtual void Tick();
 
-        typedef void* AssetFilePtr;
+    typedef void *AssetFilePtr;
 
-        enum AssetOpenMode {
-            MY_OPEN_TEXT   = 0, /// Open In Text Mode
-            MY_OPEN_BINARY = 1, /// Open In Binary Mode 
-        };
+    enum AssetOpenMode
+    {
+        MY_OPEN_TEXT = 0,   /// Open In Text Mode
+        MY_OPEN_BINARY = 1, /// Open In Binary Mode
+    };
 
-        enum AssetSeekBase {
-            MY_SEEK_SET = 0, /// SEEK_SET
-            MY_SEEK_CUR = 1, /// SEEK_CUR
-            MY_SEEK_END = 2  /// SEEK_END
-        };
+    enum AssetSeekBase
+    {
+        MY_SEEK_SET = 0, /// SEEK_SET
+        MY_SEEK_CUR = 1, /// SEEK_CUR
+        MY_SEEK_END = 2  /// SEEK_END
+    };
 
-        bool AddSearchPath(const char *path);
+    bool AddSearchPath(const char *path);
 
-        bool RemoveSearchPath(const char *path);
+    bool RemoveSearchPath(const char *path);
 
-        virtual bool FileExists(const char *filePath);
+    virtual bool FileExists(const char *filePath);
 
-        virtual AssetFilePtr OpenFile(const char* name, AssetOpenMode mode);
+    virtual AssetFilePtr OpenFile(const char *name, AssetOpenMode mode);
 
-        virtual Buffer SyncOpenAndReadText(const char *filePath);
+    virtual Buffer SyncOpenAndReadText(const char *filePath);
 
-        virtual Buffer SyncOpenAndReadBinary(const char *filePath);
+    virtual Buffer SyncOpenAndReadBinary(const char *filePath);
 
-        virtual size_t SyncRead(const AssetFilePtr& fp, Buffer& buf);
+    virtual size_t SyncRead(const AssetFilePtr &fp, Buffer &buf);
 
-        virtual void CloseFile(AssetFilePtr& fp);
+    virtual void CloseFile(AssetFilePtr &fp);
 
-        virtual size_t GetSize(const AssetFilePtr& fp);
+    virtual size_t GetSize(const AssetFilePtr &fp);
 
-        virtual int32_t Seek(AssetFilePtr fp, long offset, AssetSeekBase where);
+    virtual int32_t Seek(AssetFilePtr fp, long offset, AssetSeekBase where);
 
-        inline std::string SyncOpenAndReadTextFileToString(const char* fileName)
+    inline std::string SyncOpenAndReadTextFileToString(const char *fileName)
+    {
+        std::string result;
+        Buffer buffer = SyncOpenAndReadText(fileName);
+        if (buffer.GetDataSize())
         {
-            std::string result;
-            Buffer buffer = SyncOpenAndReadText(fileName);
-            if (buffer.GetDataSize())
+            char *content = reinterpret_cast<char *>(buffer.GetData());
+
+            if (content)
             {
-                char* content = reinterpret_cast<char*>(buffer.GetData());
-
-                if (content)
-                {
-                    result = std::string(std::move(content));
-                }
+                result = std::string(std::move(content));
             }
-
-            return result;
         }
-    private:
-        std::vector<std::string> m_strSearchPath;
-	};
 
-    extern AssetLoader*     g_pAssetLoader;
-}
+        return result;
+    }
 
+private:
+    std::vector<std::string> m_strSearchPath;
+};
+
+extern AssetLoader *g_pAssetLoader;
+} // namespace newbieGE

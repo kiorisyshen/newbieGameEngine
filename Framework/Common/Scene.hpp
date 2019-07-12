@@ -5,51 +5,52 @@
 #include "SceneObject.hpp"
 #include "SceneNode.hpp"
 
-namespace newbieGE {
-    class Scene {
-    private:
-        std::shared_ptr<SceneObjectMaterial> m_pDefaultMaterial;
-         
-    public:
-        std::shared_ptr<BaseSceneNode> SceneGraph;
+namespace newbieGE
+{
+class Scene
+{
+private:
+    std::shared_ptr<SceneObjectMaterial> m_pDefaultMaterial;
 
-        std::unordered_multimap<std::string, std::shared_ptr<SceneCameraNode>>       CameraNodes;
-        std::unordered_multimap<std::string, std::shared_ptr<SceneLightNode>>        LightNodes;
-        std::unordered_multimap<std::string, std::shared_ptr<SceneGeometryNode>>     GeometryNodes;
-        
-        std::unordered_map<std::string, std::shared_ptr<SceneObjectCamera>>     Cameras;
-        std::unordered_map<std::string, std::shared_ptr<SceneObjectLight>>      Lights;
-        std::unordered_map<std::string, std::shared_ptr<SceneObjectMaterial>>   Materials;
-        std::unordered_map<std::string, std::shared_ptr<SceneObjectGeometry>>   Geometries;
+public:
+    std::shared_ptr<BaseSceneNode> SceneGraph;
 
-        std::unordered_map<std::string, std::weak_ptr<SceneGeometryNode>>     LUT_Name_GeometryNode;
+    std::unordered_multimap<std::string, std::shared_ptr<SceneCameraNode>> CameraNodes;
+    std::unordered_multimap<std::string, std::shared_ptr<SceneLightNode>> LightNodes;
+    std::unordered_multimap<std::string, std::shared_ptr<SceneGeometryNode>> GeometryNodes;
 
-    public:
-        Scene() {
-            m_pDefaultMaterial = std::make_shared<SceneObjectMaterial>("default");
-        }
+    std::unordered_map<std::string, std::shared_ptr<SceneObjectCamera>> Cameras;
+    std::unordered_map<std::string, std::shared_ptr<SceneObjectLight>> Lights;
+    std::unordered_map<std::string, std::shared_ptr<SceneObjectMaterial>> Materials;
+    std::unordered_map<std::string, std::shared_ptr<SceneObjectGeometry>> Geometries;
 
-        Scene(const std::string& scene_name) : 
-            SceneGraph(new BaseSceneNode(scene_name))
-        {
-            m_pDefaultMaterial = std::make_shared<SceneObjectMaterial>("default");
-        }
+    std::unordered_map<std::string, std::weak_ptr<SceneGeometryNode>> LUT_Name_GeometryNode;
 
-        ~Scene() = default;
+public:
+    Scene()
+    {
+        m_pDefaultMaterial = std::make_shared<SceneObjectMaterial>("default");
+    }
 
-        const std::shared_ptr<SceneObjectCamera> GetCamera(const std::string& key) const;
-        const std::shared_ptr<SceneCameraNode> GetFirstCameraNode() const;
+    Scene(const std::string &scene_name) : SceneGraph(new BaseSceneNode(scene_name))
+    {
+        m_pDefaultMaterial = std::make_shared<SceneObjectMaterial>("default");
+    }
 
-        const std::shared_ptr<SceneObjectLight> GetLight(const std::string& key) const;
-        const std::shared_ptr<SceneLightNode> GetFirstLightNode() const;
+    ~Scene() = default;
 
-        const std::shared_ptr<SceneObjectGeometry> GetGeometry(const std::string& key) const;
-        const std::shared_ptr<SceneGeometryNode> GetFirstGeometryNode() const;
+    const std::shared_ptr<SceneObjectCamera> GetCamera(const std::string &key) const;
+    const std::shared_ptr<SceneCameraNode> GetFirstCameraNode() const;
 
-        const std::shared_ptr<SceneObjectMaterial> GetMaterial(const std::string& key) const;
-        const std::shared_ptr<SceneObjectMaterial> GetFirstMaterial() const;
+    const std::shared_ptr<SceneObjectLight> GetLight(const std::string &key) const;
+    const std::shared_ptr<SceneLightNode> GetFirstLightNode() const;
 
-        void LoadResource(void);
-    };
-}
+    const std::shared_ptr<SceneObjectGeometry> GetGeometry(const std::string &key) const;
+    const std::shared_ptr<SceneGeometryNode> GetFirstGeometryNode() const;
 
+    const std::shared_ptr<SceneObjectMaterial> GetMaterial(const std::string &key) const;
+    const std::shared_ptr<SceneObjectMaterial> GetFirstMaterial() const;
+
+    void LoadResource(void);
+};
+} // namespace newbieGE

@@ -11,7 +11,7 @@ using namespace std;
 int GraphicsManager::Initialize()
 {
     int result = 0;
-	InitConstants();
+    InitConstants();
     return result;
 }
 
@@ -31,17 +31,19 @@ void GraphicsManager::Tick()
     // Generate the view matrix based on the camera's position.
     CalculateCameraMatrix();
     CalculateLights();
-    
+
     UpdateConstants();
-    
+
     SetPerFrameConstants();
     SetPerBatchConstants();
 }
 
 void GraphicsManager::UpdateConstants()
 {
-    for (auto pbc : m_DrawBatchContext) {
-        if (void* rigidBody = pbc->node->RigidBody()) {
+    for (auto pbc : m_DrawBatchContext)
+    {
+        if (void *rigidBody = pbc->node->RigidBody())
+        {
             Matrix4X4f trans = *pbc->node->GetCalculatedTransform();
             // reset the translation part of the matrix
             memcpy(trans[3], Vector3f(0.0f, 0.0f, 0.0f), sizeof(float) * 3);
@@ -59,12 +61,13 @@ void GraphicsManager::UpdateConstants()
             memcpy(trans[3], simulated_result[3], sizeof(float) * 3);
 
             pbc->m_objectLocalMatrix = trans;
-        } else {
+        }
+        else
+        {
             pbc->m_objectLocalMatrix = *pbc->node->GetCalculatedTransform();
         }
     }
 }
-
 
 void GraphicsManager::InitConstants()
 {
@@ -74,15 +77,17 @@ void GraphicsManager::InitConstants()
 
 void GraphicsManager::CalculateCameraMatrix()
 {
-    auto& scene = g_pSceneManager->GetSceneForRendering();
+    auto &scene = g_pSceneManager->GetSceneForRendering();
     auto pCameraNode = scene.GetFirstCameraNode();
-    if (pCameraNode) {
+    if (pCameraNode)
+    {
         m_DrawFrameContext.m_viewMatrix = *pCameraNode->GetCalculatedTransform();
         InverseMatrix4X4f(m_DrawFrameContext.m_viewMatrix);
     }
-    else {
+    else
+    {
         // use default build-in camera
-        Vector3f position = { 0, -5, 0 }, lookAt = { 0, 0, 0 }, up = { 0, 0, 1 };
+        Vector3f position = {0, -5, 0}, lookAt = {0, 0, 0}, up = {0, 0, 1};
         BuildViewMatrix(m_DrawFrameContext.m_viewMatrix, position, lookAt, up);
     }
 
@@ -90,7 +95,8 @@ void GraphicsManager::CalculateCameraMatrix()
     float nearClipDistance = 1.0f;
     float farClipDistance = 100.0f;
 
-    if (pCameraNode) {
+    if (pCameraNode)
+    {
         auto pCamera = scene.GetCamera(pCameraNode->GetSceneObjectRef());
         // Set the field of view and screen aspect ratio.
         fieldOfView = dynamic_pointer_cast<SceneObjectPerspectiveCamera>(pCamera)->GetFov();
@@ -98,7 +104,7 @@ void GraphicsManager::CalculateCameraMatrix()
         farClipDistance = pCamera->GetFarClipDistance();
     }
 
-    const GfxConfiguration& conf = g_pApp->GetConfiguration();
+    const GfxConfiguration &conf = g_pApp->GetConfiguration();
 
     float screenAspect = (float)conf.screenWidth / (float)conf.screenHeight;
 
@@ -108,21 +114,24 @@ void GraphicsManager::CalculateCameraMatrix()
 
 void GraphicsManager::CalculateLights()
 {
-    auto& scene = g_pSceneManager->GetSceneForRendering();
+    auto &scene = g_pSceneManager->GetSceneForRendering();
     auto pLightNode = scene.GetFirstLightNode();
-    if (pLightNode) {
-        m_DrawFrameContext.m_lightPosition = { 300.0f, 400.0f, 600.0f };
+    if (pLightNode)
+    {
+        m_DrawFrameContext.m_lightPosition = {300.0f, 400.0f, 600.0f};
         TransformCoord(m_DrawFrameContext.m_lightPosition, *pLightNode->GetCalculatedTransform());
 
         auto pLight = scene.GetLight(pLightNode->GetSceneObjectRef());
-        if (pLight) {
+        if (pLight)
+        {
             m_DrawFrameContext.m_lightColor = pLight->GetColor().Value;
         }
     }
-    else {
-        // use default build-in light 
-        m_DrawFrameContext.m_lightPosition = { 600.0f, -500.0f, 40.0f};
-        m_DrawFrameContext.m_lightColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+    else
+    {
+        // use default build-in light
+        m_DrawFrameContext.m_lightPosition = {600.0f, -500.0f, 40.0f};
+        m_DrawFrameContext.m_lightColor = {1.0f, 1.0f, 1.0f, 1.0f};
     }
 }
 
@@ -135,4 +144,3 @@ void GraphicsManager::RenderBuffers()
 {
     cout << "[RHI] GraphicsManager::RenderBuffers()" << endl;
 }
-

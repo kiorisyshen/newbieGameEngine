@@ -6,8 +6,8 @@ using namespace std;
 
 bool BaseApplication::m_bQuit = false;
 
-BaseApplication::BaseApplication(GfxConfiguration& cfg)
-    :m_Config(cfg)
+BaseApplication::BaseApplication(GfxConfiguration &cfg)
+    : m_Config(cfg)
 {
 }
 
@@ -19,54 +19,61 @@ int BaseApplication::Initialize()
     cout << m_Config;
 
     cerr << "Initialize Memory Manager: ";
-	if ((ret = g_pMemoryManager->Initialize()) != 0) {
+    if ((ret = g_pMemoryManager->Initialize()) != 0)
+    {
         cerr << "Failed. err = " << ret;
-		return ret;
-	}
+        return ret;
+    }
     cerr << "Success" << endl;
 
     cerr << "Initialize Asset Loader: ";
-	if ((ret = g_pAssetLoader->Initialize()) != 0) {
+    if ((ret = g_pAssetLoader->Initialize()) != 0)
+    {
         cerr << "Failed. err = " << ret;
-		return ret;
-	}
+        return ret;
+    }
     cerr << "Success" << endl;
 
     cerr << "Initialize Scene Manager: ";
-	if ((ret = g_pSceneManager->Initialize()) != 0) {
+    if ((ret = g_pSceneManager->Initialize()) != 0)
+    {
         cerr << "Failed. err = " << ret;
-		return ret;
-	}
+        return ret;
+    }
     cerr << "Success" << endl;
 
     cerr << "Initialize Graphics Manager: ";
-	if ((ret = g_pGraphicsManager->Initialize()) != 0) {
+    if ((ret = g_pGraphicsManager->Initialize()) != 0)
+    {
         cerr << "Failed. err = " << ret;
-		return ret;
-	}
+        return ret;
+    }
     cerr << "Success" << endl;
 
     cerr << "Initialize Input Manager: ";
-	if ((ret = g_pInputManager->Initialize()) != 0) {
+    if ((ret = g_pInputManager->Initialize()) != 0)
+    {
         cerr << "Failed. err = " << ret;
-		return ret;
-	}
+        return ret;
+    }
     cerr << "Success" << endl;
 
     cerr << "Initialize Physics Manager: ";
-	if ((ret = g_pPhysicsManager->Initialize()) != 0) {
+    if ((ret = g_pPhysicsManager->Initialize()) != 0)
+    {
         cerr << "Failed. err = " << ret;
-		return ret;
-	}
+        return ret;
+    }
     cerr << "Success" << endl;
 
     cerr << "Initialize Game Logic: ";
-    if ((ret = g_pGameLogic->Initialize()) != 0) {
+    if ((ret = g_pGameLogic->Initialize()) != 0)
+    {
         cerr << "Failed. err =" << ret;
         return ret;
     }
 
-	return ret;
+    return ret;
 }
 
 // Finalize all sub modules and clean up all runtime temporary files.
@@ -81,7 +88,6 @@ void BaseApplication::Finalize()
     g_pMemoryManager->Finalize();
 }
 
-
 // One cycle of the main loop
 void BaseApplication::Tick()
 {
@@ -93,7 +99,7 @@ void BaseApplication::Tick()
     g_pGraphicsManager->Tick();
 }
 
-void BaseApplication::SetCommandLineParameters(int argc, char** argv)
+void BaseApplication::SetCommandLineParameters(int argc, char **argv)
 {
     m_nArgC = argc;
     m_ppArgV = argv;
@@ -101,7 +107,5 @@ void BaseApplication::SetCommandLineParameters(int argc, char** argv)
 
 bool BaseApplication::IsQuit()
 {
-	return m_bQuit;
+    return m_bQuit;
 }
-
-

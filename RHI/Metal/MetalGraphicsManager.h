@@ -8,23 +8,24 @@
 
 OBJC_CLASS(MetalRenderer);
 
-namespace newbieGE {
-    class MetalGraphicsManager : public GraphicsManager
-    {
-    public:
-        int Initialize() final;
-        void Finalize() final;
+namespace newbieGE
+{
+class MetalGraphicsManager : public GraphicsManager
+{
+public:
+    int Initialize() final;
+    void Finalize() final;
 
-        void SetRenderer(MetalRenderer* renderer) { m_pRenderer = renderer; }
-        
-        void RenderBuffers() final;
+    void SetRenderer(MetalRenderer *renderer) { m_pRenderer = renderer; }
 
-    private:
-        void InitializeBuffers() final;
-        void SetPerFrameConstants() final;
-        void SetPerBatchConstants() final;
+    void RenderBuffers() final;
 
-        MetalRenderer* m_pRenderer;
-    };
+private:
+    void InitializeBuffers() final;
+    void SetPerFrameConstants() final;
+    void SetPerBatchConstants() final;
 
-}
+    MetalRenderer *m_pRenderer;
+};
+
+} // namespace newbieGE

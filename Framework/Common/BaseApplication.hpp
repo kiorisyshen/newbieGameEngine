@@ -8,34 +8,34 @@
 #include "IPhysicsManager.hpp"
 #include "GameLogic.hpp"
 
-namespace newbieGE {
-    class BaseApplication : implements IApplication
-    {
-    public:
-        BaseApplication(GfxConfiguration& cfg);
-        virtual int Initialize();
-        virtual void Finalize();
-        // One cycle of the main loop
-        virtual void Tick();
+namespace newbieGE
+{
+class BaseApplication : implements IApplication
+{
+public:
+    BaseApplication(GfxConfiguration &cfg);
+    virtual int Initialize();
+    virtual void Finalize();
+    // One cycle of the main loop
+    virtual void Tick();
 
-        virtual void SetCommandLineParameters(int argc, char** argv);
+    virtual void SetCommandLineParameters(int argc, char **argv);
 
-        virtual bool IsQuit();
+    virtual bool IsQuit();
 
-        inline GfxConfiguration& GetConfiguration() { return m_Config; };
+    inline GfxConfiguration &GetConfiguration() { return m_Config; };
 
-        virtual void OnDraw() {};
+    virtual void OnDraw(){};
 
-    protected:
-        // Flag if need quit the main loop of the application
-        static bool         m_bQuit;
-        GfxConfiguration    m_Config;
-        int                 m_nArgC;
-        char**              m_ppArgV;
+protected:
+    // Flag if need quit the main loop of the application
+    static bool m_bQuit;
+    GfxConfiguration m_Config;
+    int m_nArgC;
+    char **m_ppArgV;
 
-    private:
-        // hide the default construct to enforce a configuration
-        BaseApplication(){};
-    };
-}
-
+private:
+    // hide the default construct to enforce a configuration
+    BaseApplication(){};
+};
+} // namespace newbieGE
