@@ -32,7 +32,9 @@ void DebugManager::ToggleDebugInfo()
 #ifdef DEBUG
     m_bDrawDebugInfo = !m_bDrawDebugInfo;
     if (!m_bDrawDebugInfo)
+    {
         g_pGraphicsManager->ClearDebugBuffers();
+    }
 #endif
 }
 

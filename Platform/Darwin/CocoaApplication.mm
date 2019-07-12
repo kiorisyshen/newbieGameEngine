@@ -86,19 +86,22 @@ void CocoaApplication::Tick()
                             break;
                         }
                     }
+                } else {
+                    switch ([event keyCode])
+                    {
+                        case 0x02: // d key
+#ifdef DEBUG
+                            g_pInputManager->DebugKeyUp();
+#endif
+                            break;
+                        case 0x0F: // r key
+                            g_pInputManager->ResetKeyUp();
+                            break;
+                    }
                 }
                 break;
             case NSEventTypeKeyDown:
                 NSLog(@"[CocoaApp] Key Down Event Received!");
-                
-                if ([event keyCode] == 0x0C) {
-                    m_bQuit = true;
-                    break;
-                }
-                if ([event keyCode] == 0x0F) {
-                    g_pInputManager->ResetKeyDown();
-                    break;
-                }
                 if ([event modifierFlags] & NSEventModifierFlagNumericPad)
                 {
                     // arrow keys
@@ -123,6 +126,21 @@ void CocoaApplication::Tick()
                             g_pInputManager->DownArrowKeyDown();
                             break;
                         }
+                    }
+                } else {
+                    switch ([event keyCode])
+                    {
+                        case 0x02: // d key
+#ifdef DEBUG
+                            g_pInputManager->DebugKeyDown();
+#endif
+                            break;
+                        case 0x0F: // r key
+                            g_pInputManager->ResetKeyDown();
+                            break;
+                        case 0x0C: // q key
+                            m_bQuit = true;
+                            break;
                     }
                 }
                 break;

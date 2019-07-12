@@ -138,6 +138,9 @@ void GraphicsManager::RenderBuffers()
 {
     BeginFrame();
     BeginPass();
+#ifdef DEBUG
+    
+#endif
     DrawBatch(m_DrawBatchContext);
     EndPass();
     EndFrame();
