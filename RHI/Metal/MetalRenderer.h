@@ -4,7 +4,7 @@
 #include "geommath.hpp"
 
 namespace newbieGE {
-    struct MtlDrawBatchContext : DrawBatchConstants{
+    struct MtlDrawBatchContext : public DrawBatchConstants {
         uint32_t index_offset;
         MTLPrimitiveType index_mode;
         uint32_t index_count;
@@ -19,7 +19,7 @@ namespace newbieGE {
 
 -(nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view;
 
--(void)tick;
+-(void)tick:(const std::vector<std::shared_ptr<DrawBatchConstants>>&) batches;
 
 - (uint32_t)createTexture:(const newbieGE::Image&)image;
 
@@ -27,9 +27,9 @@ namespace newbieGE {
 
 - (void)createIndexBuffer:(const newbieGE::SceneObjectIndexArray&)index_array;
 
-- (void)setPerFrameContext:(const newbieGE::PerFrameConstants&)pfc;
+- (void)setPerFrameConstants:(const PerFrameConstants&)context;
 
-- (std::vector<std::shared_ptr<newbieGE::MtlDrawBatchContext> >&)getPBC;
+- (void)setPerBatchConstants:(const std::vector<std::shared_ptr<DrawBatchConstants>>&)batches;
 
 - (void)loadMetal;
 

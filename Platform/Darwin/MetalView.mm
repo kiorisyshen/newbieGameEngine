@@ -53,8 +53,9 @@ using namespace newbieGE;
 }
 
 - (void)drawRect:(CGRect)drawRect {
-    g_pGraphicsManager->Draw();
+//    g_pGraphicsManager->Draw();
 //    NSLog(@"draw.");
+    g_pGraphicsManager->Tick();
 }
 
 @end

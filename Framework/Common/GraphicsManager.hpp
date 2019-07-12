@@ -9,6 +9,8 @@ namespace newbieGE
     struct DrawBatchConstants : public PerBatchConstants {
         uint32_t batchIndex;
         std::shared_ptr<SceneGeometryNode> node;
+        
+        virtual ~DrawBatchConstants() = default;
     };
     
     class GraphicsManager : implements IRuntimeModule

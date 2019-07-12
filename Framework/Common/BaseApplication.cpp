@@ -90,7 +90,7 @@ void BaseApplication::Tick()
     g_pSceneManager->Tick();
     g_pInputManager->Tick();
     g_pPhysicsManager->Tick();
-    g_pGraphicsManager->Tick();
+//    g_pGraphicsManager->Tick();
 }
 
 void BaseApplication::SetCommandLineParameters(int argc, char** argv)

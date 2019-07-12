@@ -32,9 +32,6 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
     std::vector<id<MTLBuffer>> _indexBuffers;
     id<MTLBuffer> _uniformBuffers;
     
-    PerFrameConstants _PFC;
-    std::vector<std::shared_ptr<MtlDrawBatchContext> > _PBC;
-    
     // Vertex descriptor specifying how vertices will by laid out for input into our render
     // pipeline and how ModelIO should layout vertices
     MTLVertexDescriptor* _mtlVertexDescriptor;
@@ -135,7 +132,7 @@ const size_t kSizePerBatchConstantBuffer = ALIGN_TMP(sizeof(PerBatchConstants), 
 
 static int tick_c = 2;
 
-- (void)tick
+- (void)tick:(const std::vector<std::shared_ptr<DrawBatchConstants>>&) batches
 {
     if (tick_c > 0) {
         tick_c --;
@@ -175,7 +172,6 @@ static int tick_c = 2;
         // Push a debug group allowing us to identify render commands in the GPU Frame Capture tool
         [render_encoder pushDebugGroup:@"DrawMesh"];
 
-        std::memcpy(_uniformBuffers.contents, &(_PFC), sizeof(PerFrameConstants));
         [render_encoder setVertexBuffer:_uniformBuffers
                                  offset:0
                                 atIndex:10];
@@ -184,21 +180,18 @@ static int tick_c = 2;
                                   atIndex:10];
         [render_encoder setFragmentSamplerState:_sampler0 atIndex:0];
 
-        for (const auto& pDbc : _PBC)
+        for (const auto& pDbc : batches)
         {
-            std::memcpy(reinterpret_cast<uint8_t*>(_uniformBuffers.contents)
-                        + kSizePerFrameConstantBuffer + pDbc->batchIndex * kSizePerBatchConstantBuffer
-                        , &static_cast<const PerBatchConstants&>(*pDbc), sizeof(PerBatchConstants));
+            const MtlDrawBatchContext& dbc = dynamic_cast<const MtlDrawBatchContext&>(*pDbc);
             
             [render_encoder setVertexBuffer:_uniformBuffers
-                                     offset:kSizePerFrameConstantBuffer + pDbc->batchIndex * kSizePerBatchConstantBuffer
+                                     offset:kSizePerFrameConstantBuffer + dbc.batchIndex * kSizePerBatchConstantBuffer
                                     atIndex:11];
             
             [render_encoder setFragmentBuffer:_uniformBuffers
-                                       offset:kSizePerFrameConstantBuffer + pDbc->batchIndex * kSizePerBatchConstantBuffer
+                                       offset:kSizePerFrameConstantBuffer + dbc.batchIndex * kSizePerBatchConstantBuffer
                                       atIndex:11];
             
-            const MtlDrawBatchContext& dbc = dynamic_cast<const MtlDrawBatchContext&>(*pDbc);
             // Set mesh's vertex buffers
             for (uint32_t bufferIndex = 0; bufferIndex < dbc.property_count; bufferIndex++)
             {
@@ -313,14 +306,19 @@ static MTLPixelFormat getMtlPixelFormat(const Image& img)
     _indexBuffers.push_back(indexBuffer);
 }
 
-- (void)setPerFrameContext:(const PerFrameConstants&)pfc
+- (void)setPerFrameConstants:(const PerFrameConstants&)context
 {
-    _PFC = pfc;
+    std::memcpy(_uniformBuffers.contents, &(context), sizeof(PerFrameConstants));
 }
 
-- (std::vector<std::shared_ptr<MtlDrawBatchContext> >&)getPBC
+- (void)setPerBatchConstants:(const std::vector<std::shared_ptr<DrawBatchConstants>>&)batches
 {
-    return _PBC;
+    for (const auto& pDbc : batches)
+    {
+        std::memcpy(reinterpret_cast<uint8_t*>(_uniformBuffers.contents)
+                    + kSizePerFrameConstantBuffer + pDbc->batchIndex * kSizePerBatchConstantBuffer
+                    , &static_cast<const PerBatchConstants&>(*pDbc), sizeof(PerBatchConstants));
+    }
 }
 
 - (void)Finalize

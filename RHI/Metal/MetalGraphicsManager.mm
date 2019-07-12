@@ -31,17 +31,17 @@ void MetalGraphicsManager::Finalize()
 
 void MetalGraphicsManager::RenderBuffers()
 {
-    [m_pRenderer tick];
+    [m_pRenderer tick:m_DrawBatchContext];
 }
 
 void MetalGraphicsManager::SetPerFrameConstants()
 {
-    
+    [m_pRenderer setPerFrameConstants:m_DrawFrameContext];
 }
 
 void MetalGraphicsManager::SetPerBatchConstants()
 {
-    
+    [m_pRenderer setPerBatchConstants:m_DrawBatchContext];
 }
 
 void MetalGraphicsManager::InitializeBuffers()
@@ -71,7 +71,7 @@ void MetalGraphicsManager::InitializeBuffers()
         auto vertexPropertiesCount = pMesh->GetVertexPropertiesCount();
 
         // Set the number of vertices in the vertex array.
-        auto vertexCount = pMesh->GetVertexCount();
+//        auto vertexCount = pMesh->GetVertexCount();
 
         for (decltype(vertexPropertiesCount) i = 0; i < vertexPropertiesCount; i++)
         {
