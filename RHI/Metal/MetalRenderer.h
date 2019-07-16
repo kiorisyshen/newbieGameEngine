@@ -5,16 +5,16 @@
 
 namespace newbieGE
 {
-struct MtlDrawBatchContext : public DrawBatchConstants
-{
-    uint32_t index_offset;
-    MTLPrimitiveType index_mode;
-    uint32_t index_count;
-    MTLIndexType index_type;
-    uint32_t property_count;
-    uint32_t property_offset;
-    int32_t materialIdx;
-};
+    struct MtlDrawBatchContext : public DrawBatchConstants
+    {
+        uint32_t index_offset;
+        MTLPrimitiveType index_mode;
+        uint32_t index_count;
+        MTLIndexType index_type;
+        uint32_t property_count;
+        uint32_t property_offset;
+        int32_t materialIdx;
+    };
 }
 
 @interface MetalRenderer : NSObject
@@ -49,5 +49,13 @@ struct MtlDrawBatchContext : public DrawBatchConstants
 - (void)beginCompute;
 
 - (void)endCompute;
+
+#ifdef DEBUG
+- (void)DEBUG_ClearDebugBuffers;
+
+- (void)DEBUG_DrawLines:(const std::vector<DEBUG_LineParam> &)lineParams;
+
+- (void)DEBUG_InitializeDebugBuffers:(const std::vector<DEBUG_LineParam> &)lineParams;
+#endif
 
 @end

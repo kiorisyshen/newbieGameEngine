@@ -96,6 +96,15 @@ struct PerBatchConstants REGISTER(b11)
     float m_specularPower;
 };
 
+#ifdef DEBUG
+struct DEBUG_LineParam
+{
+    Vector3f from;
+    Vector3f to;
+    Vector3f color;
+};
+#endif
+
 #ifdef __cplusplus
 const size_t kSizePerFrameConstantBuffer = ALIGN(sizeof(PerFrameConstants), 256); // CB size is required to be 256-byte aligned.
 const size_t kSizePerBatchConstantBuffer = ALIGN(sizeof(PerBatchConstants), 256); // CB size is required to be 256-byte aligned.

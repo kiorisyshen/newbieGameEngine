@@ -5,10 +5,11 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/Framework/Common",
-                "${workspaceFolder}/Framework/Interface",
-                "/System/Library/Frameworks/Kernel.framework/Versions/A/Headers"
+                "${workspaceFolder}/Framework/Interface"
             ],
-            "defines": [],
+            "defines": [
+                "DEBUG"
+            ],
             "macFrameworkPath": [
                 "/System/Library/Frameworks",
                 "/Library/Frameworks"
@@ -16,8 +17,7 @@
             "compilerPath": "/usr/bin/clang",
             "cStandard": "c11",
             "cppStandard": "c++17",
-            "intelliSenseMode": "clang-x64",
-            "compileCommands": "${workspaceFolder}/build/compile_commands.json"
+            "intelliSenseMode": "clang-x64"
         }
     ],
     "version": 4

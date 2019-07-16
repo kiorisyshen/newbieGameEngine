@@ -20,12 +20,11 @@ void MetalGraphicsManager::Finalize() {
     m_DrawBatchContext.clear();
 }
 
-//void MetalGraphicsManager::RenderBuffers() {
+// void MetalGraphicsManager::RenderBuffers() {
 //    [m_pRenderer tick:m_DrawBatchContext];
 //}
 
-void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstants>>& batches)
-{
+void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstants>> &batches) {
     [m_pRenderer drawBatch:batches];
 }
 
@@ -37,7 +36,7 @@ void MetalGraphicsManager::SetPerBatchConstants() {
     [m_pRenderer setPerBatchConstants:m_DrawBatchContext];
 }
 
-void MetalGraphicsManager::InitializeBuffers(const Scene& scene) {
+void MetalGraphicsManager::InitializeBuffers(const Scene &scene) {
     m_DrawBatchContext.clear();
     
     uint32_t batch_index = 0;
@@ -160,46 +159,44 @@ void MetalGraphicsManager::InitializeBuffers(const Scene& scene) {
     }
 }
 
-void MetalGraphicsManager::BeginScene(const Scene& scene)
-{
+
+void MetalGraphicsManager::BeginScene(const Scene &scene) {
     GraphicsManager::BeginScene(scene);
     
     InitializeBuffers(scene);
     
+#ifdef DEBUG
+    DEBUG_InitializeDebugBuffers();
+#endif
+    
     cout << "BeginScene Done!" << endl;
 }
 
-void MetalGraphicsManager::EndScene()
-{
-    GraphicsManager::EndScene();
+void MetalGraphicsManager::EndScene() { GraphicsManager::EndScene(); }
+
+void MetalGraphicsManager::BeginFrame() { [m_pRenderer beginFrame]; }
+
+void MetalGraphicsManager::EndFrame() { [m_pRenderer endFrame]; }
+
+void MetalGraphicsManager::BeginPass() { [m_pRenderer beginPass]; }
+
+void MetalGraphicsManager::EndPass() { [m_pRenderer endPass]; }
+
+void MetalGraphicsManager::BeginCompute() { [m_pRenderer beginCompute]; }
+
+void MetalGraphicsManager::EndCompute() { [m_pRenderer endCompute]; }
+
+#ifdef DEBUG
+void MetalGraphicsManager::DEBUG_InitializeDebugBuffers() {
+    [m_pRenderer DEBUG_InitializeDebugBuffers:m_DEBUG_LineParams];
 }
 
-void MetalGraphicsManager::BeginFrame()
-{
-    [m_pRenderer beginFrame];
+void MetalGraphicsManager::DEBUG_ClearDebugBuffers() {
+    GraphicsManager::DEBUG_ClearDebugBuffers();
+    [m_pRenderer DEBUG_ClearDebugBuffers];
 }
 
-void MetalGraphicsManager::EndFrame()
-{
-    [m_pRenderer endFrame];
+void MetalGraphicsManager::DEBUG_DrawLines() {
+    [m_pRenderer DEBUG_DrawLines:m_DEBUG_LineParams];
 }
-
-void MetalGraphicsManager::BeginPass()
-{
-    [m_pRenderer beginPass];
-}
-
-void MetalGraphicsManager::EndPass()
-{
-    [m_pRenderer endPass];
-}
-
-void MetalGraphicsManager::BeginCompute()
-{
-    [m_pRenderer beginCompute];
-}
-
-void MetalGraphicsManager::EndCompute()
-{
-    [m_pRenderer endCompute];
-}
+#endif

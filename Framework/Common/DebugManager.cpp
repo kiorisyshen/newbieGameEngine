@@ -20,7 +20,7 @@ void DebugManager::Tick()
 #ifdef DEBUG
     if (m_bDrawDebugInfo)
     {
-        g_pGraphicsManager->ClearDebugBuffers();
+        g_pGraphicsManager->DEBUG_ClearDebugBuffers();
         DrawDebugInfo();
         g_pPhysicsManager->DrawDebugInfo();
     }
@@ -33,7 +33,7 @@ void DebugManager::ToggleDebugInfo()
     m_bDrawDebugInfo = !m_bDrawDebugInfo;
     if (!m_bDrawDebugInfo)
     {
-        g_pGraphicsManager->ClearDebugBuffers();
+        g_pGraphicsManager->DEBUG_ClearDebugBuffers();
     }
 #endif
 }
@@ -45,18 +45,18 @@ void DebugManager::DrawDebugInfo()
     Vector3f from(-1000.0f, 0.0f, 0.0f);
     Vector3f to(1000.0f, 0.0f, 0.0f);
     Vector3f color(1.0f, 0.0f, 0.0f);
-    g_pGraphicsManager->DrawLine(from, to, color);
+    g_pGraphicsManager->DEBUG_SetDrawLineParam(from, to, color);
 
     // y - axis
     from.Set(0.0f, -1000.0f, 0.0f);
     to.Set(0.0f, 1000.0f, 0.0f);
     color.Set(0.0f, 1.0f, 0.0f);
-    g_pGraphicsManager->DrawLine(from, to, color);
+    g_pGraphicsManager->DEBUG_SetDrawLineParam(from, to, color);
 
     // z - axis
     from.Set(0.0f, 0.0f, -1000.0f);
     to.Set(0.0f, 0.0f, 1000.0f);
     color.Set(0.0f, 0.0f, 1.0f);
-    g_pGraphicsManager->DrawLine(from, to, color);
+    g_pGraphicsManager->DEBUG_SetDrawLineParam(from, to, color);
 }
 #endif

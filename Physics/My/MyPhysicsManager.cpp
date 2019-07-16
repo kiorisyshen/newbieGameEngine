@@ -158,6 +158,6 @@ void MyPhysicsManager::DrawAabb(const Geometry &geometry, const Matrix4X4f &tran
     Vector3f color(0.5f, 0.5f, 0.5f);
 
     geometry.GetAabb(trans, bbMin, bbMax);
-    g_pGraphicsManager->DrawBox(bbMin, bbMax, color);
+    g_pGraphicsManager->DEBUG_SetDrawBoxParam(bbMin, bbMax, color);
 }
 #endif

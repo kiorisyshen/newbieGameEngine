@@ -25,26 +25,31 @@ public:
     void Tick() override;
 
     virtual void RenderBuffers() final;
-    
-    virtual void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstants>>& batches) {}
+
+    virtual void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstants>> &batches) {}
+
 #ifdef DEBUG
-    virtual void DrawLine(const Vector3f &from, const Vector3f &to, const Vector3f &color);
-    virtual void DrawBox(const Vector3f &bbMin, const Vector3f &bbMax, const Vector3f &color);
-    virtual void ClearDebugBuffers();
+    virtual void DEBUG_SetDrawLineParam(const Vector3f &from, const Vector3f &to, const Vector3f &color) final;
+    virtual void DEBUG_SetDrawBoxParam(const Vector3f &bbMin, const Vector3f &bbMax, const Vector3f &color) final;
+    virtual void DEBUG_ClearDebugBuffers();
 #endif
-    
+
 protected:
-    virtual void BeginScene(const Scene& scene);
+    virtual void BeginScene(const Scene &scene);
     virtual void EndScene() {}
-    
+
     virtual void BeginFrame() {}
     virtual void EndFrame() {}
-    
+
     virtual void BeginPass() {}
     virtual void EndPass() {}
-    
+
     virtual void BeginCompute() {}
     virtual void EndCompute() {}
+
+#ifdef DEBUG
+    virtual void DEBUG_DrawLines();
+#endif
 
 private:
     void InitConstants();
@@ -59,6 +64,11 @@ private:
 protected:
     PerFrameConstants m_DrawFrameContext;
     std::vector<std::shared_ptr<DrawBatchConstants>> m_DrawBatchContext;
+
+#ifdef DEBUG
+    std::vector<DEBUG_LineParam> m_DEBUG_LineParams;
+    bool m_DEBUG_showFlag;
+#endif
 };
 
 extern GraphicsManager *g_pGraphicsManager;

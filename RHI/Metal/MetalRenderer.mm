@@ -24,6 +24,10 @@ using namespace newbieGE;
     std::vector<id<MTLBuffer>> _indexBuffers;
     id<MTLBuffer> _uniformBuffers;
     
+#ifdef DEBUG
+    id<MTLBuffer> _DEBUG_lineBuffers;
+#endif
+    
     // Vertex descriptor specifying how vertices will by laid out for input into
     // our render pipeline and how ModelIO should layout vertices
     MTLVertexDescriptor *_mtlVertexDescriptor;
@@ -50,10 +54,8 @@ using namespace newbieGE;
                                                             ofType:@"metallib"];
     id<MTLLibrary> myLibrary = [_device newLibraryWithFile:libraryFile
                                                      error:&error];
-    id<MTLFunction> vertexFunction =
-    [myLibrary newFunctionWithName:@"basic_vert_main"];
-    id<MTLFunction> fragmentFunction =
-    [myLibrary newFunctionWithName:@"basic_frag_main"];
+    id<MTLFunction> vertexFunction = [myLibrary newFunctionWithName:@"basic_vert_main"];
+    id<MTLFunction> fragmentFunction = [myLibrary newFunctionWithName:@"basic_frag_main"];
     
     _mtlVertexDescriptor = [[MTLVertexDescriptor alloc] init];
     // Positions.
@@ -84,8 +86,7 @@ using namespace newbieGE;
     // PerFrameBuffer
     _uniformBuffers =
     [_device newBufferWithLength:kSizePerFrameConstantBuffer +
-     kSizePerBatchConstantBuffer *
-                GfxConfiguration::kMaxSceneObjectCount
+     kSizePerBatchConstantBuffer * GfxConfiguration::kMaxSceneObjectCount
                          options:MTLResourceStorageModeShared];
     _uniformBuffers.label = [NSString stringWithFormat:@"uniformBuffer"];
     
@@ -335,21 +336,38 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
 
 - (void)beginCompute
 {
-//    // Create a new command buffer for each render pass to the current drawable
-//    _computeCommandBuffer = [_commandQueue commandBuffer];
-//    _computeCommandBuffer.label = @"MyComputeCommand";
-//
-//    _computeEncoder = [_computeCommandBuffer computeCommandEncoder];
-//    _computeEncoder.label = @"MyComputeEncoder";
-//    [_computeEncoder setComputePipelineState:_computePipelineState];
+    //    // Create a new command buffer for each render pass to the current drawable
+    //    _computeCommandBuffer = [_commandQueue commandBuffer];
+    //    _computeCommandBuffer.label = @"MyComputeCommand";
+    //
+    //    _computeEncoder = [_computeCommandBuffer computeCommandEncoder];
+    //    _computeEncoder.label = @"MyComputeEncoder";
+    //    [_computeEncoder setComputePipelineState:_computePipelineState];
 }
 
 - (void)endCompute
 {
-//    [_computeEncoder endEncoding];
-//
-//    // Finalize rendering here & push the command buffer to the GPU
-//    [_computeCommandBuffer commit];
+    //    [_computeEncoder endEncoding];
+    //
+    //    // Finalize rendering here & push the command buffer to the GPU
+    //    [_computeCommandBuffer commit];
 }
+
+#ifdef DEBUG
+- (void)DEBUG_ClearDebugBuffers
+{
+    
+}
+
+- (void)DEBUG_DrawLines:(const std::vector<DEBUG_LineParam> &)lineParams
+{
+//    [_renderEncoder drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:lineParams.size()*2];
+}
+
+- (void)DEBUG_InitializeDebugBuffers:(const std::vector<DEBUG_LineParam> &)lineParams
+{
+    
+}
+#endif
 
 @end

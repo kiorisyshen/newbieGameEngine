@@ -72,6 +72,7 @@ void GraphicsManager::InitConstants()
 {
     // Initialize the world/model matrix to the identity matrix.
     BuildIdentityMatrix(m_DrawFrameContext.m_worldMatrix);
+    m_DEBUG_showFlag = false;
 }
 
 void GraphicsManager::CalculateCameraMatrix()
@@ -129,7 +130,7 @@ void GraphicsManager::CalculateLights()
     else
     {
         // use default build-in light
-        m_DrawFrameContext.m_lightPosition = { -1.0f, -5.0f, 0.0f};
+        m_DrawFrameContext.m_lightPosition = {-1.0f, -5.0f, 0.0f};
         m_DrawFrameContext.m_lightColor = {1.0f, 1.0f, 1.0f, 1.0f};
     }
 }
@@ -138,11 +139,18 @@ void GraphicsManager::RenderBuffers()
 {
     BeginFrame();
     BeginPass();
-#ifdef DEBUG
-    
-#endif
     DrawBatch(m_DrawBatchContext);
     EndPass();
+    
+#ifdef DEBUG
+    if (m_DEBUG_showFlag)
+    {
+        BeginPass();
+        DEBUG_DrawLines();
+        EndPass();
+    }
+#endif
+    
     EndFrame();
 }
 
@@ -157,22 +165,32 @@ void GraphicsManager::BeginScene(const Scene &scene)
 }
 
 #ifdef DEBUG
-void GraphicsManager::DrawLine(const Vector3f &from, const Vector3f &to, const Vector3f &color)
+void GraphicsManager::DEBUG_SetDrawLineParam(const Vector3f &from, const Vector3f &to, const Vector3f &color)
 {
-    cout << "[GraphicsManager] GraphicsManager::DrawLine(" << from << ","
-         << to << ","
-         << color << ")" << endl;
+    m_DEBUG_showFlag = true;
+    m_DEBUG_LineParams.push_back({from, to, color});
+}
+void GraphicsManager::DEBUG_SetDrawBoxParam(const Vector3f &bbMin, const Vector3f &bbMax, const Vector3f &color)
+{
+    m_DEBUG_showFlag = true;
+    // TODO: Implement box using lines
+    m_DEBUG_LineParams.push_back({bbMin, bbMax, color});
 }
 
-void GraphicsManager::DrawBox(const Vector3f &bbMin, const Vector3f &bbMax, const Vector3f &color)
+void GraphicsManager::DEBUG_ClearDebugBuffers()
 {
-    cout << "[GraphicsManager] GraphicsManager::DrawBox(" << bbMin << ","
-         << bbMax << ","
-         << color << ")" << endl;
+    m_DEBUG_LineParams.clear();
+    m_DEBUG_showFlag = false;
 }
 
-void GraphicsManager::ClearDebugBuffers()
+void GraphicsManager::DEBUG_DrawLines()
 {
-    cout << "[GraphicsManager] GraphicsManager::ClearDebugBuffers(void)" << endl;
+    for (DEBUG_LineParam lineParam : m_DEBUG_LineParams)
+    {
+        cout << "[GraphicsManager] GraphicsManager::DEBUG_DrawLine(" << lineParam.from << ","
+             << lineParam.to << ","
+             << lineParam.color << ")" << endl;
+    }
 }
+
 #endif

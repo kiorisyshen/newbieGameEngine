@@ -18,29 +18,33 @@ public:
 
     void SetRenderer(MetalRenderer *renderer) { m_pRenderer = renderer; }
 
-//    void RenderBuffers() final;
-    
-    void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstants>>& batches) final;
-//#ifdef DEBUG
-//    void DrawLine(const Vector3f &from, const Vector3f &to, const Vector3f &color) final;
-//    void DrawBox(const Vector3f &bbMin, const Vector3f &bbMax, const Vector3f &color) final;
-//    void ClearDebugBuffers() final;
-//#endif
+    //    void RenderBuffers() final;
+
+    void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstants>> &batches) final;
+
+#ifdef DEBUG
+    void DEBUG_ClearDebugBuffers() final;
+#endif
 
 private:
-    void InitializeBuffers(const Scene& scene);
+    void InitializeBuffers(const Scene &scene);
     void SetPerFrameConstants() final;
     void SetPerBatchConstants() final;
-    
-    void BeginScene(const Scene& scene) final;
+
+#ifdef DEBUG
+    void DEBUG_InitializeDebugBuffers();
+    void DEBUG_DrawLines() final;
+#endif
+
+    void BeginScene(const Scene &scene) final;
     void EndScene() final;
-    
+
     void BeginFrame() final;
     void EndFrame() final;
-    
+
     void BeginPass() final;
     void EndPass() final;
-    
+
     void BeginCompute() final;
     void EndCompute() final;
 
