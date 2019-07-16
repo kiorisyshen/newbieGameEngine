@@ -32,8 +32,7 @@ private:
     void SetPerBatchConstants() final;
 
 #ifdef DEBUG
-    void DEBUG_InitializeDebugBuffers();
-    void DEBUG_DrawLines() final;
+    void DEBUG_DrawLines(const std::vector<DEBUG_LineParam> &lineParams) final;
 #endif
 
     void BeginScene(const Scene &scene) final;

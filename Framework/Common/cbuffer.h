@@ -97,12 +97,21 @@ struct PerBatchConstants REGISTER(b11)
 };
 
 #ifdef DEBUG
-struct DEBUG_LineParam
+struct DEBUG_PointParam REGISTER(b10)
 {
-    Vector3f from;
-    Vector3f to;
-    Vector3f color;
+    Vector4f pos;
+    Vector4f color;
 };
+
+struct DEBUG_LineParam REGISTER(b10)
+{
+    DEBUG_PointParam from;
+    DEBUG_PointParam to;
+};
+#ifdef __cplusplus
+const size_t kSizeDebugPointBuffer = ALIGN(sizeof(DEBUG_PointParam), 256); // CB size is required to be 256-byte aligned.
+const size_t kSizeDebugLineBuffer = ALIGN(sizeof(DEBUG_LineParam), 256);   // CB size is required to be 256-byte aligned.
+#endif
 #endif
 
 #ifdef __cplusplus

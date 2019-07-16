@@ -138,19 +138,21 @@ void GraphicsManager::CalculateLights()
 void GraphicsManager::RenderBuffers()
 {
     BeginFrame();
+
     BeginPass();
     DrawBatch(m_DrawBatchContext);
-    EndPass();
-    
+//    EndPass();
+
 #ifdef DEBUG
     if (m_DEBUG_showFlag)
     {
-        BeginPass();
-        DEBUG_DrawLines();
-        EndPass();
+//        BeginPass();
+        DEBUG_DrawLines(m_DEBUG_LineParams);
+        
     }
 #endif
     
+    EndPass();
     EndFrame();
 }
 
@@ -168,13 +170,13 @@ void GraphicsManager::BeginScene(const Scene &scene)
 void GraphicsManager::DEBUG_SetDrawLineParam(const Vector3f &from, const Vector3f &to, const Vector3f &color)
 {
     m_DEBUG_showFlag = true;
-    m_DEBUG_LineParams.push_back({from, to, color});
+    m_DEBUG_LineParams.push_back({{from, color}, {to, color}});
 }
 void GraphicsManager::DEBUG_SetDrawBoxParam(const Vector3f &bbMin, const Vector3f &bbMax, const Vector3f &color)
 {
     m_DEBUG_showFlag = true;
     // TODO: Implement box using lines
-    m_DEBUG_LineParams.push_back({bbMin, bbMax, color});
+    m_DEBUG_LineParams.push_back({{bbMin, color}, {bbMax, color}});
 }
 
 void GraphicsManager::DEBUG_ClearDebugBuffers()
@@ -183,13 +185,14 @@ void GraphicsManager::DEBUG_ClearDebugBuffers()
     m_DEBUG_showFlag = false;
 }
 
-void GraphicsManager::DEBUG_DrawLines()
+void GraphicsManager::DEBUG_DrawLines(const std::vector<DEBUG_LineParam> &lineParams)
 {
-    for (DEBUG_LineParam lineParam : m_DEBUG_LineParams)
+    for (DEBUG_LineParam lineParam : lineParams)
     {
-        cout << "[GraphicsManager] GraphicsManager::DEBUG_DrawLine(" << lineParam.from << ","
-             << lineParam.to << ","
-             << lineParam.color << ")" << endl;
+        cout << "[GraphicsManager] GraphicsManager::DEBUG_DrawLines(" << lineParam.from.pos << ","
+             << lineParam.from.color << "), ("
+             << lineParam.to.pos << ", " << lineParam.to.color
+             << ")" << endl;
     }
 }
 

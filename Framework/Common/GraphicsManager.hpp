@@ -48,7 +48,7 @@ protected:
     virtual void EndCompute() {}
 
 #ifdef DEBUG
-    virtual void DEBUG_DrawLines();
+    virtual void DEBUG_DrawLines(const std::vector<DEBUG_LineParam> &lineParams);
 #endif
 
 private:

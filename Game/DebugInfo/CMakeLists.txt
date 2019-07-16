@@ -2,7 +2,7 @@ IF(ANDROID)
     add_library(DebugInfo SHARED 
         DebugInfo_logic.cpp DebugInfo_config.cpp)
 ELSEIF(APPLE)
-    set(SHADER_SOURCES basic)
+    set(SHADER_SOURCES basic debugInfo)
     foreach(SHADER IN LISTS SHADER_SOURCES)
         add_custom_command(OUTPUT ${SHADER}.air
             COMMAND xcrun -sdk macosx metal -g -MO -c ${PROJECT_SOURCE_DIR}/Asset/Shaders/${SHADER}.metal -o ${SHADER}.air
@@ -20,7 +20,7 @@ ELSEIF(APPLE)
 
     add_custom_command(OUTPUT Main.metallib
             COMMAND xcrun -sdk macosx metallib Main.metalar -split-module-without-linking -o Main.metallib
-            COMMENT "Compile Editor.metalar --> Main.metallib"
+            COMMENT "Compile Main.metalar --> Main.metallib"
             DEPENDS Main.metalar
         )
 
