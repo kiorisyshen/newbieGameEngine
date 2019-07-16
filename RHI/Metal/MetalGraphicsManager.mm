@@ -145,16 +145,16 @@ void MetalGraphicsManager::InitializeBuffers(const Scene &scene)
                 {
                     const Image &image = color.ValueMap->GetTextureImage();
                     texture_id = [m_pRenderer createTexture:image];
-                    dbc->m_diffuseColor = Vector3f(-1.0f);
+                    dbc->m_diffuseColor = {-1.0f, -1.0f, -1.0f, 1.0f};
                 }
                 else
                 {
-                    dbc->m_diffuseColor = color.Value.rgb;
+                    dbc->m_diffuseColor = color.Value;
                 }
                 color = material->GetSpecularColor();
-                dbc->m_specularColor = color.Value.rgb;
+                dbc->m_specularColor = color.Value;
                 Parameter param = material->GetSpecularPower();
-                dbc->m_specularPower = param.Value;
+                // dbc->m_specularPower = param.Value;
             }
             dbc->materialIdx = texture_id;
             dbc->index_count = (uint32_t)index_array.GetIndexCount();

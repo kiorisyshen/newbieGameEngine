@@ -10,16 +10,15 @@ struct PerFrameConstants
     float4x4 worldMatrix;
     float4x4 viewMatrix;
     float4x4 projectionMatrix;
-    float3   lightPosition;
+    float4   lightPosition;
     float4   lightColor;
 };
 
 struct PerBatchConstants
 {
     float4x4 objectLocalMatrix;
-    float3 diffuseColor;
-    float3 specularColor;
-    float specularPower;
+    float4 diffuseColor;
+    float4 specularColor;
 };
 
 
@@ -56,7 +55,7 @@ vertex basic_vert_main_out basic_vert_main(basic_vert_main_in in [[stage_in]], c
 fragment float4 basic_frag_main(basic_vert_main_out in [[stage_in]], texture2d<float> diffuseMap [[texture(0)]], sampler samp0 [[sampler(0)]], constant PerFrameConstants& v_43 [[buffer(10)]], constant PerBatchConstants& v_24 [[buffer(11)]])
 {
     float3 N = normalize(in.normal.xyz);
-    float3 L = normalize((v_43.viewMatrix * float4(v_43.lightPosition, 1.0f)).xyz - in.gl_Position.xyz);
+    float3 L = normalize((v_43.viewMatrix * v_43.lightPosition).xyz - in.gl_Position.xyz);
     float cosTheta = clamp(dot(N, L), 0.0, 1.0);
     float3 R = normalize((N * (2.0 * dot(L, N))) - L);
     float3 V = normalize(-in.gl_Position.xyz);

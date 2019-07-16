@@ -84,16 +84,16 @@ struct PerFrameConstants REGISTER(b10)
     Matrix4X4f m_worldMatrix;
     Matrix4X4f m_viewMatrix;
     Matrix4X4f m_projectionMatrix;
-    Vector3f m_lightPosition;
+    Vector4f m_lightPosition;
     Vector4f m_lightColor;
 };
 
 struct PerBatchConstants REGISTER(b11)
 {
     Matrix4X4f m_objectLocalMatrix;
-    Vector3f m_diffuseColor;
-    Vector3f m_specularColor;
-    float m_specularPower;
+    Vector4f m_diffuseColor;
+    Vector4f m_specularColor;
+    // float m_specularPower;
 };
 
 #ifdef DEBUG

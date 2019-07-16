@@ -138,31 +138,11 @@ using namespace newbieGE;
     vertexFunction = [myLibrary newFunctionWithName:@"debug_vert_main"];
     fragmentFunction = [myLibrary newFunctionWithName:@"debug_frag_main"];
     
-//    _DEBUG_mtlDebugDescriptor = [[MTLVertexDescriptor alloc] init];
-//    // Positions
-//    _DEBUG_mtlDebugDescriptor.attributes[0].format = MTLVertexFormatFloat3;
-//    _DEBUG_mtlDebugDescriptor.attributes[0].offset = 0;
-//    _DEBUG_mtlDebugDescriptor.attributes[0].bufferIndex = 0;
-//    // Position Buffer Layout
-//    _DEBUG_mtlDebugDescriptor.layouts[0].stride = 12;
-//    _DEBUG_mtlDebugDescriptor.layouts[0].stepRate = 1;
-//    _DEBUG_mtlDebugDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
-//
-//    // Color.
-//    _DEBUG_mtlDebugDescriptor.attributes[1].format = MTLVertexFormatFloat3;
-//    _DEBUG_mtlDebugDescriptor.attributes[1].offset = 0;
-//    _DEBUG_mtlDebugDescriptor.attributes[1].bufferIndex = 1;
-//    // Color Buffer Layout
-//    _DEBUG_mtlDebugDescriptor.layouts[1].stride = 12;
-//    _DEBUG_mtlDebugDescriptor.layouts[1].stepRate = 1;
-//    _DEBUG_mtlDebugDescriptor.layouts[1].stepFunction = MTLVertexStepFunctionPerVertex;
-    
     pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
     pipelineStateDescriptor.label = @"DEBUG Pipeline";
     pipelineStateDescriptor.sampleCount = _mtkView.sampleCount;
     pipelineStateDescriptor.vertexFunction = vertexFunction;
     pipelineStateDescriptor.fragmentFunction = fragmentFunction;
-//    pipelineStateDescriptor.vertexDescriptor = _DEBUG_mtlDebugDescriptor;
     pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
     pipelineStateDescriptor.depthAttachmentPixelFormat = _mtkView.depthStencilPixelFormat;
     
@@ -360,8 +340,8 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
     _renderPassDescriptor = _mtkView.currentRenderPassDescriptor;
     if (_renderPassDescriptor != nil)
     {
-//        _renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
-//        _renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStoreAndMultisampleResolve;
+        _renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+        _renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStoreAndMultisampleResolve;
         _renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
     }
 }
@@ -414,72 +394,29 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
 
 - (void)DEBUG_DrawLines:(const std::vector<DEBUG_LineParam> &)lineParams
 {
-    //    [_renderEncoder drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:lineParams.size()*2];
-//    for (DEBUG_LineParam lineParam : lineParams)
-//    {
-//        std::cout << "[MetalRenderer] MetalRenderer::DEBUG_DrawLines(" << lineParam.from.pos << ","
-//                  << lineParam.from.color << "), ("
-//                  << lineParam.to.pos << ", " << lineParam.to.color
-//                  << ")" << std::endl;
-//    }
-    
     if (_renderPassDescriptor != nil)
     {
         [_renderEncoder setRenderPipelineState:_DEBUG_pipelineState];
-//        [_renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
-//        [_renderEncoder setCullMode:MTLCullModeBack];
-//        [_renderEncoder setDepthStencilState:_DEBUG_depthState];
+        [_renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
+        [_renderEncoder setCullMode:MTLCullModeBack];
+        [_renderEncoder setDepthStencilState:_DEBUG_depthState];
         // Push a debug group allowing us to identify render commands in the GPU
         // Frame Capture tool
         [_renderEncoder pushDebugGroup:@"DrawDebugInfo"];
 
-        std::vector<DEBUG_LineParam> testLine;
-        DEBUG_PointParam a1 = {{0.0, 0.0, 0.0, 1.0}, {1.0, 0.0, 0.0, 1.0}};
-        DEBUG_PointParam a2 = {{0.5, 0.0, 0.0, 1.0}, {1.0, 0.0, 0.0, 1.0}};
-        testLine.push_back({a1, a2});
-
-        a1 = {{0.0, 0.5, 0.0, 1.0}, {0.0, 1.0, 0.0, 1.0}};
-        a2 = {{0.0, 0.0, 0.0, 1.0}, {0.0, 1.0, 0.0, 1.0}};
-        testLine.push_back({a1, a2});
-
-        a1 = {{0.0, 0.0, 0.5, 1.0}, {0.0, 1.0, 0.0, 1.0}};
-        a2 = {{0.0, 0.0, 0.0, 1.0}, {0.0, 1.0, 0.0, 1.0}};
-        testLine.push_back({a1, a2});
+        [_renderEncoder setVertexBuffer:_uniformBuffers offset:0 atIndex:10];
         
-        [_renderEncoder setVertexBytes:testLine.data()
-                                length:sizeof(DEBUG_LineParam)*testLine.size()
+        [_renderEncoder setVertexBytes:lineParams.data()
+                                length:sizeof(DEBUG_LineParam)*lineParams.size()
                                atIndex:7];
         
         [_renderEncoder drawPrimitives:MTLPrimitiveTypeLine
                            vertexStart:0
-                           vertexCount:2*testLine.size()];
+                           vertexCount:2*lineParams.size()];
         
         [_renderEncoder popDebugGroup];
     }
 }
-
-//- (void)DEBUG_DrawLines:(const std::vector<DEBUG_PointParam> &)pointParams
-//{
-//    if (_renderPassDescriptor != nil)
-//    {
-//        [_renderEncoder setRenderPipelineState:_DEBUG_pipelineState];
-//        [_renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
-//        [_renderEncoder setCullMode:MTLCullModeBack];
-//        [_renderEncoder setDepthStencilState:_DEBUG_depthState];
-//        // Push a debug group allowing us to identify render commands in the GPU
-//        // Frame Capture tool
-//        [_renderEncoder pushDebugGroup:@"DrawDebugInfo"];
-//
-//        //        [_renderEncoder setVertexBuffer:_DEBUG_lineBuffers offset:0 atIndex:0];
-//        [_renderEncoder setVertexBytes:pointParams.data()
-//                                length:sizeof(DEBUG_PointParam)+8
-//                               atIndex:0];
-//
-//        [_renderEncoder drawPrimitives: MTLPrimitiveTypeLine vertexStart: 0 vertexCount: pointParams.size()];
-//
-//        [_renderEncoder popDebugGroup];
-//    }
-//}
 
 #endif
 

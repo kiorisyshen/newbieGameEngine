@@ -118,8 +118,8 @@ void GraphicsManager::CalculateLights()
     auto pLightNode = scene.GetFirstLightNode();
     if (pLightNode)
     {
-        m_DrawFrameContext.m_lightPosition = {0.0f, 0.0f, 0.0f};
-        TransformCoord(m_DrawFrameContext.m_lightPosition, *pLightNode->GetCalculatedTransform());
+        m_DrawFrameContext.m_lightPosition = {0.0f, 0.0f, 0.0f, 1.0f};
+        Transform(m_DrawFrameContext.m_lightPosition, *pLightNode->GetCalculatedTransform());
 
         auto pLight = scene.GetLight(pLightNode->GetSceneObjectRef());
         if (pLight)
@@ -130,7 +130,7 @@ void GraphicsManager::CalculateLights()
     else
     {
         // use default build-in light
-        m_DrawFrameContext.m_lightPosition = {-1.0f, -5.0f, 0.0f};
+        m_DrawFrameContext.m_lightPosition = {-1.0f, -5.0f, 0.0f, 1.0f};
         m_DrawFrameContext.m_lightColor = {1.0f, 1.0f, 1.0f, 1.0f};
     }
 }
@@ -141,17 +141,12 @@ void GraphicsManager::RenderBuffers()
 
     BeginPass();
     DrawBatch(m_DrawBatchContext);
-//    EndPass();
-
 #ifdef DEBUG
     if (m_DEBUG_showFlag)
     {
-//        BeginPass();
         DEBUG_DrawLines(m_DEBUG_LineParams);
-        
     }
 #endif
-    
     EndPass();
     EndFrame();
 }
@@ -175,8 +170,22 @@ void GraphicsManager::DEBUG_SetDrawLineParam(const Vector3f &from, const Vector3
 void GraphicsManager::DEBUG_SetDrawBoxParam(const Vector3f &bbMin, const Vector3f &bbMax, const Vector3f &color)
 {
     m_DEBUG_showFlag = true;
-    // TODO: Implement box using lines
-    m_DEBUG_LineParams.push_back({{bbMin, color}, {bbMax, color}});
+    // 12 lines
+    m_DEBUG_LineParams.push_back({{bbMin, color}, {{bbMin.x, bbMin.y, bbMax.z, 1.0f}, color}});
+    m_DEBUG_LineParams.push_back({{bbMin, color}, {{bbMin.x, bbMax.y, bbMin.z, 1.0f}, color}});
+    m_DEBUG_LineParams.push_back({{bbMin, color}, {{bbMax.x, bbMin.y, bbMin.z, 1.0f}, color}});
+    
+    m_DEBUG_LineParams.push_back({{{bbMin.x, bbMax.y, bbMax.z, 1.0f}, color}, {{bbMin.x, bbMax.y, bbMin.z, 1.0f}, color}});
+    m_DEBUG_LineParams.push_back({{{bbMin.x, bbMax.y, bbMax.z, 1.0f}, color}, {{bbMin.x, bbMin.y, bbMax.z, 1.0f}, color}});
+    m_DEBUG_LineParams.push_back({{{bbMin.x, bbMax.y, bbMax.z, 1.0f}, color}, {{bbMax.x, bbMax.y, bbMax.z, 1.0f}, color}});
+    
+    m_DEBUG_LineParams.push_back({{{bbMax.x, bbMin.y, bbMax.z, 1.0f}, color}, {{bbMax.x, bbMin.y, bbMin.z, 1.0f}, color}});
+    m_DEBUG_LineParams.push_back({{{bbMax.x, bbMin.y, bbMax.z, 1.0f}, color}, {{bbMax.x, bbMax.y, bbMax.z, 1.0f}, color}});
+    m_DEBUG_LineParams.push_back({{{bbMax.x, bbMin.y, bbMax.z, 1.0f}, color}, {{bbMin.x, bbMin.y, bbMax.z, 1.0f}, color}});
+    
+    m_DEBUG_LineParams.push_back({{{bbMax.x, bbMax.y, bbMin.z, 1.0f}, color}, {{bbMax.x, bbMax.y, bbMax.z, 1.0f}, color}});
+    m_DEBUG_LineParams.push_back({{{bbMax.x, bbMax.y, bbMin.z, 1.0f}, color}, {{bbMax.x, bbMin.y, bbMin.z, 1.0f}, color}});
+    m_DEBUG_LineParams.push_back({{{bbMax.x, bbMax.y, bbMin.z, 1.0f}, color}, {{bbMin.x, bbMax.y, bbMin.z, 1.0f}, color}});
 }
 
 void GraphicsManager::DEBUG_ClearDebugBuffers()
