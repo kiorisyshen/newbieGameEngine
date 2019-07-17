@@ -136,14 +136,13 @@ using namespace newbieGE;
 
 #ifdef DEBUG
     // Debug line buffer
-    _DEBUG_lineBuffers = [_device newBufferWithLength:kSizePerFrameConstantBuffer +
-                          kSizePerBatchConstantBuffer * GfxConfiguration::kMaxSceneObjectCount
+    _DEBUG_lineBuffers = [_device newBufferWithLength:kSizeDebugLineBuffer * GfxConfiguration::kMaxDebugLinesCount
                                               options:MTLResourceStorageModeShared];
     _DEBUG_lineBuffers.label = [NSString stringWithFormat:@"DEBUG_LineBuffer"];
-    
+
     vertexFunction = [myLibrary newFunctionWithName:@"debug_vert_main"];
     fragmentFunction = [myLibrary newFunctionWithName:@"debug_frag_main"];
-    
+
     pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
     pipelineStateDescriptor.label = @"DEBUG Pipeline";
     pipelineStateDescriptor.sampleCount = _mtkView.sampleCount;
@@ -151,7 +150,7 @@ using namespace newbieGE;
     pipelineStateDescriptor.fragmentFunction = fragmentFunction;
     pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
     pipelineStateDescriptor.depthAttachmentPixelFormat = _mtkView.depthStencilPixelFormat;
-    
+
     _DEBUG_pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor
                                                                    error:&error];
     depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
@@ -334,12 +333,12 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
     // Create a new command buffer for each render pass to the current drawable
     _commandBuffer = [_commandQueue commandBuffer];
     _commandBuffer.label = @"myCommand";
-    
+
     // Add completion hander which signals _inFlightSemaphore when Metal and the
     // GPU has fully finished processing the commands we're encoding this frame.
     __block dispatch_semaphore_t block_sema = _inFlightSemaphore;
     [_commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> buffer) {
-        dispatch_semaphore_signal(block_sema);
+      dispatch_semaphore_signal(block_sema);
     }];
 
     // Obtain a renderPassDescriptor generated from the view's drawable textures
@@ -396,7 +395,7 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
 #ifdef DEBUG
 - (void)DEBUG_SetBuffer:(const std::vector<DEBUG_LineParam> &)lineParams
 {
-    std::memcpy(_DEBUG_lineBuffers.contents, lineParams.data(), sizeof(DEBUG_LineParam)*lineParams.size());
+    std::memcpy(_DEBUG_lineBuffers.contents, lineParams.data(), sizeof(DEBUG_LineParam) * lineParams.size());
 }
 
 - (void)DEBUG_ClearDebugBuffers
@@ -416,14 +415,14 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
         [_renderEncoder pushDebugGroup:@"DrawDebugInfo"];
 
         [_renderEncoder setVertexBuffer:_uniformBuffers offset:0 atIndex:10];
-        
+
         // Use buffer than setVertexBytes for buffer >= 4096 bytes
         [_renderEncoder setVertexBuffer:_DEBUG_lineBuffers offset:0 atIndex:7];
-        
+
         [_renderEncoder drawPrimitives:MTLPrimitiveTypeLine
                            vertexStart:0
-                           vertexCount:2*lineParams.size()];
-        
+                           vertexCount:2 * lineParams.size()];
+
         [_renderEncoder popDebugGroup];
     }
 }

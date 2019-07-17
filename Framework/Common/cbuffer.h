@@ -109,8 +109,7 @@ struct DEBUG_LineParam REGISTER(b10)
     DEBUG_PointParam to;
 };
 #ifdef __cplusplus
-const size_t kSizeDebugPointBuffer = ALIGN(sizeof(DEBUG_PointParam), 256); // CB size is required to be 256-byte aligned.
-const size_t kSizeDebugLineBuffer = ALIGN(sizeof(DEBUG_LineParam), 256);   // CB size is required to be 256-byte aligned.
+const size_t kSizeDebugLineBuffer = ALIGN(sizeof(DEBUG_LineParam), 256); // CB size is required to be 256-byte aligned.
 #endif
 #endif
 
