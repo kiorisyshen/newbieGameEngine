@@ -265,6 +265,12 @@ ENUM(PrimitiveType){
     kPrimitiveTypePolygon = "POLY"_i32,            ///< For N>=0, vertices [0, N+1, N+2] render a triangle.
 };
 
+struct BoundingBox
+{
+    Vector3f centroid;
+    Vector3f extent;
+};
+
 std::ostream &operator<<(std::ostream &out, PrimitiveType type);
 
 class SceneObjectMesh : public BaseSceneObject
@@ -292,6 +298,7 @@ public:
     const SceneObjectVertexArray &GetVertexPropertyArray(const size_t index) const { return m_VertexArray[index]; };
     const SceneObjectIndexArray &GetIndexArray(const size_t index) const { return m_IndexArray[index]; };
     const PrimitiveType &GetPrimitiveType() { return m_PrimitiveType; };
+    BoundingBox GetBoundingBox() const;
 
     friend std::ostream &operator<<(std::ostream &out, const SceneObjectMesh &obj);
 };
@@ -644,15 +651,15 @@ protected:
     float m_CollisionParameters[10];
 
 public:
-    SceneObjectGeometry(void) : BaseSceneObject(SceneObjectType::kSceneObjectTypeGeometry), m_CollisionType(SceneObjectCollisionType::kSceneObjectCollisionTypeNone){};
+    SceneObjectGeometry(void) : BaseSceneObject(SceneObjectType::kSceneObjectTypeGeometry), m_CollisionType(SceneObjectCollisionType::kSceneObjectCollisionTypeNone) {}
 
-    void SetVisibility(bool visible) { m_bVisible = visible; };
-    const bool Visible() { return m_bVisible; };
-    void SetIfCastShadow(bool shadow) { m_bShadow = shadow; };
-    const bool CastShadow() { return m_bShadow; };
-    void SetIfMotionBlur(bool motion_blur) { m_bMotionBlur = motion_blur; };
+    void SetVisibility(bool visible) { m_bVisible = visible; }
+    const bool Visible() { return m_bVisible; }
+    void SetIfCastShadow(bool shadow) { m_bShadow = shadow; }
+    const bool CastShadow() { return m_bShadow; }
+    void SetIfMotionBlur(bool motion_blur) { m_bMotionBlur = motion_blur; }
     const bool MotionBlur() { return m_bMotionBlur; };
-    void SetCollisionType(SceneObjectCollisionType collision_type) { m_CollisionType = collision_type; };
+    void SetCollisionType(SceneObjectCollisionType collision_type) { m_CollisionType = collision_type; }
     const SceneObjectCollisionType CollisionType() const { return m_CollisionType; }
     void SetCollisionParameters(const float *param, int32_t count)
     {
@@ -661,9 +668,10 @@ public:
     }
     const float *CollisionParameters() const { return m_CollisionParameters; }
 
-    void AddMesh(std::shared_ptr<SceneObjectMesh> &mesh) { m_Mesh.push_back(std::move(mesh)); };
-    const std::weak_ptr<SceneObjectMesh> GetMesh() { return (m_Mesh.empty() ? nullptr : m_Mesh[0]); };
-    const std::weak_ptr<SceneObjectMesh> GetMeshLOD(size_t lod) { return (lod < m_Mesh.size() ? m_Mesh[lod] : nullptr); };
+    void AddMesh(std::shared_ptr<SceneObjectMesh> &mesh) { m_Mesh.push_back(std::move(mesh)); }
+    const std::weak_ptr<SceneObjectMesh> GetMesh() { return (m_Mesh.empty() ? nullptr : m_Mesh[0]); }
+    const std::weak_ptr<SceneObjectMesh> GetMeshLOD(size_t lod) { return (lod < m_Mesh.size() ? m_Mesh[lod] : nullptr); }
+    BoundingBox GetBoundingBox() const { return m_Mesh.empty() ? BoundingBox() : m_Mesh[0]->GetBoundingBox(); }
 
     friend std::ostream &operator<<(std::ostream &out, const SceneObjectGeometry &obj);
 };

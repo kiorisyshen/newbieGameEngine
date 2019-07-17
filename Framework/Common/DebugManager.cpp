@@ -17,21 +17,19 @@ void DebugManager::Finalize()
 
 void DebugManager::Tick()
 {
-#ifdef DEBUG
-    if (m_bDrawDebugInfo)
-    {
-        g_pGraphicsManager->DEBUG_ClearDebugBuffers();
-        DrawDebugInfo();
-        g_pPhysicsManager->DrawDebugInfo();
-    }
-#endif
 }
 
 void DebugManager::ToggleDebugInfo()
 {
 #ifdef DEBUG
     m_bDrawDebugInfo = !m_bDrawDebugInfo;
-    if (!m_bDrawDebugInfo)
+    if (m_bDrawDebugInfo)
+    {
+        DrawDebugInfo();
+        g_pPhysicsManager->DrawDebugInfo();
+        g_pGraphicsManager->DEBUG_SetBuffer();
+    }
+    else
     {
         g_pGraphicsManager->DEBUG_ClearDebugBuffers();
     }

@@ -342,7 +342,7 @@ private:
                     // ExchangeYandZ(matrix);
                 }
                 transform = std::make_shared<SceneObjectTransform>(matrix, object_flag);
-                base_node->AppendChild(std::move(transform));
+                base_node->AppendTransform(std::move(transform));
             }
         }
             return;
@@ -362,7 +362,7 @@ private:
             {
                 translation = std::make_shared<SceneObjectTranslation>(kind[0], data[0]);
             }
-            base_node->AppendChild(std::move(translation));
+            base_node->AppendTransform(std::move(translation));
         }
             return;
         case OGEX::kStructureMaterial:

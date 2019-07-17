@@ -135,6 +135,12 @@ using namespace newbieGE;
     }
 
 #ifdef DEBUG
+    // Debug line buffer
+    _DEBUG_lineBuffers = [_device newBufferWithLength:kSizePerFrameConstantBuffer +
+                          kSizePerBatchConstantBuffer * GfxConfiguration::kMaxSceneObjectCount
+                                              options:MTLResourceStorageModeShared];
+    _DEBUG_lineBuffers.label = [NSString stringWithFormat:@"DEBUG_LineBuffer"];
+    
     vertexFunction = [myLibrary newFunctionWithName:@"debug_vert_main"];
     fragmentFunction = [myLibrary newFunctionWithName:@"debug_frag_main"];
     
@@ -388,6 +394,11 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
 }
 
 #ifdef DEBUG
+- (void)DEBUG_SetBuffer:(const std::vector<DEBUG_LineParam> &)lineParams
+{
+    std::memcpy(_DEBUG_lineBuffers.contents, lineParams.data(), sizeof(DEBUG_LineParam)*lineParams.size());
+}
+
 - (void)DEBUG_ClearDebugBuffers
 {
 }
@@ -406,9 +417,8 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
 
         [_renderEncoder setVertexBuffer:_uniformBuffers offset:0 atIndex:10];
         
-        [_renderEncoder setVertexBytes:lineParams.data()
-                                length:sizeof(DEBUG_LineParam)*lineParams.size()
-                               atIndex:7];
+        // Use buffer than setVertexBytes for buffer >= 4096 bytes
+        [_renderEncoder setVertexBuffer:_DEBUG_lineBuffers offset:0 atIndex:7];
         
         [_renderEncoder drawPrimitives:MTLPrimitiveTypeLine
                            vertexStart:0

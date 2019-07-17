@@ -36,6 +36,7 @@ struct GfxConfiguration
 	uint32_t screenWidth;
 	uint32_t screenHeight;
 	static const uint32_t kMaxSceneObjectCount = 2048;
+    static const uint32_t kMaxDebugLinesCount = kMaxSceneObjectCount * 1024;
 	const char *appName;
 
 	friend std::ostream &operator<<(std::ostream &out, const GfxConfiguration &conf)

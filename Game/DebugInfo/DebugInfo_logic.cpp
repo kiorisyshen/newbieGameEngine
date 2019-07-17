@@ -13,7 +13,7 @@ int DebugInfo_logic::Initialize()
 
     cout << "[GameLogic] Initialize" << endl;
     cout << "[GameLogic] Start Loading Game Scene" << endl;
-    result = g_pSceneManager->LoadScene("Scene/test.ogex");
+    result = g_pSceneManager->LoadScene("Scene/study.ogex");
 
     return result;
 }

@@ -24,6 +24,7 @@ public:
 
 #ifdef DEBUG
     void DEBUG_ClearDebugBuffers() final;
+    void DEBUG_SetBuffer() final;
 #endif
 
 private:

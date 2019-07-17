@@ -66,7 +66,16 @@ void MyPhysicsManager::CreateRigidBody(SceneGeometryNode &node, const SceneObjec
         rigidBody = new RigidBody(collision_box, motionState);
     }
     break;
-    default:;
+    default:
+    {
+        // create AABB box according to Bounding Box
+        auto bounding_box = geometry.GetBoundingBox();
+        auto collision_box = make_shared<Box>(bounding_box.extent);
+
+        const auto trans = node.GetCalculatedTransform();
+        auto motionState = make_shared<MotionState>(*trans, bounding_box.centroid);
+        rigidBody = new RigidBody(collision_box, motionState);
+    }
     }
 
     node.LinkRigidBody(rigidBody);
@@ -120,13 +129,9 @@ void MyPhysicsManager::ClearRigidBodies()
 
 Matrix4X4f MyPhysicsManager::GetRigidBodyTransform(void *rigidBody)
 {
-    Matrix4X4f trans;
-
     RigidBody *_rigidBody = reinterpret_cast<RigidBody *>(rigidBody);
     auto motionState = _rigidBody->GetMotionState();
-    trans = motionState->GetTransition();
-
-    return trans;
+    return motionState->GetTransition();
 }
 
 void MyPhysicsManager::ApplyCentralForce(void *rigidBody, Vector3f force)
@@ -145,19 +150,28 @@ void MyPhysicsManager::DrawDebugInfo()
         if (void *rigidBody = pGeometryNode->RigidBody())
         {
             RigidBody *_rigidBody = reinterpret_cast<RigidBody *>(rigidBody);
-            Matrix4X4f simulated_result = GetRigidBodyTransform(_rigidBody);
+            auto motionState = _rigidBody->GetMotionState();
+            auto centerOfMass = motionState->GetCenterOfMassOffset();
+            auto trans = motionState->GetTransition();
             auto pGeometry = _rigidBody->GetCollisionShape();
-            DrawAabb(*pGeometry, simulated_result);
+            DrawAabb(*pGeometry, trans, centerOfMass);
         }
     }
 }
 
-void MyPhysicsManager::DrawAabb(const Geometry &geometry, const Matrix4X4f &trans)
+void MyPhysicsManager::DrawAabb(const Geometry &geometry, const Matrix4X4f &trans, const Vector3f &centerOfMass)
 {
     Vector3f bbMin, bbMax;
-    Vector3f color(0.5f, 0.5f, 0.5f);
+    Vector3f color(0.7f, 0.6f, 0.5f);
 
-    geometry.GetAabb(trans, bbMin, bbMax);
+    Matrix4X4f _trans;
+    BuildIdentityMatrix(_trans);
+    _trans.data[3][0] = centerOfMass.x * trans.data[0][0]; // scale by x-scale
+    _trans.data[3][1] = centerOfMass.y * trans.data[1][1]; // scale by y-scale
+    _trans.data[3][2] = centerOfMass.z * trans.data[2][2]; // scale by z-scale
+    MatrixMultiply(_trans, trans, _trans);
+
+    geometry.GetAabb(_trans, bbMin, bbMax);
     g_pGraphicsManager->DEBUG_SetDrawBoxParam(bbMin, bbMax, color);
 }
 #endif

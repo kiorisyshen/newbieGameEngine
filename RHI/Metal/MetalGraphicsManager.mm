@@ -199,6 +199,11 @@ void MetalGraphicsManager::BeginCompute() { [m_pRenderer beginCompute]; }
 void MetalGraphicsManager::EndCompute() { [m_pRenderer endCompute]; }
 
 #ifdef DEBUG
+void MetalGraphicsManager::DEBUG_SetBuffer()
+{
+    [m_pRenderer DEBUG_SetBuffer:m_DEBUG_LineParams];
+}
+
 void MetalGraphicsManager::DEBUG_ClearDebugBuffers()
 {
     GraphicsManager::DEBUG_ClearDebugBuffers();

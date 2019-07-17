@@ -31,6 +31,7 @@ public:
 #ifdef DEBUG
     virtual void DEBUG_SetDrawLineParam(const Vector3f &from, const Vector3f &to, const Vector3f &color) final;
     virtual void DEBUG_SetDrawBoxParam(const Vector3f &bbMin, const Vector3f &bbMax, const Vector3f &color) final;
+    virtual void DEBUG_SetBuffer() = 0;
     virtual void DEBUG_ClearDebugBuffers();
 #endif
 
