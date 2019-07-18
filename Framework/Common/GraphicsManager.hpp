@@ -29,8 +29,16 @@ public:
     virtual void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstants>> &batches) {}
 
 #ifdef DEBUG
+    virtual void DEBUG_SetDrawPointParam(const Point3 &point, const Vector3f &color) final;
+    virtual void DEBUG_SetDrawPointSetParam(const PointSet &point_set, const Vector3f &color) final;
     virtual void DEBUG_SetDrawLineParam(const Vector3f &from, const Vector3f &to, const Vector3f &color) final;
     virtual void DEBUG_SetDrawBoxParam(const Vector3f &bbMin, const Vector3f &bbMax, const Vector3f &color) final;
+
+    virtual void DEBUG_SetDrawTriangleParam(const PointList &vertices, const Vector3f &color) final;
+    virtual void DEBUG_SetDrawTriangleStripParam(const PointList &vertices, const Vector3f &color) final;
+    virtual void DEBUG_SetDrawPolygonParam(const Face &face, const Vector3f &color) final;
+    virtual void DEBUG_SetDrawPolyhydronParam(const Polyhedron &polyhedron, const Vector3f &color) final;
+
     virtual void DEBUG_SetBuffer() = 0;
     virtual void DEBUG_ClearDebugBuffers();
 #endif
@@ -49,7 +57,7 @@ protected:
     virtual void EndCompute() {}
 
 #ifdef DEBUG
-    virtual void DEBUG_DrawLines(const std::vector<DEBUG_LineParam> &lineParams);
+    virtual void DEBUG_DrawDebug();
 #endif
 
 private:
@@ -68,6 +76,9 @@ protected:
 
 #ifdef DEBUG
     std::vector<DEBUG_LineParam> m_DEBUG_LineParams;
+    std::vector<DEBUG_PointParam> m_DEBUG_PointParams;
+    std::vector<DEBUG_TriangleParam> m_DEBUG_TriParams;
+
     bool m_DEBUG_showFlag;
 #endif
 };

@@ -1,6 +1,7 @@
 #import "MetalView.h"
 #import "Metal/MetalRenderer.h"
 #include "Metal/MetalGraphicsManager.h"
+#include "InputManager.hpp"
 
 using namespace newbieGE;
 
@@ -54,6 +55,27 @@ using namespace newbieGE;
 
 - (void)drawRect:(CGRect)drawRect {
     g_pGraphicsManager->RenderBuffers();
+}
+
+- (void)mouseDown:(NSEvent *)event {
+    if ([event type] == NSEventTypeLeftMouseDown)
+    {
+        g_pInputManager->LeftMouseButtonDown();
+    }
+}
+
+- (void)mouseUp:(NSEvent *)event {
+    if ([event type] == NSEventTypeLeftMouseUp)
+    {
+        g_pInputManager->LeftMouseButtonUp();
+    }
+}
+
+- (void)mouseDragged:(NSEvent *)event {
+    if ([event type] == NSEventTypeLeftMouseDragged)
+    {
+        g_pInputManager->LeftMouseDrag([event deltaX], [event deltaY]);
+    }
 }
 
 @end

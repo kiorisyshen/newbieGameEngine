@@ -18,6 +18,7 @@ struct debug_vert_out
 {
     float4 position [[position]];
     float4 color;
+    float size [[point_size]];
 };
 
 struct debug_vert_in
@@ -38,6 +39,7 @@ vertex debug_vert_out debug_vert_main(uint vID [[vertex_id]],
     out.position = v_43.projectionMatrix * out.position;
     
     out.color = in[vID].color;
+    out.size = 5;
 
     return out;
 }

@@ -3,7 +3,6 @@ add_library(Common
     AssetLoader.cpp
     BaseApplication.cpp
     DebugManager.cpp
-    GameLogic.cpp
     GraphicsManager.cpp
     InputManager.cpp
     Image.cpp
@@ -15,6 +14,7 @@ add_library(Common
 )
 
 target_link_libraries(Common 
+        Algorithm
         GeomMath
         ${OPENGEX_LIBRARY} 
         ${OPENDDL_LIBRARY} 

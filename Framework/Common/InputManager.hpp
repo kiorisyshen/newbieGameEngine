@@ -10,6 +10,7 @@ public:
     virtual void Finalize();
     virtual void Tick();
 
+    // keyboard handling
     void UpArrowKeyDown();
     void UpArrowKeyUp();
     void DownArrowKeyDown();
@@ -19,13 +20,13 @@ public:
     void RightArrowKeyDown();
     void RightArrowKeyUp();
 
-    void ResetKeyDown();
-    void ResetKeyUp();
+    void AsciiKeyDown(char keycode);
+    void AsciiKeyUp(char keycode);
 
-#ifdef DEBUG
-    void DebugKeyDown();
-    void DebugKeyUp();
-#endif
+    // mouse handling
+    void LeftMouseButtonDown();
+    void LeftMouseButtonUp();
+    void LeftMouseDrag(float deltaX, float deltaY);
 
 protected:
     bool m_bUpKeyPressed = false;

@@ -144,7 +144,7 @@ void GraphicsManager::RenderBuffers()
 #ifdef DEBUG
     if (m_DEBUG_showFlag)
     {
-        DEBUG_DrawLines(m_DEBUG_LineParams);
+        DEBUG_DrawDebug();
     }
 #endif
     EndPass();
@@ -162,6 +162,21 @@ void GraphicsManager::BeginScene(const Scene &scene)
 }
 
 #ifdef DEBUG
+void GraphicsManager::DEBUG_SetDrawPointParam(const Point3 &point, const Vector3f &color)
+{
+    m_DEBUG_showFlag = true;
+    m_DEBUG_PointParams.push_back({point, color});
+}
+
+void GraphicsManager::DEBUG_SetDrawPointSetParam(const PointSet &point_set, const Vector3f &color)
+{
+    m_DEBUG_showFlag = true;
+    for (auto pt : point_set)
+    {
+        m_DEBUG_PointParams.push_back({*pt, color});
+    }
+}
+
 void GraphicsManager::DEBUG_SetDrawLineParam(const Vector3f &from, const Vector3f &to, const Vector3f &color)
 {
     m_DEBUG_showFlag = true;
@@ -174,34 +189,87 @@ void GraphicsManager::DEBUG_SetDrawBoxParam(const Vector3f &bbMin, const Vector3
     m_DEBUG_LineParams.push_back({{bbMin, color}, {{bbMin.x, bbMin.y, bbMax.z, 1.0f}, color}});
     m_DEBUG_LineParams.push_back({{bbMin, color}, {{bbMin.x, bbMax.y, bbMin.z, 1.0f}, color}});
     m_DEBUG_LineParams.push_back({{bbMin, color}, {{bbMax.x, bbMin.y, bbMin.z, 1.0f}, color}});
-    
+
     m_DEBUG_LineParams.push_back({{{bbMin.x, bbMax.y, bbMax.z, 1.0f}, color}, {{bbMin.x, bbMax.y, bbMin.z, 1.0f}, color}});
     m_DEBUG_LineParams.push_back({{{bbMin.x, bbMax.y, bbMax.z, 1.0f}, color}, {{bbMin.x, bbMin.y, bbMax.z, 1.0f}, color}});
     m_DEBUG_LineParams.push_back({{{bbMin.x, bbMax.y, bbMax.z, 1.0f}, color}, {{bbMax.x, bbMax.y, bbMax.z, 1.0f}, color}});
-    
+
     m_DEBUG_LineParams.push_back({{{bbMax.x, bbMin.y, bbMax.z, 1.0f}, color}, {{bbMax.x, bbMin.y, bbMin.z, 1.0f}, color}});
     m_DEBUG_LineParams.push_back({{{bbMax.x, bbMin.y, bbMax.z, 1.0f}, color}, {{bbMax.x, bbMax.y, bbMax.z, 1.0f}, color}});
     m_DEBUG_LineParams.push_back({{{bbMax.x, bbMin.y, bbMax.z, 1.0f}, color}, {{bbMin.x, bbMin.y, bbMax.z, 1.0f}, color}});
-    
+
     m_DEBUG_LineParams.push_back({{{bbMax.x, bbMax.y, bbMin.z, 1.0f}, color}, {{bbMax.x, bbMax.y, bbMax.z, 1.0f}, color}});
     m_DEBUG_LineParams.push_back({{{bbMax.x, bbMax.y, bbMin.z, 1.0f}, color}, {{bbMax.x, bbMin.y, bbMin.z, 1.0f}, color}});
     m_DEBUG_LineParams.push_back({{{bbMax.x, bbMax.y, bbMin.z, 1.0f}, color}, {{bbMin.x, bbMax.y, bbMin.z, 1.0f}, color}});
 }
 
+void GraphicsManager::DEBUG_SetDrawTriangleParam(const PointList &vertices, const Vector3f &color)
+{
+    auto count = vertices.size();
+    assert(count >= 3);
+
+    m_DEBUG_showFlag = true;
+
+    for (auto i = 0; i < vertices.size(); i += 3)
+    {
+        m_DEBUG_TriParams.push_back({{*vertices[i], color}, {*vertices[i + 1], color}, {*vertices[i + 2], color}});
+    }
+}
+void GraphicsManager::DEBUG_SetDrawTriangleStripParam(const PointList &vertices, const Vector3f &color)
+{
+    // Unimplemented
+}
+void GraphicsManager::DEBUG_SetDrawPolygonParam(const Face &face, const Vector3f &color)
+{
+    PointSet vertices;
+    for (auto pEdge : face.Edges)
+    {
+        DEBUG_SetDrawLineParam(*pEdge->first, *pEdge->second, color);
+        vertices.insert({pEdge->first, pEdge->second});
+    }
+    DEBUG_SetDrawPointSetParam(vertices, {1.0f});
+
+    DEBUG_SetDrawTriangleParam(face.GetVertices(), {color.r/2.0f, color.g/2.0f, color.b/2.0f});
+}
+void GraphicsManager::DEBUG_SetDrawPolyhydronParam(const Polyhedron &polyhedron, const Vector3f &color)
+{
+    for (auto pFace : polyhedron.Faces)
+    {
+        DEBUG_SetDrawPolygonParam(*pFace, color);
+    }
+}
+
 void GraphicsManager::DEBUG_ClearDebugBuffers()
 {
+    m_DEBUG_PointParams.clear();
     m_DEBUG_LineParams.clear();
+    m_DEBUG_TriParams.clear();
     m_DEBUG_showFlag = false;
 }
 
-void GraphicsManager::DEBUG_DrawLines(const std::vector<DEBUG_LineParam> &lineParams)
+void GraphicsManager::DEBUG_DrawDebug()
 {
-    for (DEBUG_LineParam lineParam : lineParams)
+    // Points
+    for (DEBUG_PointParam pointParam : m_DEBUG_PointParams)
+    {
+        cout << "[GraphicsManager] GraphicsManager::DEBUG_DrawPoints(" << pointParam.pos << ","
+             << pointParam.color << ")" << endl;
+    }
+    // Lines
+    for (DEBUG_LineParam lineParam : m_DEBUG_LineParams)
     {
         cout << "[GraphicsManager] GraphicsManager::DEBUG_DrawLines(" << lineParam.from.pos << ","
              << lineParam.from.color << "), ("
              << lineParam.to.pos << ", " << lineParam.to.color
              << ")" << endl;
+    }
+    // Triangles
+    for (DEBUG_TriangleParam triParam : m_DEBUG_TriParams)
+    {
+        cout << "[GraphicsManager] GraphicsManager::DEBUG_DrawTriangles(" << triParam.v0.pos << ","
+             << triParam.v1.pos << ","
+             << triParam.v2.pos << ","
+             << triParam.v0.color << ")" << endl;
     }
 }
 

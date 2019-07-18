@@ -2,6 +2,7 @@
 #include "DebugManager.hpp"
 #include "GraphicsManager.hpp"
 #include "IPhysicsManager.hpp"
+#include "IGameLogic.hpp"
 
 using namespace newbieGE;
 using namespace std;
@@ -23,6 +24,7 @@ void DebugManager::Tick()
         g_pGraphicsManager->DEBUG_ClearDebugBuffers();
         DrawDebugInfo();
         g_pPhysicsManager->DrawDebugInfo();
+        g_pGameLogic->DrawDebugInfo();
         g_pGraphicsManager->DEBUG_SetBuffer();
     }
 #endif

@@ -26,7 +26,7 @@ using namespace newbieGE;
     id<MTLBuffer> _uniformBuffers;
 
 #ifdef DEBUG
-    id<MTLBuffer> _DEBUG_lineBuffers;
+    id<MTLBuffer> _DEBUG_Buffer;
     id<MTLRenderPipelineState> _DEBUG_pipelineState;
     MTLVertexDescriptor *_DEBUG_mtlDebugDescriptor;
     id<MTLDepthStencilState> _DEBUG_depthState;
@@ -136,9 +136,9 @@ using namespace newbieGE;
 
 #ifdef DEBUG
     // Debug line buffer
-    _DEBUG_lineBuffers = [_device newBufferWithLength:kSizeDebugLineBuffer * GfxConfiguration::kMaxDebugLinesCount
+    _DEBUG_Buffer = [_device newBufferWithLength:kSizeDebugMaxAtomBuffer * GfxConfiguration::kMaxDebugObjectCount
                                               options:MTLResourceStorageModeShared];
-    _DEBUG_lineBuffers.label = [NSString stringWithFormat:@"DEBUG_LineBuffer"];
+    _DEBUG_Buffer.label = [NSString stringWithFormat:@"DEBUG_Buffer"];
 
     vertexFunction = [myLibrary newFunctionWithName:@"debug_vert_main"];
     fragmentFunction = [myLibrary newFunctionWithName:@"debug_frag_main"];
@@ -393,16 +393,29 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
 }
 
 #ifdef DEBUG
-- (void)DEBUG_SetBuffer:(const std::vector<DEBUG_LineParam> &)lineParams
+- (void)DEBUG_SetBufferPoints:(const std::vector<DEBUG_PointParam> &)pointParams
+                        Lines:(const std::vector<DEBUG_LineParam> &)lineParams
+                    Triangles:(const std::vector<DEBUG_TriangleParam> &)triParams
 {
-    std::memcpy(_DEBUG_lineBuffers.contents, lineParams.data(), sizeof(DEBUG_LineParam) * lineParams.size());
+    auto size = sizeof(DEBUG_TriangleParam) * triParams.size();
+    std::memcpy(_DEBUG_Buffer.contents, triParams.data(), size);
+    auto offset = ALIGN(size, 256);
+    
+    size = sizeof(DEBUG_LineParam) * lineParams.size();
+    std::memcpy(reinterpret_cast<uint8_t *>(_DEBUG_Buffer.contents) + offset, lineParams.data(), size);
+    offset += ALIGN(size, 256);
+    
+    size = sizeof(DEBUG_PointParam) * pointParams.size();
+    std::memcpy(reinterpret_cast<uint8_t *>(_DEBUG_Buffer.contents) + offset, pointParams.data(), size);
 }
 
 - (void)DEBUG_ClearDebugBuffers
 {
 }
 
-- (void)DEBUG_DrawLines:(const std::vector<DEBUG_LineParam> &)lineParams
+- (void)DEBUG_DrawDebugPoints:(const std::vector<DEBUG_PointParam> &)pointParams
+                        Lines:(const std::vector<DEBUG_LineParam> &)lineParams
+                    Triangles:(const std::vector<DEBUG_TriangleParam> &)triParams
 {
     if (_renderPassDescriptor != nil)
     {
@@ -416,13 +429,28 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
 
         [_renderEncoder setVertexBuffer:_uniformBuffers offset:0 atIndex:10];
 
+        // Draw primitive type debug info
         // Use buffer than setVertexBytes for buffer >= 4096 bytes
-        [_renderEncoder setVertexBuffer:_DEBUG_lineBuffers offset:0 atIndex:7];
-
+        // Triangles
+        [_renderEncoder setVertexBuffer:_DEBUG_Buffer offset:0 atIndex:7];
+        [_renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
+                           vertexStart:0
+                           vertexCount:3 * triParams.size()];
+        auto offset = ALIGN(sizeof(DEBUG_TriangleParam) * triParams.size(), 256);
+        
+        // Lines
+        [_renderEncoder setVertexBuffer:_DEBUG_Buffer offset:offset atIndex:7];
         [_renderEncoder drawPrimitives:MTLPrimitiveTypeLine
                            vertexStart:0
                            vertexCount:2 * lineParams.size()];
-
+        offset += ALIGN(sizeof(DEBUG_LineParam) * lineParams.size(), 256);
+        
+        // Points
+        [_renderEncoder setVertexBuffer:_DEBUG_Buffer offset:offset atIndex:7];
+        [_renderEncoder drawPrimitives:MTLPrimitiveTypePoint
+                           vertexStart:0
+                           vertexCount:pointParams.size()];
+        
         [_renderEncoder popDebugGroup];
     }
 }

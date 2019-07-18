@@ -70,7 +70,7 @@ enum LightType
 
 struct Light
 {
-    Vector3f m_lightPosition;
+    Vector4f m_lightPosition;
     Vector4f m_lightColor;
 };
 
@@ -97,19 +97,27 @@ struct PerBatchConstants REGISTER(b11)
 };
 
 #ifdef DEBUG
-struct DEBUG_PointParam REGISTER(b10)
+struct DEBUG_PointParam REGISTER(b7)
 {
     Vector4f pos;
     Vector4f color;
 };
 
-struct DEBUG_LineParam REGISTER(b10)
+struct DEBUG_LineParam REGISTER(b7)
 {
     DEBUG_PointParam from;
     DEBUG_PointParam to;
 };
+
+struct DEBUG_TriangleParam REGISTER(b7)
+{
+    DEBUG_PointParam v0;
+    DEBUG_PointParam v1;
+    DEBUG_PointParam v2;
+};
+
 #ifdef __cplusplus
-const size_t kSizeDebugLineBuffer = ALIGN(sizeof(DEBUG_LineParam), 256); // CB size is required to be 256-byte aligned.
+const size_t kSizeDebugMaxAtomBuffer = ALIGN(sizeof(DEBUG_TriangleParam), 256); // CB size is required to be 256-byte aligned.
 #endif
 #endif
 

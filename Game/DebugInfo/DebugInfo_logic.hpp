@@ -1,17 +1,29 @@
 #pragma once
-#include "GameLogic.hpp"
+#include "IGameLogic.hpp"
+#include "geommath.hpp"
+#include "quickhull.hpp"
 
 namespace newbieGE
 {
-class DebugInfo_logic : public GameLogic
+class DebugInfo_logic : public IGameLogic
 {
+public:
     int Initialize();
     void Finalize();
     void Tick();
 
-    void OnLeftKey();
-    void OnRightKey();
-    void OnUpKey();
-    void OnDownKey();
+    void OnLeftKeyDown();
+    void OnRightKeyDown();
+    void OnUpKeyDown();
+    void OnDownKeyDown();
+    void OnButton1Down();
+
+    void OnAnalogStick(int id, float deltaX, float deltaY);
+#ifdef DEBUG
+    void DrawDebugInfo();
+#endif
+
+private:
+    QuickHull m_QuickHull;
 };
 } // namespace newbieGE

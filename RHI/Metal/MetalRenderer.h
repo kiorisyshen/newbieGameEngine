@@ -50,11 +50,15 @@ struct MtlDrawBatchContext : public DrawBatchConstants
 - (void)endCompute;
 
 #ifdef DEBUG
-- (void)DEBUG_SetBuffer:(const std::vector<DEBUG_LineParam> &)lineParams;
+- (void)DEBUG_SetBufferPoints:(const std::vector<DEBUG_PointParam> &)pointParams
+                        Lines:(const std::vector<DEBUG_LineParam> &)lineParams
+                    Triangles:(const std::vector<DEBUG_TriangleParam> &)triParams;
 
 - (void)DEBUG_ClearDebugBuffers;
 
-- (void)DEBUG_DrawLines:(const std::vector<DEBUG_LineParam> &)lineParams;
+- (void)DEBUG_DrawDebugPoints:(const std::vector<DEBUG_PointParam> &)pointParams
+                        Lines:(const std::vector<DEBUG_LineParam> &)lineParams
+                    Triangles:(const std::vector<DEBUG_TriangleParam> &)triParams;
 
 #endif
 

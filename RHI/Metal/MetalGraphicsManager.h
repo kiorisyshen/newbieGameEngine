@@ -27,15 +27,7 @@ public:
     void DEBUG_SetBuffer() final;
 #endif
 
-private:
-    void InitializeBuffers(const Scene &scene);
-    void SetPerFrameConstants() final;
-    void SetPerBatchConstants() final;
-
-#ifdef DEBUG
-    void DEBUG_DrawLines(const std::vector<DEBUG_LineParam> &lineParams) final;
-#endif
-
+protected:
     void BeginScene(const Scene &scene) final;
     void EndScene() final;
 
@@ -47,6 +39,15 @@ private:
 
     void BeginCompute() final;
     void EndCompute() final;
+
+#ifdef DEBUG
+    void DEBUG_DrawDebug() final;
+#endif
+
+private:
+    void InitializeBuffers(const Scene &scene);
+    void SetPerFrameConstants() final;
+    void SetPerBatchConstants() final;
 
     MetalRenderer *m_pRenderer;
 };
