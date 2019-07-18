@@ -3,6 +3,7 @@
 #include "geommath.hpp"
 #include "cbuffer.h"
 #include "Scene.hpp"
+#include "Polyhedron.hpp"
 
 namespace newbieGE
 {

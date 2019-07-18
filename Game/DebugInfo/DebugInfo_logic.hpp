@@ -24,6 +24,8 @@ public:
 #endif
 
 private:
-    QuickHull m_QuickHull;
+    QuickHull m_QuickHullA;
+    QuickHull m_QuickHullB;
+    bool m_bCollided = false;
 };
 } // namespace newbieGE

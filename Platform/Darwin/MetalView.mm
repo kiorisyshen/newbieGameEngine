@@ -13,7 +13,7 @@ using namespace newbieGE;
     {
         [self configure];
     }
-    
+
     return self;
 }
 
@@ -23,7 +23,7 @@ using namespace newbieGE;
     {
         [self configure];
     }
-    
+
     return self;
 }
 
@@ -33,7 +33,7 @@ using namespace newbieGE;
     {
         [self configure];
     }
-    
+
     return self;
 }
 
@@ -44,38 +44,45 @@ using namespace newbieGE;
     self.depthStencilPixelFormat = MTLPixelFormatDepth32Float;
     self.framebufferOnly = YES;
     self.sampleCount = 4;
-    
+
     self.paused = YES;
     self.enableSetNeedsDisplay = YES;
 
-    dynamic_cast<MetalGraphicsManager*>(g_pGraphicsManager)->SetRenderer(
-        [[MetalRenderer new] initWithMetalKitView:self] 
-    );
+    dynamic_cast<MetalGraphicsManager *>(g_pGraphicsManager)->SetRenderer([[MetalRenderer new] initWithMetalKitView:self]);
 }
 
-- (void)drawRect:(CGRect)drawRect {
+- (void)drawRect:(CGRect)drawRect
+{
     g_pGraphicsManager->RenderBuffers();
 }
 
-- (void)mouseDown:(NSEvent *)event {
+- (void)mouseDown:(NSEvent *)event
+{
     if ([event type] == NSEventTypeLeftMouseDown)
     {
         g_pInputManager->LeftMouseButtonDown();
     }
 }
 
-- (void)mouseUp:(NSEvent *)event {
+- (void)mouseUp:(NSEvent *)event
+{
     if ([event type] == NSEventTypeLeftMouseUp)
     {
         g_pInputManager->LeftMouseButtonUp();
     }
 }
 
-- (void)mouseDragged:(NSEvent *)event {
+- (void)mouseDragged:(NSEvent *)event
+{
     if ([event type] == NSEventTypeLeftMouseDragged)
     {
         g_pInputManager->LeftMouseDrag([event deltaX], [event deltaY]);
     }
+}
+
+- (void)scrollWheel:(NSEvent *)event
+{
+    g_pInputManager->LeftMouseDrag([event deltaX], [event deltaY]);
 }
 
 @end

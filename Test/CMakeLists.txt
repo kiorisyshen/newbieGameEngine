@@ -42,5 +42,9 @@ target_link_libraries(BulletTest ${BULLET_DYNAMICS_LIBRARY} ${BULLET_COLLISION_L
 add_test(NAME TEST_Bullet COMMAND BulletTest)
 
 add_executable(QuickhullTest QuickhullTest.cpp)
-target_link_libraries(QuickhullTest Algorithm GeomMath)
+target_link_libraries(QuickhullTest Algorithm Geometries GeomMath)
 add_test(NAME TEST_Quickhull COMMAND QuickhullTest)
+
+add_executable(GjkTest GjkTest.cpp)
+target_link_libraries(GjkTest Algorithm Geometries GeomMath)
+add_test(NAME TEST_Gjk COMMAND GjkTest)

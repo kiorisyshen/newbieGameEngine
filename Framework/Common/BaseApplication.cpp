@@ -108,6 +108,7 @@ void BaseApplication::Tick()
 #ifdef DEBUG
     g_pDebugManager->Tick();
 #endif
+    g_pGameLogic->Tick();
 }
 
 void BaseApplication::SetCommandLineParameters(int argc, char **argv)

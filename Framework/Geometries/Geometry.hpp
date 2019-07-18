@@ -12,7 +12,8 @@ ENUM(GeometryType){
     kCone,
     kPlane,
     kCapsule,
-    kTriangle};
+    kTriangle,
+    kPolyhydron};
 
 class Geometry
 {

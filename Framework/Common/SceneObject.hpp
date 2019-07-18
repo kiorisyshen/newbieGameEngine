@@ -28,7 +28,10 @@ ENUM(SceneObjectType){
     kSceneObjectTypeVertexArray = "VARR"_i32,
     kSceneObjectTypeIndexArray = "VARR"_i32,
     kSceneObjectTypeGeometry = "GEOM"_i32,
-};
+    kSceneObjectTypeTransform = "TRFM"_i32,
+    kSceneObjectTypeTranslate = "TSLT"_i32,
+    kSceneObjectTypeRotate = "ROTA"_i32,
+    kSceneObjectTypeScale = "SCAL"_i32};
 
 ENUM(SceneObjectCollisionType){
     kSceneObjectCollisionTypeNone = "CNON"_i32,
@@ -435,7 +438,7 @@ struct ParameterValueMap
 
     ParameterValueMap() = default;
 
-    ParameterValueMap(const T value) : Value(value){};
+    ParameterValueMap(const T value) : Value(value), ValueMap(nullptr){};
     ParameterValueMap(const std::shared_ptr<SceneObjectTexture> &value) : ValueMap(value){};
 
     ParameterValueMap(const ParameterValueMap<T> &rhs) = default;
@@ -828,27 +831,27 @@ public:
     friend std::ostream &operator<<(std::ostream &out, const SceneObjectPerspectiveCamera &obj);
 };
 
-class SceneObjectTransform
+class SceneObjectTransform : public BaseSceneObject
 {
 protected:
     Matrix4X4f m_matrix;
     bool m_bSceneObjectOnly;
 
 public:
-    SceneObjectTransform()
+    SceneObjectTransform() : BaseSceneObject(SceneObjectType::kSceneObjectTypeTransform)
     {
         BuildIdentityMatrix(m_matrix);
         m_bSceneObjectOnly = false;
-    };
+    }
 
-    SceneObjectTransform(const Matrix4X4f &matrix, const bool object_only = false)
+    SceneObjectTransform(const Matrix4X4f &matrix, const bool object_only = false) : SceneObjectTransform()
     {
         m_matrix = matrix;
         m_bSceneObjectOnly = object_only;
-    };
+    }
 
-    operator Matrix4X4f() { return m_matrix; };
-    operator const Matrix4X4f() const { return m_matrix; };
+    operator Matrix4X4f() { return m_matrix; }
+    operator const Matrix4X4f() const { return m_matrix; }
 
     friend std::ostream &operator<<(std::ostream &out, const SceneObjectTransform &obj);
 };
@@ -856,7 +859,9 @@ public:
 class SceneObjectTranslation : public SceneObjectTransform
 {
 public:
-    SceneObjectTranslation(const char axis, const float amount)
+    SceneObjectTranslation() { m_Type = SceneObjectType::kSceneObjectTypeTranslate; }
+    SceneObjectTranslation(const char axis, const float amount, const bool object_only = false)
+        : SceneObjectTranslation()
     {
         switch (axis)
         {
@@ -872,18 +877,24 @@ public:
         default:
             assert(0);
         }
+
+        m_bSceneObjectOnly = object_only;
     }
 
-    SceneObjectTranslation(const float x, const float y, const float z)
+    SceneObjectTranslation(const float x, const float y, const float z, const bool object_only = false)
+        : SceneObjectTranslation()
     {
         MatrixTranslation(m_matrix, x, y, z);
+        m_bSceneObjectOnly = object_only;
     }
 };
 
 class SceneObjectRotation : public SceneObjectTransform
 {
 public:
-    SceneObjectRotation(const char axis, const float theta)
+    SceneObjectRotation() { m_Type = SceneObjectType::kSceneObjectTypeRotate; }
+    SceneObjectRotation(const char axis, const float theta, const bool object_only = false)
+        : SceneObjectRotation()
     {
         switch (axis)
         {
@@ -899,24 +910,34 @@ public:
         default:
             assert(0);
         }
+
+        m_bSceneObjectOnly = object_only;
     }
 
-    SceneObjectRotation(Vector3f &axis, const float theta)
+    SceneObjectRotation(Vector3f axis, const float theta, const bool object_only = false)
+        : SceneObjectRotation()
     {
         Normalize(axis);
         MatrixRotationAxis(m_matrix, axis, theta);
+
+        m_bSceneObjectOnly = object_only;
     }
 
-    SceneObjectRotation(const Quaternion quaternion)
+    SceneObjectRotation(const Quaternion quaternion, const bool object_only = false)
+        : SceneObjectRotation()
     {
         MatrixRotationQuaternion(m_matrix, quaternion);
+
+        m_bSceneObjectOnly = object_only;
     }
 };
 
 class SceneObjectScale : public SceneObjectTransform
 {
 public:
+    SceneObjectScale() { m_Type = SceneObjectType::kSceneObjectTypeScale; }
     SceneObjectScale(const char axis, const float amount)
+        : SceneObjectScale()
     {
         switch (axis)
         {
@@ -935,6 +956,7 @@ public:
     }
 
     SceneObjectScale(const float x, const float y, const float z)
+        : SceneObjectScale()
     {
         MatrixScale(m_matrix, x, y, z);
     }
