@@ -67,7 +67,9 @@
         "tuple": "cpp",
         "utility": "cpp",
         "deque": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "numeric": "cpp",
+        "random": "cpp"
     },
     "cmake.configureOnOpen": false
 }
