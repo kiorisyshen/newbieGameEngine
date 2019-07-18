@@ -1,9 +1,9 @@
 #pragma once
-#include "GameLogic.hpp"
+#include "IGameLogic.hpp"
 
 namespace newbieGE
 {
-class BilliardGameLogic : public GameLogic
+class BilliardGameLogic : public IGameLogic
 {
     virtual int Initialize();
     virtual void Finalize();
