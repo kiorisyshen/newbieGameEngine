@@ -4,51 +4,26 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
+        {
+            "name": "(MacOS) Editor (Metal)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/Debug/Editor/Editor.app/Contents/MacOS/Editor",
+            "args": [
+                "Scene/Rocks_02.ogex"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "build all Debug"
+        },
         {
             "name": "(lldb) AssetLoaderTest",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/Debug/Test/AssetLoaderTest",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "lldb",
-            "preLaunchTask": "build all Debug"
-        },
-        {
-            "name": "(lldb) OgexParserTest",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/Debug/Test/OgexParserTest",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "lldb",
-            "preLaunchTask": "build all Debug"
-        },
-        {
-            "name": "(lldb) SceneObjectTest",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/Debug/Test/SceneObjectTest",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "lldb",
-            "preLaunchTask": "build all Debug"
-        },
-        {
-            "name": "(lldb) SceneLoadingTest",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/Debug/Test/SceneLoadingTest",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
