@@ -201,9 +201,7 @@ void MetalGraphicsManager::EndCompute() { [m_pRenderer endCompute]; }
 #ifdef DEBUG
 void MetalGraphicsManager::DEBUG_SetBuffer()
 {
-    [m_pRenderer DEBUG_SetBufferPoints:m_DEBUG_PointParams
-                                 Lines:m_DEBUG_LineParams
-                             Triangles:m_DEBUG_TriParams];
+    [m_pRenderer DEBUG_SetBuffer:m_DEBUG_Batches];
 }
 
 void MetalGraphicsManager::DEBUG_ClearDebugBuffers()
@@ -215,9 +213,7 @@ void MetalGraphicsManager::DEBUG_ClearDebugBuffers()
 
 void MetalGraphicsManager::DEBUG_DrawDebug()
 {
-    [m_pRenderer DEBUG_DrawDebugPoints:m_DEBUG_PointParams
-                                 Lines:m_DEBUG_LineParams
-                             Triangles:m_DEBUG_TriParams];
+    [m_pRenderer DEBUG_DrawDebug:m_DEBUG_Batches];
 }
 
 #endif

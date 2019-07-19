@@ -73,6 +73,8 @@ void GraphicsManager::InitConstants()
     // Initialize the world/model matrix to the identity matrix.
     BuildIdentityMatrix(m_DrawFrameContext.m_worldMatrix);
     m_DEBUG_showFlag = false;
+    m_DEBUG_Batches.emplace_back(DEBUG_DrawBatch());
+    BuildIdentityMatrix(m_DEBUG_Batches[0].pbc.modelMatrix);
 }
 
 void GraphicsManager::CalculateCameraMatrix()
@@ -165,7 +167,7 @@ void GraphicsManager::BeginScene(const Scene &scene)
 void GraphicsManager::DEBUG_SetDrawPointParam(const Point3 &point, const Vector3f &color)
 {
     m_DEBUG_showFlag = true;
-    m_DEBUG_PointParams.push_back({point, color});
+    m_DEBUG_Batches[0].pointParams.push_back({point, color});
 }
 
 void GraphicsManager::DEBUG_SetDrawPointSetParam(const PointSet &point_set, const Vector3f &color)
@@ -173,34 +175,29 @@ void GraphicsManager::DEBUG_SetDrawPointSetParam(const PointSet &point_set, cons
     m_DEBUG_showFlag = true;
     for (auto pt : point_set)
     {
-        m_DEBUG_PointParams.push_back({*pt, color});
+        m_DEBUG_Batches[0].pointParams.push_back({*pt, color});
     }
 }
 
-void GraphicsManager::DEBUG_SetDrawPointSetParam(const PointSet &point_set, const Matrix4X4f &trans, const Vector3f &color)
+void GraphicsManager::DEBUG_SetDrawPointSetParam(const PointSet &point_set, const Vector3f &color, DEBUG_DrawBatch &batch)
 {
     m_DEBUG_showFlag = true;
-    Vector4f pt4;
     for (auto pt : point_set)
     {
-        TransformPoint(pt4, *pt, trans);
-        m_DEBUG_PointParams.push_back({pt4, color});
+        batch.pointParams.push_back({*pt, color});
     }
 }
 
 void GraphicsManager::DEBUG_SetDrawLineParam(const Vector3f &from, const Vector3f &to, const Vector3f &color)
 {
     m_DEBUG_showFlag = true;
-    m_DEBUG_LineParams.push_back({{from, color}, {to, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{from, color}, {to, color}});
 }
 
-void GraphicsManager::DEBUG_SetDrawLineParam(const Vector3f &from, const Vector3f &to, const Matrix4X4f &trans, const Vector3f &color)
+void GraphicsManager::DEBUG_SetDrawLineParam(const Vector3f &from, const Vector3f &to, const Vector3f &color, DEBUG_DrawBatch &batch)
 {
     m_DEBUG_showFlag = true;
-    Vector4f pt4From, pt4To;
-    TransformPoint(pt4From, from, trans);
-    TransformPoint(pt4From, to, trans);
-    m_DEBUG_LineParams.push_back({{pt4From, color}, {pt4To, color}});
+    batch.lineParams.push_back({{from, color}, {to, color}});
 }
 
 void GraphicsManager::DEBUG_SetDrawTriangleParam(const PointList &vertices, const Vector3f &color)
@@ -212,24 +209,20 @@ void GraphicsManager::DEBUG_SetDrawTriangleParam(const PointList &vertices, cons
 
     for (auto i = 0; i < vertices.size(); i += 3)
     {
-        m_DEBUG_TriParams.push_back({{*vertices[i], color}, {*vertices[i + 1], color}, {*vertices[i + 2], color}});
+        m_DEBUG_Batches[0].triParams.push_back({{*vertices[i], color}, {*vertices[i + 1], color}, {*vertices[i + 2], color}});
     }
 }
 
-void GraphicsManager::DEBUG_SetDrawTriangleParam(const PointList &vertices, const Matrix4X4f &trans, const Vector3f &color)
+void GraphicsManager::DEBUG_SetDrawTriangleParam(const PointList &vertices, const Vector3f &color, DEBUG_DrawBatch &batch)
 {
     auto count = vertices.size();
     assert(count >= 3);
 
     m_DEBUG_showFlag = true;
 
-    Vector4f pt4_0, pt4_1, pt4_2;
     for (auto i = 0; i < vertices.size(); i += 3)
     {
-        TransformPoint(pt4_0, *vertices[i], trans);
-        TransformPoint(pt4_1, *vertices[i+1], trans);
-        TransformPoint(pt4_2, *vertices[i+2], trans);
-        m_DEBUG_TriParams.push_back({{pt4_0, color}, {pt4_1, color}, {pt4_2, color}});
+        batch.triParams.push_back({{*vertices[i], color}, {*vertices[i + 1], color}, {*vertices[i + 2], color}});
     }
 }
 
@@ -246,17 +239,17 @@ void GraphicsManager::DEBUG_SetDrawPolygonParam(const Face &face, const Vector3f
     DEBUG_SetDrawTriangleParam(face.GetVertices(), {color.r / 2.0f, color.g / 2.0f, color.b / 2.0f});
 }
 
-void GraphicsManager::DEBUG_SetDrawPolygonParam(const Face &face, const Matrix4X4f &trans, const Vector3f &color)
+void GraphicsManager::DEBUG_SetDrawPolygonParam(const Face &face, const Vector3f &color, DEBUG_DrawBatch &batch)
 {
     PointSet vertices;
     for (auto pEdge : face.Edges)
     {
-        DEBUG_SetDrawLineParam(*pEdge->first, *pEdge->second, trans, color);
+        DEBUG_SetDrawLineParam(*pEdge->first, *pEdge->second, color, batch);
         vertices.insert({pEdge->first, pEdge->second});
     }
-    DEBUG_SetDrawPointSetParam(vertices, trans, {1.0f});
+    DEBUG_SetDrawPointSetParam(vertices, {1.0f}, batch);
 
-    DEBUG_SetDrawTriangleParam(face.GetVertices(), trans, {color.r / 2.0f, color.g / 2.0f, color.b / 2.0f});
+    DEBUG_SetDrawTriangleParam(face.GetVertices(), {color.r / 2.0f, color.g / 2.0f, color.b / 2.0f}, batch);
 }
 
 void GraphicsManager::DEBUG_SetDrawPolyhydronParam(const Polyhedron &polyhedron, const Vector3f &color)
@@ -269,64 +262,75 @@ void GraphicsManager::DEBUG_SetDrawPolyhydronParam(const Polyhedron &polyhedron,
 
 void GraphicsManager::DEBUG_SetDrawPolyhydronParam(const Polyhedron &polyhedron, const Matrix4X4f &trans, const Vector3f &color)
 {
+    DEBUG_DrawBatch newDrawBatch;
+    newDrawBatch.pbc.modelMatrix = trans;
+
     for (auto pFace : polyhedron.Faces)
     {
-        DEBUG_SetDrawPolygonParam(*pFace, trans, color);
+        DEBUG_SetDrawPolygonParam(*pFace, color, newDrawBatch);
     }
+    m_DEBUG_Batches.emplace_back(newDrawBatch);
 }
 
 void GraphicsManager::DEBUG_SetDrawBoxParam(const Vector3f &bbMin, const Vector3f &bbMax, const Vector3f &color)
 {
     m_DEBUG_showFlag = true;
     // 12 lines
-    m_DEBUG_LineParams.push_back({{bbMin, color}, {{bbMin.x, bbMin.y, bbMax.z, 1.0f}, color}});
-    m_DEBUG_LineParams.push_back({{bbMin, color}, {{bbMin.x, bbMax.y, bbMin.z, 1.0f}, color}});
-    m_DEBUG_LineParams.push_back({{bbMin, color}, {{bbMax.x, bbMin.y, bbMin.z, 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{bbMin, color}, {{bbMin.x, bbMin.y, bbMax.z, 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{bbMin, color}, {{bbMin.x, bbMax.y, bbMin.z, 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{bbMin, color}, {{bbMax.x, bbMin.y, bbMin.z, 1.0f}, color}});
 
-    m_DEBUG_LineParams.push_back({{{bbMin.x, bbMax.y, bbMax.z, 1.0f}, color}, {{bbMin.x, bbMax.y, bbMin.z, 1.0f}, color}});
-    m_DEBUG_LineParams.push_back({{{bbMin.x, bbMax.y, bbMax.z, 1.0f}, color}, {{bbMin.x, bbMin.y, bbMax.z, 1.0f}, color}});
-    m_DEBUG_LineParams.push_back({{{bbMin.x, bbMax.y, bbMax.z, 1.0f}, color}, {{bbMax.x, bbMax.y, bbMax.z, 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{{bbMin.x, bbMax.y, bbMax.z, 1.0f}, color}, {{bbMin.x, bbMax.y, bbMin.z, 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{{bbMin.x, bbMax.y, bbMax.z, 1.0f}, color}, {{bbMin.x, bbMin.y, bbMax.z, 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{{bbMin.x, bbMax.y, bbMax.z, 1.0f}, color}, {{bbMax.x, bbMax.y, bbMax.z, 1.0f}, color}});
 
-    m_DEBUG_LineParams.push_back({{{bbMax.x, bbMin.y, bbMax.z, 1.0f}, color}, {{bbMax.x, bbMin.y, bbMin.z, 1.0f}, color}});
-    m_DEBUG_LineParams.push_back({{{bbMax.x, bbMin.y, bbMax.z, 1.0f}, color}, {{bbMax.x, bbMax.y, bbMax.z, 1.0f}, color}});
-    m_DEBUG_LineParams.push_back({{{bbMax.x, bbMin.y, bbMax.z, 1.0f}, color}, {{bbMin.x, bbMin.y, bbMax.z, 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{{bbMax.x, bbMin.y, bbMax.z, 1.0f}, color}, {{bbMax.x, bbMin.y, bbMin.z, 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{{bbMax.x, bbMin.y, bbMax.z, 1.0f}, color}, {{bbMax.x, bbMax.y, bbMax.z, 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{{bbMax.x, bbMin.y, bbMax.z, 1.0f}, color}, {{bbMin.x, bbMin.y, bbMax.z, 1.0f}, color}});
 
-    m_DEBUG_LineParams.push_back({{{bbMax.x, bbMax.y, bbMin.z, 1.0f}, color}, {{bbMax.x, bbMax.y, bbMax.z, 1.0f}, color}});
-    m_DEBUG_LineParams.push_back({{{bbMax.x, bbMax.y, bbMin.z, 1.0f}, color}, {{bbMax.x, bbMin.y, bbMin.z, 1.0f}, color}});
-    m_DEBUG_LineParams.push_back({{{bbMax.x, bbMax.y, bbMin.z, 1.0f}, color}, {{bbMin.x, bbMax.y, bbMin.z, 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{{bbMax.x, bbMax.y, bbMin.z, 1.0f}, color}, {{bbMax.x, bbMax.y, bbMax.z, 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{{bbMax.x, bbMax.y, bbMin.z, 1.0f}, color}, {{bbMax.x, bbMin.y, bbMin.z, 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{{bbMax.x, bbMax.y, bbMin.z, 1.0f}, color}, {{bbMin.x, bbMax.y, bbMin.z, 1.0f}, color}});
 }
 
 void GraphicsManager::DEBUG_ClearDebugBuffers()
 {
-    m_DEBUG_PointParams.clear();
-    m_DEBUG_LineParams.clear();
-    m_DEBUG_TriParams.clear();
+    m_DEBUG_Batches.clear();
+    m_DEBUG_Batches.emplace_back(DEBUG_DrawBatch());
+    BuildIdentityMatrix(m_DEBUG_Batches[0].pbc.modelMatrix);
     m_DEBUG_showFlag = false;
 }
 
 void GraphicsManager::DEBUG_DrawDebug()
 {
-    // Points
-    for (DEBUG_PointParam pointParam : m_DEBUG_PointParams)
+    cout << "[GraphicsManager] GraphicsManager::DEBUG_DrawDebug" << endl;
+    long idx = 0;
+    for (auto batch : m_DEBUG_Batches)
     {
-        cout << "[GraphicsManager] GraphicsManager::DEBUG_DrawPoints(" << pointParam.pos << ","
-             << pointParam.color << ")" << endl;
-    }
-    // Lines
-    for (DEBUG_LineParam lineParam : m_DEBUG_LineParams)
-    {
-        cout << "[GraphicsManager] GraphicsManager::DEBUG_DrawLines(" << lineParam.from.pos << ","
-             << lineParam.from.color << "), ("
-             << lineParam.to.pos << ", " << lineParam.to.color
-             << ")" << endl;
-    }
-    // Triangles
-    for (DEBUG_TriangleParam triParam : m_DEBUG_TriParams)
-    {
-        cout << "[GraphicsManager] GraphicsManager::DEBUG_DrawTriangles(" << triParam.v0.pos << ","
-             << triParam.v1.pos << ","
-             << triParam.v2.pos << ","
-             << triParam.v0.color << ")" << endl;
+        cout << "Batch id: " << idx << endl;
+        ++idx;
+
+        // Points
+        for (DEBUG_PointParam pointParam : batch.pointParams)
+        {
+            cout << "Points(" << pointParam.pos << "," << pointParam.color << ")" << endl;
+        }
+        // Lines
+        for (DEBUG_LineParam lineParam : batch.lineParams)
+        {
+            cout << "Lines(" << lineParam.from.pos << ","
+                 << lineParam.from.color << "), ("
+                 << lineParam.to.pos << ", " << lineParam.to.color
+                 << ")" << endl;
+        }
+        // Triangles
+        for (DEBUG_TriangleParam triParam : batch.triParams)
+        {
+            cout << "Triangles(" << triParam.v0.pos << ","
+                 << triParam.v1.pos << ","
+                 << triParam.v2.pos << ","
+                 << triParam.v0.color << ")" << endl;
+        }
     }
 }
 

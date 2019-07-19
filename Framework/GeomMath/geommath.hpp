@@ -854,15 +854,4 @@ inline float PointToPlaneDistance(const PointList &vertices, const PointPtr &poi
     return distance;
 }
 
-inline void TransformPoint(Vector4f &result, const Point3 &pt, const Matrix4X4f &trans)
-{
-    Matrix<float, 1, 4> pt4;
-    pt4[0][0] = pt.x;
-    pt4[0][1] = pt.y;
-    pt4[0][2] = pt.z;
-    pt4[0][3] = 1.0f;
-    MatrixMultiply(pt4, pt4, trans);
-    result = {pt4[0][0], pt4[0][1], pt4[0][3], pt4[0][4]};
-}
-
 } // namespace newbieGE

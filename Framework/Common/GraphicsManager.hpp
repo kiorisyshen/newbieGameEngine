@@ -15,6 +15,16 @@ struct DrawBatchConstants : public PerBatchConstants
     virtual ~DrawBatchConstants() = default;
 };
 
+#ifdef DEBUG
+struct DEBUG_DrawBatch
+{
+    DEBUG_PerBatchConstants pbc;
+    std::vector<DEBUG_LineParam> lineParams;
+    std::vector<DEBUG_PointParam> pointParams;
+    std::vector<DEBUG_TriangleParam> triParams;
+};
+#endif
+
 class GraphicsManager : implements IRuntimeModule
 {
 public:
@@ -32,14 +42,10 @@ public:
 #ifdef DEBUG
     virtual void DEBUG_SetDrawPointParam(const Point3 &point, const Vector3f &color) final;
     virtual void DEBUG_SetDrawPointSetParam(const PointSet &point_set, const Vector3f &color) final;
-    virtual void DEBUG_SetDrawPointSetParam(const PointSet &point_set, const Matrix4X4f &trans, const Vector3f &color) final;
     virtual void DEBUG_SetDrawLineParam(const Vector3f &from, const Vector3f &to, const Vector3f &color) final;
-    virtual void DEBUG_SetDrawLineParam(const Vector3f &from, const Vector3f &to, const Matrix4X4f &trans, const Vector3f &color) final;
     virtual void DEBUG_SetDrawTriangleParam(const PointList &vertices, const Vector3f &color) final;
-    virtual void DEBUG_SetDrawTriangleParam(const PointList &vertices, const Matrix4X4f &trans, const Vector3f &color) final;
 
     virtual void DEBUG_SetDrawPolygonParam(const Face &face, const Vector3f &color) final;
-    virtual void DEBUG_SetDrawPolygonParam(const Face &face, const Matrix4X4f &trans, const Vector3f &color) final;
     virtual void DEBUG_SetDrawPolyhydronParam(const Polyhedron &polyhedron, const Vector3f &color) final;
     virtual void DEBUG_SetDrawPolyhydronParam(const Polyhedron &polyhedron, const Matrix4X4f &trans, const Vector3f &color) final;
 
@@ -64,6 +70,11 @@ protected:
 
 #ifdef DEBUG
     virtual void DEBUG_DrawDebug();
+
+    virtual void DEBUG_SetDrawPointSetParam(const PointSet &point_set, const Vector3f &color, DEBUG_DrawBatch &batch) final;
+    virtual void DEBUG_SetDrawLineParam(const Vector3f &from, const Vector3f &to, const Vector3f &color, DEBUG_DrawBatch &batch) final;
+    virtual void DEBUG_SetDrawTriangleParam(const PointList &vertices, const Vector3f &color, DEBUG_DrawBatch &batch) final;
+    virtual void DEBUG_SetDrawPolygonParam(const Face &face, const Vector3f &color, DEBUG_DrawBatch &batch) final;
 #endif
 
 private:
@@ -81,9 +92,7 @@ protected:
     std::vector<std::shared_ptr<DrawBatchConstants>> m_DrawBatchContext;
 
 #ifdef DEBUG
-    std::vector<DEBUG_LineParam> m_DEBUG_LineParams;
-    std::vector<DEBUG_PointParam> m_DEBUG_PointParams;
-    std::vector<DEBUG_TriangleParam> m_DEBUG_TriParams;
+    std::vector<DEBUG_DrawBatch> m_DEBUG_Batches;
 
     bool m_DEBUG_showFlag;
 #endif

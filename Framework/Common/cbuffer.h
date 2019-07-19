@@ -97,6 +97,11 @@ struct PerBatchConstants REGISTER(b11)
 };
 
 #ifdef DEBUG
+struct DEBUG_PerBatchConstants REGISTER(b8)
+{
+    Matrix4X4f modelMatrix;
+};
+
 struct DEBUG_PointParam REGISTER(b7)
 {
     Vector4f pos;

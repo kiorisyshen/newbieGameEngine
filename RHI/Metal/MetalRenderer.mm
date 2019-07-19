@@ -393,29 +393,31 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
 }
 
 #ifdef DEBUG
-- (void)DEBUG_SetBufferPoints:(const std::vector<DEBUG_PointParam> &)pointParams
-                        Lines:(const std::vector<DEBUG_LineParam> &)lineParams
-                    Triangles:(const std::vector<DEBUG_TriangleParam> &)triParams
+- (void)DEBUG_SetBuffer:(const std::vector<DEBUG_DrawBatch> &)debugBatches
 {
-    auto size = sizeof(DEBUG_TriangleParam) * triParams.size();
-    std::memcpy(_DEBUG_Buffer.contents, triParams.data(), size);
-    auto offset = ALIGN(size, 256);
-    
-    size = sizeof(DEBUG_LineParam) * lineParams.size();
-    std::memcpy(reinterpret_cast<uint8_t *>(_DEBUG_Buffer.contents) + offset, lineParams.data(), size);
-    offset += ALIGN(size, 256);
-    
-    size = sizeof(DEBUG_PointParam) * pointParams.size();
-    std::memcpy(reinterpret_cast<uint8_t *>(_DEBUG_Buffer.contents) + offset, pointParams.data(), size);
+    auto offset = debugBatches.size();
+    offset = 0;
+    for (auto batch : debugBatches)
+    {
+        auto size = sizeof(DEBUG_TriangleParam) * batch.triParams.size();
+        std::memcpy(reinterpret_cast<uint8_t *>(_DEBUG_Buffer.contents) + offset, batch.triParams.data(), size);
+        offset += ALIGN(size, 256);
+        
+        size = sizeof(DEBUG_LineParam) * batch.lineParams.size();
+        std::memcpy(reinterpret_cast<uint8_t *>(_DEBUG_Buffer.contents) + offset, batch.lineParams.data(), size);
+        offset += ALIGN(size, 256);
+        
+        size = sizeof(DEBUG_PointParam) * batch.pointParams.size();
+        std::memcpy(reinterpret_cast<uint8_t *>(_DEBUG_Buffer.contents) + offset, batch.pointParams.data(), size);
+        offset += ALIGN(size, 256);
+    }
 }
 
 - (void)DEBUG_ClearDebugBuffers
 {
 }
 
-- (void)DEBUG_DrawDebugPoints:(const std::vector<DEBUG_PointParam> &)pointParams
-                        Lines:(const std::vector<DEBUG_LineParam> &)lineParams
-                    Triangles:(const std::vector<DEBUG_TriangleParam> &)triParams
+- (void)DEBUG_DrawDebug:(const std::vector<DEBUG_DrawBatch> &)debugBatches
 {
     if (_renderPassDescriptor != nil)
     {
@@ -429,27 +431,37 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
 
         [_renderEncoder setVertexBuffer:_uniformBuffers offset:0 atIndex:10];
 
-        // Draw primitive type debug info
-        // Use buffer than setVertexBytes for buffer >= 4096 bytes
-        // Triangles
-        [_renderEncoder setVertexBuffer:_DEBUG_Buffer offset:0 atIndex:7];
-        [_renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
-                           vertexStart:0
-                           vertexCount:3 * triParams.size()];
-        auto offset = ALIGN(sizeof(DEBUG_TriangleParam) * triParams.size(), 256);
-        
-        // Lines
-        [_renderEncoder setVertexBuffer:_DEBUG_Buffer offset:offset atIndex:7];
-        [_renderEncoder drawPrimitives:MTLPrimitiveTypeLine
-                           vertexStart:0
-                           vertexCount:2 * lineParams.size()];
-        offset += ALIGN(sizeof(DEBUG_LineParam) * lineParams.size(), 256);
-        
-        // Points
-        [_renderEncoder setVertexBuffer:_DEBUG_Buffer offset:offset atIndex:7];
-        [_renderEncoder drawPrimitives:MTLPrimitiveTypePoint
-                           vertexStart:0
-                           vertexCount:pointParams.size()];
+        auto offset = debugBatches.size();
+        offset = 0;
+        for (auto batch : debugBatches)
+        {
+            [_renderEncoder setVertexBytes:&batch.pbc
+                                    length:sizeof(DEBUG_PerBatchConstants)
+                                   atIndex:8];
+            
+            // Draw primitive type debug info
+            // Use buffer than setVertexBytes for buffer >= 4096 bytes
+            // Triangles
+            [_renderEncoder setVertexBuffer:_DEBUG_Buffer offset:offset atIndex:7];
+            [_renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
+                               vertexStart:0
+                               vertexCount:3 * batch.triParams.size()];
+            offset += ALIGN(sizeof(DEBUG_TriangleParam) * batch.triParams.size(), 256);
+            
+            // Lines
+            [_renderEncoder setVertexBuffer:_DEBUG_Buffer offset:offset atIndex:7];
+            [_renderEncoder drawPrimitives:MTLPrimitiveTypeLine
+                               vertexStart:0
+                               vertexCount:2 * batch.lineParams.size()];
+            offset += ALIGN(sizeof(DEBUG_LineParam) * batch.lineParams.size(), 256);
+            
+            // Points
+            [_renderEncoder setVertexBuffer:_DEBUG_Buffer offset:offset atIndex:7];
+            [_renderEncoder drawPrimitives:MTLPrimitiveTypePoint
+                               vertexStart:0
+                               vertexCount:batch.pointParams.size()];
+            offset += ALIGN(sizeof(DEBUG_PointParam) * batch.pointParams.size(), 256);
+        }
         
         [_renderEncoder popDebugGroup];
     }
