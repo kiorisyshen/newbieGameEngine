@@ -11,7 +11,7 @@ int EditorLogic::Initialize()
 
     cout << "[EditorLogic] Editor Logic Initialize" << endl;
     cout << "[EditorLogic] Loading Splash Scene" << endl;
-    result = g_pSceneManager->LoadScene("Scene/splash.ogex");
+    result = g_pSceneManager->LoadScene("Scene/splashNewbie.ogex");
 
     return result;
 }
