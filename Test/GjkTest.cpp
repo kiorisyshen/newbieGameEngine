@@ -29,7 +29,7 @@ int main(int argc, char **argv)
         cout << "Points Generated:" << endl;
         for (auto i = 0; i < point_num; i++)
         {
-            PointPtr point_ptr = make_shared<Point3>(dice(), dice(), dice());
+            PointPtr point_ptr = make_shared<Point3>(Point3{dice(), dice(), dice()});
             convex_hull.AddPoint(std::move(point_ptr));
         }
 
@@ -50,7 +50,7 @@ int main(int argc, char **argv)
         ConvexHull convex_hull;
         for (auto i = 0; i < point_num; i++)
         {
-            PointPtr point_ptr = make_shared<Point3>(dice(), dice(), dice());
+            PointPtr point_ptr = make_shared<Point3>(Point3{dice(), dice(), dice()});
             convex_hull.AddPoint(std::move(point_ptr));
         }
 
@@ -64,7 +64,7 @@ int main(int argc, char **argv)
     SupportFunction support_function_A = std::bind(ConvexPolyhedronSupportFunction, A, _1);
     SupportFunction support_function_B = std::bind(ConvexPolyhedronSupportFunction, B, _1);
     PointList simplex;
-    Vector3f direction(1.0f, 0.0f, 0.0f);
+    Vector3f direction({1.0f, 0.0f, 0.0f});
     int intersected;
     while ((intersected = GjkIntersection(support_function_A, support_function_B, direction, simplex)) == -1)
         cerr << "approximate direction: " << direction;

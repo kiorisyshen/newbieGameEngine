@@ -236,9 +236,9 @@ void GraphicsManager::DEBUG_SetDrawPolygonParam(const Face &face, const Vector3f
         DEBUG_SetDrawLineParam(*pEdge->first, *pEdge->second, color);
         vertices.insert({pEdge->first, pEdge->second});
     }
-    DEBUG_SetDrawPointSetParam(vertices, {1.0f});
+    DEBUG_SetDrawPointSetParam(vertices, color);
 
-    DEBUG_SetDrawTriangleParam(face.GetVertices(), {color.r / 2.0f, color.g / 2.0f, color.b / 2.0f});
+    DEBUG_SetDrawTriangleParam(face.GetVertices(), {color[0] / 2.0f, color[1] / 2.0f, color[2] / 2.0f});
 }
 
 void GraphicsManager::DEBUG_SetDrawPolygonParam(const Face &face, const Vector3f &color, DEBUG_DrawBatch &batch)
@@ -249,9 +249,9 @@ void GraphicsManager::DEBUG_SetDrawPolygonParam(const Face &face, const Vector3f
         DEBUG_SetDrawLineParam(*pEdge->first, *pEdge->second, color, batch);
         vertices.insert({pEdge->first, pEdge->second});
     }
-    DEBUG_SetDrawPointSetParam(vertices, {1.0f}, batch);
+    DEBUG_SetDrawPointSetParam(vertices, color, batch);
 
-    DEBUG_SetDrawTriangleParam(face.GetVertices(), {color.r / 2.0f, color.g / 2.0f, color.b / 2.0f}, batch);
+    DEBUG_SetDrawTriangleParam(face.GetVertices(), {color[0] / 2.0f, color[1] / 2.0f, color[2] / 2.0f}, batch);
 }
 
 void GraphicsManager::DEBUG_SetDrawPolyhydronParam(const Polyhedron &polyhedron, const Vector3f &color)
@@ -278,21 +278,21 @@ void GraphicsManager::DEBUG_SetDrawBoxParam(const Vector3f &bbMin, const Vector3
 {
     m_DEBUG_showFlag = true;
     // 12 lines
-    m_DEBUG_Batches[0].lineParams.push_back({{bbMin, color}, {{bbMin.x, bbMin.y, bbMax.z, 1.0f}, color}});
-    m_DEBUG_Batches[0].lineParams.push_back({{bbMin, color}, {{bbMin.x, bbMax.y, bbMin.z, 1.0f}, color}});
-    m_DEBUG_Batches[0].lineParams.push_back({{bbMin, color}, {{bbMax.x, bbMin.y, bbMin.z, 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{bbMin, color}, {{bbMin[0], bbMin[1], bbMax[2], 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{bbMin, color}, {{bbMin[0], bbMax[1], bbMin[2], 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{bbMin, color}, {{bbMax[0], bbMin[1], bbMin[2], 1.0f}, color}});
 
-    m_DEBUG_Batches[0].lineParams.push_back({{{bbMin.x, bbMax.y, bbMax.z, 1.0f}, color}, {{bbMin.x, bbMax.y, bbMin.z, 1.0f}, color}});
-    m_DEBUG_Batches[0].lineParams.push_back({{{bbMin.x, bbMax.y, bbMax.z, 1.0f}, color}, {{bbMin.x, bbMin.y, bbMax.z, 1.0f}, color}});
-    m_DEBUG_Batches[0].lineParams.push_back({{{bbMin.x, bbMax.y, bbMax.z, 1.0f}, color}, {{bbMax.x, bbMax.y, bbMax.z, 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{{bbMin[0], bbMax[1], bbMax[2], 1.0f}, color}, {{bbMin[0], bbMax[1], bbMin[2], 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{{bbMin[0], bbMax[1], bbMax[2], 1.0f}, color}, {{bbMin[0], bbMin[1], bbMax[2], 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{{bbMin[0], bbMax[1], bbMax[2], 1.0f}, color}, {{bbMax[0], bbMax[1], bbMax[2], 1.0f}, color}});
 
-    m_DEBUG_Batches[0].lineParams.push_back({{{bbMax.x, bbMin.y, bbMax.z, 1.0f}, color}, {{bbMax.x, bbMin.y, bbMin.z, 1.0f}, color}});
-    m_DEBUG_Batches[0].lineParams.push_back({{{bbMax.x, bbMin.y, bbMax.z, 1.0f}, color}, {{bbMax.x, bbMax.y, bbMax.z, 1.0f}, color}});
-    m_DEBUG_Batches[0].lineParams.push_back({{{bbMax.x, bbMin.y, bbMax.z, 1.0f}, color}, {{bbMin.x, bbMin.y, bbMax.z, 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{{bbMax[0], bbMin[1], bbMax[2], 1.0f}, color}, {{bbMax[0], bbMin[1], bbMin[2], 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{{bbMax[0], bbMin[1], bbMax[2], 1.0f}, color}, {{bbMax[0], bbMax[1], bbMax[2], 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{{bbMax[0], bbMin[1], bbMax[2], 1.0f}, color}, {{bbMin[0], bbMin[1], bbMax[2], 1.0f}, color}});
 
-    m_DEBUG_Batches[0].lineParams.push_back({{{bbMax.x, bbMax.y, bbMin.z, 1.0f}, color}, {{bbMax.x, bbMax.y, bbMax.z, 1.0f}, color}});
-    m_DEBUG_Batches[0].lineParams.push_back({{{bbMax.x, bbMax.y, bbMin.z, 1.0f}, color}, {{bbMax.x, bbMin.y, bbMin.z, 1.0f}, color}});
-    m_DEBUG_Batches[0].lineParams.push_back({{{bbMax.x, bbMax.y, bbMin.z, 1.0f}, color}, {{bbMin.x, bbMax.y, bbMin.z, 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{{bbMax[0], bbMax[1], bbMin[2], 1.0f}, color}, {{bbMax[0], bbMax[1], bbMax[2], 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{{bbMax[0], bbMax[1], bbMin[2], 1.0f}, color}, {{bbMax[0], bbMin[1], bbMin[2], 1.0f}, color}});
+    m_DEBUG_Batches[0].lineParams.push_back({{{bbMax[0], bbMax[1], bbMin[2], 1.0f}, color}, {{bbMin[0], bbMax[1], bbMin[2], 1.0f}, color}});
 }
 
 void GraphicsManager::DEBUG_ClearDebugBuffers()

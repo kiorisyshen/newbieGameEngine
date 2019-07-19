@@ -25,7 +25,7 @@ int main(int argc, char **argv)
     cout << "Points Generated:" << endl;
     for (auto i = 0; i < point_num; i++)
     {
-        PointPtr point_ptr = make_shared<Point3>(dice(), dice(), dice());
+        PointPtr point_ptr = make_shared<Point3>(Point3{dice(), dice(), dice()});
         cout << *point_ptr;
         point_set.insert(std::move(point_ptr));
     }

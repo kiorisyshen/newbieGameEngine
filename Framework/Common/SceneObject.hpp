@@ -495,7 +495,7 @@ public:
           m_BaseColor(Vector4f(1.0f)),
           m_Metallic(0.0f),
           m_Roughness(0.0f),
-          m_Normal(Vector3f(0.0f, 0.0f, 1.0f)),
+          m_Normal(Vector3f({0.0f, 0.0f, 1.0f})),
           m_Specular(0.0f),
           m_SpecularPower(1.0f),
           m_AmbientOcclusion(1.0f),

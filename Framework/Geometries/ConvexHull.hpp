@@ -21,7 +21,7 @@ public:
     }
     void AddPoint(const Vector3 &new_point)
     {
-        m_PointSet.insert(std::make_shared<Point3>((float)new_point.x, (float)new_point.y, (float)new_point.z));
+        m_PointSet.insert(std::make_shared<Point3>(Point3({(float)new_point[0], (float)new_point[1], (float)new_point[2]})));
         m_bFullyBuild = false;
     }
     void AddPoint(const PointPtr &new_point)

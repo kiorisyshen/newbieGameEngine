@@ -96,6 +96,9 @@ bool QuickHull::Init(Polyhedron &hull, PointSet &point_set)
             }
         }
 
+        if (!C)
+            return false;
+
         point_set.erase(A);
         point_set.erase(B);
         point_set.erase(C);
@@ -103,7 +106,7 @@ bool QuickHull::Init(Polyhedron &hull, PointSet &point_set)
         // now we find the 4th point to form a tetrahedron
         PointPtr D;
         {
-            float max_distance = 0;
+            float max_distance = 0.0f;
 
             for (auto point_ptr : point_set)
             {
@@ -115,6 +118,9 @@ bool QuickHull::Init(Polyhedron &hull, PointSet &point_set)
                 }
             }
         }
+
+        if (!D)
+            return false;
 
         center_of_tetrahedron = make_shared<Point3>((*A + *B + *C + *D) * 0.25f);
         hull.AddTetrahedron({A, B, C, D});
@@ -213,8 +219,9 @@ void QuickHull::AssignPointsToFaces(const Polyhedron &hull, PointSet &point_set,
         for (auto pFace : hull.Faces)
         {
             float d;
-            if ((d = PointToPlaneDistance(pFace->GetVertices(), **it)) >= 0.0f)
+            if ((d = PointToPlaneDistance(pFace->GetVertices(), **it)) > 0.0f)
             {
+
                 // record all faces
                 // the point can "see" in order to extrude the
                 // convex hull face

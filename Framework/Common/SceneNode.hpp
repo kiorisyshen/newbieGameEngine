@@ -70,7 +70,7 @@ public:
 
     void MoveBy(const Vector3f &distance)
     {
-        MoveBy(distance.x, distance.y, distance.z);
+        MoveBy(distance[0], distance[1], distance[2]);
     }
 
     virtual Matrix3X3f GetLocalAxis()
@@ -218,7 +218,7 @@ public:
         Vector3f target = GetTarget();
         Vector3f camera_position = Vector3f(0.0f);
         TransformCoord(camera_position, *pTransform);
-        Vector3f up(0.0f, 0.0f, 1.0f);
+        Vector3f up({0.0f, 0.0f, 1.0f});
         Vector3f camera_z_axis = camera_position - target;
         Normalize(camera_z_axis);
         Vector3f camera_x_axis;
