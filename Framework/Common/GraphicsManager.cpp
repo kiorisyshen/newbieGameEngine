@@ -72,9 +72,11 @@ void GraphicsManager::InitConstants()
 {
     // Initialize the world/model matrix to the identity matrix.
     BuildIdentityMatrix(m_DrawFrameContext.m_worldMatrix);
+#ifdef DEBUG
     m_DEBUG_showFlag = false;
     m_DEBUG_Batches.emplace_back(DEBUG_DrawBatch());
     BuildIdentityMatrix(m_DEBUG_Batches[0].pbc.modelMatrix);
+#endif
 }
 
 void GraphicsManager::CalculateCameraMatrix()
