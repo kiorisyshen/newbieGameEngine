@@ -1,14 +1,8 @@
 find_library(MTK_LIBRARY MetalKit required)
 find_library(METAL_LIBRARY Metal required)
 
-MESSAGE( STATUS "MTK_LIBRARY: " ${MTK_LIBRARY} )
+message(STATUS "MTK_LIBRARY: " ${MTK_LIBRARY})
 
-add_library(MetalRHI
-    MetalRenderer.mm
-    MetalGraphicsManager.mm
-    )
+add_library(MetalRHI MetalRenderer.mm MetalGraphicsManager.mm)
 
-target_link_libraries(MetalRHI
-        ${MTK_LIBRARY} 
-        ${METAL_LIBRARY}
-    )
+target_link_libraries(MetalRHI ${MTK_LIBRARY} ${METAL_LIBRARY})

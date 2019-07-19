@@ -1,6 +1,4 @@
-if(ANDROID)
-  add_library(DebugInfo SHARED DebugInfo_logic.cpp DebugInfo_config.cpp)
-elseif(APPLE)
+if(APPLE)
   set(SHADER_SOURCES basic debugInfo)
   foreach(SHADER
           IN
@@ -45,21 +43,22 @@ elseif(APPLE)
                              Main.metallib
                      COMMENT "Compile Main.metalar --> Main.metallib"
                      DEPENDS Main.metalar)
-
-  add_executable(DebugInfo MACOSX_BUNDLE DebugInfo_logic.cpp
-                                         DebugInfo_config.cpp Main.metallib)
+  add_executable(Editor MACOSX_BUNDLE EditorLogic.cpp EditorConfig.cpp
+                                      Main.metallib)
   set(RESOURCE_FILES Main.metallib)
-  set_target_properties(DebugInfo PROPERTIES RESOURCE "${RESOURCE_FILES}")
-else(ANDROID)
-  add_executable(DebugInfo DebugInfo_logic.cpp DebugInfo_config.cpp)
-endif(ANDROID)
-target_link_libraries(DebugInfo MyPhysics newbieGameEngine)
+  set_target_properties(Editor PROPERTIES RESOURCE "${RESOURCE_FILES}")
+else(APPLE)
+  add_executable(Editor EditorLogic.cpp EditorConfig.cpp)
+endif(APPLE)
 if(WIN32)
+  target_link_libraries(Editor BulletPhysics newbieGameEngine)
   add_custom_command(
-    TARGET DebugInfo POST_BUILD
+    TARGET Editor POST_BUILD
     COMMAND ${CMAKE_COMMAND}
             -E
             copy_if_different
             "${PROJECT_SOURCE_DIR}/External/Windows/bin/zlib.dll"
-            $<TARGET_FILE_DIR:DebugInfo>)
+            $<TARGET_FILE_DIR:Editor>)
+else(WIN32)
+  target_link_libraries(Editor BulletPhysics newbieGameEngine)
 endif(WIN32)

@@ -1,19 +1,19 @@
-IF(${WIN32})
-    # Windows specific code
-    add_subdirectory(Windows)
-ELSEIF(${UNIX})
-    IF(${APPLE})
-        # Apple specific code
-        add_subdirectory(Darwin)
-    ELSEIF(${ANDROID})
-        add_subdirectory(Android)
-    ELSE(${APPLE})
-        # Linux specific code
-        add_subdirectory(Linux)
-    ENDIF(${APPLE})
-ELSEIF(${ORBIS})
-    add_subdirectory(Orbis)
-ELSE()
-    # Empty
-    add_subdirectory(Empty)
-ENDIF(${WIN32})
+if(${WIN32})
+  # Windows specific code
+  add_subdirectory(Windows)
+elseif(${UNIX})
+  if(${APPLE})
+    # Apple specific code
+    add_subdirectory(Darwin)
+  elseif(${ANDROID})
+    add_subdirectory(Android)
+  else(${APPLE})
+    # Linux specific code
+    add_subdirectory(Linux)
+  endif(${APPLE})
+elseif(${ORBIS})
+  add_subdirectory(Orbis)
+else()
+  # Empty
+  add_subdirectory(Empty)
+endif(${WIN32})
