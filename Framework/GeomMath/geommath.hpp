@@ -8,6 +8,7 @@
 #include <cmath>
 #include <memory>
 #include <set>
+#include <unordered_set>
 #include <vector>
 #include "include/CrossProduct.h"
 #include "include/MulByElement.h"
@@ -783,7 +784,7 @@ inline Matrix8X8f IDCT8X8(const Matrix8X8f &matrix)
 
 typedef Vector3Type<float> Point3;
 typedef std::shared_ptr<Point3> PointPtr;
-typedef std::set<PointPtr> PointSet;
+typedef std::unordered_set<PointPtr> PointSet;
 typedef std::vector<PointPtr> PointList;
 typedef std::pair<PointPtr, PointPtr> Edge;
 inline bool operator==(const Edge &a, const Edge &b)
@@ -795,7 +796,7 @@ inline bool operator==(const EdgePtr &a, const EdgePtr &b)
 {
     return (a->first == b->first && a->second == b->second) || (a->first == b->second && a->second == b->first);
 }
-typedef std::set<EdgePtr> EdgeSet;
+typedef std::unordered_set<EdgePtr> EdgeSet;
 typedef std::vector<EdgePtr> EdgeList;
 struct Face
 {
@@ -813,7 +814,7 @@ struct Face
     }
 };
 typedef std::shared_ptr<Face> FacePtr;
-typedef std::set<FacePtr> FaceSet;
+typedef std::unordered_set<FacePtr> FaceSet;
 typedef std::vector<FacePtr> FaceList;
 
 inline bool isPointAbovePlane(const PointList &vertices, const Point3 &point)
@@ -851,6 +852,17 @@ inline float PointToPlaneDistance(const PointList &vertices, const PointPtr &poi
     distance = std::abs(distance);
 
     return distance;
+}
+
+inline void TransformPoint(Vector4f &result, const Point3 &pt, const Matrix4X4f &trans)
+{
+    Matrix<float, 1, 4> pt4;
+    pt4[0][0] = pt.x;
+    pt4[0][1] = pt.y;
+    pt4[0][2] = pt.z;
+    pt4[0][3] = 1.0f;
+    MatrixMultiply(pt4, pt4, trans);
+    result = {pt4[0][0], pt4[0][1], pt4[0][3], pt4[0][4]};
 }
 
 } // namespace newbieGE

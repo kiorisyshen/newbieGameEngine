@@ -1,22 +1,24 @@
 #pragma once
 #include "IGameLogic.hpp"
+#include "geommath.hpp"
 
 namespace newbieGE
 {
 class EditorLogic : implements IGameLogic
 {
-    int Initialize();
-    void Finalize();
-    void Tick();
+    // overrides
+    int Initialize() final;
+    void Finalize() final;
+    void Tick() final;
 
-    void OnLeftKeyDown();
-    void OnRightKeyDown();
-    void OnUpKeyDown();
-    void OnDownKeyDown();
+    void OnLeftKeyDown() final;
+    void OnRightKeyDown() final;
+    void OnUpKeyDown() final;
+    void OnDownKeyDown() final;
 
-    void OnAnalogStick(int id, float deltaX, float deltaY);
+    void OnAnalogStick(int id, float deltaX, float deltaY) final;
 #ifdef DEBUG
-    void DrawDebugInfo();
+    void DrawDebugInfo() final;
 #endif
 };
 } // namespace newbieGE

@@ -72,6 +72,7 @@ int BaseApplication::Initialize()
         cerr << "Failed. err =" << ret;
         return ret;
     }
+    cerr << "Success" << endl;
 
 #ifdef DEBUG
     if ((ret = g_pDebugManager->Initialize()) != 0)

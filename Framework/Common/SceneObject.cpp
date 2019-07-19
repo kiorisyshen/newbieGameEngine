@@ -1,4 +1,5 @@
 #include "SceneObject.hpp"
+#include "quickhull.hpp"
 
 using namespace std;
 
@@ -300,5 +301,46 @@ BoundingBox SceneObjectMesh::GetBoundingBox() const
 	result.centroid = (bbmax + bbmin) * 0.5f;
 
 	return result;
+}
+
+ConvexHull SceneObjectMesh::GetConvexHull() const
+{
+	ConvexHull hull;
+
+	auto count = m_VertexArray.size();
+	for (auto n = 0; n < count; n++)
+	{
+		if (m_VertexArray[n].GetAttributeName() == "position")
+		{
+			auto data_type = m_VertexArray[n].GetDataType();
+			auto vertices_count = m_VertexArray[n].GetVertexCount();
+			auto data = m_VertexArray[n].GetData();
+			for (auto i = 0; i < vertices_count; i++)
+			{
+				switch (data_type)
+				{
+				case VertexDataType::kVertexDataTypeFloat3:
+				{
+					const Vector3f *vertex = reinterpret_cast<const Vector3f *>(data) + i;
+					hull.AddPoint(*vertex);
+					break;
+				}
+				case VertexDataType::kVertexDataTypeDouble3:
+				{
+					const Vector3 *vertex = reinterpret_cast<const Vector3 *>(data) + i;
+					hull.AddPoint(*vertex);
+					break;
+				}
+				default:
+					assert(0);
+				}
+			}
+		}
+	}
+
+	// calculate the convex hull
+	hull.Iterate();
+
+	return hull;
 }
 } // namespace newbieGE

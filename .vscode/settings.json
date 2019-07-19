@@ -69,7 +69,8 @@
         "deque": "cpp",
         "queue": "cpp",
         "numeric": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "unordered_set": "cpp"
     },
     "cmake.configureOnOpen": false
 }

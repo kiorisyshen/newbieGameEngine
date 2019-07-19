@@ -1,4 +1,5 @@
 #pragma once
+#ifdef DEBUG
 #include "IRuntimeModule.hpp"
 
 namespace newbieGE
@@ -10,15 +11,18 @@ public:
     void Finalize() override;
     void Tick() override;
 
-#ifdef DEBUG
-    virtual void DrawDebugInfo() override;
-#endif
-
     void ToggleDebugInfo();
 
+    void DrawDebugInfo() override;
+
 protected:
+    void DrawAxis();
+    void DrawGrid();
+
     bool m_bDrawDebugInfo = false;
 };
 
 extern DebugManager *g_pDebugManager;
 } // namespace newbieGE
+
+#endif

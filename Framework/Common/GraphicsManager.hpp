@@ -32,13 +32,18 @@ public:
 #ifdef DEBUG
     virtual void DEBUG_SetDrawPointParam(const Point3 &point, const Vector3f &color) final;
     virtual void DEBUG_SetDrawPointSetParam(const PointSet &point_set, const Vector3f &color) final;
+    virtual void DEBUG_SetDrawPointSetParam(const PointSet &point_set, const Matrix4X4f &trans, const Vector3f &color) final;
     virtual void DEBUG_SetDrawLineParam(const Vector3f &from, const Vector3f &to, const Vector3f &color) final;
-    virtual void DEBUG_SetDrawBoxParam(const Vector3f &bbMin, const Vector3f &bbMax, const Vector3f &color) final;
-
+    virtual void DEBUG_SetDrawLineParam(const Vector3f &from, const Vector3f &to, const Matrix4X4f &trans, const Vector3f &color) final;
     virtual void DEBUG_SetDrawTriangleParam(const PointList &vertices, const Vector3f &color) final;
-    virtual void DEBUG_SetDrawTriangleStripParam(const PointList &vertices, const Vector3f &color) final;
+    virtual void DEBUG_SetDrawTriangleParam(const PointList &vertices, const Matrix4X4f &trans, const Vector3f &color) final;
+
     virtual void DEBUG_SetDrawPolygonParam(const Face &face, const Vector3f &color) final;
+    virtual void DEBUG_SetDrawPolygonParam(const Face &face, const Matrix4X4f &trans, const Vector3f &color) final;
     virtual void DEBUG_SetDrawPolyhydronParam(const Polyhedron &polyhedron, const Vector3f &color) final;
+    virtual void DEBUG_SetDrawPolyhydronParam(const Polyhedron &polyhedron, const Matrix4X4f &trans, const Vector3f &color) final;
+
+    virtual void DEBUG_SetDrawBoxParam(const Vector3f &bbMin, const Vector3f &bbMax, const Vector3f &color) final;
 
     virtual void DEBUG_SetBuffer() = 0;
     virtual void DEBUG_ClearDebugBuffers();

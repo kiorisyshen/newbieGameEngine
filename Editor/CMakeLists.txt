@@ -51,7 +51,7 @@ else(APPLE)
   add_executable(Editor EditorLogic.cpp EditorConfig.cpp)
 endif(APPLE)
 if(WIN32)
-  target_link_libraries(Editor BulletPhysics newbieGameEngine)
+  target_link_libraries(Editor MyPhysics newbieGameEngine)
   add_custom_command(
     TARGET Editor POST_BUILD
     COMMAND ${CMAKE_COMMAND}
@@ -60,5 +60,5 @@ if(WIN32)
             "${PROJECT_SOURCE_DIR}/External/Windows/bin/zlib.dll"
             $<TARGET_FILE_DIR:Editor>)
 else(WIN32)
-  target_link_libraries(Editor BulletPhysics newbieGameEngine)
+  target_link_libraries(Editor MyPhysics newbieGameEngine)
 endif(WIN32)

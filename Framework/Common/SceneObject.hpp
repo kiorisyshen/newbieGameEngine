@@ -14,6 +14,7 @@
 #include "PNG.hpp"
 #include "BMP.hpp"
 #include "TGA.hpp"
+#include "ConvexHull.hpp"
 
 namespace newbieGE
 {
@@ -302,6 +303,7 @@ public:
     const SceneObjectIndexArray &GetIndexArray(const size_t index) const { return m_IndexArray[index]; };
     const PrimitiveType &GetPrimitiveType() { return m_PrimitiveType; };
     BoundingBox GetBoundingBox() const;
+    ConvexHull GetConvexHull() const;
 
     friend std::ostream &operator<<(std::ostream &out, const SceneObjectMesh &obj);
 };
@@ -517,6 +519,7 @@ public:
     const Color &GetBaseColor() const { return m_BaseColor; };
     const Color &GetSpecularColor() const { return m_Specular; };
     const Parameter &GetSpecularPower() const { return m_SpecularPower; };
+    const Normal &GetNormal() const { return m_Normal; };
     void SetName(const std::string &name) { m_Name = name; };
     void SetName(std::string &&name) { m_Name = std::move(name); };
     void SetColor(const std::string &attrib, const Vector4f &color)
@@ -675,6 +678,7 @@ public:
     const std::weak_ptr<SceneObjectMesh> GetMesh() { return (m_Mesh.empty() ? nullptr : m_Mesh[0]); }
     const std::weak_ptr<SceneObjectMesh> GetMeshLOD(size_t lod) { return (lod < m_Mesh.size() ? m_Mesh[lod] : nullptr); }
     BoundingBox GetBoundingBox() const { return m_Mesh.empty() ? BoundingBox() : m_Mesh[0]->GetBoundingBox(); }
+    ConvexHull GetConvexHull() const { return m_Mesh.empty() ? ConvexHull() : m_Mesh[0]->GetConvexHull(); }
 
     friend std::ostream &operator<<(std::ostream &out, const SceneObjectGeometry &obj);
 };
