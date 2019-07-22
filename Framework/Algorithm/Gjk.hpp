@@ -7,14 +7,14 @@
 
 namespace newbieGE
 {
-typedef std::function<const Point3(const Vector3f &)> SupportFunction;
+typedef std::function<const Point3(const Vector3f&)> SupportFunction;
 
-void NearestPointInTriangleToPoint(const PointList &vertices, const Point3 &point, float &s, float &t)
+void NearestPointInTriangleToPoint(const PointList& vertices, const Point3& point, float& s, float& t)
 {
     assert(vertices.size() == 3);
-    auto A = vertices[0];
-    auto B = vertices[1];
-    auto C = vertices[2];
+    auto     A = vertices[0];
+    auto     B = vertices[1];
+    auto     C = vertices[2];
     Vector3f edge0 = *B - *A;
     Vector3f edge1 = *C - *A;
     Vector3f v0 = *A - point;
@@ -84,7 +84,7 @@ void NearestPointInTriangleToPoint(const PointList &vertices, const Point3 &poin
     }
 }
 
-int GjkIntersection(const SupportFunction &a, const SupportFunction &b, Vector3f &direction, PointList &simplex)
+int GjkIntersection(const SupportFunction& a, const SupportFunction& b, Vector3f& direction, PointList& simplex)
 {
     Point3 A;
     if (simplex.size() == 0) {
@@ -128,8 +128,8 @@ int GjkIntersection(const SupportFunction &a, const SupportFunction &b, Vector3f
             // on the line segment, naming it P
             // then update the next search direction
             // to PO
-            auto A = simplex[0];
-            auto B = simplex[1];
+            auto  A = simplex[0];
+            auto  B = simplex[1];
             float t;
 
             auto line_seg = *B - *A;
@@ -206,9 +206,9 @@ int GjkIntersection(const SupportFunction &a, const SupportFunction &b, Vector3f
                 return 1;
             } else {
                 float s, t;
-                auto A = pNextFace->Edges[0]->first;
-                auto B = pNextFace->Edges[1]->first;
-                auto C = pNextFace->Edges[2]->first;
+                auto  A = pNextFace->Edges[0]->first;
+                auto  B = pNextFace->Edges[1]->first;
+                auto  C = pNextFace->Edges[2]->first;
 
                 PointList vertices;
                 vertices.push_back(A);
@@ -257,9 +257,9 @@ int GjkIntersection(const SupportFunction &a, const SupportFunction &b, Vector3f
     return -1;
 }
 
-const Point3 ConvexPolyhedronSupportFunction(const Polyhedron &polyhedron, const Vector3f &direction)
+const Point3 ConvexPolyhedronSupportFunction(const Polyhedron& polyhedron, const Vector3f& direction)
 {
-    float max_score = std::numeric_limits<float>::lowest();
+    float    max_score = std::numeric_limits<float>::lowest();
     PointPtr extreme_point;
     for (auto pFace : polyhedron.Faces) {
         float score;

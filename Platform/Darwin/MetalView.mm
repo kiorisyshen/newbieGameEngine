@@ -7,7 +7,7 @@ using namespace newbieGE;
 
 @implementation MetalView
 
-- (instancetype)initWithCoder:(NSCoder *)coder
+- (instancetype)initWithCoder:(NSCoder*)coder
 {
     if (self = [super initWithCoder:coder]) {
         [self configure];
@@ -45,7 +45,7 @@ using namespace newbieGE;
     self.paused = YES;
     self.enableSetNeedsDisplay = YES;
 
-    dynamic_cast<MetalGraphicsManager *>(g_pGraphicsManager)
+    dynamic_cast<MetalGraphicsManager*>(g_pGraphicsManager)
         ->SetRenderer([[MetalRenderer new] initWithMetalKitView:self]);
 }
 
@@ -54,28 +54,28 @@ using namespace newbieGE;
     g_pGraphicsManager->RenderBuffers();
 }
 
-- (void)mouseDown:(NSEvent *)event
+- (void)mouseDown:(NSEvent*)event
 {
     if ([event type] == NSEventTypeLeftMouseDown) {
         g_pInputManager->LeftMouseButtonDown();
     }
 }
 
-- (void)mouseUp:(NSEvent *)event
+- (void)mouseUp:(NSEvent*)event
 {
     if ([event type] == NSEventTypeLeftMouseUp) {
         g_pInputManager->LeftMouseButtonUp();
     }
 }
 
-- (void)mouseDragged:(NSEvent *)event
+- (void)mouseDragged:(NSEvent*)event
 {
     if ([event type] == NSEventTypeLeftMouseDragged) {
         g_pInputManager->LeftMouseDrag([event deltaX], [event deltaY]);
     }
 }
 
-- (void)scrollWheel:(NSEvent *)event
+- (void)scrollWheel:(NSEvent*)event
 {
     g_pInputManager->LeftMouseDrag([event deltaX], [event deltaY]);
 }

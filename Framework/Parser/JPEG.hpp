@@ -30,13 +30,13 @@ struct APP0 : public JPEG_SEGMENT_HEADER {
 };
 
 struct JFIF_APP0 : public APP0 {
-    uint8_t MajorVersion;
-    uint8_t MinorVersion;
-    uint8_t DensityUnits;
+    uint8_t  MajorVersion;
+    uint8_t  MinorVersion;
+    uint8_t  DensityUnits;
     uint16_t Xdensity;
     uint16_t Ydensity;
-    uint8_t Xthumbnail;
-    uint8_t Ythumbnail;
+    uint8_t  Xthumbnail;
+    uint8_t  Ythumbnail;
 };
 
 struct JFXX_APP0 : public APP0 {
@@ -58,10 +58,10 @@ struct FRAME_COMPONENT_SPEC_PARAMS {
 };
 
 struct FRAME_HEADER : public JPEG_SEGMENT_HEADER {
-    uint8_t SamplePrecision;
+    uint8_t  SamplePrecision;
     uint16_t NumOfLines;
     uint16_t NumOfSamplesPerLine;
-    uint8_t NumOfComponentsInFrame;
+    uint8_t  NumOfComponentsInFrame;
 };
 
 struct SCAN_COMPONENT_SPEC_PARAMS {
@@ -115,28 +115,28 @@ class JfifParser : implements ImageParser
                                        58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63};
 
    protected:
-    HuffmanTree<uint8_t> m_treeHuffman[4];
-    Matrix8X8f m_tableQuantization[4];
+    HuffmanTree<uint8_t>                     m_treeHuffman[4];
+    Matrix8X8f                               m_tableQuantization[4];
     std::vector<FRAME_COMPONENT_SPEC_PARAMS> m_tableFrameComponentsSpec;
-    uint16_t m_nSamplePrecision;
-    uint16_t m_nLines;
-    uint16_t m_nSamplesPerLine;
-    uint16_t m_nComponentsInFrame;
-    uint16_t m_nRestartInterval = 0;
-    int mcu_index;
-    int mcu_count_x;
-    int mcu_count_y;
-    int mcu_count;
-    const SCAN_COMPONENT_SPEC_PARAMS *pScsp;
+    uint16_t                                 m_nSamplePrecision;
+    uint16_t                                 m_nLines;
+    uint16_t                                 m_nSamplesPerLine;
+    uint16_t                                 m_nComponentsInFrame;
+    uint16_t                                 m_nRestartInterval = 0;
+    int                                      mcu_index;
+    int                                      mcu_count_x;
+    int                                      mcu_count_y;
+    int                                      mcu_count;
+    const SCAN_COMPONENT_SPEC_PARAMS*        pScsp;
 
    protected:
-    size_t parseScanData(const uint8_t *pScanData, const uint8_t *pDataEnd, Image &img)
+    size_t parseScanData(const uint8_t* pScanData, const uint8_t* pDataEnd, Image& img)
     {
         std::vector<uint8_t> scan_data;
-        size_t scanLength = 0;
+        size_t               scanLength = 0;
 
         {
-            const uint8_t *p = pScanData;
+            const uint8_t* p = pScanData;
 
             // scan for scan data buffer size and remove bitstuff
             bool bitstuff = false;
@@ -149,7 +149,7 @@ class JfifParser : implements ImageParser
                     bitstuff = false;
                 }
 
-                if (*(uint16_t *)p == endian_net_unsigned_int((uint16_t)0xFF00)) {
+                if (*(uint16_t*)p == endian_net_unsigned_int((uint16_t)0xFF00)) {
                     bitstuff = true;
                 }
 
@@ -173,7 +173,7 @@ class JfifParser : implements ImageParser
         int16_t previous_dc[4];  // 4 is max num of components defined by ITU-T81
         memset(previous_dc, 0x00, sizeof(previous_dc));
 
-        size_t byte_offset = 0;
+        size_t  byte_offset = 0;
         uint8_t bit_offset = 0;
 
         while (byte_offset < scan_data.size() && mcu_index < mcu_count) {
@@ -184,7 +184,7 @@ class JfifParser : implements ImageParser
             memset(&block, 0x00, sizeof(block));
 
             for (uint8_t i = 0; i < m_nComponentsInFrame; i++) {
-                const FRAME_COMPONENT_SPEC_PARAMS &fcsp = m_tableFrameComponentsSpec[i];
+                const FRAME_COMPONENT_SPEC_PARAMS& fcsp = m_tableFrameComponentsSpec[i];
 #if DUMP_DETAILS
                 std::cout << "\tComponent Selector: " << (uint16_t)pScsp[i].ComponentSelector << std::endl;
                 std::cout << "\tQuantization Table Destination Selector: "
@@ -198,8 +198,8 @@ class JfifParser : implements ImageParser
                 // Decode DC
                 uint8_t dc_code = m_treeHuffman[pScsp[i].DcEntropyCodingTableDestSelector()].DecodeSingleValue(
                     scan_data.data(), scan_data.size(), &byte_offset, &bit_offset);
-                uint8_t dc_bit_length = dc_code & 0x0F;
-                int16_t dc_value;
+                uint8_t  dc_bit_length = dc_code & 0x0F;
+                int16_t  dc_value;
                 uint32_t tmp_value;
 
                 if (!dc_code) {
@@ -337,11 +337,11 @@ class JfifParser : implements ImageParser
 
             assert(m_nComponentsInFrame <= 4);
 
-            YCbCrf ycbcr;
-            RGBf rgb;
-            int mcu_index_x = mcu_index % mcu_count_x;
-            int mcu_index_y = mcu_index / mcu_count_x;
-            uint8_t *pBuf;
+            YCbCrf   ycbcr;
+            RGBf     rgb;
+            int      mcu_index_x = mcu_index % mcu_count_x;
+            int      mcu_index_y = mcu_index / mcu_count_x;
+            uint8_t* pBuf;
 
             for (int i = 0; i < 8; i++) {
                 for (int j = 0; j < 8; j++) {
@@ -349,13 +349,13 @@ class JfifParser : implements ImageParser
                         ycbcr[k] = block[k][i][j];
                     }
 
-                    pBuf = reinterpret_cast<uint8_t *>(img.data) +
+                    pBuf = reinterpret_cast<uint8_t*>(img.data) +
                            (img.pitch * (mcu_index_y * 8 + i) + (mcu_index_x * 8 + j) * (img.bitcount >> 3));
                     rgb = ConvertYCbCr2RGB(ycbcr);
-                    reinterpret_cast<R8G8B8A8Unorm *>(pBuf)->data[0] = (uint8_t)rgb[0];
-                    reinterpret_cast<R8G8B8A8Unorm *>(pBuf)->data[1] = (uint8_t)rgb[1];
-                    reinterpret_cast<R8G8B8A8Unorm *>(pBuf)->data[2] = (uint8_t)rgb[2];
-                    reinterpret_cast<R8G8B8A8Unorm *>(pBuf)->data[3] = 255;
+                    reinterpret_cast<R8G8B8A8Unorm*>(pBuf)->data[0] = (uint8_t)rgb[0];
+                    reinterpret_cast<R8G8B8A8Unorm*>(pBuf)->data[1] = (uint8_t)rgb[1];
+                    reinterpret_cast<R8G8B8A8Unorm*>(pBuf)->data[2] = (uint8_t)rgb[2];
+                    reinterpret_cast<R8G8B8A8Unorm*>(pBuf)->data[3] = 255;
                 }
             }
 
@@ -376,14 +376,14 @@ class JfifParser : implements ImageParser
     }
 
    public:
-    virtual Image Parse(Buffer &buf)
+    virtual Image Parse(Buffer& buf)
     {
         Image img;
 
-        const uint8_t *pData = buf.GetData();
-        const uint8_t *pDataEnd = buf.GetData() + buf.GetDataSize();
+        const uint8_t* pData = buf.GetData();
+        const uint8_t* pDataEnd = buf.GetData() + buf.GetDataSize();
 
-        const JFIF_FILEHEADER *pFileHeader = reinterpret_cast<const JFIF_FILEHEADER *>(pData);
+        const JFIF_FILEHEADER* pFileHeader = reinterpret_cast<const JFIF_FILEHEADER*>(pData);
         pData += sizeof(JFIF_FILEHEADER);
         if (pFileHeader->SOI == endian_net_unsigned_int((uint16_t)0xFFD8) /* FF D8 */) {
             std::cout << "Asset is JPEG file" << std::endl;
@@ -391,7 +391,7 @@ class JfifParser : implements ImageParser
             while (pData < pDataEnd) {
                 size_t scanLength = 0;
 
-                const JPEG_SEGMENT_HEADER *pSegmentHeader = reinterpret_cast<const JPEG_SEGMENT_HEADER *>(pData);
+                const JPEG_SEGMENT_HEADER* pSegmentHeader = reinterpret_cast<const JPEG_SEGMENT_HEADER*>(pData);
 #if DUMP_DETAILS
                 std::cout << "============================" << std::endl;
 #endif
@@ -405,7 +405,7 @@ class JfifParser : implements ImageParser
 
                         std::cout << "----------------------------" << std::endl;
 
-                        const FRAME_HEADER *pFrameHeader = reinterpret_cast<const FRAME_HEADER *>(pData);
+                        const FRAME_HEADER* pFrameHeader = reinterpret_cast<const FRAME_HEADER*>(pData);
                         m_nSamplePrecision = pFrameHeader->SamplePrecision;
                         m_nLines = endian_net_unsigned_int((uint16_t)pFrameHeader->NumOfLines);
                         m_nSamplesPerLine = endian_net_unsigned_int((uint16_t)pFrameHeader->NumOfSamplesPerLine);
@@ -421,9 +421,9 @@ class JfifParser : implements ImageParser
                         std::cout << "Num of Components In Frame: " << m_nComponentsInFrame << std::endl;
                         std::cout << "Total MCU count: " << mcu_count << std::endl;
 
-                        const uint8_t *pTmp = pData + sizeof(FRAME_HEADER);
-                        const FRAME_COMPONENT_SPEC_PARAMS *pFcsp =
-                            reinterpret_cast<const FRAME_COMPONENT_SPEC_PARAMS *>(pTmp);
+                        const uint8_t*                     pTmp = pData + sizeof(FRAME_HEADER);
+                        const FRAME_COMPONENT_SPEC_PARAMS* pFcsp =
+                            reinterpret_cast<const FRAME_COMPONENT_SPEC_PARAMS*>(pTmp);
                         for (uint8_t i = 0; i < pFrameHeader->NumOfComponentsInFrame; i++) {
                             std::cout << "\tComponent Identifier: " << (uint16_t)pFcsp->ComponentIdentifier
                                       << std::endl;
@@ -453,15 +453,15 @@ class JfifParser : implements ImageParser
 
                         size_t segmentLength = endian_net_unsigned_int(pSegmentHeader->Length) - 2;
 
-                        const uint8_t *pTmp = pData + sizeof(JPEG_SEGMENT_HEADER);
+                        const uint8_t* pTmp = pData + sizeof(JPEG_SEGMENT_HEADER);
 
                         while (segmentLength > 0) {
-                            const HUFFMAN_TABLE_SPEC *pHtable = reinterpret_cast<const HUFFMAN_TABLE_SPEC *>(pTmp);
+                            const HUFFMAN_TABLE_SPEC* pHtable = reinterpret_cast<const HUFFMAN_TABLE_SPEC*>(pTmp);
                             std::cout << "Table Class: " << pHtable->TableClass() << std::endl;
                             std::cout << "Destination Identifier: " << pHtable->DestinationIdentifier() << std::endl;
 
-                            const uint8_t *pCodeValueStart =
-                                reinterpret_cast<const uint8_t *>(pHtable) + sizeof(HUFFMAN_TABLE_SPEC);
+                            const uint8_t* pCodeValueStart =
+                                reinterpret_cast<const uint8_t*>(pHtable) + sizeof(HUFFMAN_TABLE_SPEC);
 
                             auto num_symbo =
                                 m_treeHuffman[(pHtable->TableClass() << 1) | pHtable->DestinationIdentifier()]
@@ -483,16 +483,16 @@ class JfifParser : implements ImageParser
 
                         size_t segmentLength = endian_net_unsigned_int(pSegmentHeader->Length) - 2;
 
-                        const uint8_t *pTmp = pData + sizeof(JPEG_SEGMENT_HEADER);
+                        const uint8_t* pTmp = pData + sizeof(JPEG_SEGMENT_HEADER);
 
                         while (segmentLength > 0) {
-                            const QUANTIZATION_TABLE_SPEC *pQtable =
-                                reinterpret_cast<const QUANTIZATION_TABLE_SPEC *>(pTmp);
+                            const QUANTIZATION_TABLE_SPEC* pQtable =
+                                reinterpret_cast<const QUANTIZATION_TABLE_SPEC*>(pTmp);
                             std::cout << "Element Precision: " << pQtable->ElementPrecision() << std::endl;
                             std::cout << "Destination Identifier: " << pQtable->DestinationIdentifier() << std::endl;
 
-                            const uint8_t *pElementDataStart =
-                                reinterpret_cast<const uint8_t *>(pQtable) + sizeof(QUANTIZATION_TABLE_SPEC);
+                            const uint8_t* pElementDataStart =
+                                reinterpret_cast<const uint8_t*>(pQtable) + sizeof(QUANTIZATION_TABLE_SPEC);
 
                             for (int i = 0; i < 64; i++) {
                                 int index = m_zigzagIndex[i];
@@ -501,7 +501,7 @@ class JfifParser : implements ImageParser
                                         pElementDataStart[i];
                                 } else {
                                     m_tableQuantization[pQtable->DestinationIdentifier()][index >> 3][index & 0x7] =
-                                        endian_net_unsigned_int(*((uint16_t *)pElementDataStart + i));
+                                        endian_net_unsigned_int(*((uint16_t*)pElementDataStart + i));
                                 }
                             }
 #ifdef DUMP_DETAILS
@@ -519,7 +519,7 @@ class JfifParser : implements ImageParser
                         std::cout << "Define Restart Interval" << std::endl;
                         std::cout << "----------------------------" << std::endl;
 
-                        RESTART_INTERVAL_DEF *pRestartHeader = (RESTART_INTERVAL_DEF *)pData;
+                        RESTART_INTERVAL_DEF* pRestartHeader = (RESTART_INTERVAL_DEF*)pData;
                         m_nRestartInterval = endian_net_unsigned_int((uint16_t)pRestartHeader->RestartInterval);
                         std::cout << "Restart interval: " << m_nRestartInterval << std::endl;
                         pData += endian_net_unsigned_int(pSegmentHeader->Length) + 2 /* length of marker */;
@@ -528,15 +528,15 @@ class JfifParser : implements ImageParser
                         std::cout << "Start Of Scan" << std::endl;
                         std::cout << "----------------------------" << std::endl;
 
-                        SCAN_HEADER *pScanHeader = (SCAN_HEADER *)pData;
+                        SCAN_HEADER* pScanHeader = (SCAN_HEADER*)pData;
                         std::cout << "Image Conponents in Scan: " << (uint16_t)pScanHeader->NumOfComponents
                                   << std::endl;
                         assert(pScanHeader->NumOfComponents == m_nComponentsInFrame);
 
-                        const uint8_t *pTmp = pData + sizeof(SCAN_HEADER);
-                        pScsp = reinterpret_cast<const SCAN_COMPONENT_SPEC_PARAMS *>(pTmp);
+                        const uint8_t* pTmp = pData + sizeof(SCAN_HEADER);
+                        pScsp = reinterpret_cast<const SCAN_COMPONENT_SPEC_PARAMS*>(pTmp);
 
-                        const uint8_t *pScanData = pData + endian_net_unsigned_int((uint16_t)pScanHeader->Length) + 2;
+                        const uint8_t* pScanData = pData + endian_net_unsigned_int((uint16_t)pScanHeader->Length) + 2;
 
                         scanLength = parseScanData(pScanData, pDataEnd, img);
                         pData +=
@@ -555,7 +555,7 @@ class JfifParser : implements ImageParser
                         std::cout << "----------------------------" << std::endl;
 #endif
 
-                        const uint8_t *pScanData = pData + 2;
+                        const uint8_t* pScanData = pData + 2;
                         scanLength = parseScanData(pScanData, pDataEnd, img);
                         pData += 2 + scanLength /* length of marker */;
                     } break;
@@ -565,10 +565,10 @@ class JfifParser : implements ImageParser
                         pData += 2 /* length of marker */;
                     } break;
                     case 0xFFE0: {
-                        const APP0 *pApp0 = reinterpret_cast<const APP0 *>(pData);
-                        switch (endian_net_unsigned_int(*(uint32_t *)pApp0->Identifier)) {
+                        const APP0* pApp0 = reinterpret_cast<const APP0*>(pData);
+                        switch (endian_net_unsigned_int(*(uint32_t*)pApp0->Identifier)) {
                             case "JFIF\0"_u32: {
-                                const JFIF_APP0 *pJfifApp0 = reinterpret_cast<const JFIF_APP0 *>(pApp0);
+                                const JFIF_APP0* pJfifApp0 = reinterpret_cast<const JFIF_APP0*>(pApp0);
                                 std::cout << "JFIF-APP0" << std::endl;
                                 std::cout << "----------------------------" << std::endl;
                                 std::cout << "JFIF Version: " << (uint16_t)pJfifApp0->MajorVersion << "."
@@ -589,7 +589,7 @@ class JfifParser : implements ImageParser
                                 }
                             } break;
                             case "JFXX\0"_u32: {
-                                const JFXX_APP0 *pJfxxApp0 = reinterpret_cast<const JFXX_APP0 *>(pApp0);
+                                const JFXX_APP0* pJfxxApp0 = reinterpret_cast<const JFXX_APP0*>(pApp0);
                                 std::cout << "Thumbnail Format: ";
                                 switch (pJfxxApp0->ThumbnailFormat) {
                                     case 0x10:

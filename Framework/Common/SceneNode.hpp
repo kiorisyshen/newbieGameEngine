@@ -12,13 +12,13 @@ namespace newbieGE
 class BaseSceneNode : public TreeNode
 {
    protected:
-    std::string m_strName;
+    std::string                                      m_strName;
     std::list<std::shared_ptr<SceneObjectTransform>> m_Transforms;
-    Matrix4X4f m_RuntimeTransform;
+    Matrix4X4f                                       m_RuntimeTransform;
 
    public:
     BaseSceneNode() { BuildIdentityMatrix(m_RuntimeTransform); };
-    BaseSceneNode(const std::string &name)
+    BaseSceneNode(const std::string& name)
     {
         m_strName = name;
         BuildIdentityMatrix(m_RuntimeTransform);
@@ -27,12 +27,12 @@ class BaseSceneNode : public TreeNode
 
     const std::string GetName() const { return m_strName; };
 
-    void AppendTransform(std::shared_ptr<SceneObjectTransform> &&transform)
+    void AppendTransform(std::shared_ptr<SceneObjectTransform>&& transform)
     {
         m_Transforms.push_back(std::move(transform));
     }
 
-    void PrependTransform(std::shared_ptr<SceneObjectTransform> &&transform)
+    void PrependTransform(std::shared_ptr<SceneObjectTransform>&& transform)
     {
         m_Transforms.push_front(std::move(transform));
     }
@@ -67,11 +67,11 @@ class BaseSceneNode : public TreeNode
         m_RuntimeTransform = m_RuntimeTransform * translation;
     }
 
-    void MoveBy(const Vector3f &distance) { MoveBy(distance[0], distance[1], distance[2]); }
+    void MoveBy(const Vector3f& distance) { MoveBy(distance[0], distance[1], distance[2]); }
 
     virtual Matrix3X3f GetLocalAxis() { return {{{{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}}}; }
 
-    friend std::ostream &operator<<(std::ostream &out, const BaseSceneNode &node)
+    friend std::ostream& operator<<(std::ostream& out, const BaseSceneNode& node)
     {
         static thread_local int32_t indent = 0;
         indent++;
@@ -103,15 +103,15 @@ class SceneNode : public BaseSceneNode
     std::string m_keySceneObject;
 
    protected:
-    virtual void dump(std::ostream &out) const { out << m_keySceneObject << std::endl; };
+    virtual void dump(std::ostream& out) const { out << m_keySceneObject << std::endl; };
 
    public:
     using BaseSceneNode::BaseSceneNode;
     SceneNode() = default;
 
-    void AddSceneObjectRef(const std::string &key) { m_keySceneObject = key; };
+    void AddSceneObjectRef(const std::string& key) { m_keySceneObject = key; };
 
-    const std::string &GetSceneObjectRef() { return m_keySceneObject; };
+    const std::string& GetSceneObjectRef() { return m_keySceneObject; };
 };
 
 typedef BaseSceneNode SceneEmptyNode;
@@ -119,14 +119,14 @@ typedef BaseSceneNode SceneEmptyNode;
 class SceneGeometryNode : public SceneNode<SceneObjectGeometry>
 {
    protected:
-    bool m_bVisible;
-    bool m_bShadow;
-    bool m_bMotionBlur;
+    bool                     m_bVisible;
+    bool                     m_bShadow;
+    bool                     m_bMotionBlur;
     std::vector<std::string> m_Materials;
-    void *m_pRigidBody = nullptr;
+    void*                    m_pRigidBody = nullptr;
 
    protected:
-    virtual void dump(std::ostream &out) const
+    virtual void dump(std::ostream& out) const
     {
         SceneNode::dump(out);
         out << "Visible: " << m_bVisible << std::endl;
@@ -141,15 +141,15 @@ class SceneGeometryNode : public SceneNode<SceneObjectGeometry>
    public:
     using SceneNode::SceneNode;
 
-    void SetVisibility(bool visible) { m_bVisible = visible; };
+    void       SetVisibility(bool visible) { m_bVisible = visible; };
     const bool Visible() { return m_bVisible; };
-    void SetIfCastShadow(bool shadow) { m_bShadow = shadow; };
+    void       SetIfCastShadow(bool shadow) { m_bShadow = shadow; };
     const bool CastShadow() { return m_bShadow; };
-    void SetIfMotionBlur(bool motion_blur) { m_bMotionBlur = motion_blur; };
+    void       SetIfMotionBlur(bool motion_blur) { m_bMotionBlur = motion_blur; };
     const bool MotionBlur() { return m_bMotionBlur; };
     using SceneNode::AddSceneObjectRef;
-    void AddMaterialRef(const std::string &key) { m_Materials.push_back(key); };
-    void AddMaterialRef(const std::string &&key) { m_Materials.push_back(std::move(key)); };
+    void        AddMaterialRef(const std::string& key) { m_Materials.push_back(key); };
+    void        AddMaterialRef(const std::string&& key) { m_Materials.push_back(std::move(key)); };
     std::string GetMaterialRef(const size_t index)
     {
         if (index < m_Materials.size())
@@ -158,17 +158,17 @@ class SceneGeometryNode : public SceneNode<SceneObjectGeometry>
             return std::string("default");
     };
 
-    void LinkRigidBody(void *rigidBody) { m_pRigidBody = rigidBody; }
+    void LinkRigidBody(void* rigidBody) { m_pRigidBody = rigidBody; }
 
-    void *UnlinkRigidBody()
+    void* UnlinkRigidBody()
     {
-        void *rigidBody = m_pRigidBody;
+        void* rigidBody = m_pRigidBody;
         m_pRigidBody = nullptr;
 
         return rigidBody;
     }
 
-    void *RigidBody() { return m_pRigidBody; }
+    void* RigidBody() { return m_pRigidBody; }
 };
 
 class SceneLightNode : public SceneNode<SceneObjectLight>
@@ -179,7 +179,7 @@ class SceneLightNode : public SceneNode<SceneObjectLight>
    public:
     using SceneNode::SceneNode;
 
-    void SetIfCastShadow(bool shadow) { m_bShadow = shadow; };
+    void       SetIfCastShadow(bool shadow) { m_bShadow = shadow; };
     const bool CastShadow() { return m_bShadow; };
 };
 
@@ -191,14 +191,14 @@ class SceneCameraNode : public SceneNode<SceneObjectCamera>
    public:
     using SceneNode::SceneNode;
 
-    void SetTarget(Vector3f &target) { m_Target = target; };
-    const Vector3f &GetTarget() { return m_Target; };
-    Matrix3X3f GetLocalAxis()
+    void            SetTarget(Vector3f& target) { m_Target = target; };
+    const Vector3f& GetTarget() { return m_Target; };
+    Matrix3X3f      GetLocalAxis()
     {
         Matrix3X3f result;
-        auto pTransform = GetCalculatedTransform();
-        Vector3f target = GetTarget();
-        Vector3f camera_position = Vector3f(0.0f);
+        auto       pTransform = GetCalculatedTransform();
+        Vector3f   target = GetTarget();
+        Vector3f   camera_position = Vector3f(0.0f);
         TransformCoord(camera_position, *pTransform);
         Vector3f up({0.0f, 0.0f, 1.0f});
         Vector3f camera_z_axis = camera_position - target;

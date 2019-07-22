@@ -3,7 +3,7 @@
 using namespace newbieGE;
 using namespace std;
 
-const shared_ptr<SceneObjectCamera> Scene::GetCamera(const std::string &key) const
+const shared_ptr<SceneObjectCamera> Scene::GetCamera(const std::string& key) const
 {
     auto i = Cameras.find(key);
     if (i == Cameras.end())
@@ -12,7 +12,7 @@ const shared_ptr<SceneObjectCamera> Scene::GetCamera(const std::string &key) con
         return i->second;
 }
 
-const shared_ptr<SceneObjectLight> Scene::GetLight(const std::string &key) const
+const shared_ptr<SceneObjectLight> Scene::GetLight(const std::string& key) const
 {
     auto i = Lights.find(key);
     if (i == Lights.end())
@@ -21,7 +21,7 @@ const shared_ptr<SceneObjectLight> Scene::GetLight(const std::string &key) const
         return i->second;
 }
 
-const shared_ptr<SceneObjectGeometry> Scene::GetGeometry(const std::string &key) const
+const shared_ptr<SceneObjectGeometry> Scene::GetGeometry(const std::string& key) const
 {
     auto i = Geometries.find(key);
     if (i == Geometries.end())
@@ -30,7 +30,7 @@ const shared_ptr<SceneObjectGeometry> Scene::GetGeometry(const std::string &key)
         return i->second;
 }
 
-const shared_ptr<SceneObjectMaterial> Scene::GetMaterial(const std::string &key) const
+const shared_ptr<SceneObjectMaterial> Scene::GetMaterial(const std::string& key) const
 {
     auto i = Materials.find(key);
     if (i == Materials.end())

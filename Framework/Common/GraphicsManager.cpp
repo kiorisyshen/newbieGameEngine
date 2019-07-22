@@ -21,7 +21,7 @@ void GraphicsManager::Tick()
     if (g_pSceneManager->IsSceneChanged()) {
         EndScene();
         cout << "Detected Scene Change, reinitialize Graphics Manager..." << endl;
-        const Scene &scene = g_pSceneManager->GetSceneForRendering();
+        const Scene& scene = g_pSceneManager->GetSceneForRendering();
         BeginScene(scene);
         g_pSceneManager->NotifySceneIsRenderingQueued();
     }
@@ -38,7 +38,7 @@ void GraphicsManager::Tick()
 void GraphicsManager::UpdateConstants()
 {
     for (auto pbc : m_DrawBatchContext) {
-        if (void *rigidBody = pbc->node->RigidBody()) {
+        if (void* rigidBody = pbc->node->RigidBody()) {
             Matrix4X4f trans;
             BuildIdentityMatrix(trans);
 
@@ -73,8 +73,8 @@ void GraphicsManager::InitConstants()
 
 void GraphicsManager::CalculateCameraMatrix()
 {
-    auto &scene = g_pSceneManager->GetSceneForRendering();
-    auto pCameraNode = scene.GetFirstCameraNode();
+    auto& scene = g_pSceneManager->GetSceneForRendering();
+    auto  pCameraNode = scene.GetFirstCameraNode();
     if (pCameraNode) {
         m_DrawFrameContext.m_viewMatrix = *pCameraNode->GetCalculatedTransform();
         InverseMatrix4X4f(m_DrawFrameContext.m_viewMatrix);
@@ -96,7 +96,7 @@ void GraphicsManager::CalculateCameraMatrix()
         farClipDistance = pCamera->GetFarClipDistance();
     }
 
-    const GfxConfiguration &conf = g_pApp->GetConfiguration();
+    const GfxConfiguration& conf = g_pApp->GetConfiguration();
 
     float screenAspect = (float)conf.screenWidth / (float)conf.screenHeight;
 
@@ -107,8 +107,8 @@ void GraphicsManager::CalculateCameraMatrix()
 
 void GraphicsManager::CalculateLights()
 {
-    auto &scene = g_pSceneManager->GetSceneForRendering();
-    auto pLightNode = scene.GetFirstLightNode();
+    auto& scene = g_pSceneManager->GetSceneForRendering();
+    auto  pLightNode = scene.GetFirstLightNode();
     if (pLightNode) {
         m_DrawFrameContext.m_lightPosition = {0.0f, 0.0f, 0.0f, 1.0f};
         Transform(m_DrawFrameContext.m_lightPosition, *pLightNode->GetCalculatedTransform());
@@ -139,7 +139,7 @@ void GraphicsManager::RenderBuffers()
     EndFrame();
 }
 
-void GraphicsManager::BeginScene(const Scene &scene)
+void GraphicsManager::BeginScene(const Scene& scene)
 {
     //    for (auto pPass : m_InitPasses)
     //    {
@@ -150,13 +150,13 @@ void GraphicsManager::BeginScene(const Scene &scene)
 }
 
 #ifdef DEBUG
-void GraphicsManager::DEBUG_SetDrawPointParam(const Point3 &point, const Vector3f &color)
+void GraphicsManager::DEBUG_SetDrawPointParam(const Point3& point, const Vector3f& color)
 {
     m_DEBUG_showFlag = true;
     m_DEBUG_Batches[0].pointParams.push_back({point, color});
 }
 
-void GraphicsManager::DEBUG_SetDrawPointSetParam(const PointSet &point_set, const Vector3f &color)
+void GraphicsManager::DEBUG_SetDrawPointSetParam(const PointSet& point_set, const Vector3f& color)
 {
     m_DEBUG_showFlag = true;
     for (auto pt : point_set) {
@@ -164,8 +164,8 @@ void GraphicsManager::DEBUG_SetDrawPointSetParam(const PointSet &point_set, cons
     }
 }
 
-void GraphicsManager::DEBUG_SetDrawPointSetParam(const PointSet &point_set, const Vector3f &color,
-                                                 DEBUG_DrawBatch &batch)
+void GraphicsManager::DEBUG_SetDrawPointSetParam(const PointSet& point_set, const Vector3f& color,
+                                                 DEBUG_DrawBatch& batch)
 {
     m_DEBUG_showFlag = true;
     for (auto pt : point_set) {
@@ -173,20 +173,20 @@ void GraphicsManager::DEBUG_SetDrawPointSetParam(const PointSet &point_set, cons
     }
 }
 
-void GraphicsManager::DEBUG_SetDrawLineParam(const Vector3f &from, const Vector3f &to, const Vector3f &color)
+void GraphicsManager::DEBUG_SetDrawLineParam(const Vector3f& from, const Vector3f& to, const Vector3f& color)
 {
     m_DEBUG_showFlag = true;
     m_DEBUG_Batches[0].lineParams.push_back({{from, color}, {to, color}});
 }
 
-void GraphicsManager::DEBUG_SetDrawLineParam(const Vector3f &from, const Vector3f &to, const Vector3f &color,
-                                             DEBUG_DrawBatch &batch)
+void GraphicsManager::DEBUG_SetDrawLineParam(const Vector3f& from, const Vector3f& to, const Vector3f& color,
+                                             DEBUG_DrawBatch& batch)
 {
     m_DEBUG_showFlag = true;
     batch.lineParams.push_back({{from, color}, {to, color}});
 }
 
-void GraphicsManager::DEBUG_SetDrawTriangleParam(const PointList &vertices, const Vector3f &color)
+void GraphicsManager::DEBUG_SetDrawTriangleParam(const PointList& vertices, const Vector3f& color)
 {
     auto count = vertices.size();
     assert(count >= 3);
@@ -199,8 +199,8 @@ void GraphicsManager::DEBUG_SetDrawTriangleParam(const PointList &vertices, cons
     }
 }
 
-void GraphicsManager::DEBUG_SetDrawTriangleParam(const PointList &vertices, const Vector3f &color,
-                                                 DEBUG_DrawBatch &batch)
+void GraphicsManager::DEBUG_SetDrawTriangleParam(const PointList& vertices, const Vector3f& color,
+                                                 DEBUG_DrawBatch& batch)
 {
     auto count = vertices.size();
     assert(count >= 3);
@@ -212,7 +212,7 @@ void GraphicsManager::DEBUG_SetDrawTriangleParam(const PointList &vertices, cons
     }
 }
 
-void GraphicsManager::DEBUG_SetDrawPolygonParam(const Face &face, const Vector3f &color)
+void GraphicsManager::DEBUG_SetDrawPolygonParam(const Face& face, const Vector3f& color)
 {
     PointSet vertices;
     for (auto pEdge : face.Edges) {
@@ -224,7 +224,7 @@ void GraphicsManager::DEBUG_SetDrawPolygonParam(const Face &face, const Vector3f
     DEBUG_SetDrawTriangleParam(face.GetVertices(), {color[0] / 2.0f, color[1] / 2.0f, color[2] / 2.0f});
 }
 
-void GraphicsManager::DEBUG_SetDrawPolygonParam(const Face &face, const Vector3f &color, DEBUG_DrawBatch &batch)
+void GraphicsManager::DEBUG_SetDrawPolygonParam(const Face& face, const Vector3f& color, DEBUG_DrawBatch& batch)
 {
     PointSet vertices;
     for (auto pEdge : face.Edges) {
@@ -236,15 +236,15 @@ void GraphicsManager::DEBUG_SetDrawPolygonParam(const Face &face, const Vector3f
     DEBUG_SetDrawTriangleParam(face.GetVertices(), {color[0] / 2.0f, color[1] / 2.0f, color[2] / 2.0f}, batch);
 }
 
-void GraphicsManager::DEBUG_SetDrawPolyhydronParam(const Polyhedron &polyhedron, const Vector3f &color)
+void GraphicsManager::DEBUG_SetDrawPolyhydronParam(const Polyhedron& polyhedron, const Vector3f& color)
 {
     for (auto pFace : polyhedron.Faces) {
         DEBUG_SetDrawPolygonParam(*pFace, color);
     }
 }
 
-void GraphicsManager::DEBUG_SetDrawPolyhydronParam(const Polyhedron &polyhedron, const Matrix4X4f &trans,
-                                                   const Vector3f &color)
+void GraphicsManager::DEBUG_SetDrawPolyhydronParam(const Polyhedron& polyhedron, const Matrix4X4f& trans,
+                                                   const Vector3f& color)
 {
     DEBUG_DrawBatch newDrawBatch;
     newDrawBatch.pbc.modelMatrix = trans;
@@ -255,7 +255,7 @@ void GraphicsManager::DEBUG_SetDrawPolyhydronParam(const Polyhedron &polyhedron,
     m_DEBUG_Batches.emplace_back(newDrawBatch);
 }
 
-void GraphicsManager::DEBUG_SetDrawBoxParam(const Vector3f &bbMin, const Vector3f &bbMax, const Vector3f &color)
+void GraphicsManager::DEBUG_SetDrawBoxParam(const Vector3f& bbMin, const Vector3f& bbMax, const Vector3f& color)
 {
     m_DEBUG_showFlag = true;
     // 12 lines

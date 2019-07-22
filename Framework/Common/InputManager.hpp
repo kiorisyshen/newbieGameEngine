@@ -6,7 +6,7 @@ namespace newbieGE
 class InputManager : implements IRuntimeModule
 {
    public:
-    virtual int Initialize();
+    virtual int  Initialize();
     virtual void Finalize();
     virtual void Tick();
 

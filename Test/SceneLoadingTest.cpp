@@ -10,8 +10,8 @@ using namespace std;
 namespace newbieGE
 {
 MemoryManager* g_pMemoryManager = new MemoryManager();
-AssetLoader* g_pAssetLoader = new AssetLoader();
-SceneManager* g_pSceneManager = new SceneManager();
+AssetLoader*   g_pAssetLoader = new AssetLoader();
+SceneManager*  g_pSceneManager = new SceneManager();
 }  // namespace newbieGE
 
 template <typename T>
@@ -39,7 +39,7 @@ int main(int, char**)
         auto pCameraNode = _it.second;
         if (pCameraNode) {
             weak_ptr<SceneObjectCamera> pCamera = scene.GetCamera(pCameraNode->GetSceneObjectRef());
-            auto pObj = pCamera.lock();
+            auto                        pObj = pCamera.lock();
             if (pObj) cout << *pObj << endl;
         }
     }
@@ -50,7 +50,7 @@ int main(int, char**)
         auto pLightNode = _it.second;
         if (pLightNode) {
             weak_ptr<SceneObjectLight> pLight = scene.GetLight(pLightNode->GetSceneObjectRef());
-            auto pObj = pLight.lock();
+            auto                       pObj = pLight.lock();
             if (pObj) cout << *pObj << endl;
         }
     }
@@ -61,7 +61,7 @@ int main(int, char**)
         auto pGeometryNode = _it.second;
         if (pGeometryNode) {
             weak_ptr<SceneObjectGeometry> pGeometry = scene.GetGeometry(pGeometryNode->GetSceneObjectRef());
-            auto pObj = pGeometry.lock();
+            auto                          pObj = pGeometry.lock();
             if (pObj) cout << *pObj << endl;
         }
     }

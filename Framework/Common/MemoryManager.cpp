@@ -28,9 +28,9 @@ static const uint32_t kNumBlockSizes = sizeof(kBlockSizes) / sizeof(kBlockSizes[
 // largest valid block size
 static const uint32_t kMaxBlockSize = kBlockSizes[kNumBlockSizes - 1];
 
-size_t *MemoryManager::m_pBlockSizeLookup;
-Allocator *MemoryManager::m_pAllocators;
-bool MemoryManager::m_bInitialized = false;
+size_t*    MemoryManager::m_pBlockSizeLookup;
+Allocator* MemoryManager::m_pAllocators;
+bool       MemoryManager::m_bInitialized = false;
 }  // namespace newbieGE
 
 int newbieGE::MemoryManager::Initialize()
@@ -65,7 +65,7 @@ void newbieGE::MemoryManager::Finalize()
 
 void newbieGE::MemoryManager::Tick() {}
 
-Allocator *newbieGE::MemoryManager::LookUpAllocator(size_t size)
+Allocator* newbieGE::MemoryManager::LookUpAllocator(size_t size)
 {
     // check eligibility for lookup
     if (size <= kMaxBlockSize)
@@ -74,34 +74,34 @@ Allocator *newbieGE::MemoryManager::LookUpAllocator(size_t size)
         return nullptr;
 }
 
-void *newbieGE::MemoryManager::Allocate(size_t size)
+void* newbieGE::MemoryManager::Allocate(size_t size)
 {
-    Allocator *pAlloc = LookUpAllocator(size);
+    Allocator* pAlloc = LookUpAllocator(size);
     if (pAlloc)
         return pAlloc->Allocate();
     else
         return malloc(size);
 }
 
-void *newbieGE::MemoryManager::Allocate(size_t size, size_t alignment)
+void* newbieGE::MemoryManager::Allocate(size_t size, size_t alignment)
 {
-    uint8_t *p;
+    uint8_t* p;
     size += alignment;
-    Allocator *pAlloc = LookUpAllocator(size);
+    Allocator* pAlloc = LookUpAllocator(size);
     if (pAlloc)
-        p = reinterpret_cast<uint8_t *>(pAlloc->Allocate());
+        p = reinterpret_cast<uint8_t*>(pAlloc->Allocate());
     else
-        p = reinterpret_cast<uint8_t *>(malloc(size));
+        p = reinterpret_cast<uint8_t*>(malloc(size));
 
-    p = reinterpret_cast<uint8_t *>(ALIGN(reinterpret_cast<size_t>(p), alignment));
+    p = reinterpret_cast<uint8_t*>(ALIGN(reinterpret_cast<size_t>(p), alignment));
 
-    return static_cast<void *>(p);
+    return static_cast<void*>(p);
 }
 
-void newbieGE::MemoryManager::Free(void *p, size_t size)
+void newbieGE::MemoryManager::Free(void* p, size_t size)
 {
     if (m_bInitialized) {
-        Allocator *pAlloc = LookUpAllocator(size);
+        Allocator* pAlloc = LookUpAllocator(size);
         if (pAlloc)
             pAlloc->Free(p);
         else

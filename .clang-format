@@ -4,3 +4,8 @@ IndentWidth: 4
 BreakBeforeBraces: Linux
 ObjCSpaceAfterProperty: true
 ObjCSpaceBeforeProtocolList: true
+AlignConsecutiveDeclarations: true
+DerivePointerBinding: false
+PointerBindsToType: true
+DerivePointerAlignment: false
+PointerAlignment: Left

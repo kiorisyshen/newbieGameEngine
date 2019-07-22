@@ -5,7 +5,7 @@ namespace newbieGE
 {
 class BilliardGameLogic : public IGameLogic
 {
-    virtual int Initialize();
+    virtual int  Initialize();
     virtual void Finalize();
     virtual void Tick();
 

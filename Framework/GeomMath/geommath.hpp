@@ -130,13 +130,13 @@ struct Vector {
 
 typedef Vector<float, 2> Vector2f;
 
-typedef Vector<float, 3> Vector3f;
-typedef Vector<double, 3> Vector3;
+typedef Vector<float, 3>   Vector3f;
+typedef Vector<double, 3>  Vector3;
 typedef Vector<int16_t, 3> Vector3i16;
 typedef Vector<int32_t, 3> Vector3i32;
 
-typedef Vector<float, 4> Vector4f;
-typedef Vector<float, 4> Quaternion;
+typedef Vector<float, 4>   Vector4f;
+typedef Vector<float, 4>   Quaternion;
 typedef Vector<uint8_t, 4> R8G8B8A8Unorm;
 typedef Vector<uint8_t, 4> Vector4i;
 
@@ -294,10 +294,10 @@ struct Matrix {
     }
 };
 
-typedef Matrix<float, 3, 3> Matrix3X3f;
-typedef Matrix<float, 4, 4> Matrix4X4f;
+typedef Matrix<float, 3, 3>   Matrix3X3f;
+typedef Matrix<float, 4, 4>   Matrix4X4f;
 typedef Matrix<int32_t, 8, 8> Matrix8X8i;
-typedef Matrix<float, 8, 8> Matrix8X8f;
+typedef Matrix<float, 8, 8>   Matrix8X8f;
 
 template <typename T, int ROWS, int COLS>
 std::ostream& operator<<(std::ostream& out, Matrix<T, ROWS, COLS> matrix)
@@ -477,7 +477,7 @@ inline void ExchangeYandZ(Matrix<T, ROWS, COLS>& matrix)
 inline void BuildViewMatrix(Matrix4X4f& result, const Vector3f position, const Vector3f lookAt, const Vector3f up)
 {
     Vector3f zAxis, xAxis, yAxis;
-    float result1, result2, result3;
+    float    result1, result2, result3;
 
     zAxis = lookAt - position;
     Normalize(zAxis);
@@ -654,25 +654,25 @@ inline Matrix8X8f IDCT8X8(const Matrix8X8f& matrix)
     return result;
 }
 
-typedef Vector<float, 3> Point3;
-typedef std::shared_ptr<Point3> PointPtr;
-typedef std::unordered_set<PointPtr> PointSet;
-typedef std::vector<PointPtr> PointList;
+typedef Vector<float, 3>              Point3;
+typedef std::shared_ptr<Point3>       PointPtr;
+typedef std::unordered_set<PointPtr>  PointSet;
+typedef std::vector<PointPtr>         PointList;
 typedef std::pair<PointPtr, PointPtr> Edge;
-inline bool operator==(const Edge& a, const Edge& b)
+inline bool                           operator==(const Edge& a, const Edge& b)
 {
     return (a.first == b.first && a.second == b.second) || (a.first == b.second && a.second == b.first);
 }
 typedef std::shared_ptr<Edge> EdgePtr;
-inline bool operator==(const EdgePtr& a, const EdgePtr& b)
+inline bool                   operator==(const EdgePtr& a, const EdgePtr& b)
 {
     return (a->first == b->first && a->second == b->second) || (a->first == b->second && a->second == b->first);
 }
 typedef std::unordered_set<EdgePtr> EdgeSet;
-typedef std::vector<EdgePtr> EdgeList;
+typedef std::vector<EdgePtr>        EdgeList;
 struct Face {
-    EdgeList Edges;
-    Vector3f Normal;
+    EdgeList  Edges;
+    Vector3f  Normal;
     PointList GetVertices() const
     {
         PointList vertices;
@@ -683,14 +683,14 @@ struct Face {
         return vertices;
     }
 };
-typedef std::shared_ptr<Face> FacePtr;
+typedef std::shared_ptr<Face>       FacePtr;
 typedef std::unordered_set<FacePtr> FaceSet;
-typedef std::vector<FacePtr> FaceList;
+typedef std::vector<FacePtr>        FaceList;
 
 inline float PointToPlaneDistance(const PointList& vertices, const Point3& point)
 {
     Vector3f normal;
-    float distance;
+    float    distance;
     assert(vertices.size() > 2);
     auto A = vertices[0];
     auto B = vertices[1];

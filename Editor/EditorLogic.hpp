@@ -7,7 +7,7 @@ namespace newbieGE
 class EditorLogic : implements IGameLogic
 {
     // overrides
-    int Initialize() final;
+    int  Initialize() final;
     void Finalize() final;
     void Tick() final;
 

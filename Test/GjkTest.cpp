@@ -8,7 +8,7 @@ using namespace newbieGE;
 using namespace std;
 using namespace std::placeholders;
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     int point_num = 100;
 
@@ -22,7 +22,7 @@ int main(int argc, char **argv)
         default_random_engine generator;
         generator.seed(1);
         uniform_real_distribution<float> distribution(-1.0f, 1.0f);
-        auto dice = std::bind(distribution, generator);
+        auto                             dice = std::bind(distribution, generator);
 
         ConvexHull convex_hull;
         cout << "Points Generated:" << endl;
@@ -43,7 +43,7 @@ int main(int argc, char **argv)
         default_random_engine generator;
         generator.seed(200);
         uniform_real_distribution<float> distribution(0.6f, 1.7f);
-        auto dice = std::bind(distribution, generator);
+        auto                             dice = std::bind(distribution, generator);
 
         ConvexHull convex_hull;
         for (auto i = 0; i < point_num; i++) {
@@ -60,9 +60,9 @@ int main(int argc, char **argv)
 
     SupportFunction support_function_A = std::bind(ConvexPolyhedronSupportFunction, A, _1);
     SupportFunction support_function_B = std::bind(ConvexPolyhedronSupportFunction, B, _1);
-    PointList simplex;
-    Vector3f direction({1.0f, 0.0f, 0.0f});
-    int intersected;
+    PointList       simplex;
+    Vector3f        direction({1.0f, 0.0f, 0.0f});
+    int             intersected;
     while ((intersected = GjkIntersection(support_function_A, support_function_B, direction, simplex)) == -1)
         cerr << "approximate direction: " << direction;
 

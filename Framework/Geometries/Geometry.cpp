@@ -2,8 +2,8 @@
 
 using namespace newbieGE;
 
-void Geometry::CalculateTemporalAabb(const Matrix4X4f &curTrans, const Vector3f &linvel, const Vector3f &angvel,
-                                     float timeStep, Vector3f &temporalAabbMin, Vector3f &temporalAabbMax) const
+void Geometry::CalculateTemporalAabb(const Matrix4X4f& curTrans, const Vector3f& linvel, const Vector3f& angvel,
+                                     float timeStep, Vector3f& temporalAabbMin, Vector3f& temporalAabbMax) const
 {
     // start with static aabb
     GetAabb(curTrans, temporalAabbMin, temporalAabbMax);
@@ -32,7 +32,7 @@ void Geometry::CalculateTemporalAabb(const Matrix4X4f &curTrans, const Vector3f 
         temporalAabbMinz += linMotion[2];
 
     // add conservative angular motion
-    float angularMotion = Length(angvel) * GetAngularMotionDisc() * timeStep;
+    float    angularMotion = Length(angvel) * GetAngularMotionDisc() * timeStep;
     Vector3f angularMotion3d({angularMotion, angularMotion, angularMotion});
     temporalAabbMin = Vector3f({temporalAabbMinx, temporalAabbMiny, temporalAabbMinz});
     temporalAabbMax = Vector3f({temporalAabbMaxx, temporalAabbMaxy, temporalAabbMaxz});
@@ -41,7 +41,7 @@ void Geometry::CalculateTemporalAabb(const Matrix4X4f &curTrans, const Vector3f 
     temporalAabbMax = temporalAabbMax + angularMotion3d;
 }
 
-void Geometry::GetBoundingSphere(Vector3f &center, float &radius) const
+void Geometry::GetBoundingSphere(Vector3f& center, float& radius) const
 {
     Matrix4X4f tran;
     BuildIdentityMatrix(tran);
@@ -56,7 +56,7 @@ void Geometry::GetBoundingSphere(Vector3f &center, float &radius) const
 float Geometry::GetAngularMotionDisc() const
 {
     Vector3f center;
-    float disc = 0.0f;
+    float    disc = 0.0f;
     GetBoundingSphere(center, disc);
     disc += Length(center);
     return disc;

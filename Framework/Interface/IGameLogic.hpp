@@ -6,7 +6,7 @@ namespace newbieGE
 class IGameLogic : implements IRuntimeModule
 {
    public:
-    virtual int Initialize() = 0;
+    virtual int  Initialize() = 0;
     virtual void Finalize() = 0;
     virtual void Tick() = 0;
 
@@ -32,5 +32,5 @@ class IGameLogic : implements IRuntimeModule
     virtual void OnAnalogStick(int id, float deltaX, float deltaY){};
 };
 
-extern IGameLogic *g_pGameLogic;
+extern IGameLogic* g_pGameLogic;
 }  // namespace newbieGE

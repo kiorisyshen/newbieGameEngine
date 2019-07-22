@@ -9,12 +9,12 @@ using namespace std;
 
 namespace newbieGE
 {
-MemoryManager *g_pMemoryManager = new MemoryManager();
-AssetLoader *g_pAssetLoader = new AssetLoader();
+MemoryManager* g_pMemoryManager = new MemoryManager();
+AssetLoader*   g_pAssetLoader = new AssetLoader();
 }  // namespace newbieGE
 
 template <typename Key, typename T>
-static ostream &operator<<(ostream &out, unordered_map<Key, T> map)
+static ostream& operator<<(ostream& out, unordered_map<Key, T> map)
 {
     for (auto p : map) {
         out << *p.second << endl;
@@ -23,14 +23,14 @@ static ostream &operator<<(ostream &out, unordered_map<Key, T> map)
     return out;
 }
 
-int main(int, char **)
+int main(int, char**)
 {
     g_pMemoryManager->Initialize();
     g_pAssetLoader->Initialize();
 
     string ogex_text = g_pAssetLoader->SyncOpenAndReadTextFileToString("Scene/Example.ogex");
 
-    OgexParser *ogex_parser = new OgexParser();
+    OgexParser*       ogex_parser = new OgexParser();
     unique_ptr<Scene> pScene = ogex_parser->Parse(ogex_text);
     delete ogex_parser;
 

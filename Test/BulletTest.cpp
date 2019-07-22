@@ -11,7 +11,7 @@ int main(int, char**)
 
     // Set up the collision configuration and dispatcher
     btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
-    btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
+    btCollisionDispatcher*           dispatcher = new btCollisionDispatcher(collisionConfiguration);
 
     // The actual physics solver
     btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
@@ -30,16 +30,16 @@ int main(int, char**)
         new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), btVector3(0.0f, -1.0f, 0.0f)));
     btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0.0f, groundMotionState, groundShape,
                                                                btVector3(0.0f, 0.0f, 0.0f));
-    btRigidBody* groundRigidBody = new btRigidBody(groundRigidBodyCI);
+    btRigidBody*                             groundRigidBody = new btRigidBody(groundRigidBodyCI);
     dynamicsWorld->addRigidBody(groundRigidBody);
 
     btDefaultMotionState* fallMotionState =
         new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), btVector3(0.0f, 50.0f, 0.0f)));
-    btScalar mass = 1.0f;
+    btScalar  mass = 1.0f;
     btVector3 fallInertia(0.0f, 0.0f, 0.0f);
     fallShape->calculateLocalInertia(mass, fallInertia);
     btRigidBody::btRigidBodyConstructionInfo fallRigidBodyCI(mass, fallMotionState, fallShape, fallInertia);
-    btRigidBody* fallRigidBody = new btRigidBody(fallRigidBodyCI);
+    btRigidBody*                             fallRigidBody = new btRigidBody(fallRigidBodyCI);
     dynamicsWorld->addRigidBody(fallRigidBody);
 
     for (int i = 0; i < 300; i++) {

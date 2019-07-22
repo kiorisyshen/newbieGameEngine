@@ -58,7 +58,7 @@ void BulletPhysicsManager::CreateRigidBody(SceneGeometryNode& node, const SceneO
             btSphereShape* sphere = new btSphereShape(param[0]);
             m_btCollisionShapes.push_back(sphere);
 
-            const auto trans = node.GetCalculatedTransform();
+            const auto  trans = node.GetCalculatedTransform();
             btTransform startTransform;
             startTransform.setIdentity();
             startTransform.setOrigin(btVector3(trans->data[3][0], trans->data[3][1], trans->data[3][2]));
@@ -71,8 +71,8 @@ void BulletPhysicsManager::CreateRigidBody(SceneGeometryNode& node, const SceneO
             //                                            trans->data[1][2],
             //                                            trans->data[2][2]));
             btDefaultMotionState* motionState = new btDefaultMotionState(startTransform);
-            btScalar mass = 1.0f;
-            btVector3 fallInertia(0.0f, 0.0f, 0.0f);
+            btScalar              mass = 1.0f;
+            btVector3             fallInertia(0.0f, 0.0f, 0.0f);
             sphere->calculateLocalInertia(mass, fallInertia);
             btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, motionState, sphere, fallInertia);
             rigidBody = new btRigidBody(rigidBodyCI);
@@ -82,7 +82,7 @@ void BulletPhysicsManager::CreateRigidBody(SceneGeometryNode& node, const SceneO
             btBoxShape* box = new btBoxShape(btVector3(param[0], param[1], param[2]));
             m_btCollisionShapes.push_back(box);
 
-            const auto trans = node.GetCalculatedTransform();
+            const auto  trans = node.GetCalculatedTransform();
             btTransform startTransform;
             startTransform.setIdentity();
             startTransform.setOrigin(btVector3(trans->data[3][0], trans->data[3][1], trans->data[3][2]));
@@ -94,8 +94,8 @@ void BulletPhysicsManager::CreateRigidBody(SceneGeometryNode& node, const SceneO
             //                                            trans->data[0][2],
             //                                            trans->data[1][2],
             //                                            trans->data[2][2]));
-            btDefaultMotionState* motionState = new btDefaultMotionState(startTransform);
-            btScalar mass = 0.0f;
+            btDefaultMotionState*                    motionState = new btDefaultMotionState(startTransform);
+            btScalar                                 mass = 0.0f;
             btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, motionState, box, btVector3(0.0f, 0.0f, 0.0f));
             rigidBody = new btRigidBody(rigidBodyCI);
             m_btDynamicsWorld->addRigidBody(rigidBody);
@@ -104,7 +104,7 @@ void BulletPhysicsManager::CreateRigidBody(SceneGeometryNode& node, const SceneO
             btStaticPlaneShape* plane = new btStaticPlaneShape(btVector3(param[0], param[1], param[2]), param[3]);
             m_btCollisionShapes.push_back(plane);
 
-            const auto trans = node.GetCalculatedTransform();
+            const auto  trans = node.GetCalculatedTransform();
             btTransform startTransform;
             startTransform.setIdentity();
             startTransform.setOrigin(btVector3(trans->data[3][0], trans->data[3][1], trans->data[3][2]));
@@ -116,8 +116,8 @@ void BulletPhysicsManager::CreateRigidBody(SceneGeometryNode& node, const SceneO
             //                                            trans->data[0][2],
             //                                            trans->data[1][2],
             //                                            trans->data[2][2]));
-            btDefaultMotionState* motionState = new btDefaultMotionState(startTransform);
-            btScalar mass = 0.0f;
+            btDefaultMotionState*                    motionState = new btDefaultMotionState(startTransform);
+            btScalar                                 mass = 0.0f;
             btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, motionState, plane, btVector3(0.0f, 0.0f, 0.0f));
             rigidBody = new btRigidBody(rigidBodyCI);
             m_btDynamicsWorld->addRigidBody(rigidBody);
@@ -130,9 +130,9 @@ void BulletPhysicsManager::CreateRigidBody(SceneGeometryNode& node, const SceneO
 
 void BulletPhysicsManager::UpdateRigidBodyTransform(SceneGeometryNode& node)
 {
-    const auto trans = node.GetCalculatedTransform();
-    auto rigidBody = node.RigidBody();
-    auto motionState = reinterpret_cast<btRigidBody*>(rigidBody)->getMotionState();
+    const auto  trans = node.GetCalculatedTransform();
+    auto        rigidBody = node.RigidBody();
+    auto        motionState = reinterpret_cast<btRigidBody*>(rigidBody)->getMotionState();
     btTransform _trans;
     _trans.setIdentity();
     _trans.setOrigin(btVector3(trans->data[3][0], trans->data[3][1], trans->data[3][2]));
@@ -188,7 +188,7 @@ void BulletPhysicsManager::ClearRigidBodies()
 
 Matrix4X4f BulletPhysicsManager::GetRigidBodyTransform(void* rigidBody)
 {
-    Matrix4X4f result;
+    Matrix4X4f  result;
     btTransform trans;
     reinterpret_cast<btRigidBody*>(rigidBody)->getMotionState()->getWorldTransform(trans);
     auto basis = trans.getBasis();
@@ -213,7 +213,7 @@ Matrix4X4f BulletPhysicsManager::GetRigidBodyTransform(void* rigidBody)
 void BulletPhysicsManager::ApplyCentralForce(void* rigidBody, Vector3f force)
 {
     btRigidBody* _rigidBody = reinterpret_cast<btRigidBody*>(rigidBody);
-    btVector3 _force(force[0], force[1], force[2]);
+    btVector3    _force(force[0], force[1], force[2]);
     _rigidBody->activate(true);
     _rigidBody->applyCentralForce(_force);
 }

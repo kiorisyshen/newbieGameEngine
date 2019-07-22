@@ -24,16 +24,16 @@ struct TGA_FILEHEADER {
 class TgaParser : implements ImageParser
 {
    public:
-    virtual Image Parse(Buffer &buf)
+    virtual Image Parse(Buffer& buf)
     {
         Image img;
 
-        const uint8_t *pData = buf.GetData();
-        const uint8_t *pDataEnd = buf.GetData() + buf.GetDataSize();
+        const uint8_t* pData = buf.GetData();
+        const uint8_t* pDataEnd = buf.GetData() + buf.GetDataSize();
 
         std::cout << "Parsing as TGA file:" << std::endl;
 
-        const TGA_FILEHEADER *pFileHeader = reinterpret_cast<const TGA_FILEHEADER *>(pData);
+        const TGA_FILEHEADER* pFileHeader = reinterpret_cast<const TGA_FILEHEADER*>(pData);
         pData += sizeof(TGA_FILEHEADER);
 
 #ifdef DEBUG
@@ -75,12 +75,12 @@ class TgaParser : implements ImageParser
         img.data_size = img.pitch * img.Height;
         img.data = g_pMemoryManager->Allocate(img.data_size);
 
-        uint8_t *pOut = (uint8_t *)img.data;
+        uint8_t* pOut = (uint8_t*)img.data;
         for (decltype(img.Height) i = 0; i < img.Height; i++) {
             for (decltype(img.Width) j = 0; j < img.Width; j++) {
                 switch (pixel_depth) {
                     case 15: {
-                        uint16_t color = *(uint16_t *)pData;
+                        uint16_t color = *(uint16_t*)pData;
                         pData += 2;
                         *(pOut + img.pitch * i + j * 4) = ((color & 0x7C00) >> 10);     // R
                         *(pOut + img.pitch * i + j * 4 + 1) = ((color & 0x03E0) >> 5);  // G
@@ -88,7 +88,7 @@ class TgaParser : implements ImageParser
                         *(pOut + img.pitch * i + j * 4 + 3) = 0xFF;                     // A
                     } break;
                     case 16: {
-                        uint16_t color = *(uint16_t *)pData;
+                        uint16_t color = *(uint16_t*)pData;
                         pData += 2;
                         *(pOut + img.pitch * i + j * 4) = ((color & 0x7C00) >> 10);              // R
                         *(pOut + img.pitch * i + j * 4 + 1) = ((color & 0x03E0) >> 5);           // G

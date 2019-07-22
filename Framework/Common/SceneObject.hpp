@@ -35,22 +35,22 @@ ENUM(SceneObjectCollisionType){
     kSceneObjectCollisionTypeHeightfield = "CHIG"_i32, kSceneObjectCollisionTypePlane = "CPLN"_i32,
 };
 
-std::ostream &operator<<(std::ostream &out, SceneObjectType type);
+std::ostream& operator<<(std::ostream& out, SceneObjectType type);
 
 using namespace xg;
 class BaseSceneObject
 {
    protected:
-    Guid m_Guid;
+    Guid            m_Guid;
     SceneObjectType m_Type;
 
    protected:
     // can only be used as base class
     BaseSceneObject(SceneObjectType type) : m_Type(type) { m_Guid = newGuid(); };
-    BaseSceneObject(Guid &guid, SceneObjectType type) : m_Guid(guid), m_Type(type){};
-    BaseSceneObject(Guid &&guid, SceneObjectType type) : m_Guid(std::move(guid)), m_Type(type){};
-    BaseSceneObject(BaseSceneObject &&obj) : m_Guid(std::move(obj.m_Guid)), m_Type(obj.m_Type){};
-    BaseSceneObject &operator=(BaseSceneObject &&obj)
+    BaseSceneObject(Guid& guid, SceneObjectType type) : m_Guid(guid), m_Type(type){};
+    BaseSceneObject(Guid&& guid, SceneObjectType type) : m_Guid(std::move(guid)), m_Type(type){};
+    BaseSceneObject(BaseSceneObject&& obj) : m_Guid(std::move(obj.m_Guid)), m_Type(obj.m_Type){};
+    BaseSceneObject& operator=(BaseSceneObject&& obj)
     {
         this->m_Guid = std::move(obj.m_Guid);
         this->m_Type = obj.m_Type;
@@ -62,14 +62,14 @@ class BaseSceneObject
     // a type must be specified
     BaseSceneObject() = delete;
     // can not be copied
-    BaseSceneObject(BaseSceneObject &obj) = delete;
-    BaseSceneObject &operator=(BaseSceneObject &obj) = delete;
+    BaseSceneObject(BaseSceneObject& obj) = delete;
+    BaseSceneObject& operator=(BaseSceneObject& obj) = delete;
 
    public:
-    const Guid &GetGuid() const { return m_Guid; };
+    const Guid&           GetGuid() const { return m_Guid; };
     const SceneObjectType GetType() const { return m_Type; };
 
-    friend std::ostream &operator<<(std::ostream &out, const BaseSceneObject &obj);
+    friend std::ostream& operator<<(std::ostream& out, const BaseSceneObject& obj);
 };
 
 ENUM(VertexDataType){kVertexDataTypeFloat1 = "FLT1"_i32,  kVertexDataTypeFloat2 = "FLT2"_i32,
@@ -77,34 +77,34 @@ ENUM(VertexDataType){kVertexDataTypeFloat1 = "FLT1"_i32,  kVertexDataTypeFloat2 
                      kVertexDataTypeDouble1 = "DUB1"_i32, kVertexDataTypeDouble2 = "DUB2"_i32,
                      kVertexDataTypeDouble3 = "DUB3"_i32, kVertexDataTypeDouble4 = "DUB4"_i32};
 
-std::ostream &operator<<(std::ostream &out, VertexDataType type);
+std::ostream& operator<<(std::ostream& out, VertexDataType type);
 
 class SceneObjectVertexArray
 {
    protected:
-    const std::string m_strAttribute;
-    const uint32_t m_nMorphTargetIndex;
+    const std::string    m_strAttribute;
+    const uint32_t       m_nMorphTargetIndex;
     const VertexDataType m_DataType;
 
-    const void *m_pData;
+    const void* m_pData;
 
     const size_t m_szData;
 
    public:
-    SceneObjectVertexArray(const char *attr = "", const uint32_t morph_index = 0,
+    SceneObjectVertexArray(const char* attr = "", const uint32_t morph_index = 0,
                            const VertexDataType data_type = VertexDataType::kVertexDataTypeFloat3,
-                           const void *data = nullptr, const size_t data_size = 0)
+                           const void* data = nullptr, const size_t data_size = 0)
         : m_strAttribute(attr),
           m_nMorphTargetIndex(morph_index),
           m_DataType(data_type),
           m_pData(data),
           m_szData(data_size){};
-    SceneObjectVertexArray(SceneObjectVertexArray &arr) = default;
-    SceneObjectVertexArray(SceneObjectVertexArray &&arr) = default;
+    SceneObjectVertexArray(SceneObjectVertexArray& arr) = default;
+    SceneObjectVertexArray(SceneObjectVertexArray&& arr) = default;
 
-    const std::string &GetAttributeName() const { return m_strAttribute; };
-    VertexDataType GetDataType() const { return m_DataType; };
-    size_t GetDataSize() const
+    const std::string& GetAttributeName() const { return m_strAttribute; };
+    VertexDataType     GetDataType() const { return m_DataType; };
+    size_t             GetDataSize() const
     {
         size_t size = m_szData;
 
@@ -129,8 +129,8 @@ class SceneObjectVertexArray
 
         return size;
     };
-    const void *GetData() const { return m_pData; };
-    size_t GetVertexCount() const
+    const void* GetData() const { return m_pData; };
+    size_t      GetVertexCount() const
     {
         size_t size = m_szData;
 
@@ -168,7 +168,7 @@ class SceneObjectVertexArray
         return size;
     }
 
-    friend std::ostream &operator<<(std::ostream &out, const SceneObjectVertexArray &obj);
+    friend std::ostream& operator<<(std::ostream& out, const SceneObjectVertexArray& obj);
 };
 
 ENUM(IndexDataType){
@@ -178,35 +178,35 @@ ENUM(IndexDataType){
     kIndexDataTypeInt64 = "I64 "_i32,
 };
 
-std::ostream &operator<<(std::ostream &out, IndexDataType type);
+std::ostream& operator<<(std::ostream& out, IndexDataType type);
 
 class SceneObjectIndexArray
 {
    protected:
-    const uint32_t m_nMaterialIndex;
-    const size_t m_szRestartIndex;
+    const uint32_t      m_nMaterialIndex;
+    const size_t        m_szRestartIndex;
     const IndexDataType m_DataType;
 
-    const void *m_pData;
+    const void* m_pData;
 
     const size_t m_szData;
 
    public:
     SceneObjectIndexArray(const uint32_t material_index = 0, const size_t restart_index = 0,
                           const IndexDataType data_type = IndexDataType::kIndexDataTypeInt16,
-                          const void *data = nullptr, const size_t data_size = 0)
+                          const void* data = nullptr, const size_t data_size = 0)
         : m_nMaterialIndex(material_index),
           m_szRestartIndex(restart_index),
           m_DataType(data_type),
           m_pData(data),
           m_szData(data_size){};
-    SceneObjectIndexArray(SceneObjectIndexArray &arr) = default;
-    SceneObjectIndexArray(SceneObjectIndexArray &&arr) = default;
+    SceneObjectIndexArray(SceneObjectIndexArray& arr) = default;
+    SceneObjectIndexArray(SceneObjectIndexArray&& arr) = default;
 
-    const uint32_t GetMaterialIndex() const { return m_nMaterialIndex; };
+    const uint32_t      GetMaterialIndex() const { return m_nMaterialIndex; };
     const IndexDataType GetIndexType() const { return m_DataType; };
-    const void *GetData() const { return m_pData; };
-    size_t GetDataSize() const
+    const void*         GetData() const { return m_pData; };
+    size_t              GetDataSize() const
     {
         size_t size = m_szData;
 
@@ -234,7 +234,7 @@ class SceneObjectIndexArray
 
     size_t GetIndexCount() const { return m_szData; }
 
-    friend std::ostream &operator<<(std::ostream &out, const SceneObjectIndexArray &obj);
+    friend std::ostream& operator<<(std::ostream& out, const SceneObjectIndexArray& obj);
 };
 
 ENUM(PrimitiveType){
@@ -275,25 +275,25 @@ struct BoundingBox {
     Vector3f extent;
 };
 
-std::ostream &operator<<(std::ostream &out, PrimitiveType type);
+std::ostream& operator<<(std::ostream& out, PrimitiveType type);
 
 class SceneObjectMesh : public BaseSceneObject
 {
    protected:
-    std::vector<SceneObjectIndexArray> m_IndexArray;
+    std::vector<SceneObjectIndexArray>  m_IndexArray;
     std::vector<SceneObjectVertexArray> m_VertexArray;
-    PrimitiveType m_PrimitiveType;
+    PrimitiveType                       m_PrimitiveType;
 
    public:
     SceneObjectMesh(bool visible = true, bool shadow = true, bool motion_blur = true)
         : BaseSceneObject(SceneObjectType::kSceneObjectTypeMesh){};
-    SceneObjectMesh(SceneObjectMesh &&mesh)
+    SceneObjectMesh(SceneObjectMesh&& mesh)
         : BaseSceneObject(SceneObjectType::kSceneObjectTypeMesh),
           m_IndexArray(std::move(mesh.m_IndexArray)),
           m_VertexArray(std::move(mesh.m_VertexArray)),
           m_PrimitiveType(mesh.m_PrimitiveType){};
-    void AddIndexArray(SceneObjectIndexArray &&array) { m_IndexArray.push_back(std::move(array)); };
-    void AddVertexArray(SceneObjectVertexArray &&array) { m_VertexArray.push_back(std::move(array)); };
+    void AddIndexArray(SceneObjectIndexArray&& array) { m_IndexArray.push_back(std::move(array)); };
+    void AddVertexArray(SceneObjectVertexArray&& array) { m_VertexArray.push_back(std::move(array)); };
     void SetPrimitiveType(PrimitiveType type) { m_PrimitiveType = type; };
 
     size_t GetIndexGroupCount() const { return m_IndexArray.size(); };
@@ -303,45 +303,45 @@ class SceneObjectMesh : public BaseSceneObject
     };
     size_t GetVertexCount() const { return (m_VertexArray.empty() ? 0 : m_VertexArray[0].GetVertexCount()); };
     size_t GetVertexPropertiesCount() const { return m_VertexArray.size(); };
-    const SceneObjectVertexArray &GetVertexPropertyArray(const size_t index) const { return m_VertexArray[index]; };
-    const SceneObjectIndexArray &GetIndexArray(const size_t index) const { return m_IndexArray[index]; };
-    const PrimitiveType &GetPrimitiveType() { return m_PrimitiveType; };
-    BoundingBox GetBoundingBox() const;
-    ConvexHull GetConvexHull() const;
+    const SceneObjectVertexArray& GetVertexPropertyArray(const size_t index) const { return m_VertexArray[index]; };
+    const SceneObjectIndexArray&  GetIndexArray(const size_t index) const { return m_IndexArray[index]; };
+    const PrimitiveType&          GetPrimitiveType() { return m_PrimitiveType; };
+    BoundingBox                   GetBoundingBox() const;
+    ConvexHull                    GetConvexHull() const;
 
-    friend std::ostream &operator<<(std::ostream &out, const SceneObjectMesh &obj);
+    friend std::ostream& operator<<(std::ostream& out, const SceneObjectMesh& obj);
 };
 
 class SceneObjectTexture : public BaseSceneObject
 {
    protected:
-    std::string m_Name;
-    uint32_t m_nTexCoordIndex;
-    std::shared_ptr<Image> m_pImage;
+    std::string             m_Name;
+    uint32_t                m_nTexCoordIndex;
+    std::shared_ptr<Image>  m_pImage;
     std::vector<Matrix4X4f> m_Transforms;
 
    public:
     SceneObjectTexture() : BaseSceneObject(SceneObjectType::kSceneObjectTypeTexture), m_nTexCoordIndex(0){};
-    SceneObjectTexture(const std::string &name)
+    SceneObjectTexture(const std::string& name)
         : BaseSceneObject(SceneObjectType::kSceneObjectTypeTexture), m_Name(name), m_nTexCoordIndex(0){};
-    SceneObjectTexture(uint32_t coord_index, std::shared_ptr<Image> &image)
+    SceneObjectTexture(uint32_t coord_index, std::shared_ptr<Image>& image)
         : BaseSceneObject(SceneObjectType::kSceneObjectTypeTexture), m_nTexCoordIndex(coord_index), m_pImage(image){};
-    SceneObjectTexture(uint32_t coord_index, std::shared_ptr<Image> &&image)
+    SceneObjectTexture(uint32_t coord_index, std::shared_ptr<Image>&& image)
         : BaseSceneObject(SceneObjectType::kSceneObjectTypeTexture),
           m_nTexCoordIndex(coord_index),
           m_pImage(std::move(image)){};
-    SceneObjectTexture(SceneObjectTexture &) = default;
-    SceneObjectTexture(SceneObjectTexture &&) = default;
-    void AddTransform(Matrix4X4f &matrix) { m_Transforms.push_back(matrix); };
-    void SetName(const std::string &name) { m_Name = name; };
-    void SetName(std::string &&name) { m_Name = std::move(name); };
-    const std::string &GetName() const { return m_Name; };
-    void LoadTexture()
+    SceneObjectTexture(SceneObjectTexture&) = default;
+    SceneObjectTexture(SceneObjectTexture&&) = default;
+    void               AddTransform(Matrix4X4f& matrix) { m_Transforms.push_back(matrix); };
+    void               SetName(const std::string& name) { m_Name = name; };
+    void               SetName(std::string&& name) { m_Name = std::move(name); };
+    const std::string& GetName() const { return m_Name; };
+    void               LoadTexture()
     {
         if (!m_pImage) {
             // we should lookup if the texture has been loaded already to prevent
             // duplicated load. This could be done in Asset Loader Manager.
-            Buffer buf = g_pAssetLoader->SyncOpenAndReadBinary(m_Name.c_str());
+            Buffer      buf = g_pAssetLoader->SyncOpenAndReadBinary(m_Name.c_str());
             std::string ext = m_Name.substr(m_Name.find_last_of("."));
             if (ext == ".jpg" || ext == ".jpeg") {
                 JfifParser jfif_parser;
@@ -359,7 +359,7 @@ class SceneObjectTexture : public BaseSceneObject
         }
     }
 
-    const Image &GetTextureImage()
+    const Image& GetTextureImage()
     {
         if (!m_pImage) {
             LoadTexture();
@@ -376,13 +376,13 @@ class SceneObjectTexture : public BaseSceneObject
         if (m_pImage->bitcount == 24) {
             // DXGI does not have 24bit formats so we have to extend it to 32bit
             uint32_t new_pitch = m_pImage->pitch / 3 * 4;
-            size_t data_size = new_pitch * m_pImage->Height;
-            uint8_t *data = new uint8_t[data_size];
-            uint8_t *buf;
-            uint8_t *src;
+            size_t   data_size = new_pitch * m_pImage->Height;
+            uint8_t* data = new uint8_t[data_size];
+            uint8_t* buf;
+            uint8_t* src;
             for (uint32_t row = 0; row < m_pImage->Height; row++) {
                 buf = data + row * new_pitch;
-                src = static_cast<uint8_t *>(m_pImage->data) + row * m_pImage->pitch;
+                src = static_cast<uint8_t*>(m_pImage->data) + row * m_pImage->pitch;
                 for (uint32_t col = 0; col < m_pImage->Width; col++) {
                     memcpy(buf, src, 3);
                     memset(buf + 3, 0x00, 1);  // set alpha to 0
@@ -391,7 +391,7 @@ class SceneObjectTexture : public BaseSceneObject
                 }
             }
 
-            delete static_cast<uint8_t *>(m_pImage->data);
+            delete static_cast<uint8_t*>(m_pImage->data);
             m_pImage->data = data;
             m_pImage->data_size = data_size;
             m_pImage->pitch = new_pitch;
@@ -399,13 +399,13 @@ class SceneObjectTexture : public BaseSceneObject
         } else if (m_pImage->bitcount == 48) {
             // DXGI does not have 48bit formats so we have to extend it to 64bit
             uint32_t new_pitch = m_pImage->pitch / 3 * 4;
-            size_t data_size = new_pitch * m_pImage->Height;
-            uint8_t *data = new uint8_t[data_size];
-            uint8_t *buf;
-            uint8_t *src;
+            size_t   data_size = new_pitch * m_pImage->Height;
+            uint8_t* data = new uint8_t[data_size];
+            uint8_t* buf;
+            uint8_t* src;
             for (uint32_t row = 0; row < m_pImage->Height; row++) {
                 buf = data + row * new_pitch;
-                src = static_cast<uint8_t *>(m_pImage->data) + row * m_pImage->pitch;
+                src = static_cast<uint8_t*>(m_pImage->data) + row * m_pImage->pitch;
                 for (uint32_t col = 0; col < m_pImage->Width; col++) {
                     memcpy(buf, src, 6);
                     memset(buf + 6, 0x00, 2);  // set alpha to 0
@@ -414,7 +414,7 @@ class SceneObjectTexture : public BaseSceneObject
                 }
             }
 
-            delete static_cast<uint8_t *>(m_pImage->data);
+            delete static_cast<uint8_t*>(m_pImage->data);
             m_pImage->data = data;
             m_pImage->data_size = data_size;
             m_pImage->pitch = new_pitch;
@@ -422,26 +422,26 @@ class SceneObjectTexture : public BaseSceneObject
         }
     }
 
-    friend std::ostream &operator<<(std::ostream &out, const SceneObjectTexture &obj);
+    friend std::ostream& operator<<(std::ostream& out, const SceneObjectTexture& obj);
 };
 
 template <typename T>
 struct ParameterValueMap {
-    T Value;
+    T                                   Value;
     std::shared_ptr<SceneObjectTexture> ValueMap;
 
     ParameterValueMap() = default;
 
     ParameterValueMap(const T value) : Value(value), ValueMap(nullptr){};
-    ParameterValueMap(const std::shared_ptr<SceneObjectTexture> &value) : ValueMap(value){};
+    ParameterValueMap(const std::shared_ptr<SceneObjectTexture>& value) : ValueMap(value){};
 
-    ParameterValueMap(const ParameterValueMap<T> &rhs) = default;
+    ParameterValueMap(const ParameterValueMap<T>& rhs) = default;
 
-    ParameterValueMap(ParameterValueMap<T> &&rhs) = default;
+    ParameterValueMap(ParameterValueMap<T>&& rhs) = default;
 
-    ParameterValueMap &operator=(const ParameterValueMap<T> &rhs) = default;
-    ParameterValueMap &operator=(ParameterValueMap<T> &&rhs) = default;
-    ParameterValueMap &operator=(const std::shared_ptr<SceneObjectTexture> &rhs)
+    ParameterValueMap& operator=(const ParameterValueMap<T>& rhs) = default;
+    ParameterValueMap& operator=(ParameterValueMap<T>&& rhs) = default;
+    ParameterValueMap& operator=(const std::shared_ptr<SceneObjectTexture>& rhs)
     {
         ValueMap = rhs;
         return *this;
@@ -449,7 +449,7 @@ struct ParameterValueMap {
 
     ~ParameterValueMap() = default;
 
-    friend std::ostream &operator<<(std::ostream &out, const ParameterValueMap<T> &obj)
+    friend std::ostream& operator<<(std::ostream& out, const ParameterValueMap<T>& obj)
     {
         out << "Parameter Value: " << obj.Value << std::endl;
         if (obj.ValueMap) {
@@ -462,22 +462,22 @@ struct ParameterValueMap {
 
 typedef ParameterValueMap<Vector4f> Color;
 typedef ParameterValueMap<Vector3f> Normal;
-typedef ParameterValueMap<float> Parameter;
+typedef ParameterValueMap<float>    Parameter;
 
 class SceneObjectMaterial : public BaseSceneObject
 {
    protected:
     std::string m_Name;
-    Color m_BaseColor;
-    Parameter m_Metallic;
-    Parameter m_Roughness;
-    Normal m_Normal;
-    Color m_Specular;
-    Parameter m_SpecularPower;
-    Parameter m_AmbientOcclusion;
-    Color m_Opacity;
-    Color m_Transparency;
-    Color m_Emission;
+    Color       m_BaseColor;
+    Parameter   m_Metallic;
+    Parameter   m_Roughness;
+    Normal      m_Normal;
+    Color       m_Specular;
+    Parameter   m_SpecularPower;
+    Parameter   m_AmbientOcclusion;
+    Color       m_Opacity;
+    Color       m_Transparency;
+    Color       m_Emission;
 
    public:
     SceneObjectMaterial(void)
@@ -493,18 +493,18 @@ class SceneObjectMaterial : public BaseSceneObject
           m_Opacity(1.0f),
           m_Transparency(0.0f),
           m_Emission(0.0f){};
-    SceneObjectMaterial(const char *name) : SceneObjectMaterial() { m_Name = name; };
-    SceneObjectMaterial(const std::string &name) : SceneObjectMaterial() { m_Name = name; };
-    SceneObjectMaterial(std::string &&name) : SceneObjectMaterial() { m_Name = std::move(name); };
+    SceneObjectMaterial(const char* name) : SceneObjectMaterial() { m_Name = name; };
+    SceneObjectMaterial(const std::string& name) : SceneObjectMaterial() { m_Name = name; };
+    SceneObjectMaterial(std::string&& name) : SceneObjectMaterial() { m_Name = std::move(name); };
 
-    const std::string &GetName() const { return m_Name; };
-    const Color &GetBaseColor() const { return m_BaseColor; };
-    const Color &GetSpecularColor() const { return m_Specular; };
-    const Parameter &GetSpecularPower() const { return m_SpecularPower; };
-    const Normal &GetNormal() const { return m_Normal; };
-    void SetName(const std::string &name) { m_Name = name; };
-    void SetName(std::string &&name) { m_Name = std::move(name); };
-    void SetColor(const std::string &attrib, const Vector4f &color)
+    const std::string& GetName() const { return m_Name; };
+    const Color&       GetBaseColor() const { return m_BaseColor; };
+    const Color&       GetSpecularColor() const { return m_Specular; };
+    const Parameter&   GetSpecularPower() const { return m_SpecularPower; };
+    const Normal&      GetNormal() const { return m_Normal; };
+    void               SetName(const std::string& name) { m_Name = name; };
+    void               SetName(std::string&& name) { m_Name = std::move(name); };
+    void               SetColor(const std::string& attrib, const Vector4f& color)
     {
         if (attrib == "diffuse") {
             m_BaseColor = Color(color);
@@ -527,14 +527,14 @@ class SceneObjectMaterial : public BaseSceneObject
         }
     };
 
-    void SetParam(const std::string &attrib, const float param)
+    void SetParam(const std::string& attrib, const float param)
     {
         if (attrib == "specular_power") {
             m_SpecularPower = Parameter(param);
         }
     };
 
-    void SetTexture(const std::string &attrib, const std::string &textureName)
+    void SetTexture(const std::string& attrib, const std::string& textureName)
     {
         if (attrib == "diffuse") {
             m_BaseColor = std::make_shared<SceneObjectTexture>(textureName);
@@ -565,7 +565,7 @@ class SceneObjectMaterial : public BaseSceneObject
         }
     };
 
-    void SetTexture(const std::string &attrib, const std::shared_ptr<SceneObjectTexture> &texture)
+    void SetTexture(const std::string& attrib, const std::shared_ptr<SceneObjectTexture>& texture)
     {
         if (attrib == "diffuse") {
             m_BaseColor = texture;
@@ -603,18 +603,18 @@ class SceneObjectMaterial : public BaseSceneObject
         }
     };
 
-    friend std::ostream &operator<<(std::ostream &out, const SceneObjectMaterial &obj);
+    friend std::ostream& operator<<(std::ostream& out, const SceneObjectMaterial& obj);
 };
 
 class SceneObjectGeometry : public BaseSceneObject
 {
    protected:
     std::vector<std::shared_ptr<SceneObjectMesh>> m_Mesh;
-    bool m_bVisible;
-    bool m_bShadow;
-    bool m_bMotionBlur;
-    SceneObjectCollisionType m_CollisionType;
-    float m_CollisionParameters[10];
+    bool                                          m_bVisible;
+    bool                                          m_bShadow;
+    bool                                          m_bMotionBlur;
+    SceneObjectCollisionType                      m_CollisionType;
+    float                                         m_CollisionParameters[10];
 
    public:
     SceneObjectGeometry(void)
@@ -623,31 +623,31 @@ class SceneObjectGeometry : public BaseSceneObject
     {
     }
 
-    void SetVisibility(bool visible) { m_bVisible = visible; }
+    void       SetVisibility(bool visible) { m_bVisible = visible; }
     const bool Visible() { return m_bVisible; }
-    void SetIfCastShadow(bool shadow) { m_bShadow = shadow; }
+    void       SetIfCastShadow(bool shadow) { m_bShadow = shadow; }
     const bool CastShadow() { return m_bShadow; }
-    void SetIfMotionBlur(bool motion_blur) { m_bMotionBlur = motion_blur; }
+    void       SetIfMotionBlur(bool motion_blur) { m_bMotionBlur = motion_blur; }
     const bool MotionBlur() { return m_bMotionBlur; };
-    void SetCollisionType(SceneObjectCollisionType collision_type) { m_CollisionType = collision_type; }
+    void       SetCollisionType(SceneObjectCollisionType collision_type) { m_CollisionType = collision_type; }
     const SceneObjectCollisionType CollisionType() const { return m_CollisionType; }
-    void SetCollisionParameters(const float *param, int32_t count)
+    void                           SetCollisionParameters(const float* param, int32_t count)
     {
         assert(count > 0 && count < 10);
         memcpy(m_CollisionParameters, param, sizeof(float) * count);
     }
-    const float *CollisionParameters() const { return m_CollisionParameters; }
+    const float* CollisionParameters() const { return m_CollisionParameters; }
 
-    void AddMesh(std::shared_ptr<SceneObjectMesh> &mesh) { m_Mesh.push_back(std::move(mesh)); }
+    void AddMesh(std::shared_ptr<SceneObjectMesh>& mesh) { m_Mesh.push_back(std::move(mesh)); }
     const std::weak_ptr<SceneObjectMesh> GetMesh() { return (m_Mesh.empty() ? nullptr : m_Mesh[0]); }
     const std::weak_ptr<SceneObjectMesh> GetMeshLOD(size_t lod)
     {
         return (lod < m_Mesh.size() ? m_Mesh[lod] : nullptr);
     }
     BoundingBox GetBoundingBox() const { return m_Mesh.empty() ? BoundingBox() : m_Mesh[0]->GetBoundingBox(); }
-    ConvexHull GetConvexHull() const { return m_Mesh.empty() ? ConvexHull() : m_Mesh[0]->GetConvexHull(); }
+    ConvexHull  GetConvexHull() const { return m_Mesh.empty() ? ConvexHull() : m_Mesh[0]->GetConvexHull(); }
 
-    friend std::ostream &operator<<(std::ostream &out, const SceneObjectGeometry &obj);
+    friend std::ostream& operator<<(std::ostream& out, const SceneObjectGeometry& obj);
 };
 
 typedef std::function<float(float /* Intensity */, float /* Distance */)> AttenFunc;
@@ -657,30 +657,30 @@ float DefaultAttenFunc(float intensity, float distance);
 class SceneObjectLight : public BaseSceneObject
 {
    protected:
-    Color m_LightColor;
-    float m_fIntensity;
-    AttenFunc m_LightAttenuation;
-    bool m_bCastShadows;
+    Color       m_LightColor;
+    float       m_fIntensity;
+    AttenFunc   m_LightAttenuation;
+    bool        m_bCastShadows;
     std::string m_strTexture;
 
    public:
     void SetIfCastShadow(bool shadow) { m_bCastShadows = shadow; };
 
-    void SetColor(std::string &attrib, Vector4f &color)
+    void SetColor(std::string& attrib, Vector4f& color)
     {
         if (attrib == "light") {
             m_LightColor = Color(color);
         }
     };
 
-    void SetParam(std::string &attrib, float param)
+    void SetParam(std::string& attrib, float param)
     {
         if (attrib == "intensity") {
             m_fIntensity = param;
         }
     };
 
-    void SetTexture(std::string &attrib, std::string &textureName)
+    void SetTexture(std::string& attrib, std::string& textureName)
     {
         if (attrib == "projection") {
             m_strTexture = textureName;
@@ -689,8 +689,8 @@ class SceneObjectLight : public BaseSceneObject
 
     void SetAttenuation(AttenFunc func) { m_LightAttenuation = func; }
 
-    const Color &GetColor() { return m_LightColor; };
-    float GetIntensity() { return m_fIntensity; };
+    const Color& GetColor() { return m_LightColor; };
+    float        GetIntensity() { return m_fIntensity; };
 
    protected:
     // can only be used as base class of delivered lighting objects
@@ -701,7 +701,7 @@ class SceneObjectLight : public BaseSceneObject
           m_LightAttenuation(DefaultAttenFunc),
           m_bCastShadows(false){};
 
-    friend std::ostream &operator<<(std::ostream &out, const SceneObjectLight &obj);
+    friend std::ostream& operator<<(std::ostream& out, const SceneObjectLight& obj);
 };
 
 class SceneObjectOmniLight : public SceneObjectLight
@@ -709,7 +709,7 @@ class SceneObjectOmniLight : public SceneObjectLight
    public:
     using SceneObjectLight::SceneObjectLight;
 
-    friend std::ostream &operator<<(std::ostream &out, const SceneObjectOmniLight &obj);
+    friend std::ostream& operator<<(std::ostream& out, const SceneObjectOmniLight& obj);
 };
 
 class SceneObjectSpotLight : public SceneObjectLight
@@ -721,7 +721,7 @@ class SceneObjectSpotLight : public SceneObjectLight
    public:
     SceneObjectSpotLight(void) : SceneObjectLight(), m_fConeAngle(PI / 4.0f), m_fPenumbraAngle(PI / 3.0f){};
 
-    friend std::ostream &operator<<(std::ostream &out, const SceneObjectSpotLight &obj);
+    friend std::ostream& operator<<(std::ostream& out, const SceneObjectSpotLight& obj);
 };
 
 class SceneObjectInfiniteLight : public SceneObjectLight
@@ -729,7 +729,7 @@ class SceneObjectInfiniteLight : public SceneObjectLight
    public:
     using SceneObjectLight::SceneObjectLight;
 
-    friend std::ostream &operator<<(std::ostream &out, const SceneObjectInfiniteLight &obj);
+    friend std::ostream& operator<<(std::ostream& out, const SceneObjectInfiniteLight& obj);
 };
 
 class SceneObjectCamera : public BaseSceneObject
@@ -740,11 +740,11 @@ class SceneObjectCamera : public BaseSceneObject
     float m_fFarClipDistance;
 
    public:
-    void SetColor(std::string &attrib, Vector4f &color){
+    void SetColor(std::string& attrib, Vector4f& color){
         // TODO: extension
     };
 
-    void SetParam(std::string &attrib, float param)
+    void SetParam(std::string& attrib, float param)
     {
         if (attrib == "near") {
             m_fNearClipDistance = param;
@@ -753,7 +753,7 @@ class SceneObjectCamera : public BaseSceneObject
         }
     };
 
-    void SetTexture(std::string &attrib, std::string &textureName){
+    void SetTexture(std::string& attrib, std::string& textureName){
         // TODO: extension
     };
 
@@ -768,7 +768,7 @@ class SceneObjectCamera : public BaseSceneObject
           m_fNearClipDistance(1.0f),
           m_fFarClipDistance(100.0f){};
 
-    friend std::ostream &operator<<(std::ostream &out, const SceneObjectCamera &obj);
+    friend std::ostream& operator<<(std::ostream& out, const SceneObjectCamera& obj);
 };
 
 class SceneObjectOrthogonalCamera : public SceneObjectCamera
@@ -776,7 +776,7 @@ class SceneObjectOrthogonalCamera : public SceneObjectCamera
    public:
     using SceneObjectCamera::SceneObjectCamera;
 
-    friend std::ostream &operator<<(std::ostream &out, const SceneObjectOrthogonalCamera &obj);
+    friend std::ostream& operator<<(std::ostream& out, const SceneObjectOrthogonalCamera& obj);
 };
 
 class SceneObjectPerspectiveCamera : public SceneObjectCamera
@@ -785,7 +785,7 @@ class SceneObjectPerspectiveCamera : public SceneObjectCamera
     float m_fFov;
 
    public:
-    void SetParam(std::string &attrib, float param)
+    void SetParam(std::string& attrib, float param)
     {
         // TODO: handle fovx, fovy
         if (attrib == "fov") {
@@ -798,14 +798,14 @@ class SceneObjectPerspectiveCamera : public SceneObjectCamera
     SceneObjectPerspectiveCamera(float fov = PI / 2.0) : SceneObjectCamera(), m_fFov(fov){};
     float GetFov() const { return m_fFov; };
 
-    friend std::ostream &operator<<(std::ostream &out, const SceneObjectPerspectiveCamera &obj);
+    friend std::ostream& operator<<(std::ostream& out, const SceneObjectPerspectiveCamera& obj);
 };
 
 class SceneObjectTransform : public BaseSceneObject
 {
    protected:
     Matrix4X4f m_matrix;
-    bool m_bSceneObjectOnly;
+    bool       m_bSceneObjectOnly;
 
    public:
     SceneObjectTransform() : BaseSceneObject(SceneObjectType::kSceneObjectTypeTransform)
@@ -814,7 +814,7 @@ class SceneObjectTransform : public BaseSceneObject
         m_bSceneObjectOnly = false;
     }
 
-    SceneObjectTransform(const Matrix4X4f &matrix, const bool object_only = false) : SceneObjectTransform()
+    SceneObjectTransform(const Matrix4X4f& matrix, const bool object_only = false) : SceneObjectTransform()
     {
         m_matrix = matrix;
         m_bSceneObjectOnly = object_only;
@@ -823,7 +823,7 @@ class SceneObjectTransform : public BaseSceneObject
     operator Matrix4X4f() { return m_matrix; }
     operator const Matrix4X4f() const { return m_matrix; }
 
-    friend std::ostream &operator<<(std::ostream &out, const SceneObjectTransform &obj);
+    friend std::ostream& operator<<(std::ostream& out, const SceneObjectTransform& obj);
 };
 
 class SceneObjectTranslation : public SceneObjectTransform

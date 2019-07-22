@@ -7,7 +7,7 @@
 using namespace std;
 using namespace newbieGE;
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     int point_num = 30;
 
@@ -15,12 +15,12 @@ int main(int argc, char **argv)
         point_num = atoi(argv[1]);
     }
 
-    default_random_engine generator;
+    default_random_engine            generator;
     uniform_real_distribution<float> distribution(-1.0f, 1.0f);
-    auto dice = std::bind(distribution, generator);
+    auto                             dice = std::bind(distribution, generator);
 
     QuickHull quick_hull;
-    PointSet point_set;
+    PointSet  point_set;
     cout << "Points Generated:" << endl;
     for (auto i = 0; i < point_num; i++) {
         PointPtr point_ptr = make_shared<Point3>(Point3{dice(), dice(), dice()});

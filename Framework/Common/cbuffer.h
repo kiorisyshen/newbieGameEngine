@@ -6,9 +6,9 @@
 #include "config.h"
 
 #ifdef __cplusplus
-#include "geommath.hpp"
-#include "crossguid/Guid.hpp"
 #include "SceneObject.hpp"
+#include "crossguid/Guid.hpp"
+#include "geommath.hpp"
 using namespace newbieGE;
 #define SEMANTIC(a)
 #define REGISTER(x)
@@ -17,13 +17,7 @@ using namespace newbieGE;
 
 namespace newbieGE
 {
-enum LightType
-{
-    Omni = 0,
-    Spot = 1,
-    Infinity = 2,
-    Area = 3
-};
+enum LightType { Omni = 0, Spot = 1, Infinity = 2, Area = 3 };
 #else
 #define SEMANTIC(a) : a
 #define REGISTER(x) : register(x)
@@ -68,72 +62,65 @@ enum LightType
 //     Vector4f         m_lightAttenuation;
 // };
 
-struct Light
-{
+struct Light {
     Vector4f m_lightPosition;
     Vector4f m_lightColor;
 };
 
-unistruct LightInfo REGISTER(b12)
-{
-    struct Light lights[MAX_LIGHTS];
-};
+unistruct LightInfo REGISTER(b12) { struct Light lights[MAX_LIGHTS]; };
 
-struct PerFrameConstants REGISTER(b10)
-{
+struct PerFrameConstants REGISTER(b10) {
     Matrix4X4f m_worldMatrix;
     Matrix4X4f m_viewMatrix;
     Matrix4X4f m_projectionMatrix;
-    Vector4f m_lightPosition;
-    Vector4f m_lightColor;
+    Vector4f   m_lightPosition;
+    Vector4f   m_lightColor;
 };
 
-struct PerBatchConstants REGISTER(b11)
-{
+struct PerBatchConstants REGISTER(b11) {
     Matrix4X4f m_objectLocalMatrix;
-    Vector4f m_diffuseColor;
-    Vector4f m_specularColor;
+    Vector4f   m_diffuseColor;
+    Vector4f   m_specularColor;
     // float m_specularPower;
 };
 
 #ifdef DEBUG
-struct DEBUG_PerBatchConstants REGISTER(b8)
-{
+struct DEBUG_PerBatchConstants REGISTER(b8) {
     Matrix4X4f modelMatrix;
 };
 
-struct DEBUG_PointParam REGISTER(b7)
-{
+struct DEBUG_PointParam REGISTER(b7) {
     Vector4f pos;
     Vector4f color;
 };
 
-struct DEBUG_LineParam REGISTER(b7)
-{
+struct DEBUG_LineParam REGISTER(b7) {
     DEBUG_PointParam from;
     DEBUG_PointParam to;
 };
 
-struct DEBUG_TriangleParam REGISTER(b7)
-{
+struct DEBUG_TriangleParam REGISTER(b7) {
     DEBUG_PointParam v0;
     DEBUG_PointParam v1;
     DEBUG_PointParam v2;
 };
 
 #ifdef __cplusplus
-const size_t kSizeDebugMaxAtomBuffer = ALIGN(sizeof(DEBUG_TriangleParam), 256); // CB size is required to be 256-byte aligned.
+const size_t kSizeDebugMaxAtomBuffer =
+    ALIGN(sizeof(DEBUG_TriangleParam), 256);  // CB size is required to be 256-byte aligned.
 #endif
 #endif
 
 #ifdef __cplusplus
-const size_t kSizePerFrameConstantBuffer = ALIGN(sizeof(PerFrameConstants), 256); // CB size is required to be 256-byte aligned.
-const size_t kSizePerBatchConstantBuffer = ALIGN(sizeof(PerBatchConstants), 256); // CB size is required to be 256-byte aligned.
-const size_t kSizeLightInfo = ALIGN(sizeof(LightInfo), 256);                      // CB size is required to be 256-byte aligned.
+const size_t kSizePerFrameConstantBuffer =
+    ALIGN(sizeof(PerFrameConstants), 256);  // CB size is required to be 256-byte aligned.
+const size_t kSizePerBatchConstantBuffer =
+    ALIGN(sizeof(PerBatchConstants), 256);                    // CB size is required to be 256-byte aligned.
+const size_t kSizeLightInfo = ALIGN(sizeof(LightInfo), 256);  // CB size is required to be 256-byte aligned.
 #endif
 
 #ifdef __cplusplus
-} // namespace newbieGE
+}  // namespace newbieGE
 #endif
 
-#endif // !__STDCBUFFER_H__
+#endif  // !__STDCBUFFER_H__

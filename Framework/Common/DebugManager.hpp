@@ -7,7 +7,7 @@ namespace newbieGE
 class DebugManager : implements IRuntimeModule
 {
    public:
-    int Initialize() override;
+    int  Initialize() override;
     void Finalize() override;
     void Tick() override;
 
@@ -22,7 +22,7 @@ class DebugManager : implements IRuntimeModule
     bool m_bDrawDebugInfo = false;
 };
 
-extern DebugManager *g_pDebugManager;
+extern DebugManager* g_pDebugManager;
 }  // namespace newbieGE
 
 #endif

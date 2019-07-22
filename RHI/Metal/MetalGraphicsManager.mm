@@ -26,7 +26,7 @@ void MetalGraphicsManager::Finalize()
 //    [m_pRenderer tick:m_DrawBatchContext];
 //}
 
-void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstants>> &batches)
+void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstants>>& batches)
 {
     [m_pRenderer drawBatch:batches];
 }
@@ -35,7 +35,7 @@ void MetalGraphicsManager::SetPerFrameConstants() { [m_pRenderer setPerFrameCons
 
 void MetalGraphicsManager::SetPerBatchConstants() { [m_pRenderer setPerBatchConstants:m_DrawBatchContext]; }
 
-void MetalGraphicsManager::InitializeBuffers(const Scene &scene)
+void MetalGraphicsManager::InitializeBuffers(const Scene& scene)
 {
     m_DrawBatchContext.clear();
 
@@ -62,7 +62,7 @@ void MetalGraphicsManager::InitializeBuffers(const Scene &scene)
         //        auto vertexCount = pMesh->GetVertexCount();
 
         for (decltype(vertexPropertiesCount) i = 0; i < vertexPropertiesCount; i++) {
-            const SceneObjectVertexArray &v_property_array = pMesh->GetVertexPropertyArray(i);
+            const SceneObjectVertexArray& v_property_array = pMesh->GetVertexPropertyArray(i);
 
             [m_pRenderer createVertexBuffer:v_property_array];
         }
@@ -94,7 +94,7 @@ void MetalGraphicsManager::InitializeBuffers(const Scene &scene)
 
         auto indexGroupCount = pMesh->GetIndexGroupCount();
         for (decltype(indexGroupCount) i = 0; i < indexGroupCount; i++) {
-            const SceneObjectIndexArray &index_array = pMesh->GetIndexArray(i);
+            const SceneObjectIndexArray& index_array = pMesh->GetIndexArray(i);
             [m_pRenderer createIndexBuffer:index_array];
 
             MTLIndexType type;
@@ -117,16 +117,16 @@ void MetalGraphicsManager::InitializeBuffers(const Scene &scene)
                     continue;
             }
 
-            size_t material_index = index_array.GetMaterialIndex();
+            size_t      material_index = index_array.GetMaterialIndex();
             std::string material_key = pGeometryNode->GetMaterialRef(material_index);
-            auto material = scene.GetMaterial(material_key);
+            auto        material = scene.GetMaterial(material_key);
 
-            auto dbc = make_shared<MtlDrawBatchContext>();
+            auto    dbc = make_shared<MtlDrawBatchContext>();
             int32_t texture_id = -1;
             if (material) {
                 auto color = material->GetBaseColor();
                 if (color.ValueMap) {
-                    const Image &image = color.ValueMap->GetTextureImage();
+                    const Image& image = color.ValueMap->GetTextureImage();
                     texture_id = [m_pRenderer createTexture:image];
                     dbc->m_diffuseColor = {-1.0f, -1.0f, -1.0f, 1.0f};
                 } else {
@@ -155,7 +155,7 @@ void MetalGraphicsManager::InitializeBuffers(const Scene &scene)
     }
 }
 
-void MetalGraphicsManager::BeginScene(const Scene &scene)
+void MetalGraphicsManager::BeginScene(const Scene& scene)
 {
     GraphicsManager::BeginScene(scene);
 

@@ -15,9 +15,9 @@ int CocoaApplication::Initialize()
     [NSApplication sharedApplication];
 
     // Menu
-    NSString *appName = [NSString stringWithFormat:@"%s", m_Config.appName];
-    id menubar = [[NSMenu alloc] initWithTitle:appName];
-    id appMenuItem = [NSMenuItem new];
+    NSString* appName = [NSString stringWithFormat:@"%s", m_Config.appName];
+    id        menubar = [[NSMenu alloc] initWithTitle:appName];
+    id        appMenuItem = [NSMenuItem new];
     [menubar addItem:appMenuItem];
     [NSApp setMainMenu:menubar];
 
@@ -52,17 +52,17 @@ void CocoaApplication::Tick()
 {
     BaseApplication::Tick();
     // Process all pending events or return immidiately if no event
-    while (NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny
+    while (NSEvent* event = [NSApp nextEventMatchingMask:NSEventMaskAny
                                                untilDate:nil
                                                   inMode:NSDefaultRunLoopMode
                                                  dequeue:YES]) {
-        switch ([(NSEvent *)event type]) {
+        switch ([(NSEvent*)event type]) {
             case NSEventTypeKeyUp:
                 NSLog(@"[CocoaApp] Key Up Event Received!");
                 if ([event modifierFlags] & NSEventModifierFlagNumericPad) {
                     // arrow keys
-                    NSString *theArrow = [event charactersIgnoringModifiers];
-                    unichar keyChar = 0;
+                    NSString* theArrow = [event charactersIgnoringModifiers];
+                    unichar   keyChar = 0;
                     if ([theArrow length] == 1) {
                         keyChar = [theArrow characterAtIndex:0];
                         if (keyChar == NSLeftArrowFunctionKey) {
@@ -100,8 +100,8 @@ void CocoaApplication::Tick()
                 NSLog(@"[CocoaApp] Key Down Event Received!");
                 if ([event modifierFlags] & NSEventModifierFlagNumericPad) {
                     // arrow keys
-                    NSString *theArrow = [event charactersIgnoringModifiers];
-                    unichar keyChar = 0;
+                    NSString* theArrow = [event charactersIgnoringModifiers];
+                    unichar   keyChar = 0;
                     if ([theArrow length] == 1) {
                         keyChar = [theArrow characterAtIndex:0];
                         if (keyChar == NSLeftArrowFunctionKey) {

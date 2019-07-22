@@ -10,32 +10,32 @@ class ConvexHull : public Polyhedron, protected QuickHull
     ConvexHull() = default;
     ~ConvexHull() = default;
 
-    ConvexHull(PointSet &point_set) : m_PointSet(point_set){};
-    ConvexHull(PointSet &&point_set) : m_PointSet(std::move(point_set)){};
+    ConvexHull(PointSet& point_set) : m_PointSet(point_set){};
+    ConvexHull(PointSet&& point_set) : m_PointSet(std::move(point_set)){};
 
    public:
-    void AddPoint(const Point3 &new_point)
+    void AddPoint(const Point3& new_point)
     {
         m_PointSet.insert(std::make_shared<Point3>(new_point));
         m_bFullyBuild = false;
     }
-    void AddPoint(const Vector3 &new_point)
+    void AddPoint(const Vector3& new_point)
     {
         m_PointSet.insert(
             std::make_shared<Point3>(Point3({(float)new_point[0], (float)new_point[1], (float)new_point[2]})));
         m_bFullyBuild = false;
     }
-    void AddPoint(const PointPtr &new_point)
+    void AddPoint(const PointPtr& new_point)
     {
         m_PointSet.insert(new_point);
         m_bFullyBuild = false;
     }
-    void AddPoint(PointPtr &&new_point)
+    void AddPoint(PointPtr&& new_point)
     {
         m_PointSet.insert(std::move(new_point));
         m_bFullyBuild = false;
     }
-    void AddPointSet(const PointSet &point_set)
+    void AddPointSet(const PointSet& point_set)
     {
         m_PointSet.insert(point_set.begin(), point_set.end());
         m_bFullyBuild = false;
@@ -48,11 +48,11 @@ class ConvexHull : public Polyhedron, protected QuickHull
 
         return !m_bFullyBuild;
     }
-    const PointSet GetPointSet() const { return m_PointSet; }
-    const Polyhedron GetHull() const { return *static_cast<const Polyhedron *>(this); }
+    const PointSet   GetPointSet() const { return m_PointSet; }
+    const Polyhedron GetHull() const { return *static_cast<const Polyhedron*>(this); }
 
    protected:
     PointSet m_PointSet;
-    bool m_bFullyBuild = false;
+    bool     m_bFullyBuild = false;
 };
 }  // namespace newbieGE

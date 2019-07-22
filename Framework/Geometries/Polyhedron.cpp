@@ -3,14 +3,14 @@
 using namespace newbieGE;
 using namespace std;
 
-void Polyhedron::AddFace(PointList vertices, const PointPtr &inner_point)
+void Polyhedron::AddFace(PointList vertices, const PointPtr& inner_point)
 {
     if (isPointAbovePlane(vertices, *inner_point)) {
         std::reverse(std::begin(vertices), std::end(vertices));
     }
 
     FacePtr pFace = std::make_shared<Face>();
-    auto count = vertices.size();
+    auto    count = vertices.size();
     assert(count >= 3);
     for (auto i = 0; i < vertices.size(); i++) {
         pFace->Edges.push_back(std::make_shared<Edge>(vertices[i], vertices[(i + 1) == count ? 0 : i + 1]));
@@ -38,7 +38,7 @@ void Polyhedron::AddTetrahedron(const PointList vertices)
     AddFace({vertices[0], vertices[3], vertices[2]}, vertices[1]);
 }
 
-void Polyhedron::GetAabb(const Matrix4X4f &trans, Vector3f &aabbMin, Vector3f &aabbMax) const
+void Polyhedron::GetAabb(const Matrix4X4f& trans, Vector3f& aabbMin, Vector3f& aabbMax) const
 {
     aabbMin = Vector3f(numeric_limits<float>::max());
     aabbMax = Vector3f(numeric_limits<float>::lowest());

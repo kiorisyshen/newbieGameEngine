@@ -3,7 +3,7 @@
 using namespace newbieGE;
 using namespace std;
 
-void Plane::GetAabb(const Matrix4X4f &trans, Vector3f &aabbMin, Vector3f &aabbMax) const
+void Plane::GetAabb(const Matrix4X4f& trans, Vector3f& aabbMin, Vector3f& aabbMax) const
 {
     (void)trans;
     float minf = numeric_limits<float>::lowest();

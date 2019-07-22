@@ -7,36 +7,36 @@
 using namespace newbieGE;
 
 @implementation MetalRenderer {
-    dispatch_semaphore_t _inFlightSemaphore;
-    MTKView *_mtkView;
-    id<MTLDevice> _device;
-    id<MTLCommandQueue> _commandQueue;
-    id<MTLCommandBuffer> _commandBuffer;
-    MTLRenderPassDescriptor *_renderPassDescriptor;
+    dispatch_semaphore_t        _inFlightSemaphore;
+    MTKView*                    _mtkView;
+    id<MTLDevice>               _device;
+    id<MTLCommandQueue>         _commandQueue;
+    id<MTLCommandBuffer>        _commandBuffer;
+    MTLRenderPassDescriptor*    _renderPassDescriptor;
     id<MTLRenderCommandEncoder> _renderEncoder;
 
     id<MTLRenderPipelineState> _pipelineState;
-    id<MTLDepthStencilState> _depthState;
+    id<MTLDepthStencilState>   _depthState;
 
     std::vector<id<MTLTexture>> _textures;
-    id<MTLSamplerState> _sampler0;
-    std::vector<id<MTLBuffer>> _vertexBuffers;
-    std::vector<id<MTLBuffer>> _indexBuffers;
-    id<MTLBuffer> _uniformBuffers;
+    id<MTLSamplerState>         _sampler0;
+    std::vector<id<MTLBuffer>>  _vertexBuffers;
+    std::vector<id<MTLBuffer>>  _indexBuffers;
+    id<MTLBuffer>               _uniformBuffers;
 
 #ifdef DEBUG
-    id<MTLBuffer> _DEBUG_Buffer;
+    id<MTLBuffer>              _DEBUG_Buffer;
     id<MTLRenderPipelineState> _DEBUG_pipelineState;
-    MTLVertexDescriptor *_DEBUG_mtlDebugDescriptor;
-    id<MTLDepthStencilState> _DEBUG_depthState;
+    MTLVertexDescriptor*       _DEBUG_mtlDebugDescriptor;
+    id<MTLDepthStencilState>   _DEBUG_depthState;
 #endif
 
     // Vertex descriptor specifying how vertices will by laid out for input into
     // our render pipeline and how ModelIO should layout vertices
-    MTLVertexDescriptor *_mtlVertexDescriptor;
+    MTLVertexDescriptor* _mtlVertexDescriptor;
 }
 
-- (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view;
+- (nonnull instancetype)initWithMetalKitView:(nonnull MTKView*)view;
 {
     if (self = [super init]) {
         _mtkView = view;
@@ -52,10 +52,10 @@ using namespace newbieGE;
 
 - (void)loadMetal
 {
-    NSError *error = NULL;
+    NSError* error = NULL;
 
-    NSString *libraryFile = [[NSBundle mainBundle] pathForResource:@"Main" ofType:@"metallib"];
-    id<MTLLibrary> myLibrary = [_device newLibraryWithFile:libraryFile error:&error];
+    NSString*       libraryFile = [[NSBundle mainBundle] pathForResource:@"Main" ofType:@"metallib"];
+    id<MTLLibrary>  myLibrary = [_device newLibraryWithFile:libraryFile error:&error];
     id<MTLFunction> vertexFunction = [myLibrary newFunctionWithName:@"basic_vert_main"];
     id<MTLFunction> fragmentFunction = [myLibrary newFunctionWithName:@"basic_frag_main"];
 
@@ -92,7 +92,7 @@ using namespace newbieGE;
     _uniformBuffers.label = [NSString stringWithFormat:@"uniformBuffer"];
 
     // Texture sampler
-    MTLSamplerDescriptor *samplerDescriptor = [[MTLSamplerDescriptor alloc] init];
+    MTLSamplerDescriptor* samplerDescriptor = [[MTLSamplerDescriptor alloc] init];
     samplerDescriptor.minFilter = MTLSamplerMinMagFilterLinear;
     samplerDescriptor.magFilter = MTLSamplerMinMagFilterLinear;
     samplerDescriptor.mipFilter = MTLSamplerMipFilterLinear;
@@ -101,7 +101,7 @@ using namespace newbieGE;
     samplerDescriptor.tAddressMode = MTLSamplerAddressModeRepeat;
     _sampler0 = [_device newSamplerStateWithDescriptor:samplerDescriptor];
 
-    MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+    MTLRenderPipelineDescriptor* pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
     pipelineStateDescriptor.label = @"Simple Pipeline";
     pipelineStateDescriptor.sampleCount = _mtkView.sampleCount;
     pipelineStateDescriptor.vertexFunction = vertexFunction;
@@ -112,7 +112,7 @@ using namespace newbieGE;
 
     _pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
 
-    MTLDepthStencilDescriptor *depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
+    MTLDepthStencilDescriptor* depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
     depthStateDesc.depthCompareFunction = MTLCompareFunctionLess;
     depthStateDesc.depthWriteEnabled = YES;
     _depthState = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
@@ -151,7 +151,7 @@ using namespace newbieGE;
 #endif
 }
 
-- (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstants>> &)batches
+- (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstants>>&)batches
 {
     if (_renderPassDescriptor != nil) {
         [_renderEncoder setRenderPipelineState:_pipelineState];
@@ -166,8 +166,8 @@ using namespace newbieGE;
         [_renderEncoder setFragmentBuffer:_uniformBuffers offset:0 atIndex:10];
         [_renderEncoder setFragmentSamplerState:_sampler0 atIndex:0];
 
-        for (const auto &pDbc : batches) {
-            const MtlDrawBatchContext &dbc = dynamic_cast<const MtlDrawBatchContext &>(*pDbc);
+        for (const auto& pDbc : batches) {
+            const MtlDrawBatchContext& dbc = dynamic_cast<const MtlDrawBatchContext&>(*pDbc);
 
             [_renderEncoder setVertexBuffer:_uniformBuffers
                                      offset:kSizePerFrameConstantBuffer + dbc.batchIndex * kSizePerBatchConstantBuffer
@@ -204,7 +204,7 @@ using namespace newbieGE;
     }
 }
 
-static MTLPixelFormat getMtlPixelFormat(const Image &img)
+static MTLPixelFormat getMtlPixelFormat(const Image& img)
 {
     MTLPixelFormat format = MTLPixelFormatRGBA8Unorm;
 
@@ -231,10 +231,10 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
     return format;
 }
 
-- (uint32_t)createTexture:(const Image &)image
+- (uint32_t)createTexture:(const Image&)image
 {
-    id<MTLTexture> texture;
-    MTLTextureDescriptor *textureDesc = [[MTLTextureDescriptor alloc] init];
+    id<MTLTexture>        texture;
+    MTLTextureDescriptor* textureDesc = [[MTLTextureDescriptor alloc] init];
 
     textureDesc.pixelFormat = getMtlPixelFormat(image);
     textureDesc.width = image.Width;
@@ -257,35 +257,35 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
     return index;
 }
 
-- (void)createVertexBuffer:(const SceneObjectVertexArray &)v_property_array
+- (void)createVertexBuffer:(const SceneObjectVertexArray&)v_property_array
 {
     id<MTLBuffer> vertexBuffer;
-    auto dataSize = v_property_array.GetDataSize();
-    auto pData = v_property_array.GetData();
+    auto          dataSize = v_property_array.GetDataSize();
+    auto          pData = v_property_array.GetData();
     vertexBuffer = [_device newBufferWithBytes:pData length:dataSize options:MTLResourceStorageModeShared];
     _vertexBuffers.push_back(vertexBuffer);
 }
 
-- (void)createIndexBuffer:(const SceneObjectIndexArray &)index_array
+- (void)createIndexBuffer:(const SceneObjectIndexArray&)index_array
 {
     id<MTLBuffer> indexBuffer;
-    auto dataSize = index_array.GetDataSize();
-    auto pData = index_array.GetData();
+    auto          dataSize = index_array.GetDataSize();
+    auto          pData = index_array.GetData();
     indexBuffer = [_device newBufferWithBytes:pData length:dataSize options:MTLResourceStorageModeShared];
     _indexBuffers.push_back(indexBuffer);
 }
 
-- (void)setPerFrameConstants:(const PerFrameConstants &)context
+- (void)setPerFrameConstants:(const PerFrameConstants&)context
 {
     std::memcpy(_uniformBuffers.contents, &(context), sizeof(PerFrameConstants));
 }
 
-- (void)setPerBatchConstants:(const std::vector<std::shared_ptr<DrawBatchConstants>> &)batches
+- (void)setPerBatchConstants:(const std::vector<std::shared_ptr<DrawBatchConstants>>&)batches
 {
-    for (const auto &pDbc : batches) {
-        std::memcpy(reinterpret_cast<uint8_t *>(_uniformBuffers.contents) + kSizePerFrameConstantBuffer +
+    for (const auto& pDbc : batches) {
+        std::memcpy(reinterpret_cast<uint8_t*>(_uniformBuffers.contents) + kSizePerFrameConstantBuffer +
                         pDbc->batchIndex * kSizePerBatchConstantBuffer,
-                    &static_cast<const PerBatchConstants &>(*pDbc), sizeof(PerBatchConstants));
+                    &static_cast<const PerBatchConstants&>(*pDbc), sizeof(PerBatchConstants));
     }
 }
 
@@ -359,21 +359,21 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
 }
 
 #ifdef DEBUG
-- (void)DEBUG_SetBuffer:(const std::vector<DEBUG_DrawBatch> &)debugBatches
+- (void)DEBUG_SetBuffer:(const std::vector<DEBUG_DrawBatch>&)debugBatches
 {
     auto offset = debugBatches.size();
     offset = 0;
     for (auto batch : debugBatches) {
         auto size = sizeof(DEBUG_TriangleParam) * batch.triParams.size();
-        std::memcpy(reinterpret_cast<uint8_t *>(_DEBUG_Buffer.contents) + offset, batch.triParams.data(), size);
+        std::memcpy(reinterpret_cast<uint8_t*>(_DEBUG_Buffer.contents) + offset, batch.triParams.data(), size);
         offset += ALIGN(size, 256);
 
         size = sizeof(DEBUG_LineParam) * batch.lineParams.size();
-        std::memcpy(reinterpret_cast<uint8_t *>(_DEBUG_Buffer.contents) + offset, batch.lineParams.data(), size);
+        std::memcpy(reinterpret_cast<uint8_t*>(_DEBUG_Buffer.contents) + offset, batch.lineParams.data(), size);
         offset += ALIGN(size, 256);
 
         size = sizeof(DEBUG_PointParam) * batch.pointParams.size();
-        std::memcpy(reinterpret_cast<uint8_t *>(_DEBUG_Buffer.contents) + offset, batch.pointParams.data(), size);
+        std::memcpy(reinterpret_cast<uint8_t*>(_DEBUG_Buffer.contents) + offset, batch.pointParams.data(), size);
         offset += ALIGN(size, 256);
     }
 }
@@ -382,7 +382,7 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
 {
 }
 
-- (void)DEBUG_DrawDebug:(const std::vector<DEBUG_DrawBatch> &)debugBatches
+- (void)DEBUG_DrawDebug:(const std::vector<DEBUG_DrawBatch>&)debugBatches
 {
     if (_renderPassDescriptor != nil) {
         [_renderEncoder setRenderPipelineState:_DEBUG_pipelineState];
