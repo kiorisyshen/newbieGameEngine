@@ -12,9 +12,8 @@ inline void TransformAabb(const Vector3f& halfExtents, float margin, const Matri
     Matrix3X3f basis;
     GetOrigin(center, trans);
     Shrink(basis, trans);
-    Absolute(
-        basis,
-        basis);  // Use absolute to compute new extent (=|basis_x|+|basis_y|+|basis_z|), better draw in 2D to understand
+    // Use absolute to compute new extent (=|basis_x|+|basis_y|+|basis_z|), better draw in 2D to understand
+    Absolute(basis, basis);
     DotProduct3(extent, halfExtentsWithMargin, basis);
     aabbMinOut = center - extent;
     aabbMaxOut = center + extent;

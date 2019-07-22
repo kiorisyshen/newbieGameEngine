@@ -46,7 +46,10 @@ int CocoaApplication::Initialize()
     return result;
 }
 
-void CocoaApplication::Finalize() { [m_pWindow release]; }
+void CocoaApplication::Finalize()
+{
+    [m_pWindow release];
+}
 
 void CocoaApplication::Tick()
 {

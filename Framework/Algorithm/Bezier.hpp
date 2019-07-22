@@ -40,7 +40,10 @@ class Bezier : public Curve<T>
         }
     }
 
-    void AddKnot(const T knot) { m_Knots.push_back(knot); }
+    void AddKnot(const T knot)
+    {
+        m_Knots.push_back(knot);
+    }
 
     void AddControlPoints(const T knot, const T incoming_cp, const T outgoing_cp)
     {
@@ -112,6 +115,9 @@ class Bezier : public Curve<T>
         }
     }
 
-    CurveType GetCurveType() const final { return CurveType::kBezier; }
+    CurveType GetCurveType() const final
+    {
+        return CurveType::kBezier;
+    }
 };
 }  // namespace newbieGE

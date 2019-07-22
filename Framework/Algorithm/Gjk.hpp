@@ -59,8 +59,9 @@ void NearestPointInTriangleToPoint(const PointList& vertices, const Point3& poin
             if (tmp1 > tmp0) {
                 float numer = tmp1 - tmp0;
                 float denom = a - 2.0f * b + c;
-                s           = std::clamp(numer / denom, 0.0f, 1.0f);
-                t           = 1.0f - s;
+
+                s = std::clamp(numer / denom, 0.0f, 1.0f);
+                t = 1.0f - s;
             } else {
                 t = std::clamp(-e / c, 0.0f, 1.0f);
                 s = 0.0f;
@@ -69,8 +70,9 @@ void NearestPointInTriangleToPoint(const PointList& vertices, const Point3& poin
             if (a + d > b + e) {
                 float numer = c + e - b - d;
                 float denom = a - 2.0f * b + c;
-                s           = std::clamp(numer / denom, 0.0f, 1.0f);
-                t           = 1.0f - s;
+
+                s = std::clamp(numer / denom, 0.0f, 1.0f);
+                t = 1.0f - s;
             } else {
                 s = std::clamp(-e / c, 0.0f, 1.0f);
                 t = 0.0f;
@@ -78,8 +80,9 @@ void NearestPointInTriangleToPoint(const PointList& vertices, const Point3& poin
         } else {
             float numer = c + e - b - d;
             float denom = a - 2.0f * b + c;
-            s           = std::clamp(numer / denom, 0.0f, 1.0f);
-            t           = 1.0f - s;
+
+            s = std::clamp(numer / denom, 0.0f, 1.0f);
+            t = 1.0f - s;
         }
     }
 }

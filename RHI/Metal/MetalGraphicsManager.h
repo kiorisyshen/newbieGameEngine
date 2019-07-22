@@ -16,7 +16,10 @@ class MetalGraphicsManager : public GraphicsManager
     int  Initialize() final;
     void Finalize() final;
 
-    void SetRenderer(MetalRenderer* renderer) { m_pRenderer = renderer; }
+    void SetRenderer(MetalRenderer* renderer)
+    {
+        m_pRenderer = renderer;
+    }
 
     //    void RenderBuffers() final;
 

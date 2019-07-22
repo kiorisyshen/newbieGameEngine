@@ -23,7 +23,10 @@ class BaseSceneNode : public TreeNode
     typedef std::map<int, std::shared_ptr<SceneObjectAnimationClip>>::const_iterator animation_clip_iterator;
 
    public:
-    BaseSceneNode() { BuildIdentityMatrix(m_RuntimeTransform); };
+    BaseSceneNode()
+    {
+        BuildIdentityMatrix(m_RuntimeTransform);
+    };
     BaseSceneNode(const std::string& name)
     {
         m_strName = name;
@@ -31,7 +34,10 @@ class BaseSceneNode : public TreeNode
     };
     virtual ~BaseSceneNode(){};
 
-    const std::string GetName() const { return m_strName; };
+    const std::string GetName() const
+    {
+        return m_strName;
+    };
 
     void AttachAnimationClip(int clip_index, std::shared_ptr<SceneObjectAnimationClip> clip)
     {
@@ -96,9 +102,15 @@ class BaseSceneNode : public TreeNode
         m_RuntimeTransform = m_RuntimeTransform * translation;
     }
 
-    void MoveBy(const Vector3f& distance) { MoveBy(distance[0], distance[1], distance[2]); }
+    void MoveBy(const Vector3f& distance)
+    {
+        MoveBy(distance[0], distance[1], distance[2]);
+    }
 
-    virtual Matrix3X3f GetLocalAxis() { return {{{{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}}}; }
+    virtual Matrix3X3f GetLocalAxis()
+    {
+        return {{{{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}}};
+    }
 
     friend std::ostream& operator<<(std::ostream& out, const BaseSceneNode& node)
     {
@@ -136,15 +148,24 @@ class SceneNode : public BaseSceneNode
     std::string m_keySceneObject;
 
    protected:
-    virtual void dump(std::ostream& out) const { out << m_keySceneObject << std::endl; };
+    virtual void dump(std::ostream& out) const
+    {
+        out << m_keySceneObject << std::endl;
+    };
 
    public:
     using BaseSceneNode::BaseSceneNode;
     SceneNode() = default;
 
-    void AddSceneObjectRef(const std::string& key) { m_keySceneObject = key; };
+    void AddSceneObjectRef(const std::string& key)
+    {
+        m_keySceneObject = key;
+    };
 
-    const std::string& GetSceneObjectRef() { return m_keySceneObject; };
+    const std::string& GetSceneObjectRef()
+    {
+        return m_keySceneObject;
+    };
 };
 
 typedef BaseSceneNode SceneEmptyNode;
@@ -174,15 +195,39 @@ class SceneGeometryNode : public SceneNode<SceneObjectGeometry>
    public:
     using SceneNode::SceneNode;
 
-    void       SetVisibility(bool visible) { m_bVisible = visible; };
-    const bool Visible() { return m_bVisible; };
-    void       SetIfCastShadow(bool shadow) { m_bShadow = shadow; };
-    const bool CastShadow() { return m_bShadow; };
-    void       SetIfMotionBlur(bool motion_blur) { m_bMotionBlur = motion_blur; };
-    const bool MotionBlur() { return m_bMotionBlur; };
+    void SetVisibility(bool visible)
+    {
+        m_bVisible = visible;
+    };
+    const bool Visible()
+    {
+        return m_bVisible;
+    };
+    void SetIfCastShadow(bool shadow)
+    {
+        m_bShadow = shadow;
+    };
+    const bool CastShadow()
+    {
+        return m_bShadow;
+    };
+    void SetIfMotionBlur(bool motion_blur)
+    {
+        m_bMotionBlur = motion_blur;
+    };
+    const bool MotionBlur()
+    {
+        return m_bMotionBlur;
+    };
     using SceneNode::AddSceneObjectRef;
-    void        AddMaterialRef(const std::string& key) { m_Materials.push_back(key); };
-    void        AddMaterialRef(const std::string&& key) { m_Materials.push_back(std::move(key)); };
+    void AddMaterialRef(const std::string& key)
+    {
+        m_Materials.push_back(key);
+    };
+    void AddMaterialRef(const std::string&& key)
+    {
+        m_Materials.push_back(std::move(key));
+    };
     std::string GetMaterialRef(const size_t index)
     {
         if (index < m_Materials.size())
@@ -191,7 +236,10 @@ class SceneGeometryNode : public SceneNode<SceneObjectGeometry>
             return std::string("default");
     };
 
-    void LinkRigidBody(void* rigidBody) { m_pRigidBody = rigidBody; }
+    void LinkRigidBody(void* rigidBody)
+    {
+        m_pRigidBody = rigidBody;
+    }
 
     void* UnlinkRigidBody()
     {
@@ -201,7 +249,10 @@ class SceneGeometryNode : public SceneNode<SceneObjectGeometry>
         return rigidBody;
     }
 
-    void* RigidBody() { return m_pRigidBody; }
+    void* RigidBody()
+    {
+        return m_pRigidBody;
+    }
 };
 
 class SceneLightNode : public SceneNode<SceneObjectLight>
@@ -212,8 +263,14 @@ class SceneLightNode : public SceneNode<SceneObjectLight>
    public:
     using SceneNode::SceneNode;
 
-    void       SetIfCastShadow(bool shadow) { m_bShadow = shadow; };
-    const bool CastShadow() { return m_bShadow; };
+    void SetIfCastShadow(bool shadow)
+    {
+        m_bShadow = shadow;
+    };
+    const bool CastShadow()
+    {
+        return m_bShadow;
+    };
 };
 
 class SceneCameraNode : public SceneNode<SceneObjectCamera>
@@ -224,9 +281,15 @@ class SceneCameraNode : public SceneNode<SceneObjectCamera>
    public:
     using SceneNode::SceneNode;
 
-    void            SetTarget(Vector3f& target) { m_Target = target; };
-    const Vector3f& GetTarget() { return m_Target; };
-    Matrix3X3f      GetLocalAxis()
+    void SetTarget(Vector3f& target)
+    {
+        m_Target = target;
+    };
+    const Vector3f& GetTarget()
+    {
+        return m_Target;
+    };
+    Matrix3X3f GetLocalAxis()
     {
         Matrix3X3f result;
         auto       pTransform      = GetCalculatedTransform();

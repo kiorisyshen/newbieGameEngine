@@ -12,8 +12,14 @@ class Plane : public Geometry
 
     void GetAabb(const Matrix4X4f& trans, Vector3f& aabbMin, Vector3f& aabbMax) const final;
 
-    Vector3f GetNormal() const { return m_vNormal; };
-    float    GetIntercept() const { return m_fIntercept; };
+    Vector3f GetNormal() const
+    {
+        return m_vNormal;
+    };
+    float GetIntercept() const
+    {
+        return m_fIntercept;
+    };
 
    protected:
     Vector3f m_vNormal;

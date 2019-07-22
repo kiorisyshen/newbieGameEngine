@@ -11,7 +11,10 @@ class Sphere : public Geometry
 
     void GetAabb(const Matrix4X4f& trans, Vector3f& aabbMin, Vector3f& aabbMax) const final;
 
-    float GetRadius() const { return m_fRadius; };
+    float GetRadius() const
+    {
+        return m_fRadius;
+    };
 
    protected:
     float m_fRadius;

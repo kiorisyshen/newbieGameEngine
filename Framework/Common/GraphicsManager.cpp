@@ -14,7 +14,9 @@ int GraphicsManager::Initialize()
     return result;
 }
 
-void GraphicsManager::Finalize() {}
+void GraphicsManager::Finalize()
+{
+}
 
 void GraphicsManager::Tick()
 {

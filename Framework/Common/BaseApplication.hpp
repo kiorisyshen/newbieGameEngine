@@ -27,7 +27,10 @@ class BaseApplication : implements IApplication
 
     bool IsQuit() const;
 
-    inline const GfxConfiguration& GetConfiguration() const { return m_Config; };
+    inline const GfxConfiguration& GetConfiguration() const
+    {
+        return m_Config;
+    };
 
     void OnDraw(){};
 

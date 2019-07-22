@@ -22,7 +22,9 @@ class MemoryManager : implements IRuntimeModule
     }
 
    public:
-    virtual ~MemoryManager() {}
+    virtual ~MemoryManager()
+    {
+    }
 
     virtual int  Initialize();
     virtual void Finalize();

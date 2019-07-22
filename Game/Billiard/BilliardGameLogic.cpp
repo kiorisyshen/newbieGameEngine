@@ -18,9 +18,14 @@ int BilliardGameLogic::Initialize()
     return result;
 }
 
-void BilliardGameLogic::Finalize() { cout << "Biiliard Game Logic Finalize" << endl; }
+void BilliardGameLogic::Finalize()
+{
+    cout << "Biiliard Game Logic Finalize" << endl;
+}
 
-void BilliardGameLogic::Tick() {}
+void BilliardGameLogic::Tick()
+{
+}
 
 void BilliardGameLogic::OnLeftKey()
 {

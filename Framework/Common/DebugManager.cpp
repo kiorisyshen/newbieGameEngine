@@ -8,9 +8,14 @@ using namespace newbieGE;
 using namespace std;
 
 #ifdef DEBUG
-int DebugManager::Initialize() { return 0; }
+int DebugManager::Initialize()
+{
+    return 0;
+}
 
-void DebugManager::Finalize() {}
+void DebugManager::Finalize()
+{
+}
 
 void DebugManager::Tick()
 {

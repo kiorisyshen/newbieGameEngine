@@ -32,4 +32,7 @@ void CocoaMetalApplication::Tick()
     [[m_pWindow contentView] setNeedsDisplay:YES];
 }
 
-void CocoaMetalApplication::Finalize() { CocoaApplication::Finalize(); }
+void CocoaMetalApplication::Finalize()
+{
+    CocoaApplication::Finalize();
+}

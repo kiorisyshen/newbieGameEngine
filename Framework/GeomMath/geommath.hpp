@@ -64,7 +64,9 @@ template <typename T, int N>
 struct Vector {
     T data[N];
 
-    Vector() {}
+    Vector()
+    {
+    }
     Vector(const T val)
     {
         for (int i = 0; i < N; i++) {
@@ -88,9 +90,15 @@ struct Vector {
         }
     }
 
-    operator T*() { return reinterpret_cast<T*>(this); };
+    operator T*()
+    {
+        return reinterpret_cast<T*>(this);
+    };
 
-    operator const T*() const { return reinterpret_cast<const T*>(this); }
+    operator const T*() const
+    {
+        return reinterpret_cast<const T*>(this);
+    }
 
     void Set(const T val)
     {
@@ -99,7 +107,10 @@ struct Vector {
         }
     }
 
-    void Set(const T* pval) { memcpy(data, pval, sizeof(T) * N); }
+    void Set(const T* pval)
+    {
+        memcpy(data, pval, sizeof(T) * N);
+    }
 
     void Set(std::initializer_list<const T> list)
     {
@@ -276,12 +287,24 @@ struct Matrix {
         T data[ROWS][COLS];
     };
 
-    T* operator[](int row_index) { return data[row_index]; }
+    T* operator[](int row_index)
+    {
+        return data[row_index];
+    }
 
-    const T* operator[](int row_index) const { return data[row_index]; }
+    const T* operator[](int row_index) const
+    {
+        return data[row_index];
+    }
 
-    operator T*() { return &data[0][0]; };
-    operator const T*() const { return static_cast<const T*>(&data[0][0]); };
+    operator T*()
+    {
+        return &data[0][0];
+    };
+    operator const T*() const
+    {
+        return static_cast<const T*>(&data[0][0]);
+    };
 
     Matrix& operator=(const T* _data)
     {
@@ -638,7 +661,10 @@ inline void MatrixRotationQuaternion(Matrix4X4f& matrix, Quaternion q)
     matrix = rotation;
 }
 
-inline bool InverseMatrix4X4f(Matrix4X4f& matrix) { return ispc::InverseMatrix4X4f(matrix); }
+inline bool InverseMatrix4X4f(Matrix4X4f& matrix)
+{
+    return ispc::InverseMatrix4X4f(matrix);
+}
 
 inline Matrix8X8f DCT8X8(const Matrix8X8f& matrix)
 {

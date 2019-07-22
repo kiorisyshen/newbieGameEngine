@@ -29,7 +29,10 @@ class Scene
     std::unordered_map<std::string, std::weak_ptr<SceneGeometryNode>> LUT_Name_GeometryNode;
 
    public:
-    Scene() { m_pDefaultMaterial = std::make_shared<SceneObjectMaterial>("default"); }
+    Scene()
+    {
+        m_pDefaultMaterial = std::make_shared<SceneObjectMaterial>("default");
+    }
 
     Scene(const std::string& scene_name) : SceneGraph(new BaseSceneNode(scene_name))
     {

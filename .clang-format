@@ -1,5 +1,5 @@
 BasedOnStyle: Google
-ColumnLimit: 120
+ColumnLimit: 0
 IndentWidth: 4
 BreakBeforeBraces: Linux
 ObjCSpaceAfterProperty: true
@@ -10,3 +10,5 @@ DerivePointerBinding: false
 PointerBindsToType: true
 DerivePointerAlignment: false
 PointerAlignment: Left
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: false

@@ -10,7 +10,9 @@ namespace newbieGE
 class Buffer
 {
    public:
-    Buffer() : m_pData(nullptr), m_szSize(0), m_szAlignment(alignof(uint32_t)) {}
+    Buffer() : m_pData(nullptr), m_szSize(0), m_szAlignment(alignof(uint32_t))
+    {
+    }
 
     Buffer(size_t size, size_t alignment = 4) : m_szSize(size), m_szAlignment(alignment)
     {
@@ -67,9 +69,18 @@ class Buffer
         m_pData = nullptr;
     }
 
-    uint8_t*       GetData(void) { return m_pData; };
-    const uint8_t* GetData(void) const { return m_pData; };
-    size_t         GetDataSize(void) const { return m_szSize; };
+    uint8_t* GetData(void)
+    {
+        return m_pData;
+    };
+    const uint8_t* GetData(void) const
+    {
+        return m_pData;
+    };
+    size_t GetDataSize(void) const
+    {
+        return m_szSize;
+    };
 
    protected:
     uint8_t* m_pData;

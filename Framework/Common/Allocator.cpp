@@ -26,7 +26,10 @@ newbieGE::Allocator::Allocator(size_t data_size, size_t page_size, size_t alignm
     Reset(data_size, page_size, alignment);
 }
 
-newbieGE::Allocator::~Allocator() { FreeAll(); }
+newbieGE::Allocator::~Allocator()
+{
+    FreeAll();
+}
 
 void newbieGE::Allocator::Reset(size_t data_size, size_t page_size, size_t alignment)
 {

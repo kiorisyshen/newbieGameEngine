@@ -160,7 +160,9 @@ Matrix4X4f MyPhysicsManager::GetRigidBodyTransform(void* rigidBody)
     return motionState->GetTransition();
 }
 
-void MyPhysicsManager::ApplyCentralForce(void* rigidBody, Vector3f force) {}
+void MyPhysicsManager::ApplyCentralForce(void* rigidBody, Vector3f force)
+{
+}
 
 #ifdef DEBUG
 void MyPhysicsManager::DrawDebugInfo()

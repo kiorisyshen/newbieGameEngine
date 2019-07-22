@@ -16,22 +16,40 @@ class HuffmanNode
    public:
     HuffmanNode() = default;
     HuffmanNode(T value) : m_Value(value), m_isLeaf(true){};
-    ~HuffmanNode()                                = default;
-    HuffmanNode(HuffmanNode&)                     = default;
-    HuffmanNode(HuffmanNode&&)                    = default;
-    HuffmanNode&                          operator=(HuffmanNode&) = default;
-    HuffmanNode&                          operator=(HuffmanNode&&) = default;
-    bool                                  IsLeaf(void) const { return m_isLeaf; };
-    void                                  SetLeft(std::shared_ptr<HuffmanNode> pNode) { m_pLeft = pNode; };
-    void                                  SetRight(std::shared_ptr<HuffmanNode> pNode) { m_pRight = pNode; };
-    const std::shared_ptr<HuffmanNode<T>> GetLeft(void) const { return m_pLeft; };
-    const std::shared_ptr<HuffmanNode<T>> GetRight(void) const { return m_pRight; };
-    void                                  SetValue(T value)
+    ~HuffmanNode()             = default;
+    HuffmanNode(HuffmanNode&)  = default;
+    HuffmanNode(HuffmanNode&&) = default;
+    HuffmanNode& operator=(HuffmanNode&) = default;
+    HuffmanNode& operator=(HuffmanNode&&) = default;
+    bool         IsLeaf(void) const
+    {
+        return m_isLeaf;
+    };
+    void SetLeft(std::shared_ptr<HuffmanNode> pNode)
+    {
+        m_pLeft = pNode;
+    };
+    void SetRight(std::shared_ptr<HuffmanNode> pNode)
+    {
+        m_pRight = pNode;
+    };
+    const std::shared_ptr<HuffmanNode<T>> GetLeft(void) const
+    {
+        return m_pLeft;
+    };
+    const std::shared_ptr<HuffmanNode<T>> GetRight(void) const
+    {
+        return m_pRight;
+    };
+    void SetValue(T value)
     {
         m_Value  = value;
         m_isLeaf = true;
     };
-    T GetValue() const { return m_Value; };
+    T GetValue() const
+    {
+        return m_Value;
+    };
 };
 
 template <typename T>
@@ -54,7 +72,10 @@ class HuffmanTree
     }
 
    public:
-    HuffmanTree() { m_pRoot = std::make_shared<HuffmanNode<uint8_t>>(); };
+    HuffmanTree()
+    {
+        m_pRoot = std::make_shared<HuffmanNode<uint8_t>>();
+    };
 
     size_t PopulateWithHuffmanTable(const uint8_t num_of_codes[16], const uint8_t* code_values)
     {

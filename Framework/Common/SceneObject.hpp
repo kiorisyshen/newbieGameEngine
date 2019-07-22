@@ -21,22 +21,37 @@
 
 namespace newbieGE
 {
-ENUM(SceneObjectType){kSceneObjectTypeMesh = "MESH"_i32,       kSceneObjectTypeMaterial = "MATL"_i32,
-                      kSceneObjectTypeTexture = "TXTU"_i32,    kSceneObjectTypeLight = "LGHT"_i32,
-                      kSceneObjectTypeCamera = "CAMR"_i32,     kSceneObjectTypeAnimationClip = "ANIM"_i32,
-                      kSceneObjectTypeClip = "CLIP"_i32,       kSceneObjectTypeVertexArray = "VARR"_i32,
-                      kSceneObjectTypeIndexArray = "VARR"_i32, kSceneObjectTypeGeometry = "GEOM"_i32,
-                      kSceneObjectTypeTransform = "TRFM"_i32,  kSceneObjectTypeTranslate = "TSLT"_i32,
-                      kSceneObjectTypeRotate = "ROTA"_i32,     kSceneObjectTypeScale = "SCAL"_i32,
-                      kSceneObjectTypeTrack = "TRAC"_i32};
+ENUM(SceneObjectType){
+    kSceneObjectTypeMesh          = "MESH"_i32,
+    kSceneObjectTypeMaterial      = "MATL"_i32,
+    kSceneObjectTypeTexture       = "TXTU"_i32,
+    kSceneObjectTypeLight         = "LGHT"_i32,
+    kSceneObjectTypeCamera        = "CAMR"_i32,
+    kSceneObjectTypeAnimationClip = "ANIM"_i32,
+    kSceneObjectTypeClip          = "CLIP"_i32,
+    kSceneObjectTypeVertexArray   = "VARR"_i32,
+    kSceneObjectTypeIndexArray    = "VARR"_i32,
+    kSceneObjectTypeGeometry      = "GEOM"_i32,
+    kSceneObjectTypeTransform     = "TRFM"_i32,
+    kSceneObjectTypeTranslate     = "TSLT"_i32,
+    kSceneObjectTypeRotate        = "ROTA"_i32,
+    kSceneObjectTypeScale         = "SCAL"_i32,
+    kSceneObjectTypeTrack         = "TRAC"_i32,
+};
 
 ENUM(SceneObjectCollisionType){
-    kSceneObjectCollisionTypeNone = "CNON"_i32,        kSceneObjectCollisionTypeSphere = "CSPH"_i32,
-    kSceneObjectCollisionTypeBox = "CBOX"_i32,         kSceneObjectCollisionTypeCylinder = "CCYL"_i32,
-    kSceneObjectCollisionTypeCapsule = "CCAP"_i32,     kSceneObjectCollisionTypeCone = "CCON"_i32,
-    kSceneObjectCollisionTypeMultiSphere = "CMUL"_i32, kSceneObjectCollisionTypeConvexHull = "CCVH"_i32,
-    kSceneObjectCollisionTypeConvexMesh = "CCVM"_i32,  kSceneObjectCollisionTypeBvhMesh = "CBVM"_i32,
-    kSceneObjectCollisionTypeHeightfield = "CHIG"_i32, kSceneObjectCollisionTypePlane = "CPLN"_i32,
+    kSceneObjectCollisionTypeNone        = "CNON"_i32,
+    kSceneObjectCollisionTypeSphere      = "CSPH"_i32,
+    kSceneObjectCollisionTypeBox         = "CBOX"_i32,
+    kSceneObjectCollisionTypeCylinder    = "CCYL"_i32,
+    kSceneObjectCollisionTypeCapsule     = "CCAP"_i32,
+    kSceneObjectCollisionTypeCone        = "CCON"_i32,
+    kSceneObjectCollisionTypeMultiSphere = "CMUL"_i32,
+    kSceneObjectCollisionTypeConvexHull  = "CCVH"_i32,
+    kSceneObjectCollisionTypeConvexMesh  = "CCVM"_i32,
+    kSceneObjectCollisionTypeBvhMesh     = "CBVM"_i32,
+    kSceneObjectCollisionTypeHeightfield = "CHIG"_i32,
+    kSceneObjectCollisionTypePlane       = "CPLN"_i32,
 };
 
 std::ostream& operator<<(std::ostream& out, SceneObjectType type);
@@ -50,10 +65,17 @@ class BaseSceneObject
 
    protected:
     // can only be used as base class
-    BaseSceneObject(SceneObjectType type) : m_Type(type) { m_Guid = newGuid(); };
-    BaseSceneObject(Guid& guid, SceneObjectType type) : m_Guid(guid), m_Type(type){};
-    BaseSceneObject(Guid&& guid, SceneObjectType type) : m_Guid(std::move(guid)), m_Type(type){};
-    BaseSceneObject(BaseSceneObject&& obj) : m_Guid(std::move(obj.m_Guid)), m_Type(obj.m_Type){};
+    BaseSceneObject(SceneObjectType type)
+        : m_Type(type)
+    {
+        m_Guid = newGuid();
+    };
+    BaseSceneObject(Guid& guid, SceneObjectType type)
+        : m_Guid(guid), m_Type(type){};
+    BaseSceneObject(Guid&& guid, SceneObjectType type)
+        : m_Guid(std::move(guid)), m_Type(type){};
+    BaseSceneObject(BaseSceneObject&& obj)
+        : m_Guid(std::move(obj.m_Guid)), m_Type(obj.m_Type){};
     BaseSceneObject& operator=(BaseSceneObject&& obj)
     {
         this->m_Guid = std::move(obj.m_Guid);
@@ -70,16 +92,28 @@ class BaseSceneObject
     BaseSceneObject& operator=(BaseSceneObject& obj) = delete;
 
    public:
-    const Guid&           GetGuid() const { return m_Guid; };
-    const SceneObjectType GetType() const { return m_Type; };
+    const Guid& GetGuid() const
+    {
+        return m_Guid;
+    };
+    const SceneObjectType GetType() const
+    {
+        return m_Type;
+    };
 
     friend std::ostream& operator<<(std::ostream& out, const BaseSceneObject& obj);
 };
 
-ENUM(VertexDataType){kVertexDataTypeFloat1 = "FLT1"_i32,  kVertexDataTypeFloat2 = "FLT2"_i32,
-                     kVertexDataTypeFloat3 = "FLT3"_i32,  kVertexDataTypeFloat4 = "FLT4"_i32,
-                     kVertexDataTypeDouble1 = "DUB1"_i32, kVertexDataTypeDouble2 = "DUB2"_i32,
-                     kVertexDataTypeDouble3 = "DUB3"_i32, kVertexDataTypeDouble4 = "DUB4"_i32};
+ENUM(VertexDataType){
+    kVertexDataTypeFloat1  = "FLT1"_i32,
+    kVertexDataTypeFloat2  = "FLT2"_i32,
+    kVertexDataTypeFloat3  = "FLT3"_i32,
+    kVertexDataTypeFloat4  = "FLT4"_i32,
+    kVertexDataTypeDouble1 = "DUB1"_i32,
+    kVertexDataTypeDouble2 = "DUB2"_i32,
+    kVertexDataTypeDouble3 = "DUB3"_i32,
+    kVertexDataTypeDouble4 = "DUB4"_i32,
+};
 
 std::ostream& operator<<(std::ostream& out, VertexDataType type);
 
@@ -106,9 +140,15 @@ class SceneObjectVertexArray
     SceneObjectVertexArray(SceneObjectVertexArray& arr)  = default;
     SceneObjectVertexArray(SceneObjectVertexArray&& arr) = default;
 
-    const std::string& GetAttributeName() const { return m_strAttribute; };
-    VertexDataType     GetDataType() const { return m_DataType; };
-    size_t             GetDataSize() const
+    const std::string& GetAttributeName() const
+    {
+        return m_strAttribute;
+    };
+    VertexDataType GetDataType() const
+    {
+        return m_DataType;
+    };
+    size_t GetDataSize() const
     {
         size_t size = m_szData;
 
@@ -133,8 +173,11 @@ class SceneObjectVertexArray
 
         return size;
     };
-    const void* GetData() const { return m_pData; };
-    size_t      GetVertexCount() const
+    const void* GetData() const
+    {
+        return m_pData;
+    };
+    size_t GetVertexCount() const
     {
         size_t size = m_szData;
 
@@ -207,10 +250,19 @@ class SceneObjectIndexArray
     SceneObjectIndexArray(SceneObjectIndexArray& arr)  = default;
     SceneObjectIndexArray(SceneObjectIndexArray&& arr) = default;
 
-    const uint32_t      GetMaterialIndex() const { return m_nMaterialIndex; };
-    const IndexDataType GetIndexType() const { return m_DataType; };
-    const void*         GetData() const { return m_pData; };
-    size_t              GetDataSize() const
+    const uint32_t GetMaterialIndex() const
+    {
+        return m_nMaterialIndex;
+    };
+    const IndexDataType GetIndexType() const
+    {
+        return m_DataType;
+    };
+    const void* GetData() const
+    {
+        return m_pData;
+    };
+    size_t GetDataSize() const
     {
         size_t size = m_szData;
 
@@ -236,42 +288,48 @@ class SceneObjectIndexArray
         return size;
     };
 
-    size_t GetIndexCount() const { return m_szData; }
+    size_t GetIndexCount() const
+    {
+        return m_szData;
+    }
 
     friend std::ostream& operator<<(std::ostream& out, const SceneObjectIndexArray& obj);
 };
 
 ENUM(PrimitiveType){
-    kPrimitiveTypeNone      = "NONE"_i32,  ///< No particular primitive type.
-    kPrimitiveTypePointList = "PLST"_i32,  ///< For N>=0, vertex N renders a point.
-    kPrimitiveTypeLineList  = "LLST"_i32,  ///< For N>=0, vertices [N*2+0, N*2+1] render a line.
-    kPrimitiveTypeLineStrip = "LSTR"_i32,  ///< For N>=0, vertices [N, N+1] render a line.
-    kPrimitiveTypeTriList   = "TLST"_i32,  ///< For N>=0, vertices [N*3+0, N*3+1, N*3+2] render a triangle.
-    kPrimitiveTypeTriFan =
-        "TFAN"_i32,  ///< For N>=0, vertices [0, (N+1)%M, (N+2)%M] render a triangle, where M is the vertex count.
-    kPrimitiveTypeTriStrip =
-        "TSTR"_i32,  ///< For N>=0, vertices [N*2+0, N*2+1, N*2+2] and [N*2+2, N*2+1, N*2+3] render triangles.
-    kPrimitiveTypePatch             = "PACH"_i32,  ///< Used for tessellation.
-    kPrimitiveTypeLineListAdjacency = "LLSA"_i32,  ///< For N>=0, vertices [N*4..N*4+3] render a line from [1, 2]. Lines
-                                                   ///< [0, 1] and [2, 3] are adjacent to the rendered line.
-    kPrimitiveTypeLineStripAdjacency = "LSTA"_i32,  ///< For N>=0, vertices [N+1, N+2] render a line. Lines [N, N+1] and
-                                                    ///< [N+2, N+3] are adjacent to the rendered line.
-    kPrimitiveTypeTriListAdjacency =
-        "TLSA"_i32,  ///< For N>=0, vertices [N*6..N*6+5] render a triangle from [0, 2, 4]. Triangles [0, 1, 2] [4, 2,
-                     ///< 3] and [5, 0, 4] are adjacent to the rendered triangle.
-    kPrimitiveTypeTriStripAdjacency =
-        "TSTA"_i32,  ///< For N>=0, vertices [N*4..N*4+6] render a triangle from [0, 2, 4] and [4, 2, 6]. Odd vertices
-                     ///< Nodd form adjacent triangles with indices min(Nodd+1,Nlast) and max(Nodd-3,Nfirst).
-    kPrimitiveTypeRectList =
-        "RLST"_i32,  ///< For N>=0, vertices [N*3+0, N*3+1, N*3+2] render a screen-aligned rectangle. 0 is upper-left, 1
-                     ///< is upper-right, and 2 is the lower-left corner.
-    kPrimitiveTypeLineLoop =
-        "LLOP"_i32,  ///< Like <c>kPrimitiveTypeLineStrip</c>, but the first and last vertices also render a line.
-    kPrimitiveTypeQuadList =
-        "QLST"_i32,  ///< For N>=0, vertices [N*4+0, N*4+1, N*4+2] and [N*4+0, N*4+2, N*4+3] render triangles.
-    kPrimitiveTypeQuadStrip =
-        "QSTR"_i32,  ///< For N>=0, vertices [N*2+0, N*2+1, N*2+3] and [N*2+0, N*2+3, N*2+2] render triangles.
-    kPrimitiveTypePolygon = "POLY"_i32,  ///< For N>=0, vertices [0, N+1, N+2] render a triangle.
+    kPrimitiveTypeNone      = "NONE"_i32,           ///< No particular primitive type.
+    kPrimitiveTypePointList = "PLST"_i32,           ///< For N>=0, vertex N renders a point.
+    kPrimitiveTypeLineList  = "LLST"_i32,           ///< For N>=0, vertices [N*2+0, N*2+1] render a line.
+    kPrimitiveTypeLineStrip = "LSTR"_i32,           ///< For N>=0, vertices [N, N+1] render a line.
+    kPrimitiveTypeTriList   = "TLST"_i32,           ///< For N>=0, vertices [N*3+0, N*3+1,
+                                                    ///< N*3+2] render a triangle.
+    kPrimitiveTypeTriFan = "TFAN"_i32,              ///< For N>=0, vertices [0, (N+1)%M, (N+2)%M] render a
+                                                    ///< triangle, where M is the vertex count.
+    kPrimitiveTypeTriStrip = "TSTR"_i32,            ///< For N>=0, vertices [N*2+0, N*2+1, N*2+2] and [N*2+2,
+                                                    ///< N*2+1, N*2+3] render triangles.
+    kPrimitiveTypePatch             = "PACH"_i32,   ///< Used for tessellation.
+    kPrimitiveTypeLineListAdjacency = "LLSA"_i32,   ///< For N>=0, vertices [N*4..N*4+3] render a line from [1,
+                                                    ///< 2]. Lines [0, 1] and [2, 3] are adjacent to the
+                                                    ///< rendered line.
+    kPrimitiveTypeLineStripAdjacency = "LSTA"_i32,  ///< For N>=0, vertices [N+1, N+2] render a line. Lines [N,
+                                                    ///< N+1] and [N+2, N+3] are adjacent to the rendered line.
+    kPrimitiveTypeTriListAdjacency = "TLSA"_i32,    ///< For N>=0, vertices [N*6..N*6+5] render a triangle from
+                                                    ///< [0, 2, 4]. Triangles [0, 1, 2] [4, 2, 3] and [5, 0, 4]
+                                                    ///< are adjacent to the rendered triangle.
+    kPrimitiveTypeTriStripAdjacency = "TSTA"_i32,   ///< For N>=0, vertices [N*4..N*4+6] render a triangle from
+                                                    ///< [0, 2, 4] and [4, 2, 6]. Odd vertices Nodd form
+                                                    ///< adjacent triangles with indices min(Nodd+1,Nlast) and
+                                                    ///< max(Nodd-3,Nfirst).
+    kPrimitiveTypeRectList = "RLST"_i32,            ///< For N>=0, vertices [N*3+0, N*3+1, N*3+2] render a
+                                                    ///< screen-aligned rectangle. 0 is upper-left, 1 is
+                                                    ///< upper-right, and 2 is the lower-left corner.
+    kPrimitiveTypeLineLoop = "LLOP"_i32,            ///< Like <c>kPrimitiveTypeLineStrip</c>, but the first
+                                                    ///< and last vertices also render a line.
+    kPrimitiveTypeQuadList = "QLST"_i32,            ///< For N>=0, vertices [N*4+0, N*4+1, N*4+2] and [N*4+0,
+                                                    ///< N*4+2, N*4+3] render triangles.
+    kPrimitiveTypeQuadStrip = "QSTR"_i32,           ///< For N>=0, vertices [N*2+0, N*2+1, N*2+3] and [N*2+0,
+                                                    ///< N*2+3, N*2+2] render triangles.
+    kPrimitiveTypePolygon = "POLY"_i32,             ///< For N>=0, vertices [0, N+1, N+2] render a triangle.
 };
 
 struct BoundingBox {
@@ -296,22 +354,49 @@ class SceneObjectMesh : public BaseSceneObject
           m_IndexArray(std::move(mesh.m_IndexArray)),
           m_VertexArray(std::move(mesh.m_VertexArray)),
           m_PrimitiveType(mesh.m_PrimitiveType){};
-    void AddIndexArray(SceneObjectIndexArray&& array) { m_IndexArray.push_back(std::move(array)); };
-    void AddVertexArray(SceneObjectVertexArray&& array) { m_VertexArray.push_back(std::move(array)); };
-    void SetPrimitiveType(PrimitiveType type) { m_PrimitiveType = type; };
+    void AddIndexArray(SceneObjectIndexArray&& array)
+    {
+        m_IndexArray.push_back(std::move(array));
+    };
+    void AddVertexArray(SceneObjectVertexArray&& array)
+    {
+        m_VertexArray.push_back(std::move(array));
+    };
+    void SetPrimitiveType(PrimitiveType type)
+    {
+        m_PrimitiveType = type;
+    };
 
-    size_t GetIndexGroupCount() const { return m_IndexArray.size(); };
+    size_t GetIndexGroupCount() const
+    {
+        return m_IndexArray.size();
+    };
     size_t GetIndexCount(const size_t index) const
     {
         return (m_IndexArray.empty() ? 0 : m_IndexArray[index].GetIndexCount());
     };
-    size_t   GetVertexCount() const { return (m_VertexArray.empty() ? 0 : m_VertexArray[0].GetVertexCount()); };
-    uint32_t GetVertexPropertiesCount() const { return static_cast<uint32_t>(m_VertexArray.size()); };
-    const SceneObjectVertexArray& GetVertexPropertyArray(const size_t index) const { return m_VertexArray[index]; };
-    const SceneObjectIndexArray&  GetIndexArray(const size_t index) const { return m_IndexArray[index]; };
-    const PrimitiveType&          GetPrimitiveType() { return m_PrimitiveType; };
-    BoundingBox                   GetBoundingBox() const;
-    ConvexHull                    GetConvexHull() const;
+    size_t GetVertexCount() const
+    {
+        return (m_VertexArray.empty() ? 0 : m_VertexArray[0].GetVertexCount());
+    };
+    uint32_t GetVertexPropertiesCount() const
+    {
+        return static_cast<uint32_t>(m_VertexArray.size());
+    };
+    const SceneObjectVertexArray& GetVertexPropertyArray(const size_t index) const
+    {
+        return m_VertexArray[index];
+    };
+    const SceneObjectIndexArray& GetIndexArray(const size_t index) const
+    {
+        return m_IndexArray[index];
+    };
+    const PrimitiveType& GetPrimitiveType()
+    {
+        return m_PrimitiveType;
+    };
+    BoundingBox GetBoundingBox() const;
+    ConvexHull  GetConvexHull() const;
 
     friend std::ostream& operator<<(std::ostream& out, const SceneObjectMesh& obj);
 };
@@ -325,7 +410,8 @@ class SceneObjectTexture : public BaseSceneObject
     std::vector<Matrix4X4f> m_Transforms;
 
    public:
-    SceneObjectTexture() : BaseSceneObject(SceneObjectType::kSceneObjectTypeTexture), m_nTexCoordIndex(0){};
+    SceneObjectTexture()
+        : BaseSceneObject(SceneObjectType::kSceneObjectTypeTexture), m_nTexCoordIndex(0){};
     SceneObjectTexture(const std::string& name)
         : BaseSceneObject(SceneObjectType::kSceneObjectTypeTexture), m_Name(name), m_nTexCoordIndex(0){};
     SceneObjectTexture(uint32_t coord_index, std::shared_ptr<Image>& image)
@@ -336,15 +422,28 @@ class SceneObjectTexture : public BaseSceneObject
           m_pImage(std::move(image)){};
     SceneObjectTexture(SceneObjectTexture&)  = default;
     SceneObjectTexture(SceneObjectTexture&&) = default;
-    void               AddTransform(Matrix4X4f& matrix) { m_Transforms.push_back(matrix); };
-    void               SetName(const std::string& name) { m_Name = name; };
-    void               SetName(std::string&& name) { m_Name = std::move(name); };
-    const std::string& GetName() const { return m_Name; };
-    void               LoadTexture()
+    void AddTransform(Matrix4X4f& matrix)
+    {
+        m_Transforms.push_back(matrix);
+    };
+    void SetName(const std::string& name)
+    {
+        m_Name = name;
+    };
+    void SetName(std::string&& name)
+    {
+        m_Name = std::move(name);
+    };
+    const std::string& GetName() const
+    {
+        return m_Name;
+    };
+    void LoadTexture()
     {
         if (!m_pImage) {
-            // we should lookup if the texture has been loaded already to prevent
-            // duplicated load. This could be done in Asset Loader Manager.
+            // we should lookup if the texture has been loaded already to
+            // prevent duplicated load. This could be done in Asset Loader
+            // Manager.
             Buffer      buf = g_pAssetLoader->SyncOpenAndReadBinary(m_Name.c_str());
             std::string ext = m_Name.substr(m_Name.find_last_of("."));
             if (ext == ".jpg" || ext == ".jpeg") {
@@ -436,8 +535,10 @@ struct ParameterValueMap {
 
     ParameterValueMap() = default;
 
-    ParameterValueMap(const T value) : Value(value), ValueMap(nullptr){};
-    ParameterValueMap(const std::shared_ptr<SceneObjectTexture>& value) : ValueMap(value){};
+    ParameterValueMap(const T value)
+        : Value(value), ValueMap(nullptr){};
+    ParameterValueMap(const std::shared_ptr<SceneObjectTexture>& value)
+        : ValueMap(value){};
 
     ParameterValueMap(const ParameterValueMap<T>& rhs) = default;
 
@@ -497,18 +598,51 @@ class SceneObjectMaterial : public BaseSceneObject
           m_Opacity(1.0f),
           m_Transparency(0.0f),
           m_Emission(0.0f){};
-    SceneObjectMaterial(const char* name) : SceneObjectMaterial() { m_Name = name; };
-    SceneObjectMaterial(const std::string& name) : SceneObjectMaterial() { m_Name = name; };
-    SceneObjectMaterial(std::string&& name) : SceneObjectMaterial() { m_Name = std::move(name); };
+    SceneObjectMaterial(const char* name)
+        : SceneObjectMaterial()
+    {
+        m_Name = name;
+    };
+    SceneObjectMaterial(const std::string& name)
+        : SceneObjectMaterial()
+    {
+        m_Name = name;
+    };
+    SceneObjectMaterial(std::string&& name)
+        : SceneObjectMaterial()
+    {
+        m_Name = std::move(name);
+    };
 
-    const std::string& GetName() const { return m_Name; };
-    const Color&       GetBaseColor() const { return m_BaseColor; };
-    const Color&       GetSpecularColor() const { return m_Specular; };
-    const Parameter&   GetSpecularPower() const { return m_SpecularPower; };
-    const Normal&      GetNormal() const { return m_Normal; };
-    void               SetName(const std::string& name) { m_Name = name; };
-    void               SetName(std::string&& name) { m_Name = std::move(name); };
-    void               SetColor(const std::string& attrib, const Vector4f& color)
+    const std::string& GetName() const
+    {
+        return m_Name;
+    };
+    const Color& GetBaseColor() const
+    {
+        return m_BaseColor;
+    };
+    const Color& GetSpecularColor() const
+    {
+        return m_Specular;
+    };
+    const Parameter& GetSpecularPower() const
+    {
+        return m_SpecularPower;
+    };
+    const Normal& GetNormal() const
+    {
+        return m_Normal;
+    };
+    void SetName(const std::string& name)
+    {
+        m_Name = name;
+    };
+    void SetName(std::string&& name)
+    {
+        m_Name = std::move(name);
+    };
+    void SetColor(const std::string& attrib, const Vector4f& color)
     {
         if (attrib == "diffuse") {
             m_BaseColor = Color(color);
@@ -627,29 +761,68 @@ class SceneObjectGeometry : public BaseSceneObject
     {
     }
 
-    void       SetVisibility(bool visible) { m_bVisible = visible; }
-    const bool Visible() { return m_bVisible; }
-    void       SetIfCastShadow(bool shadow) { m_bShadow = shadow; }
-    const bool CastShadow() { return m_bShadow; }
-    void       SetIfMotionBlur(bool motion_blur) { m_bMotionBlur = motion_blur; }
-    const bool MotionBlur() { return m_bMotionBlur; };
-    void       SetCollisionType(SceneObjectCollisionType collision_type) { m_CollisionType = collision_type; }
-    const SceneObjectCollisionType CollisionType() const { return m_CollisionType; }
-    void                           SetCollisionParameters(const float* param, int32_t count)
+    void SetVisibility(bool visible)
+    {
+        m_bVisible = visible;
+    }
+    const bool Visible()
+    {
+        return m_bVisible;
+    }
+    void SetIfCastShadow(bool shadow)
+    {
+        m_bShadow = shadow;
+    }
+    const bool CastShadow()
+    {
+        return m_bShadow;
+    }
+    void SetIfMotionBlur(bool motion_blur)
+    {
+        m_bMotionBlur = motion_blur;
+    }
+    const bool MotionBlur()
+    {
+        return m_bMotionBlur;
+    };
+    void SetCollisionType(SceneObjectCollisionType collision_type)
+    {
+        m_CollisionType = collision_type;
+    }
+    const SceneObjectCollisionType CollisionType() const
+    {
+        return m_CollisionType;
+    }
+    void SetCollisionParameters(const float* param, int32_t count)
     {
         assert(count > 0 && count < 10);
         memcpy(m_CollisionParameters, param, sizeof(float) * count);
     }
-    const float* CollisionParameters() const { return m_CollisionParameters; }
+    const float* CollisionParameters() const
+    {
+        return m_CollisionParameters;
+    }
 
-    void AddMesh(std::shared_ptr<SceneObjectMesh>& mesh) { m_Mesh.push_back(std::move(mesh)); }
-    const std::weak_ptr<SceneObjectMesh> GetMesh() { return (m_Mesh.empty() ? nullptr : m_Mesh[0]); }
+    void AddMesh(std::shared_ptr<SceneObjectMesh>& mesh)
+    {
+        m_Mesh.push_back(std::move(mesh));
+    }
+    const std::weak_ptr<SceneObjectMesh> GetMesh()
+    {
+        return (m_Mesh.empty() ? nullptr : m_Mesh[0]);
+    }
     const std::weak_ptr<SceneObjectMesh> GetMeshLOD(size_t lod)
     {
         return (lod < m_Mesh.size() ? m_Mesh[lod] : nullptr);
     }
-    BoundingBox GetBoundingBox() const { return m_Mesh.empty() ? BoundingBox() : m_Mesh[0]->GetBoundingBox(); }
-    ConvexHull  GetConvexHull() const { return m_Mesh.empty() ? ConvexHull() : m_Mesh[0]->GetConvexHull(); }
+    BoundingBox GetBoundingBox() const
+    {
+        return m_Mesh.empty() ? BoundingBox() : m_Mesh[0]->GetBoundingBox();
+    }
+    ConvexHull GetConvexHull() const
+    {
+        return m_Mesh.empty() ? ConvexHull() : m_Mesh[0]->GetConvexHull();
+    }
 
     friend std::ostream& operator<<(std::ostream& out, const SceneObjectGeometry& obj);
 };
@@ -668,7 +841,10 @@ class SceneObjectLight : public BaseSceneObject
     std::string m_strTexture;
 
    public:
-    void SetIfCastShadow(bool shadow) { m_bCastShadows = shadow; };
+    void SetIfCastShadow(bool shadow)
+    {
+        m_bCastShadows = shadow;
+    };
 
     void SetColor(std::string& attrib, Vector4f& color)
     {
@@ -691,10 +867,19 @@ class SceneObjectLight : public BaseSceneObject
         }
     };
 
-    void SetAttenuation(AttenFunc func) { m_LightAttenuation = func; }
+    void SetAttenuation(AttenFunc func)
+    {
+        m_LightAttenuation = func;
+    }
 
-    const Color& GetColor() { return m_LightColor; };
-    float        GetIntensity() { return m_fIntensity; };
+    const Color& GetColor()
+    {
+        return m_LightColor;
+    };
+    float GetIntensity()
+    {
+        return m_fIntensity;
+    };
 
    protected:
     // can only be used as base class of delivered lighting objects
@@ -723,7 +908,8 @@ class SceneObjectSpotLight : public SceneObjectLight
     float m_fPenumbraAngle;
 
    public:
-    SceneObjectSpotLight(void) : SceneObjectLight(), m_fConeAngle(PI / 4.0f), m_fPenumbraAngle(PI / 3.0f){};
+    SceneObjectSpotLight(void)
+        : SceneObjectLight(), m_fConeAngle(PI / 4.0f), m_fPenumbraAngle(PI / 3.0f){};
 
     friend std::ostream& operator<<(std::ostream& out, const SceneObjectSpotLight& obj);
 };
@@ -761,8 +947,14 @@ class SceneObjectCamera : public BaseSceneObject
         // TODO: extension
     };
 
-    float GetNearClipDistance() const { return m_fNearClipDistance; };
-    float GetFarClipDistance() const { return m_fFarClipDistance; };
+    float GetNearClipDistance() const
+    {
+        return m_fNearClipDistance;
+    };
+    float GetFarClipDistance() const
+    {
+        return m_fFarClipDistance;
+    };
 
    protected:
     // can only be used as base class
@@ -799,8 +991,12 @@ class SceneObjectPerspectiveCamera : public SceneObjectCamera
     };
 
    public:
-    SceneObjectPerspectiveCamera(float fov = PI / 2.0) : SceneObjectCamera(), m_fFov(fov){};
-    float GetFov() const { return m_fFov; };
+    SceneObjectPerspectiveCamera(float fov = PI / 2.0)
+        : SceneObjectCamera(), m_fFov(fov){};
+    float GetFov() const
+    {
+        return m_fFov;
+    };
 
     friend std::ostream& operator<<(std::ostream& out, const SceneObjectPerspectiveCamera& obj);
 };
@@ -812,20 +1008,28 @@ class SceneObjectTransform : public BaseSceneObject
     bool       m_bSceneObjectOnly;
 
    public:
-    SceneObjectTransform() : BaseSceneObject(SceneObjectType::kSceneObjectTypeTransform)
+    SceneObjectTransform()
+        : BaseSceneObject(SceneObjectType::kSceneObjectTypeTransform)
     {
         BuildIdentityMatrix(m_matrix);
         m_bSceneObjectOnly = false;
     }
 
-    SceneObjectTransform(const Matrix4X4f& matrix, const bool object_only = false) : SceneObjectTransform()
+    SceneObjectTransform(const Matrix4X4f& matrix, const bool object_only = false)
+        : SceneObjectTransform()
     {
         m_matrix           = matrix;
         m_bSceneObjectOnly = object_only;
     }
 
-    operator Matrix4X4f() { return m_matrix; }
-    operator const Matrix4X4f() const { return m_matrix; }
+    operator Matrix4X4f()
+    {
+        return m_matrix;
+    }
+    operator const Matrix4X4f() const
+    {
+        return m_matrix;
+    }
 
     friend std::ostream& operator<<(std::ostream& out, const SceneObjectTransform& obj);
 };
@@ -836,7 +1040,10 @@ class SceneObjectTranslation : public SceneObjectTransform, implements Animatabl
     char m_Kind = 0;
 
    public:
-    SceneObjectTranslation() { m_Type = SceneObjectType::kSceneObjectTypeTranslate; }
+    SceneObjectTranslation()
+    {
+        m_Type = SceneObjectType::kSceneObjectTypeTranslate;
+    }
     SceneObjectTranslation(const char axis, const float amount, const bool object_only = false)
         : SceneObjectTranslation()
     {
@@ -891,8 +1098,12 @@ class SceneObjectRotation : public SceneObjectTransform, implements Animatable<f
     char m_Kind = 0;
 
    public:
-    SceneObjectRotation() { m_Type = SceneObjectType::kSceneObjectTypeRotate; }
-    SceneObjectRotation(const char axis, const float theta, const bool object_only = false) : SceneObjectRotation()
+    SceneObjectRotation()
+    {
+        m_Type = SceneObjectType::kSceneObjectTypeRotate;
+    }
+    SceneObjectRotation(const char axis, const float theta, const bool object_only = false)
+        : SceneObjectRotation()
     {
         m_Kind = axis;
 
@@ -913,7 +1124,8 @@ class SceneObjectRotation : public SceneObjectTransform, implements Animatable<f
         m_bSceneObjectOnly = object_only;
     }
 
-    SceneObjectRotation(Vector3f axis, const float theta, const bool object_only = false) : SceneObjectRotation()
+    SceneObjectRotation(Vector3f axis, const float theta, const bool object_only = false)
+        : SceneObjectRotation()
     {
         m_Kind = 0;
 
@@ -923,7 +1135,8 @@ class SceneObjectRotation : public SceneObjectTransform, implements Animatable<f
         m_bSceneObjectOnly = object_only;
     }
 
-    SceneObjectRotation(const Quaternion quaternion, const bool object_only = false) : SceneObjectRotation()
+    SceneObjectRotation(const Quaternion quaternion, const bool object_only = false)
+        : SceneObjectRotation()
     {
         m_Kind = 0;
 
@@ -956,8 +1169,12 @@ class SceneObjectScale : public SceneObjectTransform, implements Animatable<floa
     char m_Kind = 0;
 
    public:
-    SceneObjectScale() { m_Type = SceneObjectType::kSceneObjectTypeScale; }
-    SceneObjectScale(const char axis, const float amount) : SceneObjectScale()
+    SceneObjectScale()
+    {
+        m_Type = SceneObjectType::kSceneObjectTypeScale;
+    }
+    SceneObjectScale(const char axis, const float amount)
+        : SceneObjectScale()
     {
         m_Kind = axis;
 
@@ -976,7 +1193,8 @@ class SceneObjectScale : public SceneObjectTransform, implements Animatable<floa
         }
     }
 
-    SceneObjectScale(const float x, const float y, const float z) : SceneObjectScale()
+    SceneObjectScale(const float x, const float y, const float z)
+        : SceneObjectScale()
     {
         m_Kind = 0;
         MatrixScale(m_matrix, x, y, z);
@@ -1032,7 +1250,10 @@ class SceneObjectAnimationClip : public BaseSceneObject, implements Animatable<f
         : BaseSceneObject(SceneObjectType::kSceneObjectTypeAnimationClip), m_nIndex(index)
     {
     }
-    int  GetIndex() { return m_nIndex; }
+    int GetIndex()
+    {
+        return m_nIndex;
+    }
     void AddTrack(std::shared_ptr<SceneObjectTrack>& track);
     void Update(const float time_point) final;
 

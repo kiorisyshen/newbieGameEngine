@@ -28,7 +28,10 @@ class Geometry
     void CalculateTemporalAabb(const Matrix4X4f& curTrans, const Vector3f& linvel, const Vector3f& angvel,
                                float timeStep, Vector3f& temporalAabbMin, Vector3f& temporalAabbMax) const;
 
-    GeometryType GetGeometryType() const { return m_kGeometryType; };
+    GeometryType GetGeometryType() const
+    {
+        return m_kGeometryType;
+    };
 
    protected:
     GeometryType m_kGeometryType;

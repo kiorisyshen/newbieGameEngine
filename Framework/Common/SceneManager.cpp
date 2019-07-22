@@ -5,7 +5,9 @@
 using namespace newbieGE;
 using namespace std;
 
-SceneManager::~SceneManager() {}
+SceneManager::~SceneManager()
+{
+}
 
 int SceneManager::Initialize()
 {
@@ -15,9 +17,13 @@ int SceneManager::Initialize()
     return result;
 }
 
-void SceneManager::Finalize() {}
+void SceneManager::Finalize()
+{
+}
 
-void SceneManager::Tick() {}
+void SceneManager::Tick()
+{
+}
 
 int SceneManager::LoadScene(const char* scene_file_name)
 {
@@ -33,7 +39,10 @@ int SceneManager::LoadScene(const char* scene_file_name)
     }
 }
 
-void SceneManager::ResetScene() { m_bDirtyFlag = true; }
+void SceneManager::ResetScene()
+{
+    m_bDirtyFlag = true;
+}
 
 bool SceneManager::LoadOgexScene(const char* ogex_scene_file_name)
 {
@@ -65,7 +74,10 @@ const Scene& SceneManager::GetSceneForPhysicalSimulation()
     return *m_pScene;
 }
 
-bool SceneManager::IsSceneChanged() { return m_bDirtyFlag; }
+bool SceneManager::IsSceneChanged()
+{
+    return m_bDirtyFlag;
+}
 
 void SceneManager::NotifySceneIsRenderingQueued()
 {
@@ -85,7 +97,10 @@ void SceneManager::NotifySceneIsPhysicalSimulationQueued()
     }
 }
 
-weak_ptr<BaseSceneNode> SceneManager::GetRootNode() { return m_pScene->SceneGraph; }
+weak_ptr<BaseSceneNode> SceneManager::GetRootNode()
+{
+    return m_pScene->SceneGraph;
+}
 
 weak_ptr<SceneGeometryNode> SceneManager::GetSceneGeometryNode(string name)
 {

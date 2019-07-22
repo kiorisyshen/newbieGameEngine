@@ -23,7 +23,9 @@ int AnimationManager::Initialize()
     return 0;
 }
 
-void AnimationManager::Finalize() {}
+void AnimationManager::Finalize()
+{
+}
 
 void AnimationManager::Tick()
 {

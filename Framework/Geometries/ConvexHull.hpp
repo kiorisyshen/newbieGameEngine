@@ -48,8 +48,14 @@ class ConvexHull : public Polyhedron, protected QuickHull
 
         return !m_bFullyBuild;
     }
-    const PointSet   GetPointSet() const { return m_PointSet; }
-    const Polyhedron GetHull() const { return *static_cast<const Polyhedron*>(this); }
+    const PointSet GetPointSet() const
+    {
+        return m_PointSet;
+    }
+    const Polyhedron GetHull() const
+    {
+        return *static_cast<const Polyhedron*>(this);
+    }
 
    protected:
     PointSet m_PointSet;

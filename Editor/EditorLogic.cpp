@@ -26,12 +26,20 @@ int EditorLogic::Initialize()
     return result;
 }
 
-void EditorLogic::Finalize() { cout << "[EditorLogic] Finalize" << endl; }
+void EditorLogic::Finalize()
+{
+    cout << "[EditorLogic] Finalize" << endl;
+}
 
-void EditorLogic::Tick() { g_pAnimationManager->Tick(); }
+void EditorLogic::Tick()
+{
+    g_pAnimationManager->Tick();
+}
 
 #ifdef DEBUG
-void EditorLogic::DrawDebugInfo() {}
+void EditorLogic::DrawDebugInfo()
+{
+}
 #endif
 
 void EditorLogic::OnLeftKeyDown()

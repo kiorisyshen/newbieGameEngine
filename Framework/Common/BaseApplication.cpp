@@ -6,7 +6,9 @@ using namespace std;
 
 bool BaseApplication::m_bQuit = false;
 
-BaseApplication::BaseApplication(GfxConfiguration& cfg) : m_Config(cfg) {}
+BaseApplication::BaseApplication(GfxConfiguration& cfg) : m_Config(cfg)
+{
+}
 
 // Parse command line, read configuration, initialize all sub modules
 int BaseApplication::Initialize()
@@ -103,7 +105,10 @@ void BaseApplication::SetCommandLineParameters(int argc, char** argv)
     m_ppArgV = argv;
 }
 
-int BaseApplication::GetCommandLineArgumentsCount() const { return m_nArgC; }
+int BaseApplication::GetCommandLineArgumentsCount() const
+{
+    return m_nArgC;
+}
 
 const char* BaseApplication::GetCommandLineArgument(int index) const
 {
@@ -111,4 +116,7 @@ const char* BaseApplication::GetCommandLineArgument(int index) const
     return m_ppArgV[index];
 }
 
-bool BaseApplication::IsQuit() const { return m_bQuit; }
+bool BaseApplication::IsQuit() const
+{
+    return m_bQuit;
+}

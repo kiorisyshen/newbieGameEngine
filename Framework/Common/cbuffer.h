@@ -67,7 +67,10 @@ struct Light {
     Vector4f m_lightColor;
 };
 
-unistruct LightInfo REGISTER(b12) { struct Light lights[MAX_LIGHTS]; };
+unistruct LightInfo REGISTER(b12)
+{
+    struct Light lights[MAX_LIGHTS];
+};
 
 struct PerFrameConstants REGISTER(b10) {
     Matrix4X4f m_worldMatrix;

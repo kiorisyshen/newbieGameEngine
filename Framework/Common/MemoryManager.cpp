@@ -63,7 +63,9 @@ void newbieGE::MemoryManager::Finalize()
     m_bInitialized = false;
 }
 
-void newbieGE::MemoryManager::Tick() {}
+void newbieGE::MemoryManager::Tick()
+{
+}
 
 Allocator* newbieGE::MemoryManager::LookUpAllocator(size_t size)
 {

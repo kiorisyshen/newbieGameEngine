@@ -35,7 +35,9 @@ class GraphicsManager : implements IRuntimeModule
 
     virtual void RenderBuffers() final;
 
-    virtual void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstants>>& batches) {}
+    virtual void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstants>>& batches)
+    {
+    }
 
 #ifdef DEBUG
     virtual void DEBUG_SetDrawPointParam(const Point3& point, const Vector3f& color) final;
@@ -56,16 +58,16 @@ class GraphicsManager : implements IRuntimeModule
 
    protected:
     virtual void BeginScene(const Scene& scene);
-    virtual void EndScene() {}
+    virtual void EndScene(){};
 
-    virtual void BeginFrame() {}
-    virtual void EndFrame() {}
+    virtual void BeginFrame(){};
+    virtual void EndFrame(){};
 
-    virtual void BeginPass() {}
-    virtual void EndPass() {}
+    virtual void BeginPass(){};
+    virtual void EndPass(){};
 
-    virtual void BeginCompute() {}
-    virtual void EndCompute() {}
+    virtual void BeginCompute(){};
+    virtual void EndCompute(){};
 
 #ifdef DEBUG
     virtual void DEBUG_DrawDebug();

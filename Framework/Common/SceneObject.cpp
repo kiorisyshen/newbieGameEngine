@@ -269,7 +269,10 @@ ostream& operator<<(ostream& out, const SceneObjectAnimationClip& obj)
     return out;
 }
 
-float DefaultAttenFunc(float intensity, float distance) { return intensity / pow(1 + distance, 2.0f); }
+float DefaultAttenFunc(float intensity, float distance)
+{
+    return intensity / pow(1 + distance, 2.0f);
+}
 
 BoundingBox SceneObjectMesh::GetBoundingBox() const
 {
@@ -375,7 +378,10 @@ void SceneObjectTrack::Update(const float time_point)
     }
 }
 
-void SceneObjectAnimationClip::AddTrack(shared_ptr<SceneObjectTrack>& track) { m_Tracks.push_back(track); }
+void SceneObjectAnimationClip::AddTrack(shared_ptr<SceneObjectTrack>& track)
+{
+    m_Tracks.push_back(track);
+}
 
 void SceneObjectAnimationClip::Update(const float time_point)
 {

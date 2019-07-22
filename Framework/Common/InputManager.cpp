@@ -9,11 +9,18 @@
 using namespace newbieGE;
 using namespace std;
 
-int InputManager::Initialize() { return 0; }
+int InputManager::Initialize()
+{
+    return 0;
+}
 
-void InputManager::Finalize() {}
+void InputManager::Finalize()
+{
+}
 
-void InputManager::Tick() {}
+void InputManager::Tick()
+{
+}
 
 void InputManager::UpArrowKeyDown()
 {
@@ -139,9 +146,15 @@ void InputManager::AsciiKeyUp(char keycode)
     }
 }
 
-void InputManager::LeftMouseButtonDown() { cerr << "[InputManager] Left Mouse Button Down!" << endl; }
+void InputManager::LeftMouseButtonDown()
+{
+    cerr << "[InputManager] Left Mouse Button Down!" << endl;
+}
 
-void InputManager::LeftMouseButtonUp() { cerr << "[InputManager] Left Mouse Button Up!" << endl; }
+void InputManager::LeftMouseButtonUp()
+{
+    cerr << "[InputManager] Left Mouse Button Up!" << endl;
+}
 
 void InputManager::LeftMouseDrag(int deltaX, int deltaY)
 {

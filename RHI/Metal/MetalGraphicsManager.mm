@@ -31,9 +31,15 @@ void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatch
     [m_pRenderer drawBatch:batches];
 }
 
-void MetalGraphicsManager::SetPerFrameConstants() { [m_pRenderer setPerFrameConstants:m_DrawFrameContext]; }
+void MetalGraphicsManager::SetPerFrameConstants()
+{
+    [m_pRenderer setPerFrameConstants:m_DrawFrameContext];
+}
 
-void MetalGraphicsManager::SetPerBatchConstants() { [m_pRenderer setPerBatchConstants:m_DrawBatchContext]; }
+void MetalGraphicsManager::SetPerBatchConstants()
+{
+    [m_pRenderer setPerBatchConstants:m_DrawBatchContext];
+}
 
 void MetalGraphicsManager::InitializeBuffers(const Scene& scene)
 {
@@ -164,22 +170,46 @@ void MetalGraphicsManager::BeginScene(const Scene& scene)
     cout << "BeginScene Done!" << endl;
 }
 
-void MetalGraphicsManager::EndScene() { GraphicsManager::EndScene(); }
+void MetalGraphicsManager::EndScene()
+{
+    GraphicsManager::EndScene();
+}
 
-void MetalGraphicsManager::BeginFrame() { [m_pRenderer beginFrame]; }
+void MetalGraphicsManager::BeginFrame()
+{
+    [m_pRenderer beginFrame];
+}
 
-void MetalGraphicsManager::EndFrame() { [m_pRenderer endFrame]; }
+void MetalGraphicsManager::EndFrame()
+{
+    [m_pRenderer endFrame];
+}
 
-void MetalGraphicsManager::BeginPass() { [m_pRenderer beginPass]; }
+void MetalGraphicsManager::BeginPass()
+{
+    [m_pRenderer beginPass];
+}
 
-void MetalGraphicsManager::EndPass() { [m_pRenderer endPass]; }
+void MetalGraphicsManager::EndPass()
+{
+    [m_pRenderer endPass];
+}
 
-void MetalGraphicsManager::BeginCompute() { [m_pRenderer beginCompute]; }
+void MetalGraphicsManager::BeginCompute()
+{
+    [m_pRenderer beginCompute];
+}
 
-void MetalGraphicsManager::EndCompute() { [m_pRenderer endCompute]; }
+void MetalGraphicsManager::EndCompute()
+{
+    [m_pRenderer endCompute];
+}
 
 #ifdef DEBUG
-void MetalGraphicsManager::DEBUG_SetBuffer() { [m_pRenderer DEBUG_SetBuffer:m_DEBUG_Batches]; }
+void MetalGraphicsManager::DEBUG_SetBuffer()
+{
+    [m_pRenderer DEBUG_SetBuffer:m_DEBUG_Batches];
+}
 
 void MetalGraphicsManager::DEBUG_ClearDebugBuffers()
 {
@@ -188,6 +218,9 @@ void MetalGraphicsManager::DEBUG_ClearDebugBuffers()
     [m_pRenderer DEBUG_ClearDebugBuffers];
 }
 
-void MetalGraphicsManager::DEBUG_DrawDebug() { [m_pRenderer DEBUG_DrawDebug:m_DEBUG_Batches]; }
+void MetalGraphicsManager::DEBUG_DrawDebug()
+{
+    [m_pRenderer DEBUG_DrawDebug:m_DEBUG_Batches];
+}
 
 #endif

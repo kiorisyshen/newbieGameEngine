@@ -2,11 +2,19 @@
 
 using namespace newbieGE;
 
-int AssetLoader::Initialize() { return 0; }
+int AssetLoader::Initialize()
+{
+    return 0;
+}
 
-void AssetLoader::Finalize() { m_strSearchPath.clear(); }
+void AssetLoader::Finalize()
+{
+    m_strSearchPath.clear();
+}
 
-void AssetLoader::Tick() {}
+void AssetLoader::Tick()
+{
+}
 
 bool AssetLoader::AddSearchPath(const char* path)
 {

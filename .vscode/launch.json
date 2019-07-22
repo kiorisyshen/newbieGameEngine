@@ -16,8 +16,7 @@
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
-            "MIMode": "lldb",
-            "preLaunchTask": "build all Debug"
+            "MIMode": "lldb"
         },
         {
             "name": "(lldb) AssetLoaderTest",
