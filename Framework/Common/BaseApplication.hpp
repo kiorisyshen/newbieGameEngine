@@ -32,8 +32,6 @@ class BaseApplication : implements IApplication
         return m_Config;
     };
 
-    void OnDraw(){};
-
    protected:
     // Flag if need quit the main loop of the application
     static bool      m_bQuit;

@@ -59,9 +59,8 @@ void NearestPointInTriangleToPoint(const PointList& vertices, const Point3& poin
             if (tmp1 > tmp0) {
                 float numer = tmp1 - tmp0;
                 float denom = a - 2.0f * b + c;
-
-                s = std::clamp(numer / denom, 0.0f, 1.0f);
-                t = 1.0f - s;
+                s           = std::clamp(numer / denom, 0.0f, 1.0f);
+                t           = 1.0f - s;
             } else {
                 t = std::clamp(-e / c, 0.0f, 1.0f);
                 s = 0.0f;
@@ -70,9 +69,8 @@ void NearestPointInTriangleToPoint(const PointList& vertices, const Point3& poin
             if (a + d > b + e) {
                 float numer = c + e - b - d;
                 float denom = a - 2.0f * b + c;
-
-                s = std::clamp(numer / denom, 0.0f, 1.0f);
-                t = 1.0f - s;
+                s           = std::clamp(numer / denom, 0.0f, 1.0f);
+                t           = 1.0f - s;
             } else {
                 s = std::clamp(-e / c, 0.0f, 1.0f);
                 t = 0.0f;
@@ -80,9 +78,8 @@ void NearestPointInTriangleToPoint(const PointList& vertices, const Point3& poin
         } else {
             float numer = c + e - b - d;
             float denom = a - 2.0f * b + c;
-
-            s = std::clamp(numer / denom, 0.0f, 1.0f);
-            t = 1.0f - s;
+            s           = std::clamp(numer / denom, 0.0f, 1.0f);
+            t           = 1.0f - s;
         }
     }
 }
@@ -166,7 +163,8 @@ int GjkIntersection(const SupportFunction& a, const SupportFunction& b, Vector3f
             float s, t;
             NearestPointInTriangleToPoint(simplex, Point3(0.0f), s, t);
 
-            assert(s > std::numeric_limits<float>::epsilon() || t > std::numeric_limits<float>::epsilon());
+            assert(s > std::numeric_limits<float>::epsilon() ||
+                   t > std::numeric_limits<float>::epsilon());
 
             auto A = simplex[0];
             auto B = simplex[1];

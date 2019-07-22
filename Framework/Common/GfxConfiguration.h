@@ -1,5 +1,5 @@
 #pragma once
-#include <cstdint>
+#include <stdint.h>
 #include <iostream>
 
 namespace newbieGE
@@ -15,9 +15,10 @@ struct GfxConfiguration {
     /// \param[in] msaa the msaa sample count
     /// \param[in] width the screen width in pixel
     /// \param[in] height the screen height in pixel
-    GfxConfiguration(uint32_t r = 8, uint32_t g = 8, uint32_t b = 8, uint32_t a = 8, uint32_t d = 24, uint32_t s = 0,
-                     uint32_t msaa = 0, uint32_t width = 1920, uint32_t height = 1080,
-                     const char* app_name = "NewbieGameEngine")
+    GfxConfiguration(uint32_t r = 8, uint32_t g = 8,
+                     uint32_t b = 8, uint32_t a = 8,
+                     uint32_t d = 24, uint32_t s = 0, uint32_t msaa = 0,
+                     uint32_t width = 1920, uint32_t height = 1080, const char* app_name = "GameEngineFromScratch")
         : redBits(r),
           greenBits(g),
           blueBits(b),
@@ -48,9 +49,7 @@ struct GfxConfiguration {
     {
         out << "App Name:" << conf.appName << std::endl;
         out << "GfxConfiguration:"
-            << " R:" << conf.redBits << " G:" << conf.greenBits << " B:" << conf.blueBits << " A:" << conf.alphaBits
-            << " D:" << conf.depthBits << " S:" << conf.stencilBits << " M:" << conf.msaaSamples
-            << " W:" << conf.screenWidth << " H:" << conf.screenHeight << std::endl;
+            << " R:" << conf.redBits << " G:" << conf.greenBits << " B:" << conf.blueBits << " A:" << conf.alphaBits << " D:" << conf.depthBits << " S:" << conf.stencilBits << " M:" << conf.msaaSamples << " W:" << conf.screenWidth << " H:" << conf.screenHeight << std::endl;
         return out;
     }
 };

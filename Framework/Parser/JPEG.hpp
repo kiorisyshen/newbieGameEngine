@@ -133,10 +133,8 @@ struct RESTART_INTERVAL_DEF : public JPEG_SEGMENT_HEADER {
 class JfifParser : implements ImageParser
 {
    private:
-    const uint8_t m_zigzagIndex[64] = {0,  1,  8,  16, 9,  2,  3,  10, 17, 24, 32, 25, 18, 11, 4,  5,
-                                       12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6,  7,  14, 21, 28,
-                                       35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23, 30, 37, 44, 51,
-                                       58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63};
+    const uint8_t m_zigzagIndex[64] = {0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56,
+                                       57, 50, 43, 36, 29, 22, 15, 23, 30, 37, 44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63};
 
    protected:
     HuffmanTree<uint8_t>                     m_treeHuffman[4];
@@ -211,17 +209,13 @@ class JfifParser : implements ImageParser
                 const FRAME_COMPONENT_SPEC_PARAMS& fcsp = m_tableFrameComponentsSpec[i];
 #if DUMP_DETAILS
                 std::cout << "\tComponent Selector: " << (uint16_t)pScsp[i].ComponentSelector << std::endl;
-                std::cout << "\tQuantization Table Destination Selector: "
-                          << (uint16_t)fcsp.QuantizationTableDestSelector << std::endl;
-                std::cout << "\tDC Entropy Coding Table Destination Selector: "
-                          << (uint16_t)pScsp[i].DcEntropyCodingTableDestSelector() << std::endl;
-                std::cout << "\tAC Entropy Coding Table Destination Selector: "
-                          << (uint16_t)pScsp[i].AcEntropyCodingTableDestSelector() << std::endl;
+                std::cout << "\tQuantization Table Destination Selector: " << (uint16_t)fcsp.QuantizationTableDestSelector << std::endl;
+                std::cout << "\tDC Entropy Coding Table Destination Selector: " << (uint16_t)pScsp[i].DcEntropyCodingTableDestSelector() << std::endl;
+                std::cout << "\tAC Entropy Coding Table Destination Selector: " << (uint16_t)pScsp[i].AcEntropyCodingTableDestSelector() << std::endl;
 #endif
 
                 // Decode DC
-                uint8_t dc_code = m_treeHuffman[pScsp[i].DcEntropyCodingTableDestSelector()].DecodeSingleValue(
-                    scan_data.data(), scan_data.size(), &byte_offset, &bit_offset);
+                uint8_t  dc_code       = m_treeHuffman[pScsp[i].DcEntropyCodingTableDestSelector()].DecodeSingleValue(scan_data.data(), scan_data.size(), &byte_offset, &bit_offset);
                 uint8_t  dc_bit_length = dc_code & 0x0F;
                 int16_t  dc_value;
                 uint32_t tmp_value;
@@ -233,8 +227,7 @@ class JfifParser : implements ImageParser
                     dc_value = 0;
                 } else {
                     if (dc_bit_length + bit_offset <= 8) {
-                        tmp_value = ((scan_data[byte_offset] & ((0x01u << (8 - bit_offset)) - 1)) >>
-                                     (8 - dc_bit_length - bit_offset));
+                        tmp_value = ((scan_data[byte_offset] & ((0x01u << (8 - bit_offset)) - 1)) >> (8 - dc_bit_length - bit_offset));
                     } else {
                         uint8_t bits_in_first_byte = 8 - bit_offset;
                         uint8_t append_full_bytes  = (dc_bit_length - bits_in_first_byte) / 8;
@@ -280,8 +273,7 @@ class JfifParser : implements ImageParser
                 // Decode AC
                 int ac_index = 1;
                 while (byte_offset < scan_data.size() && ac_index < 64) {
-                    uint8_t ac_code = m_treeHuffman[2 + pScsp[i].AcEntropyCodingTableDestSelector()].DecodeSingleValue(
-                        scan_data.data(), scan_data.size(), &byte_offset, &bit_offset);
+                    uint8_t ac_code = m_treeHuffman[2 + pScsp[i].AcEntropyCodingTableDestSelector()].DecodeSingleValue(scan_data.data(), scan_data.size(), &byte_offset, &bit_offset);
 
                     if (!ac_code) {
 #if DUMP_DETAILS
@@ -302,8 +294,7 @@ class JfifParser : implements ImageParser
                     int16_t ac_value;
 
                     if (ac_bit_length + bit_offset <= 8) {
-                        tmp_value = ((scan_data[byte_offset] & ((0x01u << (8 - bit_offset)) - 1)) >>
-                                     (8 - ac_bit_length - bit_offset));
+                        tmp_value = ((scan_data[byte_offset] & ((0x01u << (8 - bit_offset)) - 1)) >> (8 - ac_bit_length - bit_offset));
                     } else {
                         uint8_t bits_in_first_byte = 8 - bit_offset;
                         uint8_t append_full_bytes  = (ac_bit_length - bits_in_first_byte) / 8;
@@ -373,8 +364,7 @@ class JfifParser : implements ImageParser
                         ycbcr[k] = block[k][i][j];
                     }
 
-                    pBuf = reinterpret_cast<uint8_t*>(img.data) +
-                           (img.pitch * (mcu_index_y * 8 + i) + (mcu_index_x * 8 + j) * (img.bitcount >> 3));
+                    pBuf                                            = reinterpret_cast<uint8_t*>(img.data) + (img.pitch * (mcu_index_y * 8 + i) + (mcu_index_x * 8 + j) * (img.bitcount >> 3));
                     rgb                                             = ConvertYCbCr2RGB(ycbcr);
                     reinterpret_cast<R8G8B8A8Unorm*>(pBuf)->data[0] = (uint8_t)rgb[0];
                     reinterpret_cast<R8G8B8A8Unorm*>(pBuf)->data[1] = (uint8_t)rgb[1];
@@ -432,12 +422,12 @@ class JfifParser : implements ImageParser
                         const FRAME_HEADER* pFrameHeader = reinterpret_cast<const FRAME_HEADER*>(pData);
                         m_nSamplePrecision               = pFrameHeader->SamplePrecision;
                         m_nLines                         = endian_net_unsigned_int((uint16_t)pFrameHeader->NumOfLines);
-                        m_nSamplesPerLine    = endian_net_unsigned_int((uint16_t)pFrameHeader->NumOfSamplesPerLine);
-                        m_nComponentsInFrame = pFrameHeader->NumOfComponentsInFrame;
-                        mcu_index            = 0;
-                        mcu_count_x          = ((m_nSamplesPerLine + 7) >> 3);
-                        mcu_count_y          = ((m_nLines + 7) >> 3);
-                        mcu_count            = mcu_count_x * mcu_count_y;
+                        m_nSamplesPerLine                = endian_net_unsigned_int((uint16_t)pFrameHeader->NumOfSamplesPerLine);
+                        m_nComponentsInFrame             = pFrameHeader->NumOfComponentsInFrame;
+                        mcu_index                        = 0;
+                        mcu_count_x                      = ((m_nSamplesPerLine + 7) >> 3);
+                        mcu_count_y                      = ((m_nLines + 7) >> 3);
+                        mcu_count                        = mcu_count_x * mcu_count_y;
 
                         std::cout << "Sample Precision: " << m_nSamplePrecision << std::endl;
                         std::cout << "Num of Lines: " << m_nLines << std::endl;
@@ -445,18 +435,13 @@ class JfifParser : implements ImageParser
                         std::cout << "Num of Components In Frame: " << m_nComponentsInFrame << std::endl;
                         std::cout << "Total MCU count: " << mcu_count << std::endl;
 
-                        const uint8_t*                     pTmp = pData + sizeof(FRAME_HEADER);
-                        const FRAME_COMPONENT_SPEC_PARAMS* pFcsp =
-                            reinterpret_cast<const FRAME_COMPONENT_SPEC_PARAMS*>(pTmp);
+                        const uint8_t*                     pTmp  = pData + sizeof(FRAME_HEADER);
+                        const FRAME_COMPONENT_SPEC_PARAMS* pFcsp = reinterpret_cast<const FRAME_COMPONENT_SPEC_PARAMS*>(pTmp);
                         for (uint8_t i = 0; i < pFrameHeader->NumOfComponentsInFrame; i++) {
-                            std::cout << "\tComponent Identifier: " << (uint16_t)pFcsp->ComponentIdentifier
-                                      << std::endl;
-                            std::cout << "\tHorizontal Sampling Factor: " << (uint16_t)pFcsp->HorizontalSamplingFactor()
-                                      << std::endl;
-                            std::cout << "\tVertical Sampling Factor: " << (uint16_t)pFcsp->VerticalSamplingFactor()
-                                      << std::endl;
-                            std::cout << "\tQuantization Table Destination Selector: "
-                                      << (uint16_t)pFcsp->QuantizationTableDestSelector << std::endl;
+                            std::cout << "\tComponent Identifier: " << (uint16_t)pFcsp->ComponentIdentifier << std::endl;
+                            std::cout << "\tHorizontal Sampling Factor: " << (uint16_t)pFcsp->HorizontalSamplingFactor() << std::endl;
+                            std::cout << "\tVertical Sampling Factor: " << (uint16_t)pFcsp->VerticalSamplingFactor() << std::endl;
+                            std::cout << "\tQuantization Table Destination Selector: " << (uint16_t)pFcsp->QuantizationTableDestSelector << std::endl;
                             std::cout << std::endl;
                             m_tableFrameComponentsSpec.push_back(*pFcsp);
                             pFcsp++;
@@ -484,12 +469,9 @@ class JfifParser : implements ImageParser
                             std::cout << "Table Class: " << pHtable->TableClass() << std::endl;
                             std::cout << "Destination Identifier: " << pHtable->DestinationIdentifier() << std::endl;
 
-                            const uint8_t* pCodeValueStart =
-                                reinterpret_cast<const uint8_t*>(pHtable) + sizeof(HUFFMAN_TABLE_SPEC);
+                            const uint8_t* pCodeValueStart = reinterpret_cast<const uint8_t*>(pHtable) + sizeof(HUFFMAN_TABLE_SPEC);
 
-                            auto num_symbo =
-                                m_treeHuffman[(pHtable->TableClass() << 1) | pHtable->DestinationIdentifier()]
-                                    .PopulateWithHuffmanTable(pHtable->NumOfHuffmanCodes, pCodeValueStart);
+                            auto num_symbo = m_treeHuffman[(pHtable->TableClass() << 1) | pHtable->DestinationIdentifier()].PopulateWithHuffmanTable(pHtable->NumOfHuffmanCodes, pCodeValueStart);
 
 #ifdef DUMP_DETAILS
                             m_treeHuffman[(pHtable->TableClass() << 1) | pHtable->DestinationIdentifier()].Dump();
@@ -510,30 +492,25 @@ class JfifParser : implements ImageParser
                         const uint8_t* pTmp = pData + sizeof(JPEG_SEGMENT_HEADER);
 
                         while (segmentLength > 0) {
-                            const QUANTIZATION_TABLE_SPEC* pQtable =
-                                reinterpret_cast<const QUANTIZATION_TABLE_SPEC*>(pTmp);
+                            const QUANTIZATION_TABLE_SPEC* pQtable = reinterpret_cast<const QUANTIZATION_TABLE_SPEC*>(pTmp);
                             std::cout << "Element Precision: " << pQtable->ElementPrecision() << std::endl;
                             std::cout << "Destination Identifier: " << pQtable->DestinationIdentifier() << std::endl;
 
-                            const uint8_t* pElementDataStart =
-                                reinterpret_cast<const uint8_t*>(pQtable) + sizeof(QUANTIZATION_TABLE_SPEC);
+                            const uint8_t* pElementDataStart = reinterpret_cast<const uint8_t*>(pQtable) + sizeof(QUANTIZATION_TABLE_SPEC);
 
                             for (int i = 0; i < 64; i++) {
                                 int index = m_zigzagIndex[i];
                                 if (pQtable->ElementPrecision() == 0) {
-                                    m_tableQuantization[pQtable->DestinationIdentifier()][index >> 3][index & 0x7] =
-                                        pElementDataStart[i];
+                                    m_tableQuantization[pQtable->DestinationIdentifier()][index >> 3][index & 0x7] = pElementDataStart[i];
                                 } else {
-                                    m_tableQuantization[pQtable->DestinationIdentifier()][index >> 3][index & 0x7] =
-                                        endian_net_unsigned_int(*((uint16_t*)pElementDataStart + i));
+                                    m_tableQuantization[pQtable->DestinationIdentifier()][index >> 3][index & 0x7] = endian_net_unsigned_int(*((uint16_t*)pElementDataStart + i));
                                 }
                             }
 #ifdef DUMP_DETAILS
                             std::cout << m_tableQuantization[pQtable->DestinationIdentifier()];
 #endif
 
-                            size_t processed_length =
-                                sizeof(QUANTIZATION_TABLE_SPEC) + 64 * (pQtable->ElementPrecision() + 1);
+                            size_t processed_length = sizeof(QUANTIZATION_TABLE_SPEC) + 64 * (pQtable->ElementPrecision() + 1);
                             pTmp += processed_length;
                             segmentLength -= processed_length;
                         }
@@ -544,7 +521,7 @@ class JfifParser : implements ImageParser
                         std::cout << "----------------------------" << std::endl;
 
                         RESTART_INTERVAL_DEF* pRestartHeader = (RESTART_INTERVAL_DEF*)pData;
-                        m_nRestartInterval = endian_net_unsigned_int((uint16_t)pRestartHeader->RestartInterval);
+                        m_nRestartInterval                   = endian_net_unsigned_int((uint16_t)pRestartHeader->RestartInterval);
                         std::cout << "Restart interval: " << m_nRestartInterval << std::endl;
                         pData += endian_net_unsigned_int(pSegmentHeader->Length) + 2 /* length of marker */;
                     } break;
@@ -553,8 +530,7 @@ class JfifParser : implements ImageParser
                         std::cout << "----------------------------" << std::endl;
 
                         SCAN_HEADER* pScanHeader = (SCAN_HEADER*)pData;
-                        std::cout << "Image Conponents in Scan: " << (uint16_t)pScanHeader->NumOfComponents
-                                  << std::endl;
+                        std::cout << "Image Conponents in Scan: " << (uint16_t)pScanHeader->NumOfComponents << std::endl;
                         assert(pScanHeader->NumOfComponents == m_nComponentsInFrame);
 
                         const uint8_t* pTmp = pData + sizeof(SCAN_HEADER);
@@ -563,8 +539,7 @@ class JfifParser : implements ImageParser
                         const uint8_t* pScanData = pData + endian_net_unsigned_int((uint16_t)pScanHeader->Length) + 2;
 
                         scanLength = parseScanData(pScanData, pDataEnd, img);
-                        pData +=
-                            endian_net_unsigned_int(pSegmentHeader->Length) + 2 + scanLength /* length of marker */;
+                        pData += endian_net_unsigned_int(pSegmentHeader->Length) + 2 + scanLength /* length of marker */;
                     } break;
                     case 0xFFD0:
                     case 0xFFD1:
@@ -597,11 +572,7 @@ class JfifParser : implements ImageParser
                                 std::cout << "----------------------------" << std::endl;
                                 std::cout << "JFIF Version: " << (uint16_t)pJfifApp0->MajorVersion << "."
                                           << (uint16_t)pJfifApp0->MinorVersion << std::endl;
-                                std::cout << "Density Units: "
-                                          << ((pJfifApp0->DensityUnits == 0)
-                                                  ? "No units"
-                                                  : ((pJfifApp0->DensityUnits == 1) ? "Pixels per inch"
-                                                                                    : "Pixels per centimeter"))
+                                std::cout << "Density Units: " << ((pJfifApp0->DensityUnits == 0) ? "No units" : ((pJfifApp0->DensityUnits == 1) ? "Pixels per inch" : "Pixels per centimeter"))
                                           << std::endl;
                                 std::cout << "Density: " << endian_net_unsigned_int(pJfifApp0->Xdensity) << "*"
                                           << endian_net_unsigned_int(pJfifApp0->Ydensity) << std::endl;
@@ -641,8 +612,7 @@ class JfifParser : implements ImageParser
                         pData += endian_net_unsigned_int(pSegmentHeader->Length) + 2 /* length of marker */;
                     } break;
                     default: {
-                        std::printf("Ignor Unrecognized Segment. Marker=%0x\n",
-                                    endian_net_unsigned_int(pSegmentHeader->Marker));
+                        std::printf("Ignor Unrecognized Segment. Marker=%0x\n", endian_net_unsigned_int(pSegmentHeader->Marker));
                         pData += endian_net_unsigned_int(pSegmentHeader->Length) + 2 /* length of marker */;
                     } break;
                 }

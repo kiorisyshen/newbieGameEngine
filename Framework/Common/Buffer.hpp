@@ -10,11 +10,13 @@ namespace newbieGE
 class Buffer
 {
    public:
-    Buffer() : m_pData(nullptr), m_szSize(0), m_szAlignment(alignof(uint32_t))
+    Buffer()
+        : m_pData(nullptr), m_szSize(0), m_szAlignment(alignof(uint32_t))
     {
     }
 
-    Buffer(size_t size, size_t alignment = 4) : m_szSize(size), m_szAlignment(alignment)
+    Buffer(size_t size, size_t alignment = 4)
+        : m_szSize(size), m_szAlignment(alignment)
     {
         m_pData = reinterpret_cast<uint8_t*>(g_pMemoryManager->Allocate(size, alignment));
     }

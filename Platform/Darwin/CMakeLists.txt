@@ -13,6 +13,8 @@ add_library(PlatformInterface
 target_link_libraries(PlatformInterface ${COCOA_LIBRARY} ${OPENGL_LIBRARY}
                       # dl
                       )
+target_include_directories(PlatformInterface PUBLIC GeomMath)
+target_link_libraries(PlatformInterface GeomMath)
 
 # newbieGameEngine Metal
 add_library(newbieGameEngine CocoaMetalApplicationConfig.cpp)

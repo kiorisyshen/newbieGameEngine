@@ -18,8 +18,6 @@ Interface IApplication : implements IRuntimeModule
 
     virtual bool IsQuit() const = 0;
 
-    virtual void OnDraw() = 0;
-
     virtual const GfxConfiguration& GetConfiguration() const = 0;
 };
 

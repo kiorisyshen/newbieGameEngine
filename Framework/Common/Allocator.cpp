@@ -146,7 +146,8 @@ void newbieGE::Allocator::FillFreeBlock(BlockHeader* pBlock)
     memset(pBlock, PATTERN_FREE, m_szBlockSize - m_szAlignmentSize);
 
     // alignment
-    memset(reinterpret_cast<uint8_t*>(pBlock) + m_szBlockSize - m_szAlignmentSize, PATTERN_ALIGN, m_szAlignmentSize);
+    memset(reinterpret_cast<uint8_t*>(pBlock) + m_szBlockSize - m_szAlignmentSize,
+           PATTERN_ALIGN, m_szAlignmentSize);
 }
 
 void newbieGE::Allocator::FillAllocatedBlock(BlockHeader* pBlock)
@@ -155,7 +156,8 @@ void newbieGE::Allocator::FillAllocatedBlock(BlockHeader* pBlock)
     memset(pBlock, PATTERN_ALLOC, m_szBlockSize - m_szAlignmentSize);
 
     // alignment
-    memset(reinterpret_cast<uint8_t*>(pBlock) + m_szBlockSize - m_szAlignmentSize, PATTERN_ALIGN, m_szAlignmentSize);
+    memset(reinterpret_cast<uint8_t*>(pBlock) + m_szBlockSize - m_szAlignmentSize,
+           PATTERN_ALIGN, m_szAlignmentSize);
 }
 
 #endif

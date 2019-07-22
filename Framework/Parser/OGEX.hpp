@@ -1,6 +1,10 @@
 #include <unordered_map>
 #include "Bezier.hpp"
+#include "Curve.hpp"
+#include "Linear.hpp"
 #include "OpenGEX.h"
+#include "SceneNode.hpp"
+#include "SceneObject.hpp"
 #include "SceneParser.hpp"
 #include "portable.hpp"
 
@@ -9,8 +13,7 @@ namespace newbieGE
 class OgexParser : implements SceneParser
 {
    private:
-    void ConvertOddlStructureToSceneNode(const ODDL::Structure& structure, std::shared_ptr<BaseSceneNode>& base_node,
-                                         Scene& scene)
+    void ConvertOddlStructureToSceneNode(const ODDL::Structure& structure, std::shared_ptr<BaseSceneNode>& base_node, Scene& scene)
     {
         std::shared_ptr<BaseSceneNode> node;
 
@@ -20,9 +23,8 @@ class OgexParser : implements SceneParser
                 auto                         _key          = _structure.GetMetricKey();
                 const ODDL::Structure*       sub_structure = _structure.GetFirstCoreSubnode();
                 if (_key == "up") {
-                    const ODDL::DataStructure<ODDL::StringDataType>* dataStructure =
-                        static_cast<const ODDL::DataStructure<ODDL::StringDataType>*>(sub_structure);
-                    auto axis_name = dataStructure->GetDataElement(0);
+                    const ODDL::DataStructure<ODDL::StringDataType>* dataStructure = static_cast<const ODDL::DataStructure<ODDL::StringDataType>*>(sub_structure);
+                    auto                                             axis_name     = dataStructure->GetDataElement(0);
                     if (axis_name == "y") {
                         m_bUpIsYAxis = true;
                     } else {
@@ -34,11 +36,16 @@ class OgexParser : implements SceneParser
             case OGEX::kStructureNode: {
                 node = std::make_shared<SceneEmptyNode>(structure.GetStructureName());
             } break;
+            case OGEX::kStructureBoneNode: {
+                auto        _node = std::make_shared<SceneBoneNode>(structure.GetStructureName());
+                std::string _key  = structure.GetStructureName();
+                scene.BoneNodes.emplace(_key, _node);
+                node = _node;
+            } break;
             case OGEX::kStructureGeometryNode: {
-                std::string                        _key  = structure.GetStructureName();
-                auto                               _node = std::make_shared<SceneGeometryNode>(_key);
-                const OGEX::GeometryNodeStructure& _structure =
-                    dynamic_cast<const OGEX::GeometryNodeStructure&>(structure);
+                std::string                        _key       = structure.GetStructureName();
+                auto                               _node      = std::make_shared<SceneGeometryNode>(_key);
+                const OGEX::GeometryNodeStructure& _structure = dynamic_cast<const OGEX::GeometryNodeStructure&>(structure);
 
                 _node->SetVisibility(_structure.GetVisibleFlag());
                 _node->SetIfCastShadow(_structure.GetShadowFlag());
@@ -90,10 +97,9 @@ class OgexParser : implements SceneParser
                 node = _node;
             } break;
             case OGEX::kStructureGeometryObject: {
-                const OGEX::GeometryObjectStructure& _structure =
-                    dynamic_cast<const OGEX::GeometryObjectStructure&>(structure);
-                std::string _key    = _structure.GetStructureName();
-                auto        _object = std::make_shared<SceneObjectGeometry>();
+                const OGEX::GeometryObjectStructure& _structure = dynamic_cast<const OGEX::GeometryObjectStructure&>(structure);
+                std::string                          _key       = _structure.GetStructureName();
+                auto                                 _object    = std::make_shared<SceneObjectGeometry>();
 
                 // properties
                 _object->SetVisibility(_structure.GetVisibleFlag());
@@ -104,22 +110,19 @@ class OgexParser : implements SceneParser
                 //// collision shape
                 ODDL::Structure* extension = _structure.GetFirstExtensionSubnode();
                 while (extension) {
-                    const OGEX::ExtensionStructure* _extension =
-                        dynamic_cast<const OGEX::ExtensionStructure*>(extension);
-                    auto _appid = _extension->GetApplicationString();
+                    const OGEX::ExtensionStructure* _extension = dynamic_cast<const OGEX::ExtensionStructure*>(extension);
+                    auto                            _appid     = _extension->GetApplicationString();
                     if (_appid == "MyGameEngine") {
                         auto _type = _extension->GetTypeString();
                         if (_type == "collision") {
-                            const ODDL::Structure*                           sub_structure = _extension->GetFirstCoreSubnode();
-                            const ODDL::DataStructure<ODDL::StringDataType>* dataStructure1 =
-                                static_cast<const ODDL::DataStructure<ODDL::StringDataType>*>(sub_structure);
-                            auto collision_type = dataStructure1->GetDataElement(0);
+                            const ODDL::Structure*                           sub_structure  = _extension->GetFirstCoreSubnode();
+                            const ODDL::DataStructure<ODDL::StringDataType>* dataStructure1 = static_cast<const ODDL::DataStructure<ODDL::StringDataType>*>(sub_structure);
+                            auto                                             collision_type = dataStructure1->GetDataElement(0);
 
-                            sub_structure = _extension->GetLastCoreSubnode();
-                            const ODDL::DataStructure<ODDL::FloatDataType>* dataStructure2 =
-                                static_cast<const ODDL::DataStructure<ODDL::FloatDataType>*>(sub_structure);
-                            auto   elementCount = dataStructure2->GetDataElementCount();
-                            float* _data        = (float*)&dataStructure2->GetDataElement(0);
+                            sub_structure                                                  = _extension->GetLastCoreSubnode();
+                            const ODDL::DataStructure<ODDL::FloatDataType>* dataStructure2 = static_cast<const ODDL::DataStructure<ODDL::FloatDataType>*>(sub_structure);
+                            auto                                            elementCount   = dataStructure2->GetDataElementCount();
+                            float*                                          _data          = (float*)&dataStructure2->GetDataElement(0);
                             if (collision_type == "plane") {
                                 _object->SetCollisionType(SceneObjectCollisionType::kSceneObjectCollisionTypePlane);
                                 _object->SetCollisionParameters(_data, elementCount);
@@ -164,14 +167,12 @@ class OgexParser : implements SceneParser
                         while (sub_structure) {
                             switch (sub_structure->GetStructureType()) {
                                 case OGEX::kStructureVertexArray: {
-                                    const OGEX::VertexArrayStructure* _v =
-                                        dynamic_cast<const OGEX::VertexArrayStructure*>(sub_structure);
-                                    const char* attr        = _v->GetArrayAttrib();
-                                    auto        morph_index = _v->GetMorphIndex();
+                                    const OGEX::VertexArrayStructure* _v          = dynamic_cast<const OGEX::VertexArrayStructure*>(sub_structure);
+                                    const char*                       attr        = _v->GetArrayAttrib();
+                                    auto                              morph_index = _v->GetMorphIndex();
 
                                     const ODDL::Structure*                    _data_structure = _v->GetFirstCoreSubnode();
-                                    const ODDL::DataStructure<FloatDataType>* dataStructure =
-                                        dynamic_cast<const ODDL::DataStructure<FloatDataType>*>(_data_structure);
+                                    const ODDL::DataStructure<FloatDataType>* dataStructure   = dynamic_cast<const ODDL::DataStructure<FloatDataType>*>(_data_structure);
 
                                     auto        arraySize    = dataStructure->GetArraySize();
                                     auto        elementCount = dataStructure->GetDataElementCount();
@@ -196,55 +197,45 @@ class OgexParser : implements SceneParser
                                         default:
                                             continue;
                                     }
-                                    SceneObjectVertexArray& _v_array = *new SceneObjectVertexArray(
-                                        attr, morph_index, vertexDataType, data, elementCount);
+                                    SceneObjectVertexArray& _v_array = *new SceneObjectVertexArray(attr, morph_index, vertexDataType, data, elementCount);
                                     mesh->AddVertexArray(std::move(_v_array));
                                 } break;
                                 case OGEX::kStructureIndexArray: {
-                                    const OGEX::IndexArrayStructure* _i =
-                                        dynamic_cast<const OGEX::IndexArrayStructure*>(sub_structure);
-                                    auto                   material_index  = _i->GetMaterialIndex();
-                                    auto                   restart_index   = _i->GetRestartIndex();
-                                    const ODDL::Structure* _data_structure = _i->GetFirstCoreSubnode();
-                                    ODDL::StructureType    type            = _data_structure->GetStructureType();
-                                    int32_t                elementCount    = 0;
-                                    const void*            _data           = nullptr;
-                                    IndexDataType          index_type      = IndexDataType::kIndexDataTypeInt16;
+                                    const OGEX::IndexArrayStructure* _i              = dynamic_cast<const OGEX::IndexArrayStructure*>(sub_structure);
+                                    auto                             material_index  = _i->GetMaterialIndex();
+                                    auto                             restart_index   = _i->GetRestartIndex();
+                                    const ODDL::Structure*           _data_structure = _i->GetFirstCoreSubnode();
+                                    ODDL::StructureType              type            = _data_structure->GetStructureType();
+                                    int32_t                          elementCount    = 0;
+                                    const void*                      _data           = nullptr;
+                                    IndexDataType                    index_type      = IndexDataType::kIndexDataTypeInt16;
                                     switch (type) {
                                         case ODDL::kDataUnsignedInt8: {
-                                            index_type = IndexDataType::kIndexDataTypeInt8;
-                                            const ODDL::DataStructure<UnsignedInt8DataType>* dataStructure =
-                                                dynamic_cast<const ODDL::DataStructure<UnsignedInt8DataType>*>(
-                                                    _data_structure);
-                                            elementCount = dataStructure->GetDataElementCount();
-                                            _data        = &dataStructure->GetDataElement(0);
+                                            index_type                                                     = IndexDataType::kIndexDataTypeInt8;
+                                            const ODDL::DataStructure<UnsignedInt8DataType>* dataStructure = dynamic_cast<const ODDL::DataStructure<UnsignedInt8DataType>*>(_data_structure);
+                                            elementCount                                                   = dataStructure->GetDataElementCount();
+                                            _data                                                          = &dataStructure->GetDataElement(0);
 
                                         } break;
                                         case ODDL::kDataUnsignedInt16: {
-                                            index_type = IndexDataType::kIndexDataTypeInt16;
-                                            const ODDL::DataStructure<UnsignedInt16DataType>* dataStructure =
-                                                dynamic_cast<const ODDL::DataStructure<UnsignedInt16DataType>*>(
-                                                    _data_structure);
-                                            elementCount = dataStructure->GetDataElementCount();
-                                            _data        = &dataStructure->GetDataElement(0);
+                                            index_type                                                      = IndexDataType::kIndexDataTypeInt16;
+                                            const ODDL::DataStructure<UnsignedInt16DataType>* dataStructure = dynamic_cast<const ODDL::DataStructure<UnsignedInt16DataType>*>(_data_structure);
+                                            elementCount                                                    = dataStructure->GetDataElementCount();
+                                            _data                                                           = &dataStructure->GetDataElement(0);
 
                                         } break;
                                         case ODDL::kDataUnsignedInt32: {
-                                            index_type = IndexDataType::kIndexDataTypeInt32;
-                                            const ODDL::DataStructure<UnsignedInt32DataType>* dataStructure =
-                                                dynamic_cast<const ODDL::DataStructure<UnsignedInt32DataType>*>(
-                                                    _data_structure);
-                                            elementCount = dataStructure->GetDataElementCount();
-                                            _data        = &dataStructure->GetDataElement(0);
+                                            index_type                                                      = IndexDataType::kIndexDataTypeInt32;
+                                            const ODDL::DataStructure<UnsignedInt32DataType>* dataStructure = dynamic_cast<const ODDL::DataStructure<UnsignedInt32DataType>*>(_data_structure);
+                                            elementCount                                                    = dataStructure->GetDataElementCount();
+                                            _data                                                           = &dataStructure->GetDataElement(0);
 
                                         } break;
                                         case ODDL::kDataUnsignedInt64: {
-                                            index_type = IndexDataType::kIndexDataTypeInt64;
-                                            const ODDL::DataStructure<UnsignedInt64DataType>* dataStructure =
-                                                dynamic_cast<const ODDL::DataStructure<UnsignedInt64DataType>*>(
-                                                    _data_structure);
-                                            elementCount = dataStructure->GetDataElementCount();
-                                            _data        = &dataStructure->GetDataElement(0);
+                                            index_type                                                      = IndexDataType::kIndexDataTypeInt64;
+                                            const ODDL::DataStructure<UnsignedInt64DataType>* dataStructure = dynamic_cast<const ODDL::DataStructure<UnsignedInt64DataType>*>(_data_structure);
+                                            elementCount                                                    = dataStructure->GetDataElementCount();
+                                            _data                                                           = &dataStructure->GetDataElement(0);
 
                                         } break;
                                         default:;
@@ -270,8 +261,7 @@ class OgexParser : implements SceneParser
                                     size_t buf_size = elementCount * data_size;
                                     void*  data     = new uint8_t[buf_size];
                                     memcpy(data, _data, buf_size);
-                                    SceneObjectIndexArray& _i_array = *new SceneObjectIndexArray(
-                                        material_index, restart_index, index_type, data, elementCount);
+                                    SceneObjectIndexArray& _i_array = *new SceneObjectIndexArray(material_index, restart_index, index_type, data, elementCount);
                                     mesh->AddIndexArray(std::move(_i_array));
 
                                 } break;
@@ -314,8 +304,7 @@ class OgexParser : implements SceneParser
             }
                 return;
             case OGEX::kStructureTranslation: {
-                const OGEX::TranslationStructure& _structure =
-                    dynamic_cast<const OGEX::TranslationStructure&>(structure);
+                const OGEX::TranslationStructure&       _structure  = dynamic_cast<const OGEX::TranslationStructure&>(structure);
                 bool                                    object_flag = _structure.GetObjectFlag();
                 std::shared_ptr<SceneObjectTranslation> translation;
 
@@ -344,14 +333,32 @@ class OgexParser : implements SceneParser
                 } else if (kind == "z") {
                     rotation = std::make_shared<SceneObjectRotation>('z', data[0], object_flag);
                 } else if (kind == "axis") {
-                    rotation = std::make_shared<SceneObjectRotation>(Vector3f({data[0], data[1], data[2]}), data[3],
-                                                                     object_flag);
+                    rotation = std::make_shared<SceneObjectRotation>(Vector3f({data[0], data[1], data[2]}), data[3], object_flag);
                 } else if (kind == "quaternion") {
-                    rotation = std::make_shared<SceneObjectRotation>(Quaternion({data[0], data[1], data[2], data[3]}),
-                                                                     object_flag);
+                    rotation = std::make_shared<SceneObjectRotation>(Quaternion<float>({data[0], data[1], data[2], data[3]}), object_flag);
                 }
                 auto _key = _structure.GetStructureName();
                 base_node->AppendTransform(_key, std::move(rotation));
+            }
+                return;
+            case OGEX::kStructureScale: {
+                const OGEX::ScaleStructure&       _structure  = dynamic_cast<const OGEX::ScaleStructure&>(structure);
+                bool                              object_flag = _structure.GetObjectFlag();
+                std::shared_ptr<SceneObjectScale> scale;
+
+                auto kind = _structure.GetScaleKind();
+                auto data = _structure.GetScale();
+                if (kind == "x") {
+                    scale = std::make_shared<SceneObjectScale>('x', data[0], object_flag);
+                } else if (kind == "y") {
+                    scale = std::make_shared<SceneObjectScale>('y', data[0], object_flag);
+                } else if (kind == "z") {
+                    scale = std::make_shared<SceneObjectScale>('z', data[0], object_flag);
+                } else if (kind == "xyz") {
+                    scale = std::make_shared<SceneObjectScale>(data[0], data[1], data[2], object_flag);
+                }
+                auto _key = _structure.GetStructureName();
+                base_node->AppendTransform(_key, std::move(scale));
             }
                 return;
             case OGEX::kStructureMaterial: {
@@ -392,11 +399,10 @@ class OgexParser : implements SceneParser
             }
                 return;
             case OGEX::kStructureLightObject: {
-                const OGEX::LightObjectStructure& _structure =
-                    dynamic_cast<const OGEX::LightObjectStructure&>(structure);
-                const char*                       _type_str = _structure.GetTypeString();
-                const bool                        _bshadow  = _structure.GetShadowFlag();
-                std::string                       _key      = _structure.GetStructureName();
+                const OGEX::LightObjectStructure& _structure = dynamic_cast<const OGEX::LightObjectStructure&>(structure);
+                const char*                       _type_str  = _structure.GetTypeString();
+                const bool                        _bshadow   = _structure.GetShadowFlag();
+                std::string                       _key       = _structure.GetStructureName();
                 std::shared_ptr<SceneObjectLight> light;
 
                 if (!strncmp(_type_str, "infinite", 8)) {
@@ -443,10 +449,9 @@ class OgexParser : implements SceneParser
             }
                 return;
             case OGEX::kStructureCameraObject: {
-                const OGEX::CameraObjectStructure& _structure =
-                    dynamic_cast<const OGEX::CameraObjectStructure&>(structure);
-                std::string _key   = _structure.GetStructureName();
-                auto        camera = std::make_shared<SceneObjectPerspectiveCamera>();
+                const OGEX::CameraObjectStructure& _structure = dynamic_cast<const OGEX::CameraObjectStructure&>(structure);
+                std::string                        _key       = _structure.GetStructureName();
+                auto                               camera     = std::make_shared<SceneObjectPerspectiveCamera>();
 
                 const ODDL::Structure* _sub_structure = _structure.GetFirstCoreSubnode();
                 while (_sub_structure) {
@@ -478,64 +483,141 @@ class OgexParser : implements SceneParser
             }
                 return;
             case OGEX::kStructureAnimation: {
-                const OGEX::AnimationStructure& _structure = dynamic_cast<const OGEX::AnimationStructure&>(structure);
-                auto                            clip_index = _structure.GetClipIndex();
-                auto                            clip       = std::make_shared<SceneObjectAnimationClip>(clip_index);
+                const OGEX::AnimationStructure&           _structure = dynamic_cast<const OGEX::AnimationStructure&>(structure);
+                auto                                      clip_index = _structure.GetClipIndex();
+                std::shared_ptr<SceneObjectAnimationClip> clip       = std::make_shared<SceneObjectAnimationClip>(clip_index);
 
                 const ODDL::Structure* _sub_structure = _structure.GetFirstCoreSubnode();
                 while (_sub_structure) {
                     switch (_sub_structure->GetStructureType()) {
                         case OGEX::kStructureTrack: {
-                            const OGEX::TrackStructure& track_structure =
-                                dynamic_cast<const OGEX::TrackStructure&>(*_sub_structure);
-                            const OGEX::TimeStructure& time_structure =
-                                dynamic_cast<const OGEX::TimeStructure&>(*track_structure.GetTimeStructure());
-                            const OGEX::ValueStructure& value_structure =
-                                dynamic_cast<const OGEX::ValueStructure&>(*track_structure.GetValueStructure());
-                            std::shared_ptr<Curve<float>> time_curve;
-                            std::shared_ptr<Curve<float>> value_curve;
-                            std::vector<float>            time_knots;
-                            if (time_structure.GetCurveType() == "bezier") {
-                                auto key_value            = time_structure.GetKeyValueStructure();
-                                auto key_incoming_control = time_structure.GetKeyControlStructure(0);
-                                auto key_outgoing_control = time_structure.GetKeyControlStructure(1);
-                                auto key_data_count       = time_structure.GetKeyDataElementCount();
-
-                                const ODDL::DataStructure<ODDL::FloatDataType>* dataStructure =
-                                    static_cast<const ODDL::DataStructure<ODDL::FloatDataType>*>(
-                                        key_value->GetFirstCoreSubnode());
-                                const float* knots = &dataStructure->GetDataElement(0);
-                                dataStructure      = static_cast<const ODDL::DataStructure<ODDL::FloatDataType>*>(
-                                    key_incoming_control->GetFirstCoreSubnode());
-                                const float* in_cp = &dataStructure->GetDataElement(0);
-                                dataStructure      = static_cast<const ODDL::DataStructure<ODDL::FloatDataType>*>(
-                                    key_outgoing_control->GetFirstCoreSubnode());
-                                const float* out_cp = &dataStructure->GetDataElement(0);
-                                time_curve          = std::make_shared<Bezier<float>>(knots, in_cp, out_cp, key_data_count);
-                            }
-                            if (value_structure.GetCurveType() == "bezier") {
-                                auto key_value            = value_structure.GetKeyValueStructure();
-                                auto key_incoming_control = value_structure.GetKeyControlStructure(0);
-                                auto key_outgoing_control = value_structure.GetKeyControlStructure(1);
-                                auto key_data_count       = value_structure.GetKeyDataElementCount();
-
-                                const ODDL::DataStructure<ODDL::FloatDataType>* dataStructure =
-                                    static_cast<const ODDL::DataStructure<ODDL::FloatDataType>*>(
-                                        key_value->GetFirstCoreSubnode());
-                                const float* knots = &dataStructure->GetDataElement(0);
-                                dataStructure      = static_cast<const ODDL::DataStructure<ODDL::FloatDataType>*>(
-                                    key_incoming_control->GetFirstCoreSubnode());
-                                const float* in_cp = &dataStructure->GetDataElement(0);
-                                dataStructure      = static_cast<const ODDL::DataStructure<ODDL::FloatDataType>*>(
-                                    key_outgoing_control->GetFirstCoreSubnode());
-                                const float* out_cp = &dataStructure->GetDataElement(0);
-                                value_curve         = std::make_shared<Bezier<float>>(knots, in_cp, out_cp, key_data_count);
-                            }
-                            auto                                  ref = track_structure.GetTargetRef();
+                            const OGEX::TrackStructure&           track_structure = dynamic_cast<const OGEX::TrackStructure&>(*_sub_structure);
+                            const OGEX::TimeStructure&            time_structure  = dynamic_cast<const OGEX::TimeStructure&>(*track_structure.GetTimeStructure());
+                            const OGEX::ValueStructure&           value_structure = dynamic_cast<const OGEX::ValueStructure&>(*track_structure.GetValueStructure());
+                            auto                                  ref             = track_structure.GetTargetRef();
                             std::string                           _key(*ref.GetNameArray());
                             std::shared_ptr<SceneObjectTransform> trans;
-                            trans      = base_node->GetTransform(_key);
-                            auto track = std::make_shared<SceneObjectTrack>(trans, time_curve, value_curve);
+                            trans = base_node->GetTransform(_key);
+                            std::shared_ptr<SceneObjectTrack> track;
+
+                            auto time_key_value      = time_structure.GetKeyValueStructure();
+                            auto time_key_data_count = time_structure.GetKeyDataElementCount();
+                            auto dataStructure =
+                                static_cast<const ODDL::DataStructure<ODDL::FloatDataType>*>(time_key_value->GetFirstCoreSubnode());
+                            auto         time_array_size = dataStructure->GetArraySize();
+                            const float* time_knots      = &dataStructure->GetDataElement(0);
+                            // current we only handle 1D time curve
+                            assert(time_array_size == 0);
+
+                            auto value_key_value      = value_structure.GetKeyValueStructure();
+                            auto value_key_data_count = value_structure.GetKeyDataElementCount();
+                            dataStructure =
+                                static_cast<const ODDL::DataStructure<ODDL::FloatDataType>*>(value_key_value->GetFirstCoreSubnode());
+                            auto                       value_array_size = dataStructure->GetArraySize();
+                            const float*               value_knots      = &dataStructure->GetDataElement(0);
+                            std::shared_ptr<CurveBase> time_curve;
+                            std::shared_ptr<CurveBase> value_curve;
+                            SceneObjectTrackType       type = SceneObjectTrackType::kScalar;
+
+                            if (time_structure.GetCurveType() == "bezier") {
+                                auto key_incoming_control = time_structure.GetKeyControlStructure(0);
+                                auto key_outgoing_control = time_structure.GetKeyControlStructure(1);
+                                dataStructure =
+                                    static_cast<const ODDL::DataStructure<ODDL::FloatDataType>*>(key_incoming_control->GetFirstCoreSubnode());
+                                const float* in_cp = &dataStructure->GetDataElement(0);
+                                dataStructure =
+                                    static_cast<const ODDL::DataStructure<ODDL::FloatDataType>*>(key_outgoing_control->GetFirstCoreSubnode());
+                                const float* out_cp = &dataStructure->GetDataElement(0);
+                                time_curve          = std::make_shared<Bezier<float, float>>(time_knots, in_cp, out_cp, time_key_data_count);
+                            } else {
+                                time_curve = std::make_shared<Linear<float, float>>(time_knots, time_key_data_count);
+                            }
+
+                            if (value_structure.GetCurveType() == "bezier") {
+                                auto key_incoming_control = value_structure.GetKeyControlStructure(0);
+                                auto key_outgoing_control = value_structure.GetKeyControlStructure(1);
+                                dataStructure =
+                                    static_cast<const ODDL::DataStructure<ODDL::FloatDataType>*>(key_incoming_control->GetFirstCoreSubnode());
+                                const float* in_cp = &dataStructure->GetDataElement(0);
+                                dataStructure =
+                                    static_cast<const ODDL::DataStructure<ODDL::FloatDataType>*>(key_outgoing_control->GetFirstCoreSubnode());
+                                const float* out_cp = &dataStructure->GetDataElement(0);
+
+                                switch (value_array_size) {
+                                    case 0:
+                                    case 1: {
+                                        value_curve = std::make_shared<Bezier<float, float>>(
+                                            value_knots,
+                                            in_cp,
+                                            out_cp,
+                                            value_key_data_count);
+                                        type = SceneObjectTrackType::kScalar;
+                                    } break;
+                                    case 3: {
+                                        value_curve = std::make_shared<Bezier<Vector3f, Vector3f>>(
+                                            reinterpret_cast<const Vector3f*>(value_knots),
+                                            reinterpret_cast<const Vector3f*>(in_cp),
+                                            reinterpret_cast<const Vector3f*>(out_cp),
+                                            value_key_data_count);
+                                        type = SceneObjectTrackType::kVector3;
+                                    } break;
+                                    case 4: {
+                                        value_curve = std::make_shared<Bezier<Quaternion<float>, float>>(
+                                            reinterpret_cast<const Quaternion<float>*>(value_knots),
+                                            reinterpret_cast<const Quaternion<float>*>(in_cp),
+                                            reinterpret_cast<const Quaternion<float>*>(out_cp),
+                                            value_key_data_count);
+                                        type = SceneObjectTrackType::kQuoternion;
+                                    } break;
+                                    case 16: {
+                                        value_curve = std::make_shared<Bezier<Matrix4X4f, float>>(
+                                            reinterpret_cast<const Matrix4X4f*>(value_knots),
+                                            reinterpret_cast<const Matrix4X4f*>(in_cp),
+                                            reinterpret_cast<const Matrix4X4f*>(out_cp),
+                                            value_key_data_count);
+                                        type = SceneObjectTrackType::kMatrix;
+                                    } break;
+                                    default:
+                                        assert(0);
+                                }
+                            } else  // default to linear
+                            {
+                                switch (value_array_size) {
+                                    case 0:
+                                    case 1: {
+                                        value_curve = std::make_shared<Linear<float, float>>(
+                                            value_knots,
+                                            value_key_data_count);
+                                        type = SceneObjectTrackType::kScalar;
+                                    } break;
+                                    case 3: {
+                                        value_curve = std::make_shared<Linear<Vector3f, Vector3f>>(
+                                            reinterpret_cast<const Vector3f*>(value_knots),
+                                            value_key_data_count);
+                                        type = SceneObjectTrackType::kVector3;
+                                    } break;
+                                    case 4: {
+                                        value_curve = std::make_shared<Linear<Quaternion<float>, float>>(
+                                            reinterpret_cast<const Quaternion<float>*>(value_knots),
+                                            value_key_data_count);
+                                        type = SceneObjectTrackType::kQuoternion;
+                                    } break;
+                                    case 16: {
+                                        value_curve = std::make_shared<Linear<Matrix4X4f, float>>(
+                                            reinterpret_cast<const Matrix4X4f*>(value_knots),
+                                            value_key_data_count);
+                                        type = SceneObjectTrackType::kMatrix;
+                                    } break;
+                                    default:
+                                        assert(0);
+                                }
+                            }
+
+                            track = std::make_shared<SceneObjectTrack>(trans,
+                                                                       time_curve,
+                                                                       value_curve,
+                                                                       type);
+
                             clip->AddTrack(track);
                         } break;
                         default:;

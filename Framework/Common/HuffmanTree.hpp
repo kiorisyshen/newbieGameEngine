@@ -15,7 +15,8 @@ class HuffmanNode
 
    public:
     HuffmanNode() = default;
-    HuffmanNode(T value) : m_Value(value), m_isLeaf(true){};
+    HuffmanNode(T value)
+        : m_Value(value), m_isLeaf(true){};
     ~HuffmanNode()             = default;
     HuffmanNode(HuffmanNode&)  = default;
     HuffmanNode(HuffmanNode&&) = default;
@@ -145,8 +146,8 @@ class HuffmanTree
         return num_symbo;
     }
 
-    T DecodeSingleValue(const uint8_t* encoded_stream, const size_t encoded_stream_length, size_t* byte_offset,
-                        uint8_t* bit_offset)
+    T DecodeSingleValue(const uint8_t* encoded_stream, const size_t encoded_stream_length,
+                        size_t* byte_offset, uint8_t* bit_offset)
     {
         T                               res   = 0;
         std::shared_ptr<HuffmanNode<T>> pNode = m_pRoot;

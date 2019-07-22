@@ -6,7 +6,8 @@ namespace newbieGE
 class MotionState
 {
    public:
-    MotionState(const Matrix4X4f& transition) : m_Transition(transition), m_CenterOfMassOffset(0)
+    MotionState(const Matrix4X4f& transition)
+        : m_Transition(transition), m_CenterOfMassOffset(0)
     {
     }
     MotionState(const Matrix4X4f& transition, const Vector3f& centroid)

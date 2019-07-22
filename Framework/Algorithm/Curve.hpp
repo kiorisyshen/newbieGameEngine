@@ -9,12 +9,36 @@ ENUM(CurveType){
     kBezier = "BEZI"_i32,
 };
 
-template <typename T>
-struct Curve {
-    Curve()                                  = default;
-    virtual ~Curve()                         = default;
-    virtual T         Reverse(T p) const     = 0;
-    virtual T         Interpolate(T t) const = 0;
-    virtual CurveType GetCurveType() const   = 0;
+class CurveBase
+{
+   private:
+    const CurveType m_kCurveType;
+
+   public:
+    CurveBase() = delete;
+    CurveBase(CurveType type)
+        : m_kCurveType(type)
+    {
+    }
+    virtual ~CurveBase() = default;
+    CurveType GetCurveType() const
+    {
+        return m_kCurveType;
+    }
+};
+
+template <typename TVAL, typename TPARAM>
+class Curve
+{
+   protected:
+    std::vector<TVAL> m_Knots;
+
+   public:
+    virtual TPARAM Reverse(TVAL t, size_t& index) const            = 0;
+    virtual TVAL   Interpolate(TPARAM t, const size_t index) const = 0;
+    void           AddKnot(const TVAL knot)
+    {
+        m_Knots.push_back(knot);
+    }
 };
 }  // namespace newbieGE

@@ -1,2 +1,3 @@
 add_library(Algorithm quickhull.cpp)
-add_dependencies(Algorithm GeomMath)
+target_include_directories(Algorithm PUBLIC GeomMath)
+target_link_libraries(Algorithm PUBLIC GeomMath)

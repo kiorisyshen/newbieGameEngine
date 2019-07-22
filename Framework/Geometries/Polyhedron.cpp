@@ -38,7 +38,9 @@ void Polyhedron::AddTetrahedron(const PointList vertices)
     AddFace({vertices[0], vertices[3], vertices[2]}, vertices[1]);
 }
 
-void Polyhedron::GetAabb(const Matrix4X4f& trans, Vector3f& aabbMin, Vector3f& aabbMax) const
+void Polyhedron::GetAabb(const Matrix4X4f& trans,
+                         Vector3f&         aabbMin,
+                         Vector3f&         aabbMax) const
 {
     aabbMin = Vector3f(numeric_limits<float>::max());
     aabbMax = Vector3f(numeric_limits<float>::lowest());
@@ -56,5 +58,6 @@ void Polyhedron::GetAabb(const Matrix4X4f& trans, Vector3f& aabbMin, Vector3f& a
     }
 
     Vector3f halfExtents = (aabbMax - aabbMin) * 0.5f;
-    TransformAabb(halfExtents, m_fMargin, trans, aabbMin, aabbMax);
+    TransformAabb(halfExtents, m_fMargin, trans,
+                  aabbMin, aabbMax);
 }

@@ -50,22 +50,26 @@ const shared_ptr<SceneObjectMaterial> Scene::GetFirstMaterial() const
 
 const shared_ptr<SceneGeometryNode> Scene::GetFirstGeometryNode() const
 {
-    return (GeometryNodes.empty() ? nullptr : GeometryNodes.cbegin()->second.lock());
+    return (GeometryNodes.empty() ? nullptr
+                                  : GeometryNodes.cbegin()->second.lock());
 }
 
 const shared_ptr<SceneLightNode> Scene::GetFirstLightNode() const
 {
-    return (LightNodes.empty() ? nullptr : LightNodes.cbegin()->second.lock());
+    return (LightNodes.empty() ? nullptr
+                               : LightNodes.cbegin()->second.lock());
 }
 
 const shared_ptr<SceneCameraNode> Scene::GetFirstCameraNode() const
 {
-    return (CameraNodes.empty() ? nullptr : CameraNodes.cbegin()->second.lock());
+    return (CameraNodes.empty() ? nullptr
+                                : CameraNodes.cbegin()->second.lock());
 }
 
 void Scene::LoadResource()
 {
     for (auto material : Materials) {
-        if (auto ptr = material.second) ptr->LoadTextures();
+        if (auto ptr = material.second)
+            ptr->LoadTextures();
     }
 }

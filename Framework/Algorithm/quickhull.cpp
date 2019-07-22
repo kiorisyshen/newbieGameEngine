@@ -19,17 +19,24 @@ bool QuickHull::Init(Polyhedron& hull, PointSet& point_set)
 
     // finding the Extreme Points [O(n) complexity]
     for (auto point_ptr : point_set) {
-        if (point_ptr->data[0] < ExtremePointXMin->data[0]) ExtremePointXMin = point_ptr;
-        if (point_ptr->data[1] < ExtremePointYMin->data[1]) ExtremePointYMin = point_ptr;
-        if (point_ptr->data[2] < ExtremePointZMin->data[2]) ExtremePointZMin = point_ptr;
-        if (point_ptr->data[0] > ExtremePointXMax->data[0]) ExtremePointXMax = point_ptr;
-        if (point_ptr->data[1] > ExtremePointYMax->data[1]) ExtremePointYMax = point_ptr;
-        if (point_ptr->data[2] > ExtremePointZMax->data[2]) ExtremePointZMax = point_ptr;
+        if (point_ptr->data[0] < ExtremePointXMin->data[0])
+            ExtremePointXMin = point_ptr;
+        if (point_ptr->data[1] < ExtremePointYMin->data[1])
+            ExtremePointYMin = point_ptr;
+        if (point_ptr->data[2] < ExtremePointZMin->data[2])
+            ExtremePointZMin = point_ptr;
+        if (point_ptr->data[0] > ExtremePointXMax->data[0])
+            ExtremePointXMax = point_ptr;
+        if (point_ptr->data[1] > ExtremePointYMax->data[1])
+            ExtremePointYMax = point_ptr;
+        if (point_ptr->data[2] > ExtremePointZMax->data[2])
+            ExtremePointZMax = point_ptr;
     }
 
     PointSet ExtremePoints;
-    ExtremePoints.insert(
-        {ExtremePointXMin, ExtremePointXMax, ExtremePointYMin, ExtremePointYMax, ExtremePointZMin, ExtremePointZMax});
+    ExtremePoints.insert({ExtremePointXMin, ExtremePointXMax,
+                          ExtremePointYMin, ExtremePointYMax,
+                          ExtremePointZMin, ExtremePointZMax});
 
     // now we find the most distant pair among 6 extreme points
     {
@@ -38,8 +45,10 @@ bool QuickHull::Init(Polyhedron& hull, PointSet& point_set)
         distance_y = Length(*ExtremePointYMax - *ExtremePointYMin);
         distance_z = Length(*ExtremePointZMax - *ExtremePointZMin);
 
-        int max_distance_index =
-            (distance_x < distance_y) ? ((distance_y < distance_z) ? 2 : 1) : ((distance_x < distance_z) ? 2 : 0);
+        int max_distance_index = (distance_x < distance_y) ? (
+                                                                 (distance_y < distance_z) ? 2 : 1)
+                                                           : (
+                                                                 (distance_x < distance_z) ? 2 : 0);
 
         PointPtr A, B;
 
@@ -118,7 +127,8 @@ bool QuickHull::Iterate(Polyhedron& hull, PointSet& point_set)
 
     if (point_num_before != 0) {
         if (hull.Faces.size() == 0) {
-            if (!Init(hull, point_set)) return false;
+            if (!Init(hull, point_set))
+                return false;
         }
 
         cerr << "Iterate Convex Hull (" << &hull << ") remain points count = " << point_num_before << endl;
@@ -142,24 +152,27 @@ void QuickHull::IterateHull(Polyhedron& hull, PointSet& point_set)
         // create new faces by connecting all vertices
         // on the border of hole to the new point
         set<Edge> edges_on_hole;
-        for_each(faces.begin(), faces.end(), [&](FacePtr x) {
-            for (auto edge : x->Edges) {
-                Edge reverse_edge = {edge->second, edge->first};
-                if (edges_on_hole.find(*edge) != edges_on_hole.end()) {
-                    // this edge is shared by faces going to be removed
-                    // so it is not on the border of hole, remove it
-                    edges_on_hole.erase(*edge);
-                } else if (edges_on_hole.find(reverse_edge) != edges_on_hole.end()) {
-                    // this edge is shared by faces going to be removed
-                    // so it is not on the border of hole, remove it
-                    edges_on_hole.erase(reverse_edge);
-                } else {
-                    // temporary add it
-                    edges_on_hole.insert(*edge);
+        for_each(
+            faces.begin(),
+            faces.end(),
+            [&](FacePtr x) {
+                for (auto edge : x->Edges) {
+                    Edge reverse_edge = {edge->second, edge->first};
+                    if (edges_on_hole.find(*edge) != edges_on_hole.end()) {
+                        // this edge is shared by faces going to be removed
+                        // so it is not on the border of hole, remove it
+                        edges_on_hole.erase(*edge);
+                    } else if (edges_on_hole.find(reverse_edge) != edges_on_hole.end()) {
+                        // this edge is shared by faces going to be removed
+                        // so it is not on the border of hole, remove it
+                        edges_on_hole.erase(reverse_edge);
+                    } else {
+                        // temporary add it
+                        edges_on_hole.insert(*edge);
+                    }
                 }
-            }
-            hull.Faces.erase(x);
-        });
+                hull.Faces.erase(x);
+            });
 
         // now we have edges on the hole
         // so we create new faces by connecting
@@ -202,7 +215,8 @@ void QuickHull::AssignPointsToFaces(const Polyhedron& hull, PointSet& point_set,
             // (or set::end, if the last element was removed).
             it = point_set.erase(it);
         } else {
-            if (far_point == *it) faces = tmp;
+            if (far_point == *it)
+                faces = tmp;
             it++;
         }
     }

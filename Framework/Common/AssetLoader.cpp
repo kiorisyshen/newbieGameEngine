@@ -21,7 +21,9 @@ bool AssetLoader::AddSearchPath(const char* path)
     std::vector<std::string>::iterator src = m_strSearchPath.begin();
 
     while (src != m_strSearchPath.end()) {
-        if (!(*src).compare(path)) return true;
+        if (!(*src).compare(path)) {
+            return true;
+        }
         src++;
     }
 
@@ -85,7 +87,9 @@ AssetLoader::AssetFilePtr AssetLoader::OpenFile(const char* name, AssetOpenMode 
                     break;
             }
 
-            if (fp) return (AssetFilePtr)fp;
+            if (fp) {
+                return (AssetFilePtr)fp;
+            }
         }
 
         upPath.append("../");

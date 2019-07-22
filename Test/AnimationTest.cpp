@@ -47,7 +47,7 @@ int main(int argc, char** argv)
     cout.precision(4);
     cout.setf(ios::fixed);
 
-    for (auto i = 0; i < 150; i++) {
+    for (auto i = 0; i < 250; i++) {
         cout << "Tick #" << i << endl;
         g_pAnimationManager->Tick();
         cout << "Dump of Animatable Nodes" << endl;

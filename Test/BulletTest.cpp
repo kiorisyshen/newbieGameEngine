@@ -17,8 +17,7 @@ int main(int, char**)
     btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
 
     // The world
-    btDiscreteDynamicsWorld* dynamicsWorld =
-        new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+    btDiscreteDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
     dynamicsWorld->setGravity(btVector3(0.0f, -9.8f, 0.0f));
 
     // Create Collision Models
@@ -26,11 +25,10 @@ int main(int, char**)
     btCollisionShape* fallShape   = new btSphereShape(1.0f);
 
     // Create Rigid Body
-    btDefaultMotionState* groundMotionState =
-        new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), btVector3(0.0f, -1.0f, 0.0f)));
-    btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0.0f, groundMotionState, groundShape,
-                                                               btVector3(0.0f, 0.0f, 0.0f));
-    btRigidBody*                             groundRigidBody = new btRigidBody(groundRigidBodyCI);
+    btDefaultMotionState* groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), btVector3(0.0f, -1.0f, 0.0f)));
+    btRigidBody::btRigidBodyConstructionInfo
+        groundRigidBodyCI(0.0f, groundMotionState, groundShape, btVector3(0.0f, 0.0f, 0.0f));
+    btRigidBody* groundRigidBody = new btRigidBody(groundRigidBodyCI);
     dynamicsWorld->addRigidBody(groundRigidBody);
 
     btDefaultMotionState* fallMotionState =
@@ -38,8 +36,9 @@ int main(int, char**)
     btScalar  mass = 1.0f;
     btVector3 fallInertia(0.0f, 0.0f, 0.0f);
     fallShape->calculateLocalInertia(mass, fallInertia);
-    btRigidBody::btRigidBodyConstructionInfo fallRigidBodyCI(mass, fallMotionState, fallShape, fallInertia);
-    btRigidBody*                             fallRigidBody = new btRigidBody(fallRigidBodyCI);
+    btRigidBody::btRigidBodyConstructionInfo
+        fallRigidBodyCI(mass, fallMotionState, fallShape, fallInertia);
+    btRigidBody* fallRigidBody = new btRigidBody(fallRigidBodyCI);
     dynamicsWorld->addRigidBody(fallRigidBody);
 
     for (int i = 0; i < 300; i++) {

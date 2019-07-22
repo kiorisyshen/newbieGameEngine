@@ -2,10 +2,14 @@
 
 using namespace newbieGE;
 
-void Geometry::CalculateTemporalAabb(const Matrix4X4f& curTrans, const Vector3f& linvel, const Vector3f& angvel,
-                                     float timeStep, Vector3f& temporalAabbMin, Vector3f& temporalAabbMax) const
+void Geometry::CalculateTemporalAabb(const Matrix4X4f& curTrans,
+                                     const Vector3f&   linvel,
+                                     const Vector3f&   angvel,
+                                     float             timeStep,
+                                     Vector3f&         temporalAabbMin,
+                                     Vector3f&         temporalAabbMax) const
 {
-    // start with static aabb
+    //start with static aabb
     GetAabb(curTrans, temporalAabbMin, temporalAabbMax);
 
     float temporalAabbMaxx = temporalAabbMax[0];
@@ -31,7 +35,7 @@ void Geometry::CalculateTemporalAabb(const Matrix4X4f& curTrans, const Vector3f&
     else
         temporalAabbMinz += linMotion[2];
 
-    // add conservative angular motion
+    //add conservative angular motion
     float    angularMotion = Length(angvel) * GetAngularMotionDisc() * timeStep;
     Vector3f angularMotion3d({angularMotion, angularMotion, angularMotion});
     temporalAabbMin = Vector3f({temporalAabbMinx, temporalAabbMiny, temporalAabbMinz});

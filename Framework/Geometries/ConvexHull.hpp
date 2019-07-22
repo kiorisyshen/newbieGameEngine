@@ -10,8 +10,10 @@ class ConvexHull : public Polyhedron, protected QuickHull
     ConvexHull()  = default;
     ~ConvexHull() = default;
 
-    ConvexHull(PointSet& point_set) : m_PointSet(point_set){};
-    ConvexHull(PointSet&& point_set) : m_PointSet(std::move(point_set)){};
+    ConvexHull(PointSet& point_set)
+        : m_PointSet(point_set){};
+    ConvexHull(PointSet&& point_set)
+        : m_PointSet(std::move(point_set)){};
 
    public:
     void AddPoint(const Point3& new_point)
@@ -21,8 +23,7 @@ class ConvexHull : public Polyhedron, protected QuickHull
     }
     void AddPoint(const Vector3& new_point)
     {
-        m_PointSet.insert(
-            std::make_shared<Point3>(Point3({(float)new_point[0], (float)new_point[1], (float)new_point[2]})));
+        m_PointSet.insert(std::make_shared<Point3>(Point3({(float)new_point[0], (float)new_point[1], (float)new_point[2]})));
         m_bFullyBuild = false;
     }
     void AddPoint(const PointPtr& new_point)

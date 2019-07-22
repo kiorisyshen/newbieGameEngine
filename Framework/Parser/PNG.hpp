@@ -17,7 +17,11 @@ struct PNG_FILEHEADER {
     uint64_t Signature;
 };
 
-ENUM(PNG_CHUNK_TYPE){IHDR = "IHDR"_u32, PLTE = "PLTE"_u32, IDAT = "IDAT"_u32, IEND = "IEND"_u32};
+ENUM(PNG_CHUNK_TYPE){
+    IHDR = "IHDR"_u32,
+    PLTE = "PLTE"_u32,
+    IDAT = "IDAT"_u32,
+    IEND = "IEND"_u32};
 
 static std::ostream& operator<<(std::ostream& out, PNG_CHUNK_TYPE type)
 {
@@ -58,8 +62,10 @@ static void zerr(int ret)
     fputs("zpipe: ", stderr);
     switch (ret) {
         case Z_ERRNO:
-            if (ferror(stdin)) fputs("error reading stdin\n", stderr);
-            if (ferror(stdout)) fputs("error writing stdout\n", stderr);
+            if (ferror(stdin))
+                fputs("error reading stdin\n", stderr);
+            if (ferror(stdout))
+                fputs("error writing stdout\n", stderr);
             break;
         case Z_STREAM_ERROR:
             fputs("invalid compression level\n", stderr);
@@ -107,10 +113,9 @@ class PngParser : implements ImageParser
             std::cout << "Asset is PNG file" << std::endl;
 
             while (pData < pDataEnd) {
-                const PNG_CHUNK_HEADER* pChunkHeader = reinterpret_cast<const PNG_CHUNK_HEADER*>(pData);
-                PNG_CHUNK_TYPE          type =
-                    static_cast<PNG_CHUNK_TYPE>(endian_net_unsigned_int(static_cast<uint32_t>(pChunkHeader->Type)));
-                uint32_t chunk_data_size = endian_net_unsigned_int(pChunkHeader->Length);
+                const PNG_CHUNK_HEADER* pChunkHeader    = reinterpret_cast<const PNG_CHUNK_HEADER*>(pData);
+                PNG_CHUNK_TYPE          type            = static_cast<PNG_CHUNK_TYPE>(endian_net_unsigned_int(static_cast<uint32_t>(pChunkHeader->Type)));
+                uint32_t                chunk_data_size = endian_net_unsigned_int(pChunkHeader->Length);
 
                 std::cout << "============================" << std::endl;
 
@@ -231,17 +236,15 @@ class PngParser : implements ImageParser
                             break;
                         }
 
-                        const uint8_t* pIn = imageDataStartPos;  // point to the start of the input data buffer
-                        uint8_t*       pOut =
-                            reinterpret_cast<uint8_t*>(img.data);  // point to the start of the input data buffer
-                        uint8_t* pDecompressedBuffer = new uint8_t[kChunkSize];
-                        uint8_t  filter_type         = 0;
-                        int      current_row         = 0;
-                        int      current_col         = -1;  // -1 means we need read filter type
+                        const uint8_t* pIn                 = imageDataStartPos;                     // point to the start of the input data buffer
+                        uint8_t*       pOut                = reinterpret_cast<uint8_t*>(img.data);  // point to the start of the input data buffer
+                        uint8_t*       pDecompressedBuffer = new uint8_t[kChunkSize];
+                        uint8_t        filter_type         = 0;
+                        int            current_row         = 0;
+                        int            current_col         = -1;  // -1 means we need read filter type
 
                         do {
-                            uint32_t next_in_size =
-                                (compressed_data_size > kChunkSize) ? kChunkSize : (uint32_t)compressed_data_size;
+                            uint32_t next_in_size = (compressed_data_size > kChunkSize) ? kChunkSize : (uint32_t)compressed_data_size;
                             if (next_in_size == 0) break;
                             compressed_data_size -= next_in_size;
                             strm.next_in  = const_cast<Bytef*>(pIn);
@@ -262,8 +265,7 @@ class PngParser : implements ImageParser
                                         uint8_t* p = pDecompressedBuffer;
                                         while (p - pDecompressedBuffer < (kChunkSize - strm.avail_out)) {
                                             if (current_col == -1) {
-                                                // we are at start of scan line, get the filter type and advance the
-                                                // pointer
+                                                // we are at start of scan line, get the filter type and advance the pointer
                                                 filter_type = *p;
                                             } else {
                                                 //  prediction filter
@@ -277,15 +279,10 @@ class PngParser : implements ImageParser
                                                     B = C = 0;
                                                 } else {
                                                     B = *(pOut + img.pitch * (current_row - 1) + current_col);
-                                                    C = (current_col < m_BytesPerPixel)
-                                                            ? 0
-                                                            : *(pOut + img.pitch * (current_row - 1) + current_col -
-                                                                m_BytesPerPixel);
+                                                    C = (current_col < m_BytesPerPixel) ? 0 : *(pOut + img.pitch * (current_row - 1) + current_col - m_BytesPerPixel);
                                                 }
 
-                                                A = (current_col < m_BytesPerPixel) ? 0
-                                                                                    : *(pOut + img.pitch * current_row +
-                                                                                        current_col - m_BytesPerPixel);
+                                                A = (current_col < m_BytesPerPixel) ? 0 : *(pOut + img.pitch * current_row + current_col - m_BytesPerPixel);
 
                                                 switch (filter_type) {
                                                     case 0:
@@ -298,8 +295,7 @@ class PngParser : implements ImageParser
                                                         *(pOut + img.pitch * current_row + current_col) = *p + B;
                                                         break;
                                                     case 3:
-                                                        *(pOut + img.pitch * current_row + current_col) =
-                                                            *p + (A + B) / 2;
+                                                        *(pOut + img.pitch * current_row + current_col) = *p + (A + B) / 2;
                                                         break;
                                                     case 4: {
                                                         int _p = A + B - C;
