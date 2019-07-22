@@ -6,7 +6,8 @@ using namespace std;
 
 bool BaseApplication::m_bQuit = false;
 
-BaseApplication::BaseApplication(GfxConfiguration& cfg) : m_Config(cfg)
+BaseApplication::BaseApplication(GfxConfiguration& cfg)
+    : m_Config(cfg)
 {
 }
 
@@ -47,12 +48,12 @@ int BaseApplication::Initialize()
         return ret;
     }
 
-    if ((ret = g_pAnimationManager->Initialize()) != 0) {
+    if ((ret = g_pGameLogic->Initialize()) != 0) {
         cerr << "Failed. err =" << ret;
         return ret;
     }
 
-    if ((ret = g_pGameLogic->Initialize()) != 0) {
+    if ((ret = g_pAnimationManager->Initialize()) != 0) {
         cerr << "Failed. err =" << ret;
         return ret;
     }

@@ -21,8 +21,6 @@ int EditorLogic::Initialize()
         result = g_pSceneManager->LoadScene("Scene/splashNewbie.ogex");
     }
 
-    g_pAnimationManager->Initialize();
-
     return result;
 }
 
@@ -33,7 +31,6 @@ void EditorLogic::Finalize()
 
 void EditorLogic::Tick()
 {
-    g_pAnimationManager->Tick();
 }
 
 #ifdef DEBUG
