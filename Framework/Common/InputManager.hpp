@@ -26,7 +26,7 @@ class InputManager : implements IRuntimeModule
     // mouse handling
     void LeftMouseButtonDown();
     void LeftMouseButtonUp();
-    void LeftMouseDrag(float deltaX, float deltaY);
+    void LeftMouseDrag(int deltaX, int deltaY);
 
    protected:
     bool m_bUpKeyPressed = false;
@@ -35,5 +35,5 @@ class InputManager : implements IRuntimeModule
     bool m_bRightKeyPressed = false;
 };
 
-extern InputManager *g_pInputManager;
+extern InputManager* g_pInputManager;
 }  // namespace newbieGE
