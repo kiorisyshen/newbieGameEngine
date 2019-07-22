@@ -22,7 +22,7 @@ class AssetLoader : public IRuntimeModule
     typedef void* AssetFilePtr;
 
     enum AssetOpenMode {
-        MY_OPEN_TEXT = 0,    /// Open In Text Mode
+        MY_OPEN_TEXT   = 0,  /// Open In Text Mode
         MY_OPEN_BINARY = 1,  /// Open In Binary Mode
     };
 

@@ -15,13 +15,13 @@ int CocoaApplication::Initialize()
     [NSApplication sharedApplication];
 
     // Menu
-    NSString* appName = [NSString stringWithFormat:@"%s", m_Config.appName];
-    id        menubar = [[NSMenu alloc] initWithTitle:appName];
+    NSString* appName     = [NSString stringWithFormat:@"%s", m_Config.appName];
+    id        menubar     = [[NSMenu alloc] initWithTitle:appName];
     id        appMenuItem = [NSMenuItem new];
     [menubar addItem:appMenuItem];
     [NSApp setMainMenu:menubar];
 
-    id appMenu = [NSMenu new];
+    id appMenu      = [NSMenu new];
     id quitMenuItem = [[NSMenuItem alloc] initWithTitle:@"Quit" action:@selector(terminate:) keyEquivalent:@"q"];
     [appMenu addItem:quitMenuItem];
     [appMenuItem setSubmenu:appMenu];
@@ -62,7 +62,7 @@ void CocoaApplication::Tick()
                 if ([event modifierFlags] & NSEventModifierFlagNumericPad) {
                     // arrow keys
                     NSString* theArrow = [event charactersIgnoringModifiers];
-                    unichar   keyChar = 0;
+                    unichar   keyChar  = 0;
                     if ([theArrow length] == 1) {
                         keyChar = [theArrow characterAtIndex:0];
                         if (keyChar == NSLeftArrowFunctionKey) {
@@ -101,7 +101,7 @@ void CocoaApplication::Tick()
                 if ([event modifierFlags] & NSEventModifierFlagNumericPad) {
                     // arrow keys
                     NSString* theArrow = [event charactersIgnoringModifiers];
-                    unichar   keyChar = 0;
+                    unichar   keyChar  = 0;
                     if ([theArrow length] == 1) {
                         keyChar = [theArrow characterAtIndex:0];
                         if (keyChar == NSLeftArrowFunctionKey) {

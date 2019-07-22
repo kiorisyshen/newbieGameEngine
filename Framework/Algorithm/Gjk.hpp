@@ -12,12 +12,12 @@ typedef std::function<const Point3(const Vector3f&)> SupportFunction;
 void NearestPointInTriangleToPoint(const PointList& vertices, const Point3& point, float& s, float& t)
 {
     assert(vertices.size() == 3);
-    auto     A = vertices[0];
-    auto     B = vertices[1];
-    auto     C = vertices[2];
+    auto     A     = vertices[0];
+    auto     B     = vertices[1];
+    auto     C     = vertices[2];
     Vector3f edge0 = *B - *A;
     Vector3f edge1 = *C - *A;
-    Vector3f v0 = *A - point;
+    Vector3f v0    = *A - point;
 
     float a, b, c, d, e;
     DotProduct(a, edge0, edge0);
@@ -27,8 +27,8 @@ void NearestPointInTriangleToPoint(const PointList& vertices, const Point3& poin
     DotProduct(e, edge1, v0);
 
     float det = a * c - b * b;
-    s = b * e - c * d;
-    t = b * d - a * e;
+    s         = b * e - c * d;
+    t         = b * d - a * e;
 
     if (s + t < det) {
         if (s < 0.0f) {
@@ -59,8 +59,8 @@ void NearestPointInTriangleToPoint(const PointList& vertices, const Point3& poin
             if (tmp1 > tmp0) {
                 float numer = tmp1 - tmp0;
                 float denom = a - 2.0f * b + c;
-                s = std::clamp(numer / denom, 0.0f, 1.0f);
-                t = 1.0f - s;
+                s           = std::clamp(numer / denom, 0.0f, 1.0f);
+                t           = 1.0f - s;
             } else {
                 t = std::clamp(-e / c, 0.0f, 1.0f);
                 s = 0.0f;
@@ -69,8 +69,8 @@ void NearestPointInTriangleToPoint(const PointList& vertices, const Point3& poin
             if (a + d > b + e) {
                 float numer = c + e - b - d;
                 float denom = a - 2.0f * b + c;
-                s = std::clamp(numer / denom, 0.0f, 1.0f);
-                t = 1.0f - s;
+                s           = std::clamp(numer / denom, 0.0f, 1.0f);
+                t           = 1.0f - s;
             } else {
                 s = std::clamp(-e / c, 0.0f, 1.0f);
                 t = 0.0f;
@@ -78,8 +78,8 @@ void NearestPointInTriangleToPoint(const PointList& vertices, const Point3& poin
         } else {
             float numer = c + e - b - d;
             float denom = a - 2.0f * b + c;
-            s = std::clamp(numer / denom, 0.0f, 1.0f);
-            t = 1.0f - s;
+            s           = std::clamp(numer / denom, 0.0f, 1.0f);
+            t           = 1.0f - s;
         }
     }
 }
@@ -89,7 +89,7 @@ int GjkIntersection(const SupportFunction& a, const SupportFunction& b, Vector3f
     Point3 A;
     if (simplex.size() == 0) {
         // initialize
-        A = a(direction) - b(direction * -1.0f);
+        A         = a(direction) - b(direction * -1.0f);
         direction = A * -1.0f;
         simplex.push_back(std::make_shared<Point3>(A));
     }
@@ -272,7 +272,7 @@ const Point3 ConvexPolyhedronSupportFunction(const Polyhedron& polyhedron, const
         for (auto pEdge : pFace->Edges) {
             DotProduct(score, *pEdge->first, direction);
             if (score > max_score) {
-                max_score = score;
+                max_score     = score;
                 extreme_point = pEdge->first;
             }
 

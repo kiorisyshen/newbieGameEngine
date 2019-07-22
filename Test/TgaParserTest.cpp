@@ -10,7 +10,7 @@ using namespace newbieGE;
 namespace newbieGE
 {
 MemoryManager* g_pMemoryManager = new MemoryManager();
-AssetLoader*   g_pAssetLoader = new AssetLoader();
+AssetLoader*   g_pAssetLoader   = new AssetLoader();
 }  // namespace newbieGE
 
 int main(int argc, const char** argv)

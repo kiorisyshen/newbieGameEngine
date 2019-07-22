@@ -19,7 +19,7 @@ static const uint32_t kBlockSizes[] = {
     // 64-increments
     704, 768, 832, 896, 960, 1024};
 
-static const uint32_t kPageSize = 8192;
+static const uint32_t kPageSize  = 8192;
 static const uint32_t kAlignment = 4;
 
 // number of elements in the block size array
@@ -38,7 +38,7 @@ int newbieGE::MemoryManager::Initialize()
     if (!m_bInitialized) {
         // initialize block size lookup table
         m_pBlockSizeLookup = new size_t[kMaxBlockSize + 1];
-        size_t j = 0;
+        size_t j           = 0;
         for (size_t i = 0; i <= kMaxBlockSize; i++) {
             if (i > kBlockSizes[j]) ++j;
             m_pBlockSizeLookup[i] = j;

@@ -434,13 +434,13 @@ inline void MatrixRotationYawPitchRoll(Matrix4X4f& matrix, const float yaw, cons
     float cYaw, cPitch, cRoll, sYaw, sPitch, sRoll;
 
     // Get the cosine and sin of the yaw, pitch, and roll.
-    cYaw = cosf(yaw);
+    cYaw   = cosf(yaw);
     cPitch = cosf(pitch);
-    cRoll = cosf(roll);
+    cRoll  = cosf(roll);
 
-    sYaw = sinf(yaw);
+    sYaw   = sinf(yaw);
     sPitch = sinf(pitch);
-    sRoll = sinf(roll);
+    sRoll  = sinf(roll);
 
     // Calculate the yaw, pitch, roll rotation matrix.
     Matrix4X4f tmp = {

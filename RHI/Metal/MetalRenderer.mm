@@ -39,10 +39,10 @@ using namespace newbieGE;
 - (nonnull instancetype)initWithMetalKitView:(nonnull MTKView*)view;
 {
     if (self = [super init]) {
-        _mtkView = view;
-        _device = view.device;
+        _mtkView           = view;
+        _device            = view.device;
         _inFlightSemaphore = dispatch_semaphore_create(2);
-        _commandQueue = [_device newCommandQueue];
+        _commandQueue      = [_device newCommandQueue];
 
         [self loadMetal];
     }
@@ -54,68 +54,68 @@ using namespace newbieGE;
 {
     NSError* error = NULL;
 
-    NSString*       libraryFile = [[NSBundle mainBundle] pathForResource:@"Main" ofType:@"metallib"];
-    id<MTLLibrary>  myLibrary = [_device newLibraryWithFile:libraryFile error:&error];
-    id<MTLFunction> vertexFunction = [myLibrary newFunctionWithName:@"basic_vert_main"];
+    NSString*       libraryFile      = [[NSBundle mainBundle] pathForResource:@"Main" ofType:@"metallib"];
+    id<MTLLibrary>  myLibrary        = [_device newLibraryWithFile:libraryFile error:&error];
+    id<MTLFunction> vertexFunction   = [myLibrary newFunctionWithName:@"basic_vert_main"];
     id<MTLFunction> fragmentFunction = [myLibrary newFunctionWithName:@"basic_frag_main"];
 
     _mtlVertexDescriptor = [[MTLVertexDescriptor alloc] init];
     // Positions.
-    _mtlVertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
-    _mtlVertexDescriptor.attributes[0].offset = 0;
+    _mtlVertexDescriptor.attributes[0].format      = MTLVertexFormatFloat3;
+    _mtlVertexDescriptor.attributes[0].offset      = 0;
     _mtlVertexDescriptor.attributes[0].bufferIndex = 0;
     // Position Buffer Layout
-    _mtlVertexDescriptor.layouts[0].stride = 12;
-    _mtlVertexDescriptor.layouts[0].stepRate = 1;
+    _mtlVertexDescriptor.layouts[0].stride       = 12;
+    _mtlVertexDescriptor.layouts[0].stepRate     = 1;
     _mtlVertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
     // Normals.
-    _mtlVertexDescriptor.attributes[1].format = MTLVertexFormatFloat3;
-    _mtlVertexDescriptor.attributes[1].offset = 0;
+    _mtlVertexDescriptor.attributes[1].format      = MTLVertexFormatFloat3;
+    _mtlVertexDescriptor.attributes[1].offset      = 0;
     _mtlVertexDescriptor.attributes[1].bufferIndex = 1;
     // Normal Buffer Layout
-    _mtlVertexDescriptor.layouts[1].stride = 12;
-    _mtlVertexDescriptor.layouts[1].stepRate = 1;
+    _mtlVertexDescriptor.layouts[1].stride       = 12;
+    _mtlVertexDescriptor.layouts[1].stepRate     = 1;
     _mtlVertexDescriptor.layouts[1].stepFunction = MTLVertexStepFunctionPerVertex;
     // Texture UV.
-    _mtlVertexDescriptor.attributes[2].format = MTLVertexFormatFloat2;
-    _mtlVertexDescriptor.attributes[2].offset = 0;
+    _mtlVertexDescriptor.attributes[2].format      = MTLVertexFormatFloat2;
+    _mtlVertexDescriptor.attributes[2].offset      = 0;
     _mtlVertexDescriptor.attributes[2].bufferIndex = 2;
     // Texture UV Buffer Layout
-    _mtlVertexDescriptor.layouts[2].stride = 8;
-    _mtlVertexDescriptor.layouts[2].stepRate = 1;
+    _mtlVertexDescriptor.layouts[2].stride       = 8;
+    _mtlVertexDescriptor.layouts[2].stepRate     = 1;
     _mtlVertexDescriptor.layouts[2].stepFunction = MTLVertexStepFunctionPerVertex;
 
     // PerFrameBuffer
-    _uniformBuffers = [_device newBufferWithLength:kSizePerFrameConstantBuffer +
+    _uniformBuffers       = [_device newBufferWithLength:kSizePerFrameConstantBuffer +
                                                    kSizePerBatchConstantBuffer * GfxConfiguration::kMaxSceneObjectCount
                                            options:MTLResourceStorageModeShared];
     _uniformBuffers.label = [NSString stringWithFormat:@"uniformBuffer"];
 
     // Texture sampler
     MTLSamplerDescriptor* samplerDescriptor = [[MTLSamplerDescriptor alloc] init];
-    samplerDescriptor.minFilter = MTLSamplerMinMagFilterLinear;
-    samplerDescriptor.magFilter = MTLSamplerMinMagFilterLinear;
-    samplerDescriptor.mipFilter = MTLSamplerMipFilterLinear;
-    samplerDescriptor.rAddressMode = MTLSamplerAddressModeRepeat;
-    samplerDescriptor.sAddressMode = MTLSamplerAddressModeRepeat;
-    samplerDescriptor.tAddressMode = MTLSamplerAddressModeRepeat;
-    _sampler0 = [_device newSamplerStateWithDescriptor:samplerDescriptor];
+    samplerDescriptor.minFilter             = MTLSamplerMinMagFilterLinear;
+    samplerDescriptor.magFilter             = MTLSamplerMinMagFilterLinear;
+    samplerDescriptor.mipFilter             = MTLSamplerMipFilterLinear;
+    samplerDescriptor.rAddressMode          = MTLSamplerAddressModeRepeat;
+    samplerDescriptor.sAddressMode          = MTLSamplerAddressModeRepeat;
+    samplerDescriptor.tAddressMode          = MTLSamplerAddressModeRepeat;
+    _sampler0                               = [_device newSamplerStateWithDescriptor:samplerDescriptor];
 
-    MTLRenderPipelineDescriptor* pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
-    pipelineStateDescriptor.label = @"Simple Pipeline";
-    pipelineStateDescriptor.sampleCount = _mtkView.sampleCount;
-    pipelineStateDescriptor.vertexFunction = vertexFunction;
-    pipelineStateDescriptor.fragmentFunction = fragmentFunction;
-    pipelineStateDescriptor.vertexDescriptor = _mtlVertexDescriptor;
+    MTLRenderPipelineDescriptor* pipelineStateDescriptor    = [[MTLRenderPipelineDescriptor alloc] init];
+    pipelineStateDescriptor.label                           = @"Simple Pipeline";
+    pipelineStateDescriptor.sampleCount                     = _mtkView.sampleCount;
+    pipelineStateDescriptor.vertexFunction                  = vertexFunction;
+    pipelineStateDescriptor.fragmentFunction                = fragmentFunction;
+    pipelineStateDescriptor.vertexDescriptor                = _mtlVertexDescriptor;
     pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
-    pipelineStateDescriptor.depthAttachmentPixelFormat = _mtkView.depthStencilPixelFormat;
+    pipelineStateDescriptor.depthAttachmentPixelFormat      = _mtkView.depthStencilPixelFormat;
 
     _pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
 
     MTLDepthStencilDescriptor* depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
-    depthStateDesc.depthCompareFunction = MTLCompareFunctionLess;
-    depthStateDesc.depthWriteEnabled = YES;
-    _depthState = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
+    depthStateDesc.depthCompareFunction       = MTLCompareFunctionLess;
+    depthStateDesc.depthWriteEnabled          = YES;
+    _depthState                               = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
 
     if (!_pipelineState) {
         // Pipeline State creation could fail if we haven't properly set up our
@@ -128,26 +128,26 @@ using namespace newbieGE;
 
 #ifdef DEBUG
     // Debug line buffer
-    _DEBUG_Buffer = [_device newBufferWithLength:kSizeDebugMaxAtomBuffer * GfxConfiguration::kMaxDebugObjectCount
+    _DEBUG_Buffer       = [_device newBufferWithLength:kSizeDebugMaxAtomBuffer * GfxConfiguration::kMaxDebugObjectCount
                                          options:MTLResourceStorageModeShared];
     _DEBUG_Buffer.label = [NSString stringWithFormat:@"DEBUG_Buffer"];
 
-    vertexFunction = [myLibrary newFunctionWithName:@"debug_vert_main"];
+    vertexFunction   = [myLibrary newFunctionWithName:@"debug_vert_main"];
     fragmentFunction = [myLibrary newFunctionWithName:@"debug_frag_main"];
 
-    pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
-    pipelineStateDescriptor.label = @"DEBUG Pipeline";
-    pipelineStateDescriptor.sampleCount = _mtkView.sampleCount;
-    pipelineStateDescriptor.vertexFunction = vertexFunction;
-    pipelineStateDescriptor.fragmentFunction = fragmentFunction;
+    pipelineStateDescriptor                                 = [[MTLRenderPipelineDescriptor alloc] init];
+    pipelineStateDescriptor.label                           = @"DEBUG Pipeline";
+    pipelineStateDescriptor.sampleCount                     = _mtkView.sampleCount;
+    pipelineStateDescriptor.vertexFunction                  = vertexFunction;
+    pipelineStateDescriptor.fragmentFunction                = fragmentFunction;
     pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
-    pipelineStateDescriptor.depthAttachmentPixelFormat = _mtkView.depthStencilPixelFormat;
+    pipelineStateDescriptor.depthAttachmentPixelFormat      = _mtkView.depthStencilPixelFormat;
 
     _DEBUG_pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
-    depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
+    depthStateDesc       = [[MTLDepthStencilDescriptor alloc] init];
     depthStateDesc.depthCompareFunction = MTLCompareFunctionLessEqual;
-    depthStateDesc.depthWriteEnabled = NO;
-    _DEBUG_depthState = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
+    depthStateDesc.depthWriteEnabled    = NO;
+    _DEBUG_depthState                   = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
 #endif
 }
 
@@ -237,8 +237,8 @@ static MTLPixelFormat getMtlPixelFormat(const Image& img)
     MTLTextureDescriptor* textureDesc = [[MTLTextureDescriptor alloc] init];
 
     textureDesc.pixelFormat = getMtlPixelFormat(image);
-    textureDesc.width = image.Width;
-    textureDesc.height = image.Height;
+    textureDesc.width       = image.Width;
+    textureDesc.height      = image.Height;
 
     // create the texture obj
     texture = [_device newTextureWithDescriptor:textureDesc];
@@ -261,8 +261,8 @@ static MTLPixelFormat getMtlPixelFormat(const Image& img)
 {
     id<MTLBuffer> vertexBuffer;
     auto          dataSize = v_property_array.GetDataSize();
-    auto          pData = v_property_array.GetData();
-    vertexBuffer = [_device newBufferWithBytes:pData length:dataSize options:MTLResourceStorageModeShared];
+    auto          pData    = v_property_array.GetData();
+    vertexBuffer           = [_device newBufferWithBytes:pData length:dataSize options:MTLResourceStorageModeShared];
     _vertexBuffers.push_back(vertexBuffer);
 }
 
@@ -270,8 +270,8 @@ static MTLPixelFormat getMtlPixelFormat(const Image& img)
 {
     id<MTLBuffer> indexBuffer;
     auto          dataSize = index_array.GetDataSize();
-    auto          pData = index_array.GetData();
-    indexBuffer = [_device newBufferWithBytes:pData length:dataSize options:MTLResourceStorageModeShared];
+    auto          pData    = index_array.GetData();
+    indexBuffer            = [_device newBufferWithBytes:pData length:dataSize options:MTLResourceStorageModeShared];
     _indexBuffers.push_back(indexBuffer);
 }
 
@@ -299,7 +299,7 @@ static MTLPixelFormat getMtlPixelFormat(const Image& img)
     // stage in the Metal pipeline (App, Metal, Drivers, GPU, etc)
     dispatch_semaphore_wait(_inFlightSemaphore, DISPATCH_TIME_FOREVER);
     // Create a new command buffer for each render pass to the current drawable
-    _commandBuffer = [_commandQueue commandBuffer];
+    _commandBuffer       = [_commandQueue commandBuffer];
     _commandBuffer.label = @"myCommand";
 
     // Add completion hander which signals _inFlightSemaphore when Metal and the
@@ -312,9 +312,9 @@ static MTLPixelFormat getMtlPixelFormat(const Image& img)
     // Obtain a renderPassDescriptor generated from the view's drawable textures
     _renderPassDescriptor = _mtkView.currentRenderPassDescriptor;
     if (_renderPassDescriptor != nil) {
-        _renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+        _renderPassDescriptor.colorAttachments[0].loadAction  = MTLLoadActionClear;
         _renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStoreAndMultisampleResolve;
-        _renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
+        _renderPassDescriptor.colorAttachments[0].clearColor  = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
     }
 }
 
@@ -329,7 +329,7 @@ static MTLPixelFormat getMtlPixelFormat(const Image& img)
 - (void)beginPass
 {
     if (_renderPassDescriptor != nil) {
-        _renderEncoder = [_commandBuffer renderCommandEncoderWithDescriptor:_renderPassDescriptor];
+        _renderEncoder       = [_commandBuffer renderCommandEncoderWithDescriptor:_renderPassDescriptor];
         _renderEncoder.label = @"MyRenderEncoder";
     }
 }
@@ -362,7 +362,7 @@ static MTLPixelFormat getMtlPixelFormat(const Image& img)
 - (void)DEBUG_SetBuffer:(const std::vector<DEBUG_DrawBatch>&)debugBatches
 {
     auto offset = debugBatches.size();
-    offset = 0;
+    offset      = 0;
     for (auto batch : debugBatches) {
         auto size = sizeof(DEBUG_TriangleParam) * batch.triParams.size();
         std::memcpy(reinterpret_cast<uint8_t*>(_DEBUG_Buffer.contents) + offset, batch.triParams.data(), size);
@@ -396,7 +396,7 @@ static MTLPixelFormat getMtlPixelFormat(const Image& img)
         [_renderEncoder setVertexBuffer:_uniformBuffers offset:0 atIndex:10];
 
         auto offset = debugBatches.size();
-        offset = 0;
+        offset      = 0;
         for (auto batch : debugBatches) {
             [_renderEncoder setVertexBytes:&batch.pbc length:sizeof(DEBUG_PerBatchConstants) atIndex:8];
 

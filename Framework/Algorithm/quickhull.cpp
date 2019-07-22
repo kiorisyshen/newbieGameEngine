@@ -73,10 +73,10 @@ bool QuickHull::Init(Polyhedron& hull, PointSet& point_set)
                 Vector3f numerator;
                 Vector3f denominator;
                 CrossProduct(numerator, *point_ptr - *A, *point_ptr - *B);
-                denominator = *B - *A;
+                denominator     = *B - *A;
                 double distance = Length(numerator) / Length(denominator);
                 if (distance > max_distance) {
-                    C = point_ptr;
+                    C            = point_ptr;
                     max_distance = distance;
                 }
             }
@@ -96,7 +96,7 @@ bool QuickHull::Init(Polyhedron& hull, PointSet& point_set)
             for (auto point_ptr : point_set) {
                 auto distance = PointToPlaneDistance({A, B, C}, *point_ptr);
                 if (distance > max_distance) {
-                    D = point_ptr;
+                    D            = point_ptr;
                     max_distance = distance;
                 }
             }
@@ -178,7 +178,7 @@ void QuickHull::IterateHull(Polyhedron& hull, PointSet& point_set)
 void QuickHull::AssignPointsToFaces(const Polyhedron& hull, PointSet& point_set, PointPtr& far_point, FaceList& faces)
 {
     float max_distance = 0.0f;
-    auto  it = point_set.begin();
+    auto  it           = point_set.begin();
     while (it != point_set.end()) {
         bool     isInsideHull = true;
         FaceList tmp;
@@ -191,7 +191,7 @@ void QuickHull::AssignPointsToFaces(const Polyhedron& hull, PointSet& point_set,
                 tmp.push_back(pFace);
                 isInsideHull = false;
                 if (d >= max_distance) {
-                    far_point = *it;
+                    far_point    = *it;
                     max_distance = d;
                 }
             }

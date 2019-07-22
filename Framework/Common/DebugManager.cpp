@@ -64,13 +64,13 @@ void DebugManager::DrawGrid()
 
     for (int x = -100; x <= 100; x += 10) {
         PointPtr from = make_shared<Point3>(Point3({(float)x, -100.0f, 0.0f}));
-        PointPtr to = make_shared<Point3>(Point3({(float)x, 100.0f, 0.0f}));
+        PointPtr to   = make_shared<Point3>(Point3({(float)x, 100.0f, 0.0f}));
         g_pGraphicsManager->DEBUG_SetDrawLineParam(*from, *to, color);
     }
 
     for (int y = -100; y <= 100; y += 10) {
         PointPtr from = make_shared<Point3>(Point3({-100.0f, (float)y, 0.0f}));
-        PointPtr to = make_shared<Point3>(Point3({100.0f, (float)y, 0.0f}));
+        PointPtr to   = make_shared<Point3>(Point3({100.0f, (float)y, 0.0f}));
         g_pGraphicsManager->DEBUG_SetDrawLineParam(*from, *to, color);
     }
 }

@@ -74,7 +74,7 @@ void* newbieGE::Allocator::Allocate()
         // link each block in the page
         for (uint32_t i = 0; i < m_nBlocksPerPage - 1; i++) {
             pBlock->pNext = NextBlock(pBlock);
-            pBlock = NextBlock(pBlock);
+            pBlock        = NextBlock(pBlock);
         }
         pBlock->pNext = nullptr;
 
@@ -82,7 +82,7 @@ void* newbieGE::Allocator::Allocate()
     }
 
     BlockHeader* freeBlock = m_pFreeList;
-    m_pFreeList = m_pFreeList->pNext;
+    m_pFreeList            = m_pFreeList->pNext;
     --m_nFreeBlocks;
 
 #if defined(_DEBUG)
@@ -101,7 +101,7 @@ void newbieGE::Allocator::Free(void* p)
 #endif
 
     block->pNext = m_pFreeList;
-    m_pFreeList = block;
+    m_pFreeList  = block;
     ++m_nFreeBlocks;
 }
 
@@ -110,7 +110,7 @@ void newbieGE::Allocator::FreeAll()
     PageHeader* pPage = m_pPageList;
     while (pPage) {
         PageHeader* _p = pPage;
-        pPage = pPage->pNext;
+        pPage          = pPage->pNext;
 
         delete[] reinterpret_cast<uint8_t*>(_p);
     }
@@ -118,8 +118,8 @@ void newbieGE::Allocator::FreeAll()
     m_pPageList = nullptr;
     m_pFreeList = nullptr;
 
-    m_nPages = 0;
-    m_nBlocks = 0;
+    m_nPages      = 0;
+    m_nBlocks     = 0;
     m_nFreeBlocks = 0;
 }
 

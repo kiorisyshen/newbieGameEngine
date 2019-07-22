@@ -16,9 +16,9 @@ class HuffmanNode
    public:
     HuffmanNode() = default;
     HuffmanNode(T value) : m_Value(value), m_isLeaf(true){};
-    ~HuffmanNode() = default;
-    HuffmanNode(HuffmanNode&) = default;
-    HuffmanNode(HuffmanNode&&) = default;
+    ~HuffmanNode()                                = default;
+    HuffmanNode(HuffmanNode&)                     = default;
+    HuffmanNode(HuffmanNode&&)                    = default;
     HuffmanNode&                          operator=(HuffmanNode&) = default;
     HuffmanNode&                          operator=(HuffmanNode&&) = default;
     bool                                  IsLeaf(void) const { return m_isLeaf; };
@@ -28,7 +28,7 @@ class HuffmanNode
     const std::shared_ptr<HuffmanNode<T>> GetRight(void) const { return m_pRight; };
     void                                  SetValue(T value)
     {
-        m_Value = value;
+        m_Value  = value;
         m_isLeaf = true;
     };
     T GetValue() const { return m_Value; };
@@ -82,7 +82,7 @@ class HuffmanTree
 
             if (l) {
                 // create leaf node for level i
-                pCodeValueEnd = pCodeValueEnd - l;
+                pCodeValueEnd             = pCodeValueEnd - l;
                 const uint8_t* pCodeValue = pCodeValueEnd + 1;
 
                 for (int j = 0; j < l; j++) {
@@ -93,7 +93,7 @@ class HuffmanTree
 
             // create non-leaf node and append children
             while (childrenCount > 0) {
-                auto pNode = std::make_shared<HuffmanNode<uint8_t>>();
+                auto pNode     = std::make_shared<HuffmanNode<uint8_t>>();
                 auto pLeftNode = node_queue.front();
                 node_queue.pop();
                 pNode->SetLeft(pLeftNode);
@@ -127,7 +127,7 @@ class HuffmanTree
     T DecodeSingleValue(const uint8_t* encoded_stream, const size_t encoded_stream_length, size_t* byte_offset,
                         uint8_t* bit_offset)
     {
-        T                               res = 0;
+        T                               res   = 0;
         std::shared_ptr<HuffmanNode<T>> pNode = m_pRoot;
         for (size_t i = *byte_offset; i < encoded_stream_length; i++) {
             uint8_t data = encoded_stream[i];
@@ -144,10 +144,10 @@ class HuffmanTree
                 if (pNode->IsLeaf()) {
                     // move pointers to next bit
                     if (j == 7) {
-                        *bit_offset = 0;
+                        *bit_offset  = 0;
                         *byte_offset = i + 1;
                     } else {
-                        *bit_offset = j + 1;
+                        *bit_offset  = j + 1;
                         *byte_offset = i;
                     }
                     res = pNode->GetValue();
@@ -159,7 +159,7 @@ class HuffmanTree
 
         // decode failed
         *byte_offset = -1;
-        *bit_offset = -1;
+        *bit_offset  = -1;
 
         return res;
     }

@@ -46,12 +46,12 @@ void Polyhedron::GetAabb(const Matrix4X4f& trans, Vector3f& aabbMin, Vector3f& a
     for (auto pFace : Faces) {
         for (auto pEdge : pFace->Edges) {
             auto pVertex = pEdge->first;
-            aabbMin[0] = (aabbMin[0] < pVertex->data[0]) ? aabbMin[0] : pVertex->data[0];
-            aabbMin[1] = (aabbMin[1] < pVertex->data[1]) ? aabbMin[1] : pVertex->data[1];
-            aabbMin[2] = (aabbMin[2] < pVertex->data[2]) ? aabbMin[2] : pVertex->data[2];
-            aabbMax[0] = (aabbMax[0] > pVertex->data[0]) ? aabbMax[0] : pVertex->data[0];
-            aabbMax[1] = (aabbMax[1] > pVertex->data[1]) ? aabbMax[1] : pVertex->data[1];
-            aabbMax[2] = (aabbMax[2] > pVertex->data[2]) ? aabbMax[2] : pVertex->data[2];
+            aabbMin[0]   = (aabbMin[0] < pVertex->data[0]) ? aabbMin[0] : pVertex->data[0];
+            aabbMin[1]   = (aabbMin[1] < pVertex->data[1]) ? aabbMin[1] : pVertex->data[1];
+            aabbMin[2]   = (aabbMin[2] < pVertex->data[2]) ? aabbMin[2] : pVertex->data[2];
+            aabbMax[0]   = (aabbMax[0] > pVertex->data[0]) ? aabbMax[0] : pVertex->data[0];
+            aabbMax[1]   = (aabbMax[1] > pVertex->data[1]) ? aabbMax[1] : pVertex->data[1];
+            aabbMax[2]   = (aabbMax[2] > pVertex->data[2]) ? aabbMax[2] : pVertex->data[2];
         }
     }
 

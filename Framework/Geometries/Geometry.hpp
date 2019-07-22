@@ -11,7 +11,7 @@ class Geometry
 {
    public:
     Geometry(GeometryType geometry_type) : m_kGeometryType(geometry_type){};
-    Geometry() = delete;
+    Geometry()          = delete;
     virtual ~Geometry() = default;
 
     // GetAabb returns the axis aligned bounding box in the coordinate frame of the given transform trans.

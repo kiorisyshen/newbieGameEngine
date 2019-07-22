@@ -11,7 +11,7 @@ int main(int, char**)
 
     // Set up the collision configuration and dispatcher
     btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
-    btCollisionDispatcher*           dispatcher = new btCollisionDispatcher(collisionConfiguration);
+    btCollisionDispatcher*           dispatcher             = new btCollisionDispatcher(collisionConfiguration);
 
     // The actual physics solver
     btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
@@ -23,7 +23,7 @@ int main(int, char**)
 
     // Create Collision Models
     btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), 1);
-    btCollisionShape* fallShape = new btSphereShape(1.0f);
+    btCollisionShape* fallShape   = new btSphereShape(1.0f);
 
     // Create Rigid Body
     btDefaultMotionState* groundMotionState =

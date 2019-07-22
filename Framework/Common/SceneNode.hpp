@@ -163,7 +163,7 @@ class SceneGeometryNode : public SceneNode<SceneObjectGeometry>
     void* UnlinkRigidBody()
     {
         void* rigidBody = m_pRigidBody;
-        m_pRigidBody = nullptr;
+        m_pRigidBody    = nullptr;
 
         return rigidBody;
     }
@@ -196,8 +196,8 @@ class SceneCameraNode : public SceneNode<SceneObjectCamera>
     Matrix3X3f      GetLocalAxis()
     {
         Matrix3X3f result;
-        auto       pTransform = GetCalculatedTransform();
-        Vector3f   target = GetTarget();
+        auto       pTransform      = GetCalculatedTransform();
+        Vector3f   target          = GetTarget();
         Vector3f   camera_position = Vector3f(0.0f);
         TransformCoord(camera_position, *pTransform);
         Vector3f up({0.0f, 0.0f, 1.0f});

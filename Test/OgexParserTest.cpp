@@ -10,7 +10,7 @@ using namespace std;
 namespace newbieGE
 {
 MemoryManager* g_pMemoryManager = new MemoryManager();
-AssetLoader*   g_pAssetLoader = new AssetLoader();
+AssetLoader*   g_pAssetLoader   = new AssetLoader();
 }  // namespace newbieGE
 
 template <typename Key, typename T>
@@ -31,7 +31,7 @@ int main(int, char**)
     string ogex_text = g_pAssetLoader->SyncOpenAndReadTextFileToString("Scene/Example.ogex");
 
     OgexParser*       ogex_parser = new OgexParser();
-    unique_ptr<Scene> pScene = ogex_parser->Parse(ogex_text);
+    unique_ptr<Scene> pScene      = ogex_parser->Parse(ogex_text);
     delete ogex_parser;
 
     cout << "Dump of Scene Graph" << endl;

@@ -28,7 +28,7 @@ class TgaParser : implements ImageParser
     {
         Image img;
 
-        const uint8_t* pData = buf.GetData();
+        const uint8_t* pData    = buf.GetData();
         const uint8_t* pDataEnd = buf.GetData() + buf.GetDataSize();
 
         std::cout << "Parsing as TGA file:" << std::endl;
@@ -53,8 +53,8 @@ class TgaParser : implements ImageParser
             return img;
         }
 
-        img.Width = (pFileHeader->ImageSpec[5] << 8) + pFileHeader->ImageSpec[4];
-        img.Height = (pFileHeader->ImageSpec[7] << 8) + pFileHeader->ImageSpec[6];
+        img.Width           = (pFileHeader->ImageSpec[5] << 8) + pFileHeader->ImageSpec[4];
+        img.Height          = (pFileHeader->ImageSpec[7] << 8) + pFileHeader->ImageSpec[6];
         uint8_t pixel_depth = pFileHeader->ImageSpec[8];
         uint8_t alpha_depth = (pFileHeader->ImageSpec[9] & 0x0F);
 #ifdef DEBUG
@@ -70,10 +70,10 @@ class TgaParser : implements ImageParser
 
         // reading the pixel data
         img.bitcount = 32;
-        img.pitch = (img.Width * (img.bitcount >> 3) + 3) & ~3u;  // for GPU address alignment
+        img.pitch    = (img.Width * (img.bitcount >> 3) + 3) & ~3u;  // for GPU address alignment
 
         img.data_size = img.pitch * img.Height;
-        img.data = g_pMemoryManager->Allocate(img.data_size);
+        img.data      = g_pMemoryManager->Allocate(img.data_size);
 
         uint8_t* pOut = (uint8_t*)img.data;
         for (decltype(img.Height) i = 0; i < img.Height; i++) {
@@ -82,15 +82,15 @@ class TgaParser : implements ImageParser
                     case 15: {
                         uint16_t color = *(uint16_t*)pData;
                         pData += 2;
-                        *(pOut + img.pitch * i + j * 4) = ((color & 0x7C00) >> 10);     // R
-                        *(pOut + img.pitch * i + j * 4 + 1) = ((color & 0x03E0) >> 5);  // G
-                        *(pOut + img.pitch * i + j * 4 + 2) = (color & 0x001F);         // B
-                        *(pOut + img.pitch * i + j * 4 + 3) = 0xFF;                     // A
+                        *(pOut + img.pitch * i + j * 4)     = ((color & 0x7C00) >> 10);  // R
+                        *(pOut + img.pitch * i + j * 4 + 1) = ((color & 0x03E0) >> 5);   // G
+                        *(pOut + img.pitch * i + j * 4 + 2) = (color & 0x001F);          // B
+                        *(pOut + img.pitch * i + j * 4 + 3) = 0xFF;                      // A
                     } break;
                     case 16: {
                         uint16_t color = *(uint16_t*)pData;
                         pData += 2;
-                        *(pOut + img.pitch * i + j * 4) = ((color & 0x7C00) >> 10);              // R
+                        *(pOut + img.pitch * i + j * 4)     = ((color & 0x7C00) >> 10);          // R
                         *(pOut + img.pitch * i + j * 4 + 1) = ((color & 0x03E0) >> 5);           // G
                         *(pOut + img.pitch * i + j * 4 + 2) = (color & 0x001F);                  // B
                         *(pOut + img.pitch * i + j * 4 + 3) = ((color & 0x8000) ? 0xFF : 0x00);  // A

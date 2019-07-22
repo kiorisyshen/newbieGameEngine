@@ -36,13 +36,13 @@ using namespace newbieGE;
 
 - (void)configure
 {
-    self.device = MTLCreateSystemDefaultDevice();
-    self.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
+    self.device                  = MTLCreateSystemDefaultDevice();
+    self.colorPixelFormat        = MTLPixelFormatBGRA8Unorm;
     self.depthStencilPixelFormat = MTLPixelFormatDepth32Float;
-    self.framebufferOnly = YES;
-    self.sampleCount = 4;
+    self.framebufferOnly         = YES;
+    self.sampleCount             = 4;
 
-    self.paused = YES;
+    self.paused                = YES;
     self.enableSetNeedsDisplay = YES;
 
     dynamic_cast<MetalGraphicsManager*>(g_pGraphicsManager)

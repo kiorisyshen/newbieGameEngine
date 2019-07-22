@@ -99,7 +99,7 @@ class SceneObjectVertexArray
           m_DataType(data_type),
           m_pData(data),
           m_szData(data_size){};
-    SceneObjectVertexArray(SceneObjectVertexArray& arr) = default;
+    SceneObjectVertexArray(SceneObjectVertexArray& arr)  = default;
     SceneObjectVertexArray(SceneObjectVertexArray&& arr) = default;
 
     const std::string& GetAttributeName() const { return m_strAttribute; };
@@ -172,7 +172,7 @@ class SceneObjectVertexArray
 };
 
 ENUM(IndexDataType){
-    kIndexDataTypeInt8 = "I8  "_i32,
+    kIndexDataTypeInt8  = "I8  "_i32,
     kIndexDataTypeInt16 = "I16 "_i32,
     kIndexDataTypeInt32 = "I32 "_i32,
     kIndexDataTypeInt64 = "I64 "_i32,
@@ -200,7 +200,7 @@ class SceneObjectIndexArray
           m_DataType(data_type),
           m_pData(data),
           m_szData(data_size){};
-    SceneObjectIndexArray(SceneObjectIndexArray& arr) = default;
+    SceneObjectIndexArray(SceneObjectIndexArray& arr)  = default;
     SceneObjectIndexArray(SceneObjectIndexArray&& arr) = default;
 
     const uint32_t      GetMaterialIndex() const { return m_nMaterialIndex; };
@@ -238,16 +238,16 @@ class SceneObjectIndexArray
 };
 
 ENUM(PrimitiveType){
-    kPrimitiveTypeNone = "NONE"_i32,       ///< No particular primitive type.
+    kPrimitiveTypeNone      = "NONE"_i32,  ///< No particular primitive type.
     kPrimitiveTypePointList = "PLST"_i32,  ///< For N>=0, vertex N renders a point.
-    kPrimitiveTypeLineList = "LLST"_i32,   ///< For N>=0, vertices [N*2+0, N*2+1] render a line.
+    kPrimitiveTypeLineList  = "LLST"_i32,  ///< For N>=0, vertices [N*2+0, N*2+1] render a line.
     kPrimitiveTypeLineStrip = "LSTR"_i32,  ///< For N>=0, vertices [N, N+1] render a line.
-    kPrimitiveTypeTriList = "TLST"_i32,    ///< For N>=0, vertices [N*3+0, N*3+1, N*3+2] render a triangle.
+    kPrimitiveTypeTriList   = "TLST"_i32,  ///< For N>=0, vertices [N*3+0, N*3+1, N*3+2] render a triangle.
     kPrimitiveTypeTriFan =
         "TFAN"_i32,  ///< For N>=0, vertices [0, (N+1)%M, (N+2)%M] render a triangle, where M is the vertex count.
     kPrimitiveTypeTriStrip =
         "TSTR"_i32,  ///< For N>=0, vertices [N*2+0, N*2+1, N*2+2] and [N*2+2, N*2+1, N*2+3] render triangles.
-    kPrimitiveTypePatch = "PACH"_i32,              ///< Used for tessellation.
+    kPrimitiveTypePatch             = "PACH"_i32,  ///< Used for tessellation.
     kPrimitiveTypeLineListAdjacency = "LLSA"_i32,  ///< For N>=0, vertices [N*4..N*4+3] render a line from [1, 2]. Lines
                                                    ///< [0, 1] and [2, 3] are adjacent to the rendered line.
     kPrimitiveTypeLineStripAdjacency = "LSTA"_i32,  ///< For N>=0, vertices [N+1, N+2] render a line. Lines [N, N+1] and
@@ -330,7 +330,7 @@ class SceneObjectTexture : public BaseSceneObject
         : BaseSceneObject(SceneObjectType::kSceneObjectTypeTexture),
           m_nTexCoordIndex(coord_index),
           m_pImage(std::move(image)){};
-    SceneObjectTexture(SceneObjectTexture&) = default;
+    SceneObjectTexture(SceneObjectTexture&)  = default;
     SceneObjectTexture(SceneObjectTexture&&) = default;
     void               AddTransform(Matrix4X4f& matrix) { m_Transforms.push_back(matrix); };
     void               SetName(const std::string& name) { m_Name = name; };
@@ -377,7 +377,7 @@ class SceneObjectTexture : public BaseSceneObject
             // DXGI does not have 24bit formats so we have to extend it to 32bit
             uint32_t new_pitch = m_pImage->pitch / 3 * 4;
             size_t   data_size = new_pitch * m_pImage->Height;
-            uint8_t* data = new uint8_t[data_size];
+            uint8_t* data      = new uint8_t[data_size];
             uint8_t* buf;
             uint8_t* src;
             for (uint32_t row = 0; row < m_pImage->Height; row++) {
@@ -392,15 +392,15 @@ class SceneObjectTexture : public BaseSceneObject
             }
 
             delete static_cast<uint8_t*>(m_pImage->data);
-            m_pImage->data = data;
+            m_pImage->data      = data;
             m_pImage->data_size = data_size;
-            m_pImage->pitch = new_pitch;
-            m_pImage->bitcount = 32;
+            m_pImage->pitch     = new_pitch;
+            m_pImage->bitcount  = 32;
         } else if (m_pImage->bitcount == 48) {
             // DXGI does not have 48bit formats so we have to extend it to 64bit
             uint32_t new_pitch = m_pImage->pitch / 3 * 4;
             size_t   data_size = new_pitch * m_pImage->Height;
-            uint8_t* data = new uint8_t[data_size];
+            uint8_t* data      = new uint8_t[data_size];
             uint8_t* buf;
             uint8_t* src;
             for (uint32_t row = 0; row < m_pImage->Height; row++) {
@@ -415,10 +415,10 @@ class SceneObjectTexture : public BaseSceneObject
             }
 
             delete static_cast<uint8_t*>(m_pImage->data);
-            m_pImage->data = data;
+            m_pImage->data      = data;
             m_pImage->data_size = data_size;
-            m_pImage->pitch = new_pitch;
-            m_pImage->bitcount = 64;
+            m_pImage->pitch     = new_pitch;
+            m_pImage->bitcount  = 64;
         }
     }
 
@@ -441,7 +441,7 @@ struct ParameterValueMap {
 
     ParameterValueMap& operator=(const ParameterValueMap<T>& rhs) = default;
     ParameterValueMap& operator=(ParameterValueMap<T>&& rhs) = default;
-    ParameterValueMap& operator=(const std::shared_ptr<SceneObjectTexture>& rhs)
+    ParameterValueMap& operator                              =(const std::shared_ptr<SceneObjectTexture>& rhs)
     {
         ValueMap = rhs;
         return *this;
@@ -816,7 +816,7 @@ class SceneObjectTransform : public BaseSceneObject
 
     SceneObjectTransform(const Matrix4X4f& matrix, const bool object_only = false) : SceneObjectTransform()
     {
-        m_matrix = matrix;
+        m_matrix           = matrix;
         m_bSceneObjectOnly = object_only;
     }
 

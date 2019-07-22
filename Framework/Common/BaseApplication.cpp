@@ -103,7 +103,7 @@ void BaseApplication::Tick()
 
 void BaseApplication::SetCommandLineParameters(int argc, char** argv)
 {
-    m_nArgC = argc;
+    m_nArgC  = argc;
     m_ppArgV = argv;
 }
 

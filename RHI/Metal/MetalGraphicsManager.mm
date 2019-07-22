@@ -39,9 +39,9 @@ void MetalGraphicsManager::InitializeBuffers(const Scene& scene)
 {
     m_DrawBatchContext.clear();
 
-    uint32_t batch_index = 0;
+    uint32_t batch_index       = 0;
     uint32_t v_property_offset = 0;
-    uint32_t index_offset = 0;
+    uint32_t index_offset      = 0;
 
     for (auto _it : scene.GeometryNodes) {
         auto pGeometryNode = _it.second;
@@ -118,35 +118,35 @@ void MetalGraphicsManager::InitializeBuffers(const Scene& scene)
             }
 
             size_t      material_index = index_array.GetMaterialIndex();
-            std::string material_key = pGeometryNode->GetMaterialRef(material_index);
-            auto        material = scene.GetMaterial(material_key);
+            std::string material_key   = pGeometryNode->GetMaterialRef(material_index);
+            auto        material       = scene.GetMaterial(material_key);
 
-            auto    dbc = make_shared<MtlDrawBatchContext>();
+            auto    dbc        = make_shared<MtlDrawBatchContext>();
             int32_t texture_id = -1;
             if (material) {
                 auto color = material->GetBaseColor();
                 if (color.ValueMap) {
-                    const Image& image = color.ValueMap->GetTextureImage();
-                    texture_id = [m_pRenderer createTexture:image];
+                    const Image& image  = color.ValueMap->GetTextureImage();
+                    texture_id          = [m_pRenderer createTexture:image];
                     dbc->m_diffuseColor = {-1.0f, -1.0f, -1.0f, 1.0f};
                 } else {
                     dbc->m_diffuseColor = color.Value;
                 }
-                color = material->GetSpecularColor();
+                color                = material->GetSpecularColor();
                 dbc->m_specularColor = color.Value;
-                Parameter param = material->GetSpecularPower();
+                Parameter param      = material->GetSpecularPower();
                 // dbc->m_specularPower = param.Value;
             }
-            dbc->materialIdx = texture_id;
-            dbc->index_count = (uint32_t)index_array.GetIndexCount();
-            dbc->index_type = type;
-            dbc->batchIndex = batch_index++;
-            dbc->index_offset = index_offset++;
-            dbc->index_mode = mode;
-            dbc->property_offset = v_property_offset;
-            dbc->property_count = vertexPropertiesCount;
+            dbc->materialIdx         = texture_id;
+            dbc->index_count         = (uint32_t)index_array.GetIndexCount();
+            dbc->index_type          = type;
+            dbc->batchIndex          = batch_index++;
+            dbc->index_offset        = index_offset++;
+            dbc->index_mode          = mode;
+            dbc->property_offset     = v_property_offset;
+            dbc->property_count      = vertexPropertiesCount;
             dbc->m_objectLocalMatrix = *(pGeometryNode->GetCalculatedTransform()).get();
-            dbc->node = pGeometryNode;
+            dbc->node                = pGeometryNode;
             //            [m_pRenderer getPBC].emplace_back(dbc);
             m_DrawBatchContext.push_back(dbc);
         }

@@ -174,7 +174,7 @@ class JfifParser : implements ImageParser
         memset(previous_dc, 0x00, sizeof(previous_dc));
 
         size_t  byte_offset = 0;
-        uint8_t bit_offset = 0;
+        uint8_t bit_offset  = 0;
 
         while (byte_offset < scan_data.size() && mcu_index < mcu_count) {
 #if DUMP_DETAILS
@@ -213,9 +213,9 @@ class JfifParser : implements ImageParser
                                      (8 - dc_bit_length - bit_offset));
                     } else {
                         uint8_t bits_in_first_byte = 8 - bit_offset;
-                        uint8_t append_full_bytes = (dc_bit_length - bits_in_first_byte) / 8;
-                        uint8_t bits_in_last_byte = dc_bit_length - bits_in_first_byte - 8 * append_full_bytes;
-                        tmp_value = (scan_data[byte_offset] & ((0x01u << (8 - bit_offset)) - 1));
+                        uint8_t append_full_bytes  = (dc_bit_length - bits_in_first_byte) / 8;
+                        uint8_t bits_in_last_byte  = dc_bit_length - bits_in_first_byte - 8 * append_full_bytes;
+                        tmp_value                  = (scan_data[byte_offset] & ((0x01u << (8 - bit_offset)) - 1));
                         for (int m = 1; m <= append_full_bytes; m++) {
                             tmp_value <<= 8;
                             tmp_value += scan_data[byte_offset + m];
@@ -282,9 +282,9 @@ class JfifParser : implements ImageParser
                                      (8 - ac_bit_length - bit_offset));
                     } else {
                         uint8_t bits_in_first_byte = 8 - bit_offset;
-                        uint8_t append_full_bytes = (ac_bit_length - bits_in_first_byte) / 8;
-                        uint8_t bits_in_last_byte = ac_bit_length - bits_in_first_byte - 8 * append_full_bytes;
-                        tmp_value = (scan_data[byte_offset] & ((0x01u << (8 - bit_offset)) - 1));
+                        uint8_t append_full_bytes  = (ac_bit_length - bits_in_first_byte) / 8;
+                        uint8_t bits_in_last_byte  = ac_bit_length - bits_in_first_byte - 8 * append_full_bytes;
+                        tmp_value                  = (scan_data[byte_offset] & ((0x01u << (8 - bit_offset)) - 1));
                         for (int m = 1; m <= append_full_bytes; m++) {
                             tmp_value <<= 8;
                             tmp_value += scan_data[byte_offset + m];
@@ -307,7 +307,7 @@ class JfifParser : implements ImageParser
                     printf("AC Value: %d\n", ac_value);
 #endif
 
-                    int index = m_zigzagIndex[ac_index];
+                    int index                          = m_zigzagIndex[ac_index];
                     block[i][index >> 3][index & 0x07] = ac_value;
 
                     // forward pointers to end of AC
@@ -351,7 +351,7 @@ class JfifParser : implements ImageParser
 
                     pBuf = reinterpret_cast<uint8_t*>(img.data) +
                            (img.pitch * (mcu_index_y * 8 + i) + (mcu_index_x * 8 + j) * (img.bitcount >> 3));
-                    rgb = ConvertYCbCr2RGB(ycbcr);
+                    rgb                                             = ConvertYCbCr2RGB(ycbcr);
                     reinterpret_cast<R8G8B8A8Unorm*>(pBuf)->data[0] = (uint8_t)rgb[0];
                     reinterpret_cast<R8G8B8A8Unorm*>(pBuf)->data[1] = (uint8_t)rgb[1];
                     reinterpret_cast<R8G8B8A8Unorm*>(pBuf)->data[2] = (uint8_t)rgb[2];
@@ -380,7 +380,7 @@ class JfifParser : implements ImageParser
     {
         Image img;
 
-        const uint8_t* pData = buf.GetData();
+        const uint8_t* pData    = buf.GetData();
         const uint8_t* pDataEnd = buf.GetData() + buf.GetDataSize();
 
         const JFIF_FILEHEADER* pFileHeader = reinterpret_cast<const JFIF_FILEHEADER*>(pData);
@@ -406,14 +406,14 @@ class JfifParser : implements ImageParser
                         std::cout << "----------------------------" << std::endl;
 
                         const FRAME_HEADER* pFrameHeader = reinterpret_cast<const FRAME_HEADER*>(pData);
-                        m_nSamplePrecision = pFrameHeader->SamplePrecision;
-                        m_nLines = endian_net_unsigned_int((uint16_t)pFrameHeader->NumOfLines);
-                        m_nSamplesPerLine = endian_net_unsigned_int((uint16_t)pFrameHeader->NumOfSamplesPerLine);
+                        m_nSamplePrecision               = pFrameHeader->SamplePrecision;
+                        m_nLines                         = endian_net_unsigned_int((uint16_t)pFrameHeader->NumOfLines);
+                        m_nSamplesPerLine    = endian_net_unsigned_int((uint16_t)pFrameHeader->NumOfSamplesPerLine);
                         m_nComponentsInFrame = pFrameHeader->NumOfComponentsInFrame;
-                        mcu_index = 0;
-                        mcu_count_x = ((m_nSamplesPerLine + 7) >> 3);
-                        mcu_count_y = ((m_nLines + 7) >> 3);
-                        mcu_count = mcu_count_x * mcu_count_y;
+                        mcu_index            = 0;
+                        mcu_count_x          = ((m_nSamplesPerLine + 7) >> 3);
+                        mcu_count_y          = ((m_nLines + 7) >> 3);
+                        mcu_count            = mcu_count_x * mcu_count_y;
 
                         std::cout << "Sample Precision: " << m_nSamplePrecision << std::endl;
                         std::cout << "Num of Lines: " << m_nLines << std::endl;
@@ -438,12 +438,12 @@ class JfifParser : implements ImageParser
                             pFcsp++;
                         }
 
-                        img.Width = m_nSamplesPerLine;
-                        img.Height = m_nLines;
-                        img.bitcount = 32;
-                        img.pitch = mcu_count_x * 8 * (img.bitcount >> 3);
+                        img.Width     = m_nSamplesPerLine;
+                        img.Height    = m_nLines;
+                        img.bitcount  = 32;
+                        img.pitch     = mcu_count_x * 8 * (img.bitcount >> 3);
                         img.data_size = img.pitch * mcu_count_y * 8 * (img.bitcount >> 3);
-                        img.data = g_pMemoryManager->Allocate(img.data_size);
+                        img.data      = g_pMemoryManager->Allocate(img.data_size);
 
                         pData += endian_net_unsigned_int(pSegmentHeader->Length) + 2 /* length of marker */;
                     } break;
@@ -534,7 +534,7 @@ class JfifParser : implements ImageParser
                         assert(pScanHeader->NumOfComponents == m_nComponentsInFrame);
 
                         const uint8_t* pTmp = pData + sizeof(SCAN_HEADER);
-                        pScsp = reinterpret_cast<const SCAN_COMPONENT_SPEC_PARAMS*>(pTmp);
+                        pScsp               = reinterpret_cast<const SCAN_COMPONENT_SPEC_PARAMS*>(pTmp);
 
                         const uint8_t* pScanData = pData + endian_net_unsigned_int((uint16_t)pScanHeader->Length) + 2;
 
@@ -556,7 +556,7 @@ class JfifParser : implements ImageParser
 #endif
 
                         const uint8_t* pScanData = pData + 2;
-                        scanLength = parseScanData(pScanData, pDataEnd, img);
+                        scanLength               = parseScanData(pScanData, pDataEnd, img);
                         pData += 2 + scanLength /* length of marker */;
                     } break;
                     case 0xFFD9: {

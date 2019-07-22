@@ -22,8 +22,8 @@ ENUM(PNG_CHUNK_TYPE){IHDR = "IHDR"_u32, PLTE = "PLTE"_u32, IDAT = "IDAT"_u32, IE
 static std::ostream& operator<<(std::ostream& out, PNG_CHUNK_TYPE type)
 {
     int32_t n = static_cast<int32_t>(type);
-    n = endian_net_unsigned_int<int32_t>(n);
-    char* c = reinterpret_cast<char*>(&n);
+    n         = endian_net_unsigned_int<int32_t>(n);
+    char* c   = reinterpret_cast<char*>(&n);
 
     for (size_t i = 0; i < sizeof(int32_t); i++) {
         out << *c++;
@@ -93,13 +93,13 @@ class PngParser : implements ImageParser
     {
         Image img;
 
-        uint8_t* pData = buf.GetData();
+        uint8_t* pData    = buf.GetData();
         uint8_t* pDataEnd = buf.GetData() + buf.GetDataSize();
 
-        bool     imageDataStarted = false;
-        bool     imageDataEnded = false;
+        bool     imageDataStarted  = false;
+        bool     imageDataEnded    = false;
         uint8_t* imageDataStartPos = nullptr;
-        uint8_t* imageDataEndPos = nullptr;
+        uint8_t* imageDataEndPos   = nullptr;
 
         const PNG_FILEHEADER* pFileHeader = reinterpret_cast<const PNG_FILEHEADER*>(pData);
         pData += sizeof(PNG_FILEHEADER);
@@ -119,13 +119,13 @@ class PngParser : implements ImageParser
                         std::cout << "IHDR (Image Header)" << std::endl;
                         std::cout << "----------------------------" << std::endl;
                         const PNG_IHDR_HEADER* pIHDRHeader = reinterpret_cast<const PNG_IHDR_HEADER*>(pData);
-                        m_Width = endian_net_unsigned_int(pIHDRHeader->Width);
-                        m_Height = endian_net_unsigned_int(pIHDRHeader->Height);
-                        m_BitDepth = pIHDRHeader->BitDepth;
-                        m_ColorType = pIHDRHeader->ColorType;
-                        m_CompressionMethod = pIHDRHeader->CompressionMethod;
-                        m_FilterMethod = pIHDRHeader->FilterMethod;
-                        m_InterlaceMethod = pIHDRHeader->InterlaceMethod;
+                        m_Width                            = endian_net_unsigned_int(pIHDRHeader->Width);
+                        m_Height                           = endian_net_unsigned_int(pIHDRHeader->Height);
+                        m_BitDepth                         = pIHDRHeader->BitDepth;
+                        m_ColorType                        = pIHDRHeader->ColorType;
+                        m_CompressionMethod                = pIHDRHeader->CompressionMethod;
+                        m_FilterMethod                     = pIHDRHeader->FilterMethod;
+                        m_InterlaceMethod                  = pIHDRHeader->InterlaceMethod;
 
                         switch (m_ColorType) {
                             case 0:  // grayscale
@@ -156,15 +156,15 @@ class PngParser : implements ImageParser
 
                         m_ScanLineSize = m_BytesPerPixel * m_Width;
 
-                        img.Width = m_Width;
+                        img.Width  = m_Width;
                         img.Height = m_Height;
                         if (m_ColorType == 2)
                             img.bitcount = 24;
                         else
                             img.bitcount = 32;
-                        img.pitch = (img.Width * (img.bitcount >> 3) + 3) & ~3u;  // for GPU address alignment
+                        img.pitch     = (img.Width * (img.bitcount >> 3) + 3) & ~3u;  // for GPU address alignment
                         img.data_size = img.pitch * img.Height;
-                        img.data = g_pMemoryManager->Allocate(img.data_size);
+                        img.data      = g_pMemoryManager->Allocate(img.data_size);
 
                         std::cout << "Width: " << m_Width << std::endl;
                         std::cout << "Height: " << m_Height << std::endl;
@@ -196,9 +196,9 @@ class PngParser : implements ImageParser
                         }
 
                         if (!imageDataStarted) {
-                            imageDataStarted = true;
+                            imageDataStarted  = true;
                             imageDataStartPos = pData + sizeof(PNG_CHUNK_HEADER);
-                            imageDataEndPos = imageDataStartPos + chunk_data_size;
+                            imageDataEndPos   = imageDataStartPos + chunk_data_size;
                         } else {
                             // concat the IDAT blocks
                             memcpy(imageDataEndPos, pData + sizeof(PNG_CHUNK_HEADER), chunk_data_size);
@@ -220,12 +220,12 @@ class PngParser : implements ImageParser
 
                         const uint32_t kChunkSize = 256 * 1024;
                         z_stream       strm;
-                        strm.zalloc = Z_NULL;
-                        strm.zfree = Z_NULL;
-                        strm.opaque = Z_NULL;
+                        strm.zalloc   = Z_NULL;
+                        strm.zfree    = Z_NULL;
+                        strm.opaque   = Z_NULL;
                         strm.avail_in = 0;
-                        strm.next_in = Z_NULL;
-                        int ret = inflateInit(&strm);
+                        strm.next_in  = Z_NULL;
+                        int ret       = inflateInit(&strm);
                         if (ret != Z_OK) {
                             std::cout << "[Error] Failed to init zlib" << std::endl;
                             break;
@@ -235,21 +235,21 @@ class PngParser : implements ImageParser
                         uint8_t*       pOut =
                             reinterpret_cast<uint8_t*>(img.data);  // point to the start of the input data buffer
                         uint8_t* pDecompressedBuffer = new uint8_t[kChunkSize];
-                        uint8_t  filter_type = 0;
-                        int      current_row = 0;
-                        int      current_col = -1;  // -1 means we need read filter type
+                        uint8_t  filter_type         = 0;
+                        int      current_row         = 0;
+                        int      current_col         = -1;  // -1 means we need read filter type
 
                         do {
                             uint32_t next_in_size =
                                 (compressed_data_size > kChunkSize) ? kChunkSize : (uint32_t)compressed_data_size;
                             if (next_in_size == 0) break;
                             compressed_data_size -= next_in_size;
-                            strm.next_in = const_cast<Bytef*>(pIn);
+                            strm.next_in  = const_cast<Bytef*>(pIn);
                             strm.avail_in = next_in_size;
                             do {
                                 strm.avail_out = kChunkSize;  // 256K
-                                strm.next_out = static_cast<Bytef*>(pDecompressedBuffer);
-                                ret = inflate(&strm, Z_NO_FLUSH);
+                                strm.next_out  = static_cast<Bytef*>(pDecompressedBuffer);
+                                ret            = inflate(&strm, Z_NO_FLUSH);
                                 assert(ret != Z_STREAM_ERROR);
                                 switch (ret) {
                                     case Z_NEED_DICT:

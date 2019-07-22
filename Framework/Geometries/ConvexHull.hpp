@@ -7,7 +7,7 @@ namespace newbieGE
 class ConvexHull : public Polyhedron, protected QuickHull
 {
    public:
-    ConvexHull() = default;
+    ConvexHull()  = default;
     ~ConvexHull() = default;
 
     ConvexHull(PointSet& point_set) : m_PointSet(point_set){};

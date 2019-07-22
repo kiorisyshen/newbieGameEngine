@@ -29,9 +29,9 @@ class InputManager : implements IRuntimeModule
     void LeftMouseDrag(int deltaX, int deltaY);
 
    protected:
-    bool m_bUpKeyPressed = false;
-    bool m_bDownKeyPressed = false;
-    bool m_bLeftKeyPressed = false;
+    bool m_bUpKeyPressed    = false;
+    bool m_bDownKeyPressed  = false;
+    bool m_bLeftKeyPressed  = false;
     bool m_bRightKeyPressed = false;
 };
 

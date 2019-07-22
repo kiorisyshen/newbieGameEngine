@@ -10,7 +10,7 @@ using namespace newbieGE;
 int CocoaMetalApplication::Initialize()
 {
     int result = 0;
-    result = CocoaApplication::Initialize();
+    result     = CocoaApplication::Initialize();
     if (result) {
         return result;
     }

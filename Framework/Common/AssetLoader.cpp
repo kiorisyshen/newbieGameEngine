@@ -53,7 +53,7 @@ AssetLoader::AssetFilePtr AssetLoader::OpenFile(const char* name, AssetOpenMode 
     std::string upPath;
     std::string fullPath;
     for (int32_t i = 0; i < 10; i++) {
-        std::vector<std::string>::iterator src = m_strSearchPath.begin();
+        std::vector<std::string>::iterator src     = m_strSearchPath.begin();
         bool                               looping = true;
         while (looping) {
             fullPath.assign(upPath);  // reset to current upPath.
@@ -88,13 +88,13 @@ AssetLoader::AssetFilePtr AssetLoader::OpenFile(const char* name, AssetOpenMode 
 
 Buffer AssetLoader::SyncOpenAndReadText(const char* filePath)
 {
-    AssetFilePtr fp = OpenFile(filePath, MY_OPEN_TEXT);
+    AssetFilePtr fp    = OpenFile(filePath, MY_OPEN_TEXT);
     Buffer*      pBuff = nullptr;
 
     if (fp) {
         size_t length = GetSize(fp);
 
-        pBuff = new Buffer(length + 1);
+        pBuff  = new Buffer(length + 1);
         length = fread(pBuff->GetData(), 1, length, static_cast<FILE*>(fp));
 #ifdef DEBUG
         fprintf(stderr, "Read file '%s', %zu bytes\n", filePath, length);
@@ -113,7 +113,7 @@ Buffer AssetLoader::SyncOpenAndReadText(const char* filePath)
 
 Buffer AssetLoader::SyncOpenAndReadBinary(const char* filePath)
 {
-    AssetFilePtr fp = OpenFile(filePath, MY_OPEN_BINARY);
+    AssetFilePtr fp    = OpenFile(filePath, MY_OPEN_BINARY);
     Buffer*      pBuff = nullptr;
 
     if (fp) {

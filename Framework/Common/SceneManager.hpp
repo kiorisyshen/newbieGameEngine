@@ -35,9 +35,9 @@ class SceneManager : implements IRuntimeModule
 
    protected:
     std::shared_ptr<Scene> m_pScene;
-    bool                   m_bRenderingQueued = false;
+    bool                   m_bRenderingQueued          = false;
     bool                   m_bPhysicalSimulationQueued = false;
-    bool                   m_bDirtyFlag = false;
+    bool                   m_bDirtyFlag                = false;
 };
 
 extern SceneManager* g_pSceneManager;

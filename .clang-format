@@ -5,6 +5,7 @@ BreakBeforeBraces: Linux
 ObjCSpaceAfterProperty: true
 ObjCSpaceBeforeProtocolList: true
 AlignConsecutiveDeclarations: true
+AlignConsecutiveAssignments: true
 DerivePointerBinding: false
 PointerBindsToType: true
 DerivePointerAlignment: false

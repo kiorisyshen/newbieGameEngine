@@ -36,7 +36,7 @@ void MyPhysicsManager::Tick()
             auto pGeometryNode = _it.second;
             if (void* rigidBody = pGeometryNode->RigidBody()) {
                 RigidBody* _rigidBody = reinterpret_cast<RigidBody*>(rigidBody);
-                auto       pGeometry = _rigidBody->GetCollisionShape();
+                auto       pGeometry  = _rigidBody->GetCollisionShape();
                 if (pGeometry->GetGeometryType() == GeometryType::kPolyhydron) {
                     dynamic_pointer_cast<ConvexHull>(pGeometry)->Iterate();
                 }
@@ -47,39 +47,39 @@ void MyPhysicsManager::Tick()
 
 void MyPhysicsManager::CreateRigidBody(SceneGeometryNode& node, const SceneObjectGeometry& geometry)
 {
-    const float* param = geometry.CollisionParameters();
+    const float* param     = geometry.CollisionParameters();
     RigidBody*   rigidBody = nullptr;
 
     switch (geometry.CollisionType()) {
         case SceneObjectCollisionType::kSceneObjectCollisionTypeSphere: {
             auto collision_box = make_shared<Sphere>(param[0]);
 
-            const auto trans = node.GetCalculatedTransform();
+            const auto trans       = node.GetCalculatedTransform();
             auto       motionState = make_shared<MotionState>(*trans);
-            rigidBody = new RigidBody(collision_box, motionState);
+            rigidBody              = new RigidBody(collision_box, motionState);
         } break;
         case SceneObjectCollisionType::kSceneObjectCollisionTypeBox: {
             auto collision_box = make_shared<Box>(Vector3f({param[0], param[1], param[2]}));
 
-            const auto trans = node.GetCalculatedTransform();
+            const auto trans       = node.GetCalculatedTransform();
             auto       motionState = make_shared<MotionState>(*trans);
-            rigidBody = new RigidBody(collision_box, motionState);
+            rigidBody              = new RigidBody(collision_box, motionState);
         } break;
         case SceneObjectCollisionType::kSceneObjectCollisionTypePlane: {
             auto collision_box = make_shared<Plane>(Vector3f({param[0], param[1], param[2]}), param[3]);
 
-            const auto trans = node.GetCalculatedTransform();
+            const auto trans       = node.GetCalculatedTransform();
             auto       motionState = make_shared<MotionState>(*trans);
-            rigidBody = new RigidBody(collision_box, motionState);
+            rigidBody              = new RigidBody(collision_box, motionState);
         } break;
         default: {
             // create collision box using convex hull
-            auto bounding_box = geometry.GetBoundingBox();
+            auto bounding_box  = geometry.GetBoundingBox();
             auto collision_box = make_shared<ConvexHull>(geometry.GetConvexHull());
 
-            const auto trans = node.GetCalculatedTransform();
+            const auto trans       = node.GetCalculatedTransform();
             auto       motionState = make_shared<MotionState>(*trans, bounding_box.centroid);
-            rigidBody = new RigidBody(collision_box, motionState);
+            rigidBody              = new RigidBody(collision_box, motionState);
         }
     }
 
@@ -88,8 +88,8 @@ void MyPhysicsManager::CreateRigidBody(SceneGeometryNode& node, const SceneObjec
 
 void MyPhysicsManager::UpdateRigidBodyTransform(SceneGeometryNode& node)
 {
-    const auto trans = node.GetCalculatedTransform();
-    auto       rigidBody = node.RigidBody();
+    const auto trans       = node.GetCalculatedTransform();
+    auto       rigidBody   = node.RigidBody();
     auto       motionState = reinterpret_cast<RigidBody*>(rigidBody)->GetMotionState();
     motionState->SetTransition(*trans);
 }
@@ -109,7 +109,7 @@ int MyPhysicsManager::CreateRigidBodies()
     // Geometries
     for (auto _it : scene.GeometryNodes) {
         auto pGeometryNode = _it.second;
-        auto pGeometry = scene.GetGeometry(pGeometryNode->GetSceneObjectRef());
+        auto pGeometry     = scene.GetGeometry(pGeometryNode->GetSceneObjectRef());
         assert(pGeometry);
 
         CreateRigidBody(*pGeometryNode, *pGeometry);
@@ -131,7 +131,7 @@ void MyPhysicsManager::ClearRigidBodies()
 
 Matrix4X4f MyPhysicsManager::GetRigidBodyTransform(void* rigidBody)
 {
-    RigidBody* _rigidBody = reinterpret_cast<RigidBody*>(rigidBody);
+    RigidBody* _rigidBody  = reinterpret_cast<RigidBody*>(rigidBody);
     auto       motionState = _rigidBody->GetMotionState();
     return motionState->GetTransition();
 }
@@ -147,11 +147,11 @@ void MyPhysicsManager::DrawDebugInfo()
     for (auto _it : scene.GeometryNodes) {
         auto pGeometryNode = _it.second;
         if (void* rigidBody = pGeometryNode->RigidBody()) {
-            RigidBody* _rigidBody = reinterpret_cast<RigidBody*>(rigidBody);
-            auto       motionState = _rigidBody->GetMotionState();
+            RigidBody* _rigidBody   = reinterpret_cast<RigidBody*>(rigidBody);
+            auto       motionState  = _rigidBody->GetMotionState();
             auto       centerOfMass = motionState->GetCenterOfMassOffset();
-            auto       trans = motionState->GetTransition();
-            auto       pGeometry = _rigidBody->GetCollisionShape();
+            auto       trans        = motionState->GetTransition();
+            auto       pGeometry    = _rigidBody->GetCollisionShape();
             DrawAabb(*pGeometry, trans, centerOfMass);
             DrawShape(*pGeometry, trans, centerOfMass);
         }

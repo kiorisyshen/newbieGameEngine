@@ -73,7 +73,7 @@ void GraphicsManager::InitConstants()
 
 void GraphicsManager::CalculateCameraMatrix()
 {
-    auto& scene = g_pSceneManager->GetSceneForRendering();
+    auto& scene       = g_pSceneManager->GetSceneForRendering();
     auto  pCameraNode = scene.GetFirstCameraNode();
     if (pCameraNode) {
         m_DrawFrameContext.m_viewMatrix = *pCameraNode->GetCalculatedTransform();
@@ -84,16 +84,16 @@ void GraphicsManager::CalculateCameraMatrix()
         BuildViewMatrix(m_DrawFrameContext.m_viewMatrix, position, lookAt, up);
     }
 
-    float fieldOfView = PI / 2.0f;
+    float fieldOfView      = PI / 2.0f;
     float nearClipDistance = 1.0f;
-    float farClipDistance = 100.0f;
+    float farClipDistance  = 100.0f;
 
     if (pCameraNode) {
         auto pCamera = scene.GetCamera(pCameraNode->GetSceneObjectRef());
         // Set the field of view and screen aspect ratio.
-        fieldOfView = dynamic_pointer_cast<SceneObjectPerspectiveCamera>(pCamera)->GetFov();
+        fieldOfView      = dynamic_pointer_cast<SceneObjectPerspectiveCamera>(pCamera)->GetFov();
         nearClipDistance = pCamera->GetNearClipDistance();
-        farClipDistance = pCamera->GetFarClipDistance();
+        farClipDistance  = pCamera->GetFarClipDistance();
     }
 
     const GfxConfiguration& conf = g_pApp->GetConfiguration();
@@ -107,7 +107,7 @@ void GraphicsManager::CalculateCameraMatrix()
 
 void GraphicsManager::CalculateLights()
 {
-    auto& scene = g_pSceneManager->GetSceneForRendering();
+    auto& scene      = g_pSceneManager->GetSceneForRendering();
     auto  pLightNode = scene.GetFirstLightNode();
     if (pLightNode) {
         m_DrawFrameContext.m_lightPosition = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -120,7 +120,7 @@ void GraphicsManager::CalculateLights()
     } else {
         // use default build-in light
         m_DrawFrameContext.m_lightPosition = {-1.0f, -5.0f, 0.0f, 1.0f};
-        m_DrawFrameContext.m_lightColor = {1.0f, 1.0f, 1.0f, 1.0f};
+        m_DrawFrameContext.m_lightColor    = {1.0f, 1.0f, 1.0f, 1.0f};
     }
 }
 

@@ -36,7 +36,7 @@ class BmpParser : implements ImageParser
     {
         Image                    img;
         const BITMAP_FILEHEADER* pFileHeader = reinterpret_cast<const BITMAP_FILEHEADER*>(buf.GetData());
-        const BITMAP_HEADER*     pBmpHeader = reinterpret_cast<const BITMAP_HEADER*>(
+        const BITMAP_HEADER*     pBmpHeader  = reinterpret_cast<const BITMAP_HEADER*>(
             reinterpret_cast<const uint8_t*>(buf.GetData()) + BITMAP_FILEHEADER_SIZE);
         if (pFileHeader->Signature == 0x4D42 /* 'B''M' */) {
             std::cout << "Asset is Windows BMP file" << std::endl;
@@ -51,13 +51,13 @@ class BmpParser : implements ImageParser
             std::cout << "Image Compression: " << pBmpHeader->Compression << std::endl;
             std::cout << "Image Size: " << pBmpHeader->SizeImage << std::endl;
 
-            img.Width = pBmpHeader->Width;
-            img.Height = pBmpHeader->Height;
-            img.bitcount = 32;
+            img.Width       = pBmpHeader->Width;
+            img.Height      = pBmpHeader->Height;
+            img.bitcount    = 32;
             auto byte_count = img.bitcount >> 3;
-            img.pitch = ((img.Width * byte_count) + 3) & ~3;
-            img.data_size = img.pitch * img.Height;
-            img.data = g_pMemoryManager->Allocate(img.data_size);
+            img.pitch       = ((img.Width * byte_count) + 3) & ~3;
+            img.data_size   = img.pitch * img.Height;
+            img.data        = g_pMemoryManager->Allocate(img.data_size);
 
             if (img.bitcount < 24) {
                 std::cout << "Sorry, only true color BMP is supported at now." << std::endl;

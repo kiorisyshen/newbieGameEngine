@@ -15,8 +15,8 @@ class OgexParser : implements SceneParser
 
         switch (structure.GetStructureType()) {
             case OGEX::kStructureMetric: {
-                const OGEX::MetricStructure& _structure = dynamic_cast<const OGEX::MetricStructure&>(structure);
-                auto                         _key = _structure.GetMetricKey();
+                const OGEX::MetricStructure& _structure    = dynamic_cast<const OGEX::MetricStructure&>(structure);
+                auto                         _key          = _structure.GetMetricKey();
                 const ODDL::Structure*       sub_structure = _structure.GetFirstCoreSubnode();
                 if (_key == "up") {
                     const ODDL::DataStructure<ODDL::StringDataType>* dataStructure =
@@ -34,7 +34,7 @@ class OgexParser : implements SceneParser
                 node = std::make_shared<SceneEmptyNode>(structure.GetStructureName());
             } break;
             case OGEX::kStructureGeometryNode: {
-                std::string                        _key = structure.GetStructureName();
+                std::string                        _key  = structure.GetStructureName();
                 auto                               _node = std::make_shared<SceneGeometryNode>(_key);
                 const OGEX::GeometryNodeStructure& _structure =
                     dynamic_cast<const OGEX::GeometryNodeStructure&>(structure);
@@ -48,11 +48,11 @@ class OgexParser : implements SceneParser
                 _node->AddSceneObjectRef(_key);
 
                 // ref materials
-                auto materials = _structure.GetMaterialStructureArray();
+                auto materials       = _structure.GetMaterialStructureArray();
                 auto materials_count = materials.GetElementCount();
                 for (auto i = 0; i < materials_count; i++) {
                     auto material = materials[i];
-                    _key = material->GetStructureName();
+                    _key          = material->GetStructureName();
                     _node->AddMaterialRef(_key);
                 }
 
@@ -91,7 +91,7 @@ class OgexParser : implements SceneParser
             case OGEX::kStructureGeometryObject: {
                 const OGEX::GeometryObjectStructure& _structure =
                     dynamic_cast<const OGEX::GeometryObjectStructure&>(structure);
-                std::string _key = _structure.GetStructureName();
+                std::string _key    = _structure.GetStructureName();
                 auto        _object = std::make_shared<SceneObjectGeometry>();
 
                 // properties
@@ -118,7 +118,7 @@ class OgexParser : implements SceneParser
                             const ODDL::DataStructure<ODDL::FloatDataType>* dataStructure2 =
                                 static_cast<const ODDL::DataStructure<ODDL::FloatDataType>*>(sub_structure);
                             auto   elementCount = dataStructure2->GetDataElementCount();
-                            float* _data = (float*)&dataStructure2->GetDataElement(0);
+                            float* _data        = (float*)&dataStructure2->GetDataElement(0);
                             if (collision_type == "plane") {
                                 _object->SetCollisionType(SceneObjectCollisionType::kSceneObjectCollisionTypePlane);
                                 _object->SetCollisionParameters(_data, elementCount);
@@ -165,18 +165,18 @@ class OgexParser : implements SceneParser
                                 case OGEX::kStructureVertexArray: {
                                     const OGEX::VertexArrayStructure* _v =
                                         dynamic_cast<const OGEX::VertexArrayStructure*>(sub_structure);
-                                    const char* attr = _v->GetArrayAttrib();
+                                    const char* attr        = _v->GetArrayAttrib();
                                     auto        morph_index = _v->GetMorphIndex();
 
                                     const ODDL::Structure* _data_structure = _v->GetFirstCoreSubnode();
                                     const ODDL::DataStructure<FloatDataType>* dataStructure =
                                         dynamic_cast<const ODDL::DataStructure<FloatDataType>*>(_data_structure);
 
-                                    auto        arraySize = dataStructure->GetArraySize();
+                                    auto        arraySize    = dataStructure->GetArraySize();
                                     auto        elementCount = dataStructure->GetDataElementCount();
-                                    const void* _data = &dataStructure->GetDataElement(0);
-                                    void*       data = new float[elementCount];
-                                    size_t      buf_size = sizeof(float) * elementCount;
+                                    const void* _data        = &dataStructure->GetDataElement(0);
+                                    void*       data         = new float[elementCount];
+                                    size_t      buf_size     = sizeof(float) * elementCount;
                                     memcpy(data, _data, buf_size);
                                     VertexDataType vertexDataType;
                                     switch (arraySize) {
@@ -202,13 +202,13 @@ class OgexParser : implements SceneParser
                                 case OGEX::kStructureIndexArray: {
                                     const OGEX::IndexArrayStructure* _i =
                                         dynamic_cast<const OGEX::IndexArrayStructure*>(sub_structure);
-                                    auto                   material_index = _i->GetMaterialIndex();
-                                    auto                   restart_index = _i->GetRestartIndex();
+                                    auto                   material_index  = _i->GetMaterialIndex();
+                                    auto                   restart_index   = _i->GetRestartIndex();
                                     const ODDL::Structure* _data_structure = _i->GetFirstCoreSubnode();
-                                    ODDL::StructureType    type = _data_structure->GetStructureType();
-                                    int32_t                elementCount = 0;
-                                    const void*            _data = nullptr;
-                                    IndexDataType          index_type = IndexDataType::kIndexDataTypeInt16;
+                                    ODDL::StructureType    type            = _data_structure->GetStructureType();
+                                    int32_t                elementCount    = 0;
+                                    const void*            _data           = nullptr;
+                                    IndexDataType          index_type      = IndexDataType::kIndexDataTypeInt16;
                                     switch (type) {
                                         case ODDL::kDataUnsignedInt8: {
                                             index_type = IndexDataType::kIndexDataTypeInt8;
@@ -216,7 +216,7 @@ class OgexParser : implements SceneParser
                                                 dynamic_cast<const ODDL::DataStructure<UnsignedInt8DataType>*>(
                                                     _data_structure);
                                             elementCount = dataStructure->GetDataElementCount();
-                                            _data = &dataStructure->GetDataElement(0);
+                                            _data        = &dataStructure->GetDataElement(0);
                                         } break;
                                         case ODDL::kDataUnsignedInt16: {
                                             index_type = IndexDataType::kIndexDataTypeInt16;
@@ -224,7 +224,7 @@ class OgexParser : implements SceneParser
                                                 dynamic_cast<const ODDL::DataStructure<UnsignedInt16DataType>*>(
                                                     _data_structure);
                                             elementCount = dataStructure->GetDataElementCount();
-                                            _data = &dataStructure->GetDataElement(0);
+                                            _data        = &dataStructure->GetDataElement(0);
                                         } break;
                                         case ODDL::kDataUnsignedInt32: {
                                             index_type = IndexDataType::kIndexDataTypeInt32;
@@ -232,7 +232,7 @@ class OgexParser : implements SceneParser
                                                 dynamic_cast<const ODDL::DataStructure<UnsignedInt32DataType>*>(
                                                     _data_structure);
                                             elementCount = dataStructure->GetDataElementCount();
-                                            _data = &dataStructure->GetDataElement(0);
+                                            _data        = &dataStructure->GetDataElement(0);
                                         } break;
                                         case ODDL::kDataUnsignedInt64: {
                                             index_type = IndexDataType::kIndexDataTypeInt64;
@@ -240,7 +240,7 @@ class OgexParser : implements SceneParser
                                                 dynamic_cast<const ODDL::DataStructure<UnsignedInt64DataType>*>(
                                                     _data_structure);
                                             elementCount = dataStructure->GetDataElementCount();
-                                            _data = &dataStructure->GetDataElement(0);
+                                            _data        = &dataStructure->GetDataElement(0);
                                         } break;
                                         default:;
                                     }
@@ -263,7 +263,7 @@ class OgexParser : implements SceneParser
                                     }
 
                                     size_t buf_size = elementCount * data_size;
-                                    void*  data = new uint8_t[buf_size];
+                                    void*  data     = new uint8_t[buf_size];
                                     memcpy(data, _data, buf_size);
                                     SceneObjectIndexArray& _i_array = *new SceneObjectIndexArray(
                                         material_index, restart_index, index_type, data, elementCount);
@@ -286,7 +286,7 @@ class OgexParser : implements SceneParser
                 return;
             case OGEX::kStructureTransform: {
                 int32_t                         index, count;
-                const OGEX::TransformStructure& _structure = dynamic_cast<const OGEX::TransformStructure&>(structure);
+                const OGEX::TransformStructure& _structure  = dynamic_cast<const OGEX::TransformStructure&>(structure);
                 bool                            object_flag = _structure.GetObjectFlag();
                 Matrix4X4f                      matrix;
                 std::shared_ptr<SceneObjectTransform> transform;
@@ -294,7 +294,7 @@ class OgexParser : implements SceneParser
                 count = _structure.GetTransformCount();
                 for (index = 0; index < count; index++) {
                     const float* data = _structure.GetTransform(index);
-                    matrix = data;
+                    matrix            = data;
                     if (!m_bUpIsYAxis) {
                         // commented out due to camera is in same coordinations
                         // so no need to exchange.
@@ -323,7 +323,7 @@ class OgexParser : implements SceneParser
             }
                 return;
             case OGEX::kStructureRotation: {
-                const OGEX::RotationStructure& _structure = dynamic_cast<const OGEX::RotationStructure&>(structure);
+                const OGEX::RotationStructure& _structure  = dynamic_cast<const OGEX::RotationStructure&>(structure);
                 bool                           object_flag = _structure.GetObjectFlag();
                 std::shared_ptr<SceneObjectRotation> rotation;
 
@@ -348,8 +348,8 @@ class OgexParser : implements SceneParser
             case OGEX::kStructureMaterial: {
                 const OGEX::MaterialStructure& _structure = dynamic_cast<const OGEX::MaterialStructure&>(structure);
                 std::string                    material_name;
-                const char*                    _name = _structure.GetMaterialName();
-                std::string                    _key = _structure.GetStructureName();
+                const char*                    _name    = _structure.GetMaterialName();
+                std::string                    _key     = _structure.GetStructureName();
                 auto                           material = std::make_shared<SceneObjectMaterial>();
                 material->SetName(_name);
 
@@ -361,12 +361,12 @@ class OgexParser : implements SceneParser
                     switch (_sub_structure->GetStructureType()) {
                         case OGEX::kStructureColor: {
                             attrib = dynamic_cast<const OGEX::ColorStructure*>(_sub_structure)->GetAttribString();
-                            color = dynamic_cast<const OGEX::ColorStructure*>(_sub_structure)->GetColor();
+                            color  = dynamic_cast<const OGEX::ColorStructure*>(_sub_structure)->GetColor();
                             material->SetColor(attrib, color);
                         } break;
                         case OGEX::kStructureParam: {
                             attrib = dynamic_cast<const OGEX::ParamStructure*>(_sub_structure)->GetAttribString();
-                            param = dynamic_cast<const OGEX::ParamStructure*>(_sub_structure)->GetParam();
+                            param  = dynamic_cast<const OGEX::ParamStructure*>(_sub_structure)->GetParam();
                             material->SetParam(attrib, param);
                         } break;
                         case OGEX::kStructureTexture: {
@@ -386,8 +386,8 @@ class OgexParser : implements SceneParser
                 const OGEX::LightObjectStructure& _structure =
                     dynamic_cast<const OGEX::LightObjectStructure&>(structure);
                 const char*                       _type_str = _structure.GetTypeString();
-                const bool                        _bshadow = _structure.GetShadowFlag();
-                std::string                       _key = _structure.GetStructureName();
+                const bool                        _bshadow  = _structure.GetShadowFlag();
+                std::string                       _key      = _structure.GetStructureName();
                 std::shared_ptr<SceneObjectLight> light;
 
                 if (!strncmp(_type_str, "infinite", 8)) {
@@ -408,12 +408,12 @@ class OgexParser : implements SceneParser
                     switch (_sub_structure->GetStructureType()) {
                         case OGEX::kStructureColor: {
                             attrib = dynamic_cast<const OGEX::ColorStructure*>(_sub_structure)->GetAttribString();
-                            color = dynamic_cast<const OGEX::ColorStructure*>(_sub_structure)->GetColor();
+                            color  = dynamic_cast<const OGEX::ColorStructure*>(_sub_structure)->GetColor();
                             light->SetColor(attrib, color);
                         } break;
                         case OGEX::kStructureParam: {
                             attrib = dynamic_cast<const OGEX::ParamStructure*>(_sub_structure)->GetAttribString();
-                            param = dynamic_cast<const OGEX::ParamStructure*>(_sub_structure)->GetParam();
+                            param  = dynamic_cast<const OGEX::ParamStructure*>(_sub_structure)->GetParam();
                             light->SetParam(attrib, param);
                         } break;
                         case OGEX::kStructureTexture: {
@@ -436,7 +436,7 @@ class OgexParser : implements SceneParser
             case OGEX::kStructureCameraObject: {
                 const OGEX::CameraObjectStructure& _structure =
                     dynamic_cast<const OGEX::CameraObjectStructure&>(structure);
-                std::string _key = _structure.GetStructureName();
+                std::string _key   = _structure.GetStructureName();
                 auto        camera = std::make_shared<SceneObjectPerspectiveCamera>();
 
                 const ODDL::Structure* _sub_structure = _structure.GetFirstCoreSubnode();
@@ -447,12 +447,12 @@ class OgexParser : implements SceneParser
                     switch (_sub_structure->GetStructureType()) {
                         case OGEX::kStructureColor: {
                             attrib = dynamic_cast<const OGEX::ColorStructure*>(_sub_structure)->GetAttribString();
-                            color = dynamic_cast<const OGEX::ColorStructure*>(_sub_structure)->GetColor();
+                            color  = dynamic_cast<const OGEX::ColorStructure*>(_sub_structure)->GetColor();
                             camera->SetColor(attrib, color);
                         } break;
                         case OGEX::kStructureParam: {
                             attrib = dynamic_cast<const OGEX::ParamStructure*>(_sub_structure)->GetAttribString();
-                            param = dynamic_cast<const OGEX::ParamStructure*>(_sub_structure)->GetParam();
+                            param  = dynamic_cast<const OGEX::ParamStructure*>(_sub_structure)->GetParam();
                             camera->SetParam(attrib, param);
                         } break;
                         case OGEX::kStructureTexture: {
@@ -484,7 +484,7 @@ class OgexParser : implements SceneParser
     }
 
    public:
-    OgexParser() = default;
+    OgexParser()          = default;
     virtual ~OgexParser() = default;
 
     virtual std::unique_ptr<Scene> Parse(const std::string& buf)

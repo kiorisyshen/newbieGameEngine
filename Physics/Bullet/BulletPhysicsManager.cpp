@@ -11,7 +11,7 @@ int BulletPhysicsManager::Initialize()
 
     // Set up the collision configuration and dispatcher
     m_btCollisionConfiguration = new btDefaultCollisionConfiguration();
-    m_btDispatcher = new btCollisionDispatcher(m_btCollisionConfiguration);
+    m_btDispatcher             = new btCollisionDispatcher(m_btCollisionConfiguration);
 
     // The actual physics solver
     m_btSolver = new btSequentialImpulseConstraintSolver;
@@ -71,7 +71,7 @@ void BulletPhysicsManager::CreateRigidBody(SceneGeometryNode& node, const SceneO
             //                                            trans->data[1][2],
             //                                            trans->data[2][2]));
             btDefaultMotionState* motionState = new btDefaultMotionState(startTransform);
-            btScalar              mass = 1.0f;
+            btScalar              mass        = 1.0f;
             btVector3             fallInertia(0.0f, 0.0f, 0.0f);
             sphere->calculateLocalInertia(mass, fallInertia);
             btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, motionState, sphere, fallInertia);
@@ -95,7 +95,7 @@ void BulletPhysicsManager::CreateRigidBody(SceneGeometryNode& node, const SceneO
             //                                            trans->data[1][2],
             //                                            trans->data[2][2]));
             btDefaultMotionState*                    motionState = new btDefaultMotionState(startTransform);
-            btScalar                                 mass = 0.0f;
+            btScalar                                 mass        = 0.0f;
             btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, motionState, box, btVector3(0.0f, 0.0f, 0.0f));
             rigidBody = new btRigidBody(rigidBodyCI);
             m_btDynamicsWorld->addRigidBody(rigidBody);
@@ -117,7 +117,7 @@ void BulletPhysicsManager::CreateRigidBody(SceneGeometryNode& node, const SceneO
             //                                            trans->data[1][2],
             //                                            trans->data[2][2]));
             btDefaultMotionState*                    motionState = new btDefaultMotionState(startTransform);
-            btScalar                                 mass = 0.0f;
+            btScalar                                 mass        = 0.0f;
             btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, motionState, plane, btVector3(0.0f, 0.0f, 0.0f));
             rigidBody = new btRigidBody(rigidBodyCI);
             m_btDynamicsWorld->addRigidBody(rigidBody);
@@ -130,8 +130,8 @@ void BulletPhysicsManager::CreateRigidBody(SceneGeometryNode& node, const SceneO
 
 void BulletPhysicsManager::UpdateRigidBodyTransform(SceneGeometryNode& node)
 {
-    const auto  trans = node.GetCalculatedTransform();
-    auto        rigidBody = node.RigidBody();
+    const auto  trans       = node.GetCalculatedTransform();
+    auto        rigidBody   = node.RigidBody();
     auto        motionState = reinterpret_cast<btRigidBody*>(rigidBody)->getMotionState();
     btTransform _trans;
     _trans.setIdentity();
@@ -160,7 +160,7 @@ int BulletPhysicsManager::CreateRigidBodies()
     // Geometries
     for (auto _it : scene.GeometryNodes) {
         auto pGeometryNode = _it.second;
-        auto pGeometry = scene.GetGeometry(pGeometryNode->GetSceneObjectRef());
+        auto pGeometry     = scene.GetGeometry(pGeometryNode->GetSceneObjectRef());
         assert(pGeometry);
 
         CreateRigidBody(*pGeometryNode, *pGeometry);
@@ -191,7 +191,7 @@ Matrix4X4f BulletPhysicsManager::GetRigidBodyTransform(void* rigidBody)
     Matrix4X4f  result;
     btTransform trans;
     reinterpret_cast<btRigidBody*>(rigidBody)->getMotionState()->getWorldTransform(trans);
-    auto basis = trans.getBasis();
+    auto basis  = trans.getBasis();
     auto origin = trans.getOrigin();
     BuildIdentityMatrix(result);
     result.data[0][0] = basis[0][0];

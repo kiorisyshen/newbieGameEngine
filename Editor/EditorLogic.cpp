@@ -33,7 +33,7 @@ void EditorLogic::DrawDebugInfo() {}
 
 void EditorLogic::OnLeftKeyDown()
 {
-    auto& scene = g_pSceneManager->GetSceneForRendering();
+    auto& scene       = g_pSceneManager->GetSceneForRendering();
     auto  pCameraNode = scene.GetFirstCameraNode();
     if (pCameraNode) {
         auto     local_axis = pCameraNode->GetLocalAxis();
@@ -47,7 +47,7 @@ void EditorLogic::OnLeftKeyDown()
 
 void EditorLogic::OnRightKeyDown()
 {
-    auto& scene = g_pSceneManager->GetSceneForRendering();
+    auto& scene       = g_pSceneManager->GetSceneForRendering();
     auto  pCameraNode = scene.GetFirstCameraNode();
     if (pCameraNode) {
         auto     local_axis = pCameraNode->GetLocalAxis();
@@ -61,7 +61,7 @@ void EditorLogic::OnRightKeyDown()
 
 void EditorLogic::OnUpKeyDown()
 {
-    auto& scene = g_pSceneManager->GetSceneForRendering();
+    auto& scene       = g_pSceneManager->GetSceneForRendering();
     auto  pCameraNode = scene.GetFirstCameraNode();
     if (pCameraNode) {
         auto     local_axis = pCameraNode->GetLocalAxis();
@@ -75,7 +75,7 @@ void EditorLogic::OnUpKeyDown()
 
 void EditorLogic::OnDownKeyDown()
 {
-    auto& scene = g_pSceneManager->GetSceneForRendering();
+    auto& scene       = g_pSceneManager->GetSceneForRendering();
     auto  pCameraNode = scene.GetFirstCameraNode();
     if (pCameraNode) {
         auto     local_axis = pCameraNode->GetLocalAxis();
@@ -90,10 +90,10 @@ void EditorLogic::OnDownKeyDown()
 void EditorLogic::OnAnalogStick(int id, float deltaX, float deltaY)
 {
     if (id == 0) {
-        auto& scene = g_pSceneManager->GetSceneForRendering();
+        auto& scene       = g_pSceneManager->GetSceneForRendering();
         auto  pCameraNode = scene.GetFirstCameraNode();
         if (pCameraNode) {
-            auto screen_width = g_pApp->GetConfiguration().screenWidth;
+            auto screen_width  = g_pApp->GetConfiguration().screenWidth;
             auto screen_height = g_pApp->GetConfiguration().screenHeight;
             // move camera along its local axis -y direction
             pCameraNode->RotateBy(deltaX / screen_width * PI, deltaY / screen_height * PI, 0.0f);

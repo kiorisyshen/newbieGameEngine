@@ -7,7 +7,7 @@ namespace newbieGE
 class QuickHull
 {
    public:
-    QuickHull() = default;
+    QuickHull()  = default;
     ~QuickHull() = default;
     bool Iterate(Polyhedron& hull, PointSet& point_set);
 

@@ -8,8 +8,8 @@ namespace newbieGE
 std::ostream& operator<<(std::ostream& out, SceneObjectType type)
 {
     int32_t n = static_cast<int32_t>(type);
-    n = endian_net_unsigned_int<int32_t>(n);
-    char* c = reinterpret_cast<char*>(&n);
+    n         = endian_net_unsigned_int<int32_t>(n);
+    char* c   = reinterpret_cast<char*>(&n);
 
     for (size_t i = 0; i < sizeof(int32_t); i++) {
         out << *c++;
@@ -21,8 +21,8 @@ std::ostream& operator<<(std::ostream& out, SceneObjectType type)
 std::ostream& operator<<(std::ostream& out, IndexDataType type)
 {
     int32_t n = static_cast<int32_t>(type);
-    n = endian_net_unsigned_int<int32_t>(n);
-    char* c = reinterpret_cast<char*>(&n);
+    n         = endian_net_unsigned_int<int32_t>(n);
+    char* c   = reinterpret_cast<char*>(&n);
 
     for (size_t i = 0; i < sizeof(int32_t); i++) {
         out << *c++;
@@ -34,8 +34,8 @@ std::ostream& operator<<(std::ostream& out, IndexDataType type)
 std::ostream& operator<<(std::ostream& out, VertexDataType type)
 {
     int32_t n = static_cast<int32_t>(type);
-    n = endian_net_unsigned_int<int32_t>(n);
-    char* c = reinterpret_cast<char*>(&n);
+    n         = endian_net_unsigned_int<int32_t>(n);
+    char* c   = reinterpret_cast<char*>(&n);
 
     for (size_t i = 0; i < sizeof(int32_t); i++) {
         out << *c++;
@@ -47,8 +47,8 @@ std::ostream& operator<<(std::ostream& out, VertexDataType type)
 std::ostream& operator<<(std::ostream& out, PrimitiveType type)
 {
     int32_t n = static_cast<int32_t>(type);
-    n = endian_net_unsigned_int<int32_t>(n);
-    char* c = reinterpret_cast<char*>(&n);
+    n         = endian_net_unsigned_int<int32_t>(n);
+    char* c   = reinterpret_cast<char*>(&n);
 
     for (size_t i = 0; i < sizeof(int32_t); i++) {
         out << *c++;
@@ -244,29 +244,29 @@ BoundingBox SceneObjectMesh::GetBoundingBox() const
     auto     count = m_VertexArray.size();
     for (auto n = 0; n < count; n++) {
         if (m_VertexArray[n].GetAttributeName() == "position") {
-            auto data_type = m_VertexArray[n].GetDataType();
+            auto data_type      = m_VertexArray[n].GetDataType();
             auto vertices_count = m_VertexArray[n].GetVertexCount();
-            auto data = m_VertexArray[n].GetData();
+            auto data           = m_VertexArray[n].GetData();
             for (auto i = 0; i < vertices_count; i++) {
                 switch (data_type) {
                     case VertexDataType::kVertexDataTypeFloat3: {
                         const Vector3f* vertex = reinterpret_cast<const Vector3f*>(data) + i;
-                        bbmin[0] = (bbmin[0] < vertex->data[0]) ? bbmin[0] : vertex->data[0];
-                        bbmin[1] = (bbmin[1] < vertex->data[1]) ? bbmin[1] : vertex->data[1];
-                        bbmin[2] = (bbmin[2] < vertex->data[2]) ? bbmin[2] : vertex->data[2];
-                        bbmax[0] = (bbmax[0] > vertex->data[0]) ? bbmax[0] : vertex->data[0];
-                        bbmax[1] = (bbmax[1] > vertex->data[1]) ? bbmax[1] : vertex->data[1];
-                        bbmax[2] = (bbmax[2] > vertex->data[2]) ? bbmax[2] : vertex->data[2];
+                        bbmin[0]               = (bbmin[0] < vertex->data[0]) ? bbmin[0] : vertex->data[0];
+                        bbmin[1]               = (bbmin[1] < vertex->data[1]) ? bbmin[1] : vertex->data[1];
+                        bbmin[2]               = (bbmin[2] < vertex->data[2]) ? bbmin[2] : vertex->data[2];
+                        bbmax[0]               = (bbmax[0] > vertex->data[0]) ? bbmax[0] : vertex->data[0];
+                        bbmax[1]               = (bbmax[1] > vertex->data[1]) ? bbmax[1] : vertex->data[1];
+                        bbmax[2]               = (bbmax[2] > vertex->data[2]) ? bbmax[2] : vertex->data[2];
                         break;
                     }
                     case VertexDataType::kVertexDataTypeDouble3: {
                         const Vector3* vertex = reinterpret_cast<const Vector3*>(data) + i;
-                        bbmin[0] = (bbmin[0] < vertex->data[0]) ? bbmin[0] : vertex->data[0];
-                        bbmin[1] = (bbmin[1] < vertex->data[1]) ? bbmin[1] : vertex->data[1];
-                        bbmin[2] = (bbmin[2] < vertex->data[2]) ? bbmin[2] : vertex->data[2];
-                        bbmax[0] = (bbmax[0] > vertex->data[0]) ? bbmax[0] : vertex->data[0];
-                        bbmax[1] = (bbmax[1] > vertex->data[1]) ? bbmax[1] : vertex->data[1];
-                        bbmax[2] = (bbmax[2] > vertex->data[2]) ? bbmax[2] : vertex->data[2];
+                        bbmin[0]              = (bbmin[0] < vertex->data[0]) ? bbmin[0] : vertex->data[0];
+                        bbmin[1]              = (bbmin[1] < vertex->data[1]) ? bbmin[1] : vertex->data[1];
+                        bbmin[2]              = (bbmin[2] < vertex->data[2]) ? bbmin[2] : vertex->data[2];
+                        bbmax[0]              = (bbmax[0] > vertex->data[0]) ? bbmax[0] : vertex->data[0];
+                        bbmax[1]              = (bbmax[1] > vertex->data[1]) ? bbmax[1] : vertex->data[1];
+                        bbmax[2]              = (bbmax[2] > vertex->data[2]) ? bbmax[2] : vertex->data[2];
                         break;
                     }
                     default:
@@ -277,7 +277,7 @@ BoundingBox SceneObjectMesh::GetBoundingBox() const
     }
 
     BoundingBox result;
-    result.extent = (bbmax - bbmin) * 0.5f;
+    result.extent   = (bbmax - bbmin) * 0.5f;
     result.centroid = (bbmax + bbmin) * 0.5f;
 
     return result;
@@ -290,9 +290,9 @@ ConvexHull SceneObjectMesh::GetConvexHull() const
     auto count = m_VertexArray.size();
     for (auto n = 0; n < count; n++) {
         if (m_VertexArray[n].GetAttributeName() == "position") {
-            auto data_type = m_VertexArray[n].GetDataType();
+            auto data_type      = m_VertexArray[n].GetDataType();
             auto vertices_count = m_VertexArray[n].GetVertexCount();
-            auto data = m_VertexArray[n].GetData();
+            auto data           = m_VertexArray[n].GetData();
             for (auto i = 0; i < vertices_count; i++) {
                 switch (data_type) {
                     case VertexDataType::kVertexDataTypeFloat3: {
