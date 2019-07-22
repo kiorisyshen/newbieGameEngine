@@ -10,8 +10,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/Debug/Editor/Editor.app/Contents/MacOS/Editor",
             "args": [
-                "Scene/interpolation_test.ogex"
-                // "Scene/LinearInterpolateTest.ogex"
+                // "Scene/interpolation_test.ogex"
+                "Scene/LinearInterpolateTest.ogex"
                 // "Scene/gus.ogex"
                 // "Scene/luxo_by_cristoon.ogex"
             ],
@@ -22,17 +22,19 @@
             "MIMode": "lldb"
         },
         {
-            "name": "(lldb) AssetLoaderTest",
+            "name": "(lldb) Test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/Debug/Test/AssetLoaderTest",
-            "args": [],
+            "program": "${workspaceFolder}/build/Debug/Test/LinearInterpolateTest",
+            "args": [
+                "3"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
-            "MIMode": "lldb",
-            "preLaunchTask": "build all Debug"
+            "MIMode": "lldb"
+            // "preLaunchTask": "build all Debug"
         }
     ]
 }
