@@ -2,17 +2,17 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include "SceneObject.hpp"
 #include "SceneNode.hpp"
+#include "SceneObject.hpp"
 
 namespace newbieGE
 {
 class Scene
 {
-private:
+   private:
     std::shared_ptr<SceneObjectMaterial> m_pDefaultMaterial;
 
-public:
+   public:
     std::shared_ptr<BaseSceneNode> SceneGraph;
 
     std::unordered_multimap<std::string, std::shared_ptr<SceneCameraNode>> CameraNodes;
@@ -26,11 +26,8 @@ public:
 
     std::unordered_map<std::string, std::weak_ptr<SceneGeometryNode>> LUT_Name_GeometryNode;
 
-public:
-    Scene()
-    {
-        m_pDefaultMaterial = std::make_shared<SceneObjectMaterial>("default");
-    }
+   public:
+    Scene() { m_pDefaultMaterial = std::make_shared<SceneObjectMaterial>("default"); }
 
     Scene(const std::string &scene_name) : SceneGraph(new BaseSceneNode(scene_name))
     {
@@ -53,4 +50,4 @@ public:
 
     void LoadResource(void);
 };
-} // namespace newbieGE
+}  // namespace newbieGE

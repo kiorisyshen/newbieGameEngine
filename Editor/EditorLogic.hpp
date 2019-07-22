@@ -21,4 +21,4 @@ class EditorLogic : implements IGameLogic
     void DrawDebugInfo() final;
 #endif
 };
-} // namespace newbieGE
+}  // namespace newbieGE

@@ -1,14 +1,13 @@
 #pragma once
 #include "IRuntimeModule.hpp"
-#include "geommath.hpp"
-#include "cbuffer.h"
-#include "Scene.hpp"
 #include "Polyhedron.hpp"
+#include "Scene.hpp"
+#include "cbuffer.h"
+#include "geommath.hpp"
 
 namespace newbieGE
 {
-struct DrawBatchConstants : public PerBatchConstants
-{
+struct DrawBatchConstants : public PerBatchConstants {
     uint32_t batchIndex;
     std::shared_ptr<SceneGeometryNode> node;
 
@@ -16,8 +15,7 @@ struct DrawBatchConstants : public PerBatchConstants
 };
 
 #ifdef DEBUG
-struct DEBUG_DrawBatch
-{
+struct DEBUG_DrawBatch {
     DEBUG_PerBatchConstants pbc;
     std::vector<DEBUG_LineParam> lineParams;
     std::vector<DEBUG_PointParam> pointParams;
@@ -27,7 +25,7 @@ struct DEBUG_DrawBatch
 
 class GraphicsManager : implements IRuntimeModule
 {
-public:
+   public:
     virtual ~GraphicsManager() = default;
 
     virtual int Initialize() override;
@@ -47,7 +45,8 @@ public:
 
     virtual void DEBUG_SetDrawPolygonParam(const Face &face, const Vector3f &color) final;
     virtual void DEBUG_SetDrawPolyhydronParam(const Polyhedron &polyhedron, const Vector3f &color) final;
-    virtual void DEBUG_SetDrawPolyhydronParam(const Polyhedron &polyhedron, const Matrix4X4f &trans, const Vector3f &color) final;
+    virtual void DEBUG_SetDrawPolyhydronParam(const Polyhedron &polyhedron, const Matrix4X4f &trans,
+                                              const Vector3f &color) final;
 
     virtual void DEBUG_SetDrawBoxParam(const Vector3f &bbMin, const Vector3f &bbMax, const Vector3f &color) final;
 
@@ -55,7 +54,7 @@ public:
     virtual void DEBUG_ClearDebugBuffers();
 #endif
 
-protected:
+   protected:
     virtual void BeginScene(const Scene &scene);
     virtual void EndScene() {}
 
@@ -71,13 +70,16 @@ protected:
 #ifdef DEBUG
     virtual void DEBUG_DrawDebug();
 
-    virtual void DEBUG_SetDrawPointSetParam(const PointSet &point_set, const Vector3f &color, DEBUG_DrawBatch &batch) final;
-    virtual void DEBUG_SetDrawLineParam(const Vector3f &from, const Vector3f &to, const Vector3f &color, DEBUG_DrawBatch &batch) final;
-    virtual void DEBUG_SetDrawTriangleParam(const PointList &vertices, const Vector3f &color, DEBUG_DrawBatch &batch) final;
+    virtual void DEBUG_SetDrawPointSetParam(const PointSet &point_set, const Vector3f &color,
+                                            DEBUG_DrawBatch &batch) final;
+    virtual void DEBUG_SetDrawLineParam(const Vector3f &from, const Vector3f &to, const Vector3f &color,
+                                        DEBUG_DrawBatch &batch) final;
+    virtual void DEBUG_SetDrawTriangleParam(const PointList &vertices, const Vector3f &color,
+                                            DEBUG_DrawBatch &batch) final;
     virtual void DEBUG_SetDrawPolygonParam(const Face &face, const Vector3f &color, DEBUG_DrawBatch &batch) final;
 #endif
 
-private:
+   private:
     void InitConstants();
 
     void CalculateCameraMatrix();
@@ -87,7 +89,7 @@ private:
     virtual void SetPerFrameConstants(){};
     virtual void SetPerBatchConstants(){};
 
-protected:
+   protected:
     PerFrameConstants m_DrawFrameContext;
     std::vector<std::shared_ptr<DrawBatchConstants>> m_DrawBatchContext;
 
@@ -99,4 +101,4 @@ protected:
 };
 
 extern GraphicsManager *g_pGraphicsManager;
-} // namespace newbieGE
+}  // namespace newbieGE

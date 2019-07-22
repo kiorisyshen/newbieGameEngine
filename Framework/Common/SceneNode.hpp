@@ -4,19 +4,19 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "Tree.hpp"
 #include "SceneObject.hpp"
+#include "Tree.hpp"
 
 namespace newbieGE
 {
 class BaseSceneNode : public TreeNode
 {
-protected:
+   protected:
     std::string m_strName;
     std::list<std::shared_ptr<SceneObjectTransform>> m_Transforms;
     Matrix4X4f m_RuntimeTransform;
 
-public:
+   public:
     BaseSceneNode() { BuildIdentityMatrix(m_RuntimeTransform); };
     BaseSceneNode(const std::string &name)
     {
@@ -43,8 +43,7 @@ public:
         BuildIdentityMatrix(*result);
 
         // TODO: cascading calculation
-        for (auto trans : m_Transforms)
-        {
+        for (auto trans : m_Transforms) {
             *result = *result * static_cast<Matrix4X4f>(*trans);
         }
 
@@ -68,17 +67,9 @@ public:
         m_RuntimeTransform = m_RuntimeTransform * translation;
     }
 
-    void MoveBy(const Vector3f &distance)
-    {
-        MoveBy(distance[0], distance[1], distance[2]);
-    }
+    void MoveBy(const Vector3f &distance) { MoveBy(distance[0], distance[1], distance[2]); }
 
-    virtual Matrix3X3f GetLocalAxis()
-    {
-        return {{{{1.0f, 0.0f, 0.0f},
-                  {0.0f, 1.0f, 0.0f},
-                  {0.0f, 0.0f, 1.0f}}}};
-    }
+    virtual Matrix3X3f GetLocalAxis() { return {{{{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}}}; }
 
     friend std::ostream &operator<<(std::ostream &out, const BaseSceneNode &node)
     {
@@ -91,13 +82,11 @@ public:
         node.dump(out);
         out << std::endl;
 
-        for (auto sub_node : node.m_Children)
-        {
+        for (auto sub_node : node.m_Children) {
             out << *sub_node << std::endl;
         }
 
-        for (auto sub_node : node.m_Transforms)
-        {
+        for (auto sub_node : node.m_Transforms) {
             out << *sub_node << std::endl;
         }
 
@@ -110,16 +99,13 @@ public:
 template <typename T>
 class SceneNode : public BaseSceneNode
 {
-protected:
+   protected:
     std::string m_keySceneObject;
 
-protected:
-    virtual void dump(std::ostream &out) const
-    {
-        out << m_keySceneObject << std::endl;
-    };
+   protected:
+    virtual void dump(std::ostream &out) const { out << m_keySceneObject << std::endl; };
 
-public:
+   public:
     using BaseSceneNode::BaseSceneNode;
     SceneNode() = default;
 
@@ -132,14 +118,14 @@ typedef BaseSceneNode SceneEmptyNode;
 
 class SceneGeometryNode : public SceneNode<SceneObjectGeometry>
 {
-protected:
+   protected:
     bool m_bVisible;
     bool m_bShadow;
     bool m_bMotionBlur;
     std::vector<std::string> m_Materials;
     void *m_pRigidBody = nullptr;
 
-protected:
+   protected:
     virtual void dump(std::ostream &out) const
     {
         SceneNode::dump(out);
@@ -147,13 +133,12 @@ protected:
         out << "Shadow: " << m_bShadow << std::endl;
         out << "Motion Blur: " << m_bMotionBlur << std::endl;
         out << "Material(s): " << std::endl;
-        for (auto material : m_Materials)
-        {
+        for (auto material : m_Materials) {
             out << material << std::endl;
         }
     };
 
-public:
+   public:
     using SceneNode::SceneNode;
 
     void SetVisibility(bool visible) { m_bVisible = visible; };
@@ -173,10 +158,7 @@ public:
             return std::string("default");
     };
 
-    void LinkRigidBody(void *rigidBody)
-    {
-        m_pRigidBody = rigidBody;
-    }
+    void LinkRigidBody(void *rigidBody) { m_pRigidBody = rigidBody; }
 
     void *UnlinkRigidBody()
     {
@@ -191,10 +173,10 @@ public:
 
 class SceneLightNode : public SceneNode<SceneObjectLight>
 {
-protected:
+   protected:
     bool m_bShadow;
 
-public:
+   public:
     using SceneNode::SceneNode;
 
     void SetIfCastShadow(bool shadow) { m_bShadow = shadow; };
@@ -203,10 +185,10 @@ public:
 
 class SceneCameraNode : public SceneNode<SceneObjectCamera>
 {
-protected:
+   protected:
     Vector3f m_Target = {0.0f};
 
-public:
+   public:
     using SceneNode::SceneNode;
 
     void SetTarget(Vector3f &target) { m_Target = target; };
@@ -232,4 +214,4 @@ public:
         return result;
     }
 };
-} // namespace newbieGE
+}  // namespace newbieGE

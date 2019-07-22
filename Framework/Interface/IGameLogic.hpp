@@ -5,7 +5,7 @@ namespace newbieGE
 {
 class IGameLogic : implements IRuntimeModule
 {
-public:
+   public:
     virtual int Initialize() = 0;
     virtual void Finalize() = 0;
     virtual void Tick() = 0;
@@ -33,4 +33,4 @@ public:
 };
 
 extern IGameLogic *g_pGameLogic;
-} // namespace newbieGE
+}  // namespace newbieGE

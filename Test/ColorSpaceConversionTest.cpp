@@ -8,7 +8,7 @@ int main(int argc, const char** argv)
 {
     int result = 0;
 
-    RGBf rgb = { 64, 35, 17 };
+    RGBf rgb = {64, 35, 17};
     cout << "RGB Color: " << rgb;
     YCbCrf ycbcr = ConvertRGB2YCbCr(rgb);
     cout << "When transformed to YCbCr: " << ycbcr;
@@ -17,4 +17,3 @@ int main(int argc, const char** argv)
 
     return result;
 }
-

@@ -7,7 +7,7 @@ namespace newbieGE
 {
 class IPhysicsManager : implements IRuntimeModule
 {
-public:
+   public:
     virtual int Initialize() = 0;
     virtual void Finalize() = 0;
     virtual void Tick() = 0;
@@ -25,4 +25,4 @@ public:
 };
 
 extern IPhysicsManager *g_pPhysicsManager;
-} // namespace newbieGE
+}  // namespace newbieGE

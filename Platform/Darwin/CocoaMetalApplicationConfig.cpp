@@ -1,6 +1,6 @@
 #include "CocoaMetalApplication.h"
-#include "Metal/MetalGraphicsManager.h"
 #include "DebugManager.hpp"
+#include "Metal/MetalGraphicsManager.h"
 
 namespace newbieGE
 {
@@ -14,4 +14,4 @@ InputManager *g_pInputManager = static_cast<InputManager *>(new InputManager);
 #ifdef DEBUG
 DebugManager *g_pDebugManager = static_cast<DebugManager *>(new DebugManager);
 #endif
-} // namespace newbieGE
+}  // namespace newbieGE

@@ -5,8 +5,7 @@
 
 namespace newbieGE
 {
-struct MtlDrawBatchContext : public DrawBatchConstants
-{
+struct MtlDrawBatchContext : public DrawBatchConstants {
     uint32_t index_offset;
     MTLPrimitiveType index_mode;
     uint32_t index_count;

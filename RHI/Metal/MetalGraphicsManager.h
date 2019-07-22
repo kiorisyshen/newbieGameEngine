@@ -1,9 +1,9 @@
 #pragma once
-#include "GraphicsManager.hpp"
-#include "geommath.hpp"
+#include <string>
 #include <unordered_map>
 #include <vector>
-#include <string>
+#include "GraphicsManager.hpp"
+#include "geommath.hpp"
 #include "portable.hpp"
 
 OBJC_CLASS(MetalRenderer);
@@ -12,7 +12,7 @@ namespace newbieGE
 {
 class MetalGraphicsManager : public GraphicsManager
 {
-public:
+   public:
     int Initialize() final;
     void Finalize() final;
 
@@ -27,7 +27,7 @@ public:
     void DEBUG_SetBuffer() final;
 #endif
 
-protected:
+   protected:
     void BeginScene(const Scene &scene) final;
     void EndScene() final;
 
@@ -44,7 +44,7 @@ protected:
     void DEBUG_DrawDebug() final;
 #endif
 
-private:
+   private:
     void InitializeBuffers(const Scene &scene);
     void SetPerFrameConstants() final;
     void SetPerBatchConstants() final;
@@ -52,4 +52,4 @@ private:
     MetalRenderer *m_pRenderer;
 };
 
-} // namespace newbieGE
+}  // namespace newbieGE

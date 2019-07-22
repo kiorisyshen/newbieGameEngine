@@ -7,7 +7,7 @@ namespace newbieGE
 {
 class BulletPhysicsManager : public IPhysicsManager
 {
-public:
+   public:
     virtual int Initialize();
     virtual void Finalize();
     virtual void Tick();
@@ -23,7 +23,7 @@ public:
 
     void ApplyCentralForce(void *rigidBody, Vector3f force);
 
-protected:
+   protected:
     btBroadphaseInterface *m_btBroadphase;
     btDefaultCollisionConfiguration *m_btCollisionConfiguration;
     btCollisionDispatcher *m_btDispatcher;
@@ -32,4 +32,4 @@ protected:
 
     std::vector<btCollisionShape *> m_btCollisionShapes;
 };
-} // namespace newbieGE
+}  // namespace newbieGE

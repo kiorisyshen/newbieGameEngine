@@ -1,5 +1,5 @@
-#include <cstdio>
 #include <chrono>
+#include <cstdio>
 #include <thread>
 #include "BaseApplication.hpp"
 
@@ -8,22 +8,20 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-	int ret;
+    int ret;
 
-	g_pApp->SetCommandLineParameters(argc, argv);
+    g_pApp->SetCommandLineParameters(argc, argv);
 
-	if ((ret = g_pApp->Initialize()) != 0)
-	{
-		printf("App Initialize failed, will exit now.");
-		return ret;
-	}
+    if ((ret = g_pApp->Initialize()) != 0) {
+        printf("App Initialize failed, will exit now.");
+        return ret;
+    }
 
-	while (!g_pApp->IsQuit())
-	{
-		g_pApp->Tick();
-	}
+    while (!g_pApp->IsQuit()) {
+        g_pApp->Tick();
+    }
 
-	g_pApp->Finalize();
+    g_pApp->Finalize();
 
-	return 0;
+    return 0;
 }

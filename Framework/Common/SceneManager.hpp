@@ -1,13 +1,13 @@
 #pragma once
-#include "geommath.hpp"
 #include "IRuntimeModule.hpp"
 #include "SceneParser.hpp"
+#include "geommath.hpp"
 
 namespace newbieGE
 {
 class SceneManager : implements IRuntimeModule
 {
-public:
+   public:
     virtual ~SceneManager();
 
     virtual int Initialize();
@@ -30,10 +30,10 @@ public:
     std::weak_ptr<SceneGeometryNode> GetSceneGeometryNode(std::string name);
     std::weak_ptr<SceneObjectGeometry> GetSceneGeometryObject(std::string key);
 
-protected:
+   protected:
     bool LoadOgexScene(const char *ogex_scene_file_name);
 
-protected:
+   protected:
     std::shared_ptr<Scene> m_pScene;
     bool m_bRenderingQueued = false;
     bool m_bPhysicalSimulationQueued = false;
@@ -41,4 +41,4 @@ protected:
 };
 
 extern SceneManager *g_pSceneManager;
-} // namespace newbieGE
+}  // namespace newbieGE

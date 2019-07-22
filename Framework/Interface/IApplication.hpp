@@ -1,12 +1,12 @@
 #pragma once
-#include "IRuntimeModule.hpp"
 #include "GfxConfiguration.h"
+#include "IRuntimeModule.hpp"
 
 namespace newbieGE
 {
 Interface IApplication : implements IRuntimeModule
 {
-public:
+   public:
     virtual int Initialize() = 0;
     virtual void Finalize() = 0;
     // One cycle of the main loop
@@ -24,4 +24,4 @@ public:
 };
 
 extern IApplication *g_pApp;
-} // namespace newbieGE
+}  // namespace newbieGE

@@ -1,13 +1,13 @@
 #pragma once
-#include "Interface.hpp"
-#include "Image.hpp"
 #include "Buffer.hpp"
+#include "Image.hpp"
+#include "Interface.hpp"
 
 namespace newbieGE
 {
 Interface ImageParser
 {
-public:
+   public:
     virtual Image Parse(Buffer & buf) = 0;
 };
-} // namespace newbieGE
+}  // namespace newbieGE

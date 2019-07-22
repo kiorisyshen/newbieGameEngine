@@ -5,8 +5,7 @@
 namespace newbieGE
 {
 #pragma pack(push, 1)
-typedef struct _BITMAP_FILEHEADER
-{
+typedef struct _BITMAP_FILEHEADER {
     uint16_t Signature;
     uint32_t Size;
     uint32_t Reserved;
@@ -15,8 +14,7 @@ typedef struct _BITMAP_FILEHEADER
 
 #define BITMAP_FILEHEADER_SIZE 14
 
-typedef struct _BITMAP_HEADER
-{
+typedef struct _BITMAP_HEADER {
     uint32_t HeaderSize;
     int32_t Width;
     int32_t Height;
@@ -33,14 +31,14 @@ typedef struct _BITMAP_HEADER
 
 class BmpParser : implements ImageParser
 {
-public:
+   public:
     virtual Image Parse(Buffer &buf)
     {
         Image img;
         const BITMAP_FILEHEADER *pFileHeader = reinterpret_cast<const BITMAP_FILEHEADER *>(buf.GetData());
-        const BITMAP_HEADER *pBmpHeader = reinterpret_cast<const BITMAP_HEADER *>(reinterpret_cast<const uint8_t *>(buf.GetData()) + BITMAP_FILEHEADER_SIZE);
-        if (pFileHeader->Signature == 0x4D42 /* 'B''M' */)
-        {
+        const BITMAP_HEADER *pBmpHeader = reinterpret_cast<const BITMAP_HEADER *>(
+            reinterpret_cast<const uint8_t *>(buf.GetData()) + BITMAP_FILEHEADER_SIZE);
+        if (pFileHeader->Signature == 0x4D42 /* 'B''M' */) {
             std::cout << "Asset is Windows BMP file" << std::endl;
             std::cout << "BMP Header" << std::endl;
             std::cout << "----------------------------" << std::endl;
@@ -61,19 +59,16 @@ public:
             img.data_size = img.pitch * img.Height;
             img.data = g_pMemoryManager->Allocate(img.data_size);
 
-            if (img.bitcount < 24)
-            {
+            if (img.bitcount < 24) {
                 std::cout << "Sorry, only true color BMP is supported at now." << std::endl;
-            }
-            else
-            {
+            } else {
                 const uint8_t *pSourceData = reinterpret_cast<const uint8_t *>(buf.GetData()) + pFileHeader->BitsOffset;
-                for (int32_t y = img.Height - 1; y >= 0; y--)
-                {
-                    for (uint32_t x = 0; x < img.Width; x++)
-                    {
-                        auto dst = reinterpret_cast<R8G8B8A8Unorm *>(reinterpret_cast<uint8_t *>(img.data) + img.pitch * (img.Height - y - 1) + x * byte_count);
-                        auto src = reinterpret_cast<const R8G8B8A8Unorm *>(pSourceData + img.pitch * y + x * byte_count);
+                for (int32_t y = img.Height - 1; y >= 0; y--) {
+                    for (uint32_t x = 0; x < img.Width; x++) {
+                        auto dst = reinterpret_cast<R8G8B8A8Unorm *>(reinterpret_cast<uint8_t *>(img.data) +
+                                                                     img.pitch * (img.Height - y - 1) + x * byte_count);
+                        auto src =
+                            reinterpret_cast<const R8G8B8A8Unorm *>(pSourceData + img.pitch * y + x * byte_count);
                         dst->data[2] = src->data[0];
                         dst->data[1] = src->data[1];
                         dst->data[0] = src->data[2];
@@ -86,4 +81,4 @@ public:
         return img;
     }
 };
-} // namespace newbieGE
+}  // namespace newbieGE

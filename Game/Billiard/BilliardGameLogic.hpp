@@ -11,4 +11,4 @@ class BilliardGameLogic : public IGameLogic
 
     virtual void OnLeftKey();
 };
-} // namespace newbieGE
+}  // namespace newbieGE

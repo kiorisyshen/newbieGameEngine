@@ -3,21 +3,21 @@
 #include <Cocoa/Cocoa.h>
 #endif
 
-namespace newbieGE {
-    class CocoaApplication : public BaseApplication
-    {
-    public:
-        CocoaApplication(GfxConfiguration& config)
-            : BaseApplication(config) {};
+namespace newbieGE
+{
+class CocoaApplication : public BaseApplication
+{
+   public:
+    CocoaApplication(GfxConfiguration& config) : BaseApplication(config){};
 
-        virtual int Initialize();
-        virtual void Finalize();
-        // One cycle of the main loop
-        virtual void Tick();
+    virtual int Initialize();
+    virtual void Finalize();
+    // One cycle of the main loop
+    virtual void Tick();
 
-    protected:
+   protected:
 #ifdef __OBJC__
-        NSWindow* m_pWindow;
+    NSWindow* m_pWindow;
 #endif
-    };
-}
+};
+}  // namespace newbieGE

@@ -1,12 +1,12 @@
 #pragma once
-#include "IPhysicsManager.hpp"
 #include "Geometry.hpp"
+#include "IPhysicsManager.hpp"
 
 namespace newbieGE
 {
 class MyPhysicsManager : public IPhysicsManager
 {
-public:
+   public:
     int Initialize() override;
     void Finalize() override;
     void Tick() override;
@@ -26,10 +26,10 @@ public:
     void DrawDebugInfo() override;
 #endif
 
-protected:
+   protected:
 #ifdef DEBUG
     void DrawAabb(const Geometry &geometry, const Matrix4X4f &trans, const Vector3f &centerOfMass);
     void DrawShape(const Geometry &geometry, const Matrix4X4f &trans, const Vector3f &centerOfMass);
 #endif
 };
-} // namespace newbieGE
+}  // namespace newbieGE

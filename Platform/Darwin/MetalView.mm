@@ -1,7 +1,7 @@
 #import "MetalView.h"
-#import "Metal/MetalRenderer.h"
-#include "Metal/MetalGraphicsManager.h"
 #include "InputManager.hpp"
+#include "Metal/MetalGraphicsManager.h"
+#import "Metal/MetalRenderer.h"
 
 using namespace newbieGE;
 
@@ -9,8 +9,7 @@ using namespace newbieGE;
 
 - (instancetype)initWithCoder:(NSCoder *)coder
 {
-    if (self = [super initWithCoder:coder])
-    {
+    if (self = [super initWithCoder:coder]) {
         [self configure];
     }
 
@@ -19,8 +18,7 @@ using namespace newbieGE;
 
 - (instancetype)initWithFrame:(CGRect)frame
 {
-    if (self = [super initWithFrame:frame])
-    {
+    if (self = [super initWithFrame:frame]) {
         [self configure];
     }
 
@@ -29,8 +27,7 @@ using namespace newbieGE;
 
 - (instancetype)initWithFrame:(CGRect)frameRect device:(id<MTLDevice>)device
 {
-    if (self = [super initWithFrame:frameRect device:device])
-    {
+    if (self = [super initWithFrame:frameRect device:device]) {
         [self configure];
     }
 
@@ -48,7 +45,8 @@ using namespace newbieGE;
     self.paused = YES;
     self.enableSetNeedsDisplay = YES;
 
-    dynamic_cast<MetalGraphicsManager *>(g_pGraphicsManager)->SetRenderer([[MetalRenderer new] initWithMetalKitView:self]);
+    dynamic_cast<MetalGraphicsManager *>(g_pGraphicsManager)
+        ->SetRenderer([[MetalRenderer new] initWithMetalKitView:self]);
 }
 
 - (void)drawRect:(CGRect)drawRect
@@ -58,24 +56,21 @@ using namespace newbieGE;
 
 - (void)mouseDown:(NSEvent *)event
 {
-    if ([event type] == NSEventTypeLeftMouseDown)
-    {
+    if ([event type] == NSEventTypeLeftMouseDown) {
         g_pInputManager->LeftMouseButtonDown();
     }
 }
 
 - (void)mouseUp:(NSEvent *)event
 {
-    if ([event type] == NSEventTypeLeftMouseUp)
-    {
+    if ([event type] == NSEventTypeLeftMouseUp) {
         g_pInputManager->LeftMouseButtonUp();
     }
 }
 
 - (void)mouseDragged:(NSEvent *)event
 {
-    if ([event type] == NSEventTypeLeftMouseDragged)
-    {
+    if ([event type] == NSEventTypeLeftMouseDragged) {
         g_pInputManager->LeftMouseDrag([event deltaX], [event deltaY]);
     }
 }

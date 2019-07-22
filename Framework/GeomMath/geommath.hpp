@@ -1,28 +1,28 @@
 #pragma once
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <initializer_list>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <limits>
-#include <cmath>
 #include <memory>
 #include <set>
 #include <unordered_set>
 #include <vector>
+#include "include/Absolute.h"
+#include "include/AddByElement.h"
 #include "include/CrossProduct.h"
+#include "include/DCT.h"
+#include "include/InverseMatrix4X4f.h"
+#include "include/MatrixExchangeYandZ.h"
 #include "include/MulByElement.h"
 #include "include/Normalize.h"
+#include "include/SubByElement.h"
 #include "include/Transform.h"
 #include "include/Transpose.h"
-#include "include/AddByElement.h"
-#include "include/SubByElement.h"
-#include "include/MatrixExchangeYandZ.h"
-#include "include/InverseMatrix4X4f.h"
-#include "include/DCT.h"
-#include "include/Absolute.h"
 
 #ifndef PI
 #define PI 3.14159265358979323846f
@@ -35,10 +35,16 @@
 namespace newbieGE
 {
 template <typename T, size_t SizeOfArray>
-constexpr size_t countof(T (&)[SizeOfArray]) { return SizeOfArray; }
+constexpr size_t countof(T (&)[SizeOfArray])
+{
+    return SizeOfArray;
+}
 
 template <typename T, size_t RowSize, size_t ColSize>
-constexpr size_t countof(T (&)[RowSize][ColSize]) { return RowSize * ColSize; }
+constexpr size_t countof(T (&)[RowSize][ColSize])
+{
+    return RowSize * ColSize;
+}
 
 #ifdef max
 #undef max
@@ -50,29 +56,25 @@ constexpr size_t countof(T (&)[RowSize][ColSize]) { return RowSize * ColSize; }
 template <typename T>
 constexpr float normalize(T value)
 {
-    return value < 0
-               ? -static_cast<float>(value) / std::numeric_limits<T>::min()
-               : static_cast<float>(value) / std::numeric_limits<T>::max();
+    return value < 0 ? -static_cast<float>(value) / std::numeric_limits<T>::min()
+                     : static_cast<float>(value) / std::numeric_limits<T>::max();
 }
 
 template <typename T, int N>
-struct Vector
-{
+struct Vector {
     T data[N];
 
     Vector() {}
     Vector(const T val)
     {
-        for (int i = 0; i < N; i++)
-        {
+        for (int i = 0; i < N; i++) {
             data[i] = val;
         }
     }
     Vector(const Vector<T, N - 1> &v)
     {
         static_assert((N - 1) > 0, "Vector construction from vector which has 0 dimension.");
-        for (int i = 0; i < N - 1; i++)
-        {
+        for (int i = 0; i < N - 1; i++) {
             data[i] = v.data[i];
         }
         data[N - 1] = 1.0f;
@@ -81,8 +83,7 @@ struct Vector
     Vector(std::initializer_list<const T> list)
     {
         size_t i = 0;
-        for (auto val : list)
-        {
+        for (auto val : list) {
             data[i++] = val;
         }
     }
@@ -93,22 +94,17 @@ struct Vector
 
     void Set(const T val)
     {
-        for (int i = 0; i < N; i++)
-        {
+        for (int i = 0; i < N; i++) {
             data[i] = val;
         }
     }
 
-    void Set(const T *pval)
-    {
-        memcpy(data, pval, sizeof(T) * N);
-    }
+    void Set(const T *pval) { memcpy(data, pval, sizeof(T) * N); }
 
     void Set(std::initializer_list<const T> list)
     {
         size_t i = 0;
-        for (auto val : list)
-        {
+        for (auto val : list) {
             data[i++] = val;
         }
     }
@@ -150,8 +146,7 @@ std::ostream &operator<<(std::ostream &out, Vector<T, N> vector)
     out.precision(4);
     out.setf(std::ios::fixed);
     out << "( ";
-    for (uint32_t i = 0; i < N; i++)
-    {
+    for (uint32_t i = 0; i < N; i++) {
         out << vector.data[i] << ((i == N - 1) ? ' ' : ',');
     }
     out << ")" << std::endl;
@@ -221,8 +216,7 @@ inline void DotProduct(T &result, const T *a, const T *b, const size_t count)
     result = static_cast<T>(0);
 
     ispc::MulByElement(a, b, _result, count);
-    for (size_t i = 0; i < count; i++)
-    {
+    for (size_t i = 0; i < count; i++) {
         result += _result[i];
     }
 
@@ -277,31 +271,22 @@ inline void Normalize(Vector<T, N> &a)
 // Matrix
 
 template <typename T, int ROWS, int COLS>
-struct Matrix
-{
+struct Matrix {
     union {
         T data[ROWS][COLS];
     };
 
-    T *operator[](int row_index)
-    {
-        return data[row_index];
-    }
+    T *operator[](int row_index) { return data[row_index]; }
 
-    const T *operator[](int row_index) const
-    {
-        return data[row_index];
-    }
+    const T *operator[](int row_index) const { return data[row_index]; }
 
     operator T *() { return &data[0][0]; };
     operator const T *() const { return static_cast<const T *>(&data[0][0]); };
 
     Matrix &operator=(const T *_data)
     {
-        for (int i = 0; i < ROWS; i++)
-        {
-            for (int j = 0; j < COLS; j++)
-            {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
                 data[i][j] = *(_data + i * COLS + j);
             }
         }
@@ -318,10 +303,8 @@ template <typename T, int ROWS, int COLS>
 std::ostream &operator<<(std::ostream &out, Matrix<T, ROWS, COLS> matrix)
 {
     out << std::endl;
-    for (int i = 0; i < ROWS; i++)
-    {
-        for (int j = 0; j < COLS; j++)
-        {
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
             out << matrix.data[i][j] << ((j == COLS - 1) ? '\n' : ',');
         }
     }
@@ -331,7 +314,8 @@ std::ostream &operator<<(std::ostream &out, Matrix<T, ROWS, COLS> matrix)
 }
 
 template <typename T, int ROWS, int COLS>
-void MatrixAdd(Matrix<T, ROWS, COLS> &result, const Matrix<T, ROWS, COLS> &matrix1, const Matrix<T, ROWS, COLS> &matrix2)
+void MatrixAdd(Matrix<T, ROWS, COLS> &result, const Matrix<T, ROWS, COLS> &matrix1,
+               const Matrix<T, ROWS, COLS> &matrix2)
 {
     ispc::AddByElement(matrix1, matrix2, result, countof(result.data));
 }
@@ -346,19 +330,22 @@ Matrix<T, ROWS, COLS> operator+(const Matrix<T, ROWS, COLS> &matrix1, const Matr
 }
 
 template <typename T, int ROWS, int COLS>
-void MatrixSub(Matrix<T, ROWS, COLS> &result, const Matrix<T, ROWS, COLS> &matrix1, const Matrix<T, ROWS, COLS> &matrix2)
+void MatrixSub(Matrix<T, ROWS, COLS> &result, const Matrix<T, ROWS, COLS> &matrix1,
+               const Matrix<T, ROWS, COLS> &matrix2)
 {
     ispc::SubByElement(matrix1, matrix2, result, countof(result.data));
 }
 
 template <typename T, int ROWS, int COLS>
-void MatrixMulByElement(Matrix<T, ROWS, COLS> &result, const Matrix<T, ROWS, COLS> &matrix1, const Matrix<T, ROWS, COLS> &matrix2)
+void MatrixMulByElement(Matrix<T, ROWS, COLS> &result, const Matrix<T, ROWS, COLS> &matrix1,
+                        const Matrix<T, ROWS, COLS> &matrix2)
 {
     ispc::MulByElement(matrix1, matrix2, result, countof(result.data));
 }
 
 template <int ROWS, int COLS>
-void MatrixMulByElementi32(Matrix<int32_t, ROWS, COLS> &result, const Matrix<int32_t, ROWS, COLS> &matrix1, const Matrix<int32_t, ROWS, COLS> &matrix2)
+void MatrixMulByElementi32(Matrix<int32_t, ROWS, COLS> &result, const Matrix<int32_t, ROWS, COLS> &matrix1,
+                           const Matrix<int32_t, ROWS, COLS> &matrix2)
 {
     ispc::MulByElementi32(matrix1, matrix2, result, countof(result.data));
 }
@@ -377,10 +364,8 @@ void MatrixMultiply(Matrix<T, Da, Dc> &result, const Matrix<T, Da, Db> &matrix1,
 {
     Matrix<T, Dc, Db> matrix2_transpose;
     Transpose(matrix2_transpose, matrix2);
-    for (int i = 0; i < Da; i++)
-    {
-        for (int j = 0; j < Dc; j++)
-        {
+    for (int i = 0; i < Da; i++) {
+        for (int j = 0; j < Dc; j++) {
             DotProduct(result[i][j], matrix1[i], matrix2_transpose[j], Db);
         }
     }
@@ -404,8 +389,7 @@ void Shrink(Matrix<T, ROWS1, COLS1> &matrix1, const Matrix<T, ROWS2, COLS2> &mat
     static_assert(COLS1 < COLS2, "[Error] Target matrix COLS must smaller than source matrix COLS!");
 
     const size_t size = sizeof(T) * COLS1;
-    for (int i = 0; i < ROWS1; i++)
-    {
+    for (int i = 0; i < ROWS1; i++) {
         std::memcpy(matrix1[i], matrix2[i], size);
     }
 }
@@ -459,10 +443,11 @@ inline void MatrixRotationYawPitchRoll(Matrix4X4f &matrix, const float yaw, cons
     sRoll = sinf(roll);
 
     // Calculate the yaw, pitch, roll rotation matrix.
-    Matrix4X4f tmp = {{{{(cRoll * cYaw) + (sRoll * sPitch * sYaw), (sRoll * cPitch), (cRoll * -sYaw) + (sRoll * sPitch * cYaw), 0.0f},
-                        {(-sRoll * cYaw) + (cRoll * sPitch * sYaw), (cRoll * cPitch), (sRoll * sYaw) + (cRoll * sPitch * cYaw), 0.0f},
-                        {(cPitch * sYaw), -sPitch, (cPitch * cYaw), 0.0f},
-                        {0.0f, 0.0f, 0.0f, 1.0f}}}};
+    Matrix4X4f tmp = {
+        {{{(cRoll * cYaw) + (sRoll * sPitch * sYaw), (sRoll * cPitch), (cRoll * -sYaw) + (sRoll * sPitch * cYaw), 0.0f},
+          {(-sRoll * cYaw) + (cRoll * sPitch * sYaw), (cRoll * cPitch), (sRoll * sYaw) + (cRoll * sPitch * cYaw), 0.0f},
+          {(cPitch * sYaw), -sPitch, (cPitch * cYaw), 0.0f},
+          {0.0f, 0.0f, 0.0f, 1.0f}}}};
 
     matrix = tmp;
 
@@ -522,17 +507,16 @@ inline void BuildViewMatrix(Matrix4X4f &result, const Vector3f position, const V
 
 inline void BuildIdentityMatrix(Matrix4X4f &matrix)
 {
-    Matrix4X4f identity = {{{{1.0f, 0.0f, 0.0f, 0.0f},
-                             {0.0f, 1.0f, 0.0f, 0.0f},
-                             {0.0f, 0.0f, 1.0f, 0.0f},
-                             {0.0f, 0.0f, 0.0f, 1.0f}}}};
+    Matrix4X4f identity = {
+        {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 1.0f}}}};
 
     matrix = identity;
 
     return;
 }
 
-inline void BuildPerspectiveFovLHMatrix(Matrix4X4f &matrix, const float fieldOfView, const float screenAspect, const float screenNear, const float screenDepth)
+inline void BuildPerspectiveFovLHMatrix(Matrix4X4f &matrix, const float fieldOfView, const float screenAspect,
+                                        const float screenNear, const float screenDepth)
 {
     Matrix4X4f perspective = {{{{1.0f / (screenAspect * tanf(fieldOfView * 0.5f)), 0.0f, 0.0f, 0.0f},
                                 {0.0f, 1.0f / tanf(fieldOfView * 0.5f), 0.0f, 0.0f},
@@ -544,7 +528,8 @@ inline void BuildPerspectiveFovLHMatrix(Matrix4X4f &matrix, const float fieldOfV
     return;
 }
 
-inline void BuildPerspectiveFovRHMatrix(Matrix4X4f &matrix, const float fieldOfView, const float screenAspect, const float screenNear, const float screenDepth)
+inline void BuildPerspectiveFovRHMatrix(Matrix4X4f &matrix, const float fieldOfView, const float screenAspect,
+                                        const float screenNear, const float screenDepth)
 {
     Matrix4X4f perspective = {{{{1.0f / (screenAspect * tanf(fieldOfView * 0.5f)), 0.0f, 0.0f, 0.0f},
                                 {0.0f, 1.0f / tanf(fieldOfView * 0.5f), 0.0f, 0.0f},
@@ -558,10 +543,8 @@ inline void BuildPerspectiveFovRHMatrix(Matrix4X4f &matrix, const float fieldOfV
 
 inline void MatrixTranslation(Matrix4X4f &matrix, const float x, const float y, const float z)
 {
-    Matrix4X4f translation = {{{{1.0f, 0.0f, 0.0f, 0.0f},
-                                {0.0f, 1.0f, 0.0f, 0.0f},
-                                {0.0f, 0.0f, 1.0f, 0.0f},
-                                {x, y, z, 1.0f}}}};
+    Matrix4X4f translation = {
+        {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}, {x, y, z, 1.0f}}}};
 
     matrix = translation;
 
@@ -618,10 +601,8 @@ inline void MatrixRotationZ(Matrix4X4f &matrix, const float angle)
 {
     float c = cosf(angle), s = sinf(angle);
 
-    Matrix4X4f rotation = {{{{c, s, 0.0f, 0.0f},
-                             {-s, c, 0.0f, 0.0f},
-                             {0.0f, 0.0f, 1.0f, 0.0f},
-                             {0.0f, 0.0f, 0.0f, 1.0f}}}};
+    Matrix4X4f rotation = {
+        {{{c, s, 0.0f, 0.0f}, {-s, c, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 1.0f}}}};
 
     matrix = rotation;
 
@@ -632,9 +613,12 @@ inline void MatrixRotationAxis(Matrix4X4f &matrix, const Vector3f &axis, const f
 {
     float c = cosf(angle), s = sinf(angle), one_minus_c = 1.0f - c;
 
-    Matrix4X4f rotation = {{{{c + axis[0] * axis[0] * one_minus_c, axis[0] * axis[1] * one_minus_c + axis[2] * s, axis[0] * axis[2] * one_minus_c - axis[1] * s, 0.0f},
-                             {axis[0] * axis[1] * one_minus_c - axis[2] * s, c + axis[1] * axis[1] * one_minus_c, axis[1] * axis[2] * one_minus_c + axis[0] * s, 0.0f},
-                             {axis[0] * axis[2] * one_minus_c + axis[1] * s, axis[1] * axis[2] * one_minus_c - axis[0] * s, c + axis[2] * axis[2] * one_minus_c, 0.0f},
+    Matrix4X4f rotation = {{{{c + axis[0] * axis[0] * one_minus_c, axis[0] * axis[1] * one_minus_c + axis[2] * s,
+                              axis[0] * axis[2] * one_minus_c - axis[1] * s, 0.0f},
+                             {axis[0] * axis[1] * one_minus_c - axis[2] * s, c + axis[1] * axis[1] * one_minus_c,
+                              axis[1] * axis[2] * one_minus_c + axis[0] * s, 0.0f},
+                             {axis[0] * axis[2] * one_minus_c + axis[1] * s,
+                              axis[1] * axis[2] * one_minus_c - axis[0] * s, c + axis[2] * axis[2] * one_minus_c, 0.0f},
                              {0.0f, 0.0f, 0.0f, 1.0f}}}};
 
     matrix = rotation;
@@ -642,18 +626,19 @@ inline void MatrixRotationAxis(Matrix4X4f &matrix, const Vector3f &axis, const f
 
 inline void MatrixRotationQuaternion(Matrix4X4f &matrix, Quaternion q)
 {
-    Matrix4X4f rotation = {{{{1.0f - 2.0f * q[1] * q[1] - 2.0f * q[2] * q[2], 2.0f * q[0] * q[1] + 2.0f * q[3] * q[2], 2.0f * q[0] * q[2] - 2.0f * q[3] * q[1], 0.0f},
-                             {2.0f * q[0] * q[1] - 2.0f * q[3] * q[2], 1.0f - 2.0f * q[0] * q[0] - 2.0f * q[2] * q[2], 2.0f * q[1] * q[2] + 2.0f * q[3] * q[0], 0.0f},
-                             {2.0f * q[0] * q[2] + 2.0f * q[3] * q[1], 2.0f * q[1] * q[2] - 2.0f * q[1] * q[2] - 2.0f * q[3] * q[0], 1.0f - 2.0f * q[0] * q[0] - 2.0f * q[1] * q[1], 0.0f},
-                             {0.0f, 0.0f, 0.0f, 1.0f}}}};
+    Matrix4X4f rotation = {
+        {{{1.0f - 2.0f * q[1] * q[1] - 2.0f * q[2] * q[2], 2.0f * q[0] * q[1] + 2.0f * q[3] * q[2],
+           2.0f * q[0] * q[2] - 2.0f * q[3] * q[1], 0.0f},
+          {2.0f * q[0] * q[1] - 2.0f * q[3] * q[2], 1.0f - 2.0f * q[0] * q[0] - 2.0f * q[2] * q[2],
+           2.0f * q[1] * q[2] + 2.0f * q[3] * q[0], 0.0f},
+          {2.0f * q[0] * q[2] + 2.0f * q[3] * q[1], 2.0f * q[1] * q[2] - 2.0f * q[1] * q[2] - 2.0f * q[3] * q[0],
+           1.0f - 2.0f * q[0] * q[0] - 2.0f * q[1] * q[1], 0.0f},
+          {0.0f, 0.0f, 0.0f, 1.0f}}}};
 
     matrix = rotation;
 }
 
-inline bool InverseMatrix4X4f(Matrix4X4f &matrix)
-{
-    return ispc::InverseMatrix4X4f(matrix);
-}
+inline bool InverseMatrix4X4f(Matrix4X4f &matrix) { return ispc::InverseMatrix4X4f(matrix); }
 
 inline Matrix8X8f DCT8X8(const Matrix8X8f &matrix)
 {
@@ -685,15 +670,13 @@ inline bool operator==(const EdgePtr &a, const EdgePtr &b)
 }
 typedef std::unordered_set<EdgePtr> EdgeSet;
 typedef std::vector<EdgePtr> EdgeList;
-struct Face
-{
+struct Face {
     EdgeList Edges;
     Vector3f Normal;
     PointList GetVertices() const
     {
         PointList vertices;
-        for (auto edge : Edges)
-        {
+        for (auto edge : Edges) {
             vertices.push_back(edge->first);
         }
 
@@ -730,4 +713,4 @@ inline bool isPointAbovePlane(const FacePtr &pface, const Point3 &point)
     PointList vertices = {pface->Edges[0]->first, pface->Edges[1]->first, pface->Edges[2]->first};
     return isPointAbovePlane(vertices, point);
 }
-} // namespace newbieGE
+}  // namespace newbieGE

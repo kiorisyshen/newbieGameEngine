@@ -6,7 +6,8 @@
 
 @implementation WindowDelegate
 
-- (void)windowWillClose:(NSNotification *)wNotification {
+- (void)windowWillClose:(NSNotification *)wNotification
+{
     [NSApp terminate:self];
 }
 

@@ -4,14 +4,14 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "IRuntimeModule.hpp"
 #include "Buffer.hpp"
+#include "IRuntimeModule.hpp"
 
 namespace newbieGE
 {
 class AssetLoader : public IRuntimeModule
 {
-public:
+   public:
     virtual ~AssetLoader(){};
 
     virtual int Initialize();
@@ -21,17 +21,15 @@ public:
 
     typedef void *AssetFilePtr;
 
-    enum AssetOpenMode
-    {
-        MY_OPEN_TEXT = 0,   /// Open In Text Mode
-        MY_OPEN_BINARY = 1, /// Open In Binary Mode
+    enum AssetOpenMode {
+        MY_OPEN_TEXT = 0,    /// Open In Text Mode
+        MY_OPEN_BINARY = 1,  /// Open In Binary Mode
     };
 
-    enum AssetSeekBase
-    {
-        MY_SEEK_SET = 0, /// SEEK_SET
-        MY_SEEK_CUR = 1, /// SEEK_CUR
-        MY_SEEK_END = 2  /// SEEK_END
+    enum AssetSeekBase {
+        MY_SEEK_SET = 0,  /// SEEK_SET
+        MY_SEEK_CUR = 1,  /// SEEK_CUR
+        MY_SEEK_END = 2   /// SEEK_END
     };
 
     bool AddSearchPath(const char *path);
@@ -58,12 +56,10 @@ public:
     {
         std::string result;
         Buffer buffer = SyncOpenAndReadText(fileName);
-        if (buffer.GetDataSize())
-        {
+        if (buffer.GetDataSize()) {
             char *content = reinterpret_cast<char *>(buffer.GetData());
 
-            if (content)
-            {
+            if (content) {
                 result = std::string(std::move(content));
             }
         }
@@ -71,9 +67,9 @@ public:
         return result;
     }
 
-private:
+   private:
     std::vector<std::string> m_strSearchPath;
 };
 
 extern AssetLoader *g_pAssetLoader;
-} // namespace newbieGE
+}  // namespace newbieGE

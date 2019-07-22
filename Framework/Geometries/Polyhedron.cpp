@@ -5,16 +5,14 @@ using namespace std;
 
 void Polyhedron::AddFace(PointList vertices, const PointPtr &inner_point)
 {
-    if (isPointAbovePlane(vertices, *inner_point))
-    {
+    if (isPointAbovePlane(vertices, *inner_point)) {
         std::reverse(std::begin(vertices), std::end(vertices));
     }
 
     FacePtr pFace = std::make_shared<Face>();
     auto count = vertices.size();
     assert(count >= 3);
-    for (auto i = 0; i < vertices.size(); i++)
-    {
+    for (auto i = 0; i < vertices.size(); i++) {
         pFace->Edges.push_back(std::make_shared<Edge>(vertices[i], vertices[(i + 1) == count ? 0 : i + 1]));
     }
     assert(pFace->Edges.size() >= 3);
@@ -40,17 +38,13 @@ void Polyhedron::AddTetrahedron(const PointList vertices)
     AddFace({vertices[0], vertices[3], vertices[2]}, vertices[1]);
 }
 
-void Polyhedron::GetAabb(const Matrix4X4f &trans,
-                         Vector3f &aabbMin,
-                         Vector3f &aabbMax) const
+void Polyhedron::GetAabb(const Matrix4X4f &trans, Vector3f &aabbMin, Vector3f &aabbMax) const
 {
     aabbMin = Vector3f(numeric_limits<float>::max());
     aabbMax = Vector3f(numeric_limits<float>::lowest());
 
-    for (auto pFace : Faces)
-    {
-        for (auto pEdge : pFace->Edges)
-        {
+    for (auto pFace : Faces) {
+        for (auto pEdge : pFace->Edges) {
             auto pVertex = pEdge->first;
             aabbMin[0] = (aabbMin[0] < pVertex->data[0]) ? aabbMin[0] : pVertex->data[0];
             aabbMin[1] = (aabbMin[1] < pVertex->data[1]) ? aabbMin[1] : pVertex->data[1];
@@ -62,6 +56,5 @@ void Polyhedron::GetAabb(const Matrix4X4f &trans,
     }
 
     Vector3f halfExtents = (aabbMax - aabbMin) * 0.5f;
-    TransformAabb(halfExtents, m_fMargin, trans,
-                  aabbMin, aabbMax);
+    TransformAabb(halfExtents, m_fMargin, trans, aabbMin, aabbMax);
 }

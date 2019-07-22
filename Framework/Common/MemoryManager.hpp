@@ -1,13 +1,13 @@
 #pragma once
 #include <new>
-#include "IRuntimeModule.hpp"
 #include "Allocator.hpp"
+#include "IRuntimeModule.hpp"
 
 namespace newbieGE
 {
 class MemoryManager : implements IRuntimeModule
 {
-public:
+   public:
     template <class T, typename... Arguments>
     T *New(Arguments... parameters)
     {
@@ -21,7 +21,7 @@ public:
         Free(p, sizeof(T));
     }
 
-public:
+   public:
     virtual ~MemoryManager() {}
 
     virtual int Initialize();
@@ -32,14 +32,14 @@ public:
     void *Allocate(size_t size, size_t alignment);
     void Free(void *p, size_t size);
 
-private:
+   private:
     static size_t *m_pBlockSizeLookup;
     static Allocator *m_pAllocators;
     static bool m_bInitialized;
 
-private:
+   private:
     static Allocator *LookUpAllocator(size_t size);
 };
 
 extern MemoryManager *g_pMemoryManager;
-} // namespace newbieGE
+}  // namespace newbieGE

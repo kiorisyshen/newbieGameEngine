@@ -5,17 +5,15 @@ namespace newbieGE
 {
 class Sphere : public Geometry
 {
-public:
+   public:
     Sphere() = delete;
     Sphere(const float radius) : Geometry(GeometryType::kSphere), m_fRadius(radius){};
 
-    virtual void GetAabb(const Matrix4X4f &trans,
-                         Vector3f &aabbMin,
-                         Vector3f &aabbMax) const;
+    virtual void GetAabb(const Matrix4X4f &trans, Vector3f &aabbMin, Vector3f &aabbMax) const;
 
     float GetRadius() const { return m_fRadius; };
 
-protected:
+   protected:
     float m_fRadius;
 };
-} // namespace newbieGE
+}  // namespace newbieGE

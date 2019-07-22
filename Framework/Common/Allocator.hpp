@@ -3,25 +3,19 @@
 
 namespace newbieGE
 {
-
-struct BlockHeader
-{
+struct BlockHeader {
     // union-ed with data
     BlockHeader *pNext;
 };
 
-struct PageHeader
-{
+struct PageHeader {
     PageHeader *pNext;
-    BlockHeader *Blocks()
-    {
-        return reinterpret_cast<BlockHeader *>(this + 1);
-    }
+    BlockHeader *Blocks() { return reinterpret_cast<BlockHeader *>(this + 1); }
 };
 
 class Allocator
 {
-public:
+   public:
     // debug patterns
     static const uint8_t PATTERN_ALIGN = 0xFC;
     static const uint8_t PATTERN_ALLOC = 0xFD;
@@ -39,7 +33,7 @@ public:
     void Free(void *p);
     void FreeAll();
 
-private:
+   private:
 #if defined(_DEBUG)
     // fill a free page with debug patterns
     void FillFreePage(PageHeader *pPage);
@@ -75,4 +69,4 @@ private:
     Allocator(const Allocator &clone);
     Allocator &operator=(const Allocator &rhs);
 };
-} // namespace newbieGE
+}  // namespace newbieGE

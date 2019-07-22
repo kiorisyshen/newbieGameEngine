@@ -6,8 +6,7 @@
 
 using namespace newbieGE;
 
-@implementation MetalRenderer
-{
+@implementation MetalRenderer {
     dispatch_semaphore_t _inFlightSemaphore;
     MTKView *_mtkView;
     id<MTLDevice> _device;
@@ -39,8 +38,7 @@ using namespace newbieGE;
 
 - (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view;
 {
-    if (self = [super init])
-    {
+    if (self = [super init]) {
         _mtkView = view;
         _device = view.device;
         _inFlightSemaphore = dispatch_semaphore_create(2);
@@ -56,10 +54,8 @@ using namespace newbieGE;
 {
     NSError *error = NULL;
 
-    NSString *libraryFile = [[NSBundle mainBundle] pathForResource:@"Main"
-                                                            ofType:@"metallib"];
-    id<MTLLibrary> myLibrary = [_device newLibraryWithFile:libraryFile
-                                                     error:&error];
+    NSString *libraryFile = [[NSBundle mainBundle] pathForResource:@"Main" ofType:@"metallib"];
+    id<MTLLibrary> myLibrary = [_device newLibraryWithFile:libraryFile error:&error];
     id<MTLFunction> vertexFunction = [myLibrary newFunctionWithName:@"basic_vert_main"];
     id<MTLFunction> fragmentFunction = [myLibrary newFunctionWithName:@"basic_frag_main"];
 
@@ -90,10 +86,9 @@ using namespace newbieGE;
     _mtlVertexDescriptor.layouts[2].stepFunction = MTLVertexStepFunctionPerVertex;
 
     // PerFrameBuffer
-    _uniformBuffers =
-        [_device newBufferWithLength:kSizePerFrameConstantBuffer +
-                                     kSizePerBatchConstantBuffer * GfxConfiguration::kMaxSceneObjectCount
-                             options:MTLResourceStorageModeShared];
+    _uniformBuffers = [_device newBufferWithLength:kSizePerFrameConstantBuffer +
+                                                   kSizePerBatchConstantBuffer * GfxConfiguration::kMaxSceneObjectCount
+                                           options:MTLResourceStorageModeShared];
     _uniformBuffers.label = [NSString stringWithFormat:@"uniformBuffer"];
 
     // Texture sampler
@@ -106,8 +101,7 @@ using namespace newbieGE;
     samplerDescriptor.tAddressMode = MTLSamplerAddressModeRepeat;
     _sampler0 = [_device newSamplerStateWithDescriptor:samplerDescriptor];
 
-    MTLRenderPipelineDescriptor *pipelineStateDescriptor =
-        [[MTLRenderPipelineDescriptor alloc] init];
+    MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
     pipelineStateDescriptor.label = @"Simple Pipeline";
     pipelineStateDescriptor.sampleCount = _mtkView.sampleCount;
     pipelineStateDescriptor.vertexFunction = vertexFunction;
@@ -116,16 +110,14 @@ using namespace newbieGE;
     pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
     pipelineStateDescriptor.depthAttachmentPixelFormat = _mtkView.depthStencilPixelFormat;
 
-    _pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor
-                                                             error:&error];
+    _pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
 
     MTLDepthStencilDescriptor *depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
     depthStateDesc.depthCompareFunction = MTLCompareFunctionLess;
     depthStateDesc.depthWriteEnabled = YES;
     _depthState = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
 
-    if (!_pipelineState)
-    {
+    if (!_pipelineState) {
         // Pipeline State creation could fail if we haven't properly set up our
         // pipeline descriptor.
         //  If the Metal API validation is enabled, we can find out more information
@@ -137,7 +129,7 @@ using namespace newbieGE;
 #ifdef DEBUG
     // Debug line buffer
     _DEBUG_Buffer = [_device newBufferWithLength:kSizeDebugMaxAtomBuffer * GfxConfiguration::kMaxDebugObjectCount
-                                              options:MTLResourceStorageModeShared];
+                                         options:MTLResourceStorageModeShared];
     _DEBUG_Buffer.label = [NSString stringWithFormat:@"DEBUG_Buffer"];
 
     vertexFunction = [myLibrary newFunctionWithName:@"debug_vert_main"];
@@ -151,8 +143,7 @@ using namespace newbieGE;
     pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
     pipelineStateDescriptor.depthAttachmentPixelFormat = _mtkView.depthStencilPixelFormat;
 
-    _DEBUG_pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor
-                                                                   error:&error];
+    _DEBUG_pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
     depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
     depthStateDesc.depthCompareFunction = MTLCompareFunctionLessEqual;
     depthStateDesc.depthWriteEnabled = NO;
@@ -162,8 +153,7 @@ using namespace newbieGE;
 
 - (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstants>> &)batches
 {
-    if (_renderPassDescriptor != nil)
-    {
+    if (_renderPassDescriptor != nil) {
         [_renderEncoder setRenderPipelineState:_pipelineState];
         [_renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
         [_renderEncoder setCullMode:MTLCullModeBack];
@@ -176,42 +166,30 @@ using namespace newbieGE;
         [_renderEncoder setFragmentBuffer:_uniformBuffers offset:0 atIndex:10];
         [_renderEncoder setFragmentSamplerState:_sampler0 atIndex:0];
 
-        for (const auto &pDbc : batches)
-        {
+        for (const auto &pDbc : batches) {
             const MtlDrawBatchContext &dbc = dynamic_cast<const MtlDrawBatchContext &>(*pDbc);
 
-            [_renderEncoder
-                setVertexBuffer:_uniformBuffers
-                         offset:kSizePerFrameConstantBuffer +
-                                dbc.batchIndex * kSizePerBatchConstantBuffer
-                        atIndex:11];
+            [_renderEncoder setVertexBuffer:_uniformBuffers
+                                     offset:kSizePerFrameConstantBuffer + dbc.batchIndex * kSizePerBatchConstantBuffer
+                                    atIndex:11];
 
-            [_renderEncoder
-                setFragmentBuffer:_uniformBuffers
-                           offset:kSizePerFrameConstantBuffer +
-                                  dbc.batchIndex * kSizePerBatchConstantBuffer
-                          atIndex:11];
+            [_renderEncoder setFragmentBuffer:_uniformBuffers
+                                       offset:kSizePerFrameConstantBuffer + dbc.batchIndex * kSizePerBatchConstantBuffer
+                                      atIndex:11];
 
             // Set mesh's vertex buffers
-            for (uint32_t bufferIndex = 0; bufferIndex < dbc.property_count; bufferIndex++)
-            {
-                id<MTLBuffer> vertexBuffer =
-                    _vertexBuffers[dbc.property_offset + bufferIndex];
-                [_renderEncoder setVertexBuffer:vertexBuffer
-                                         offset:0
-                                        atIndex:bufferIndex];
+            for (uint32_t bufferIndex = 0; bufferIndex < dbc.property_count; bufferIndex++) {
+                id<MTLBuffer> vertexBuffer = _vertexBuffers[dbc.property_offset + bufferIndex];
+                [_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:bufferIndex];
             }
             /* well, we have different material for each index buffer so we can not
              * draw them together in future we should group indicies according to its
              * material and draw them together
              */
-            if (dbc.materialIdx >= 0)
-            {
-                [_renderEncoder setFragmentTexture:_textures[dbc.materialIdx]
-                                           atIndex:0];
+            if (dbc.materialIdx >= 0) {
+                [_renderEncoder setFragmentTexture:_textures[dbc.materialIdx] atIndex:0];
             }
-            if (dbc.property_count <= 2)
-            {
+            if (dbc.property_count <= 2) {
                 id<MTLBuffer> vertexBuffer = _vertexBuffers[dbc.property_offset];
                 [_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:2];
             }
@@ -230,25 +208,24 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
 {
     MTLPixelFormat format = MTLPixelFormatRGBA8Unorm;
 
-    switch (img.bitcount)
-    {
-    case 8:
-        format = MTLPixelFormatR8Unorm;
-        break;
-    case 16:
-        format = MTLPixelFormatRG8Unorm;
-        break;
-    case 32:
-        format = MTLPixelFormatRGBA8Unorm;
-        break;
-    case 64:
-        // Unimplemented
-        break;
-    case 128:
-        // Unimplemented
-        break;
-    default:
-        assert(0);
+    switch (img.bitcount) {
+        case 8:
+            format = MTLPixelFormatR8Unorm;
+            break;
+        case 16:
+            format = MTLPixelFormatRG8Unorm;
+            break;
+        case 32:
+            format = MTLPixelFormatRGBA8Unorm;
+            break;
+        case 64:
+            // Unimplemented
+            break;
+        case 128:
+            // Unimplemented
+            break;
+        default:
+            assert(0);
     }
 
     return format;
@@ -268,14 +245,11 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
 
     // now upload the data
     MTLRegion region = {
-        {0, 0, 0},                     // MTLOrigin
-        {image.Width, image.Height, 1} // MTLSize
+        {0, 0, 0},                      // MTLOrigin
+        {image.Width, image.Height, 1}  // MTLSize
     };
 
-    [texture replaceRegion:region
-               mipmapLevel:0
-                 withBytes:image.data
-               bytesPerRow:image.pitch];
+    [texture replaceRegion:region mipmapLevel:0 withBytes:image.data bytesPerRow:image.pitch];
 
     uint32_t index = _textures.size();
     _textures.push_back(texture);
@@ -288,9 +262,7 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
     id<MTLBuffer> vertexBuffer;
     auto dataSize = v_property_array.GetDataSize();
     auto pData = v_property_array.GetData();
-    vertexBuffer = [_device newBufferWithBytes:pData
-                                        length:dataSize
-                                       options:MTLResourceStorageModeShared];
+    vertexBuffer = [_device newBufferWithBytes:pData length:dataSize options:MTLResourceStorageModeShared];
     _vertexBuffers.push_back(vertexBuffer);
 }
 
@@ -299,9 +271,7 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
     id<MTLBuffer> indexBuffer;
     auto dataSize = index_array.GetDataSize();
     auto pData = index_array.GetData();
-    indexBuffer = [_device newBufferWithBytes:pData
-                                       length:dataSize
-                                      options:MTLResourceStorageModeShared];
+    indexBuffer = [_device newBufferWithBytes:pData length:dataSize options:MTLResourceStorageModeShared];
     _indexBuffers.push_back(indexBuffer);
 }
 
@@ -312,12 +282,10 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
 
 - (void)setPerBatchConstants:(const std::vector<std::shared_ptr<DrawBatchConstants>> &)batches
 {
-    for (const auto &pDbc : batches)
-    {
-        std::memcpy(reinterpret_cast<uint8_t *>(_uniformBuffers.contents) +
-                        kSizePerFrameConstantBuffer + pDbc->batchIndex * kSizePerBatchConstantBuffer,
-                    &static_cast<const PerBatchConstants &>(*pDbc),
-                    sizeof(PerBatchConstants));
+    for (const auto &pDbc : batches) {
+        std::memcpy(reinterpret_cast<uint8_t *>(_uniformBuffers.contents) + kSizePerFrameConstantBuffer +
+                        pDbc->batchIndex * kSizePerBatchConstantBuffer,
+                    &static_cast<const PerBatchConstants &>(*pDbc), sizeof(PerBatchConstants));
     }
 }
 
@@ -343,8 +311,7 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
 
     // Obtain a renderPassDescriptor generated from the view's drawable textures
     _renderPassDescriptor = _mtkView.currentRenderPassDescriptor;
-    if (_renderPassDescriptor != nil)
-    {
+    if (_renderPassDescriptor != nil) {
         _renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
         _renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStoreAndMultisampleResolve;
         _renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
@@ -361,8 +328,7 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
 
 - (void)beginPass
 {
-    if (_renderPassDescriptor != nil)
-    {
+    if (_renderPassDescriptor != nil) {
         _renderEncoder = [_commandBuffer renderCommandEncoderWithDescriptor:_renderPassDescriptor];
         _renderEncoder.label = @"MyRenderEncoder";
     }
@@ -397,16 +363,15 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
 {
     auto offset = debugBatches.size();
     offset = 0;
-    for (auto batch : debugBatches)
-    {
+    for (auto batch : debugBatches) {
         auto size = sizeof(DEBUG_TriangleParam) * batch.triParams.size();
         std::memcpy(reinterpret_cast<uint8_t *>(_DEBUG_Buffer.contents) + offset, batch.triParams.data(), size);
         offset += ALIGN(size, 256);
-        
+
         size = sizeof(DEBUG_LineParam) * batch.lineParams.size();
         std::memcpy(reinterpret_cast<uint8_t *>(_DEBUG_Buffer.contents) + offset, batch.lineParams.data(), size);
         offset += ALIGN(size, 256);
-        
+
         size = sizeof(DEBUG_PointParam) * batch.pointParams.size();
         std::memcpy(reinterpret_cast<uint8_t *>(_DEBUG_Buffer.contents) + offset, batch.pointParams.data(), size);
         offset += ALIGN(size, 256);
@@ -419,8 +384,7 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
 
 - (void)DEBUG_DrawDebug:(const std::vector<DEBUG_DrawBatch> &)debugBatches
 {
-    if (_renderPassDescriptor != nil)
-    {
+    if (_renderPassDescriptor != nil) {
         [_renderEncoder setRenderPipelineState:_DEBUG_pipelineState];
         [_renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
         [_renderEncoder setCullMode:MTLCullModeBack];
@@ -433,12 +397,9 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
 
         auto offset = debugBatches.size();
         offset = 0;
-        for (auto batch : debugBatches)
-        {
-            [_renderEncoder setVertexBytes:&batch.pbc
-                                    length:sizeof(DEBUG_PerBatchConstants)
-                                   atIndex:8];
-            
+        for (auto batch : debugBatches) {
+            [_renderEncoder setVertexBytes:&batch.pbc length:sizeof(DEBUG_PerBatchConstants) atIndex:8];
+
             // Draw primitive type debug info
             // Use buffer than setVertexBytes for buffer >= 4096 bytes
             // Triangles
@@ -447,22 +408,18 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img)
                                vertexStart:0
                                vertexCount:3 * batch.triParams.size()];
             offset += ALIGN(sizeof(DEBUG_TriangleParam) * batch.triParams.size(), 256);
-            
+
             // Lines
             [_renderEncoder setVertexBuffer:_DEBUG_Buffer offset:offset atIndex:7];
-            [_renderEncoder drawPrimitives:MTLPrimitiveTypeLine
-                               vertexStart:0
-                               vertexCount:2 * batch.lineParams.size()];
+            [_renderEncoder drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:2 * batch.lineParams.size()];
             offset += ALIGN(sizeof(DEBUG_LineParam) * batch.lineParams.size(), 256);
-            
+
             // Points
             [_renderEncoder setVertexBuffer:_DEBUG_Buffer offset:offset atIndex:7];
-            [_renderEncoder drawPrimitives:MTLPrimitiveTypePoint
-                               vertexStart:0
-                               vertexCount:batch.pointParams.size()];
+            [_renderEncoder drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:batch.pointParams.size()];
             offset += ALIGN(sizeof(DEBUG_PointParam) * batch.pointParams.size(), 256);
         }
-        
+
         [_renderEncoder popDebugGroup];
     }
 }

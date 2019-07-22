@@ -6,7 +6,7 @@ namespace newbieGE
 {
 class DebugManager : implements IRuntimeModule
 {
-public:
+   public:
     int Initialize() override;
     void Finalize() override;
     void Tick() override;
@@ -15,7 +15,7 @@ public:
 
     void DrawDebugInfo() override;
 
-protected:
+   protected:
     void DrawAxis();
     void DrawGrid();
 
@@ -23,6 +23,6 @@ protected:
 };
 
 extern DebugManager *g_pDebugManager;
-} // namespace newbieGE
+}  // namespace newbieGE
 
 #endif

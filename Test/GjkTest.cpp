@@ -12,8 +12,7 @@ int main(int argc, char **argv)
 {
     int point_num = 100;
 
-    if (argc > 1)
-    {
+    if (argc > 1) {
         point_num = atoi(argv[1]);
     }
 
@@ -27,8 +26,7 @@ int main(int argc, char **argv)
 
         ConvexHull convex_hull;
         cout << "Points Generated:" << endl;
-        for (auto i = 0; i < point_num; i++)
-        {
+        for (auto i = 0; i < point_num; i++) {
             PointPtr point_ptr = make_shared<Point3>(Point3{dice(), dice(), dice()});
             convex_hull.AddPoint(std::move(point_ptr));
         }
@@ -48,8 +46,7 @@ int main(int argc, char **argv)
         auto dice = std::bind(distribution, generator);
 
         ConvexHull convex_hull;
-        for (auto i = 0; i < point_num; i++)
-        {
+        for (auto i = 0; i < point_num; i++) {
             PointPtr point_ptr = make_shared<Point3>(Point3{dice(), dice(), dice()});
             convex_hull.AddPoint(std::move(point_ptr));
         }
@@ -69,16 +66,15 @@ int main(int argc, char **argv)
     while ((intersected = GjkIntersection(support_function_A, support_function_B, direction, simplex)) == -1)
         cerr << "approximate direction: " << direction;
 
-    switch (intersected)
-    {
-    case 1:
-        cout << "A and B IS intersected" << endl;
-        break;
-    case 0:
-        cout << "A and B is NOT intersected" << endl;
-        break;
-    default:
-        assert(0);
+    switch (intersected) {
+        case 1:
+            cout << "A and B IS intersected" << endl;
+            break;
+        case 0:
+            cout << "A and B is NOT intersected" << endl;
+            break;
+        default:
+            assert(0);
     }
 
     return 0;

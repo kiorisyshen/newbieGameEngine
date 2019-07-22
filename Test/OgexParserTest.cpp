@@ -11,13 +11,12 @@ namespace newbieGE
 {
 MemoryManager *g_pMemoryManager = new MemoryManager();
 AssetLoader *g_pAssetLoader = new AssetLoader();
-} // namespace newbieGE
+}  // namespace newbieGE
 
 template <typename Key, typename T>
 static ostream &operator<<(ostream &out, unordered_map<Key, T> map)
 {
-    for (auto p : map)
-    {
+    for (auto p : map) {
         out << *p.second << endl;
     }
 

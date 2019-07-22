@@ -1,18 +1,21 @@
 #pragma once
-#include <memory>
 #include <cstddef>
 #include <cstdlib>
 #include <cstring>
+#include <memory>
 #include "MemoryManager.hpp"
 
 namespace newbieGE
 {
 class Buffer
 {
-public:
+   public:
     Buffer() : m_pData(nullptr), m_szSize(0), m_szAlignment(alignof(uint32_t)) {}
 
-    Buffer(size_t size, size_t alignment = 4) : m_szSize(size), m_szAlignment(alignment) { m_pData = reinterpret_cast<uint8_t *>(g_pMemoryManager->Allocate(size, alignment)); }
+    Buffer(size_t size, size_t alignment = 4) : m_szSize(size), m_szAlignment(alignment)
+    {
+        m_pData = reinterpret_cast<uint8_t *>(g_pMemoryManager->Allocate(size, alignment));
+    }
 
     Buffer(const Buffer &rhs)
     {
@@ -34,14 +37,10 @@ public:
 
     Buffer &operator=(const Buffer &rhs)
     {
-        if (m_szSize >= rhs.m_szSize && m_szAlignment == rhs.m_szAlignment)
-        {
+        if (m_szSize >= rhs.m_szSize && m_szAlignment == rhs.m_szAlignment) {
             memcpy(m_pData, rhs.m_pData, rhs.m_szSize);
-        }
-        else
-        {
-            if (m_pData)
-                g_pMemoryManager->Free(m_pData, m_szSize);
+        } else {
+            if (m_pData) g_pMemoryManager->Free(m_pData, m_szSize);
             m_pData = reinterpret_cast<uint8_t *>(g_pMemoryManager->Allocate(rhs.m_szSize, rhs.m_szAlignment));
             memcpy(m_pData, rhs.m_pData, rhs.m_szSize);
             m_szSize = rhs.m_szSize;
@@ -52,8 +51,7 @@ public:
 
     Buffer &operator=(Buffer &&rhs)
     {
-        if (m_pData)
-            g_pMemoryManager->Free(m_pData, m_szSize);
+        if (m_pData) g_pMemoryManager->Free(m_pData, m_szSize);
         m_pData = rhs.m_pData;
         m_szSize = rhs.m_szSize;
         m_szAlignment = rhs.m_szAlignment;
@@ -65,8 +63,7 @@ public:
 
     ~Buffer()
     {
-        if (m_pData)
-            g_pMemoryManager->Free(m_pData, m_szSize);
+        if (m_pData) g_pMemoryManager->Free(m_pData, m_szSize);
         m_pData = nullptr;
     }
 
@@ -74,9 +71,9 @@ public:
     const uint8_t *GetData(void) const { return m_pData; };
     size_t GetDataSize(void) const { return m_szSize; };
 
-protected:
+   protected:
     uint8_t *m_pData;
     size_t m_szSize;
     size_t m_szAlignment;
 };
-} // namespace newbieGE
+}  // namespace newbieGE

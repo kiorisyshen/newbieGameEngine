@@ -1,16 +1,17 @@
 #include <iostream>
 #include <string>
 #include "AssetLoader.hpp"
-#include "MemoryManager.hpp"
 #include "JPEG.hpp"
+#include "MemoryManager.hpp"
 
 using namespace std;
 using namespace newbieGE;
 
-namespace newbieGE {
-    MemoryManager* g_pMemoryManager = new MemoryManager();
-    AssetLoader*   g_pAssetLoader = new AssetLoader();
-}
+namespace newbieGE
+{
+MemoryManager* g_pMemoryManager = new MemoryManager();
+AssetLoader* g_pAssetLoader = new AssetLoader();
+}  // namespace newbieGE
 
 int main(int argc, const char** argv)
 {
@@ -44,4 +45,3 @@ int main(int argc, const char** argv)
 
     return 0;
 }
-

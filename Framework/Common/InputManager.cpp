@@ -1,26 +1,19 @@
-#include <iostream>
 #include "InputManager.hpp"
-#include "GraphicsManager.hpp"
-#include "SceneManager.hpp"
-#include "IGameLogic.hpp"
+#include <iostream>
 #include "DebugManager.hpp"
+#include "GraphicsManager.hpp"
+#include "IGameLogic.hpp"
+#include "SceneManager.hpp"
 #include "geommath.hpp"
 
 using namespace newbieGE;
 using namespace std;
 
-int InputManager::Initialize()
-{
-    return 0;
-}
+int InputManager::Initialize() { return 0; }
 
-void InputManager::Finalize()
-{
-}
+void InputManager::Finalize() {}
 
-void InputManager::Tick()
-{
-}
+void InputManager::Tick() {}
 
 void InputManager::UpArrowKeyDown()
 {
@@ -28,8 +21,7 @@ void InputManager::UpArrowKeyDown()
     cerr << "[InputManager] Up Arrow Key Down!" << endl;
 #endif
     g_pGameLogic->OnUpKeyDown();
-    if (!m_bUpKeyPressed)
-    {
+    if (!m_bUpKeyPressed) {
         g_pGameLogic->OnUpKey();
         m_bUpKeyPressed = true;
     }
@@ -50,8 +42,7 @@ void InputManager::DownArrowKeyDown()
     cerr << "[InputManager] Down Arrow Key Down!" << endl;
 #endif
     g_pGameLogic->OnDownKeyDown();
-    if (!m_bDownKeyPressed)
-    {
+    if (!m_bDownKeyPressed) {
         g_pGameLogic->OnDownKey();
         m_bDownKeyPressed = true;
     }
@@ -72,8 +63,7 @@ void InputManager::LeftArrowKeyDown()
     cerr << "[InputManager] Left Arrow Key Down!" << endl;
 #endif
     g_pGameLogic->OnLeftKeyDown();
-    if (!m_bLeftKeyPressed)
-    {
+    if (!m_bLeftKeyPressed) {
         g_pGameLogic->OnLeftKey();
         m_bLeftKeyPressed = true;
     }
@@ -94,8 +84,7 @@ void InputManager::RightArrowKeyDown()
     cerr << "[InputManager] Right Arrow Key Down!" << endl;
 #endif
     g_pGameLogic->OnRightKeyDown();
-    if (!m_bRightKeyPressed)
-    {
+    if (!m_bRightKeyPressed) {
         g_pGameLogic->OnRightKey();
         m_bRightKeyPressed = true;
     }
@@ -115,21 +104,20 @@ void InputManager::AsciiKeyDown(char keycode)
 #ifdef DEBUG
     cerr << "[InputManager] ASCII Key Down! (" << keycode << ")" << endl;
 #endif
-    switch (keycode)
-    {
-    case 'd':
+    switch (keycode) {
+        case 'd':
 #ifdef DEBUG
-        g_pDebugManager->ToggleDebugInfo();
+            g_pDebugManager->ToggleDebugInfo();
 #endif
-        break;
-    case 'r':
-        g_pSceneManager->ResetScene();
-        break;
-    case 'u':
-        g_pGameLogic->OnButton1Down();
-        break;
-    default:
-        cerr << "[InputManager] unhandled key." << endl;
+            break;
+        case 'r':
+            g_pSceneManager->ResetScene();
+            break;
+        case 'u':
+            g_pGameLogic->OnButton1Down();
+            break;
+        default:
+            cerr << "[InputManager] unhandled key." << endl;
     }
 }
 
@@ -138,35 +126,25 @@ void InputManager::AsciiKeyUp(char keycode)
 #ifdef DEBUG
     cerr << "[InputManager] ASCII Key Up! (" << keycode << ")" << endl;
 #endif
-    switch (keycode)
-    {
-    case 'd':
-        break;
-    case 'r':
-        break;
-    case 'u':
-        g_pGameLogic->OnButton1Up();
-        break;
-    default:
-        cerr << "[InputManager] unhandled key." << endl;
+    switch (keycode) {
+        case 'd':
+            break;
+        case 'r':
+            break;
+        case 'u':
+            g_pGameLogic->OnButton1Up();
+            break;
+        default:
+            cerr << "[InputManager] unhandled key." << endl;
     }
 }
 
-void InputManager::LeftMouseButtonDown()
-{
-    cerr << "[InputManager] Left Mouse Button Down!" << endl;
-}
+void InputManager::LeftMouseButtonDown() { cerr << "[InputManager] Left Mouse Button Down!" << endl; }
 
-void InputManager::LeftMouseButtonUp()
-{
-    cerr << "[InputManager] Left Mouse Button Up!" << endl;
-}
+void InputManager::LeftMouseButtonUp() { cerr << "[InputManager] Left Mouse Button Up!" << endl; }
 
 void InputManager::LeftMouseDrag(float deltaX, float deltaY)
 {
-    cerr << "[InputManager] Left Mouse Dragged! ("
-         << deltaX << ","
-         << deltaY << ")"
-         << endl;
+    cerr << "[InputManager] Left Mouse Dragged! (" << deltaX << "," << deltaY << ")" << endl;
     g_pGameLogic->OnAnalogStick(0, deltaX, deltaY);
 }

@@ -1,26 +1,20 @@
-#include <iostream>
 #include "DebugManager.hpp"
+#include <iostream>
 #include "GraphicsManager.hpp"
-#include "IPhysicsManager.hpp"
 #include "IGameLogic.hpp"
+#include "IPhysicsManager.hpp"
 
 using namespace newbieGE;
 using namespace std;
 
 #ifdef DEBUG
-int DebugManager::Initialize()
-{
-    return 0;
-}
+int DebugManager::Initialize() { return 0; }
 
-void DebugManager::Finalize()
-{
-}
+void DebugManager::Finalize() {}
 
 void DebugManager::Tick()
 {
-    if (m_bDrawDebugInfo)
-    {
+    if (m_bDrawDebugInfo) {
         g_pGraphicsManager->DEBUG_ClearDebugBuffers();
         DrawDebugInfo();
         g_pPhysicsManager->DrawDebugInfo();
@@ -32,8 +26,7 @@ void DebugManager::Tick()
 void DebugManager::ToggleDebugInfo()
 {
     m_bDrawDebugInfo = !m_bDrawDebugInfo;
-    if (!m_bDrawDebugInfo)
-    {
+    if (!m_bDrawDebugInfo) {
         g_pGraphicsManager->DEBUG_ClearDebugBuffers();
     }
 }
@@ -69,15 +62,13 @@ void DebugManager::DrawGrid()
 {
     Vector3f color({0.1f, 0.1f, 0.1f});
 
-    for (int x = -100; x <= 100; x += 10)
-    {
+    for (int x = -100; x <= 100; x += 10) {
         PointPtr from = make_shared<Point3>(Point3({(float)x, -100.0f, 0.0f}));
         PointPtr to = make_shared<Point3>(Point3({(float)x, 100.0f, 0.0f}));
         g_pGraphicsManager->DEBUG_SetDrawLineParam(*from, *to, color);
     }
 
-    for (int y = -100; y <= 100; y += 10)
-    {
+    for (int y = -100; y <= 100; y += 10) {
         PointPtr from = make_shared<Point3>(Point3({-100.0f, (float)y, 0.0f}));
         PointPtr to = make_shared<Point3>(Point3({100.0f, (float)y, 0.0f}));
         g_pGraphicsManager->DEBUG_SetDrawLineParam(*from, *to, color);

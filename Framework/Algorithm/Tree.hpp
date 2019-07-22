@@ -6,14 +6,14 @@ namespace newbieGE
 {
 class TreeNode
 {
-protected:
+   protected:
     TreeNode *m_Parent;
     std::list<std::shared_ptr<TreeNode>> m_Children;
 
-protected:
+   protected:
     virtual void dump(std::ostream &out) const {};
 
-public:
+   public:
     virtual ~TreeNode(){};
 
     virtual void AppendChild(std::shared_ptr<TreeNode> &&sub_node)
@@ -32,8 +32,7 @@ public:
         node.dump(out);
         out << std::endl;
 
-        for (const std::shared_ptr<TreeNode> &sub_node : node.m_Children)
-        {
+        for (const std::shared_ptr<TreeNode> &sub_node : node.m_Children) {
             out << *sub_node << std::endl;
         }
 
@@ -42,4 +41,4 @@ public:
         return out;
     }
 };
-} // namespace newbieGE
+}  // namespace newbieGE

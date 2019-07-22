@@ -5,7 +5,7 @@ namespace newbieGE
 {
 class InputManager : implements IRuntimeModule
 {
-public:
+   public:
     virtual int Initialize();
     virtual void Finalize();
     virtual void Tick();
@@ -28,7 +28,7 @@ public:
     void LeftMouseButtonUp();
     void LeftMouseDrag(float deltaX, float deltaY);
 
-protected:
+   protected:
     bool m_bUpKeyPressed = false;
     bool m_bDownKeyPressed = false;
     bool m_bLeftKeyPressed = false;
@@ -36,4 +36,4 @@ protected:
 };
 
 extern InputManager *g_pInputManager;
-} // namespace newbieGE
+}  // namespace newbieGE

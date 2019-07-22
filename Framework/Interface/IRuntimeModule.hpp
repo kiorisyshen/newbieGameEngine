@@ -6,7 +6,7 @@ namespace newbieGE
 {
 Interface IRuntimeModule
 {
-public:
+   public:
     virtual ~IRuntimeModule(){};
 
     virtual int Initialize() = 0;
@@ -18,4 +18,4 @@ public:
     virtual void DrawDebugInfo(){};
 #endif
 };
-} // namespace newbieGE
+}  // namespace newbieGE

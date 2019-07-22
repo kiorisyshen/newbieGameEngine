@@ -1,9 +1,9 @@
 #pragma once
-#include <cstdint>
-#include <climits>
-#include <memory>
-#include <algorithm>
 #include <assert.h>
+#include <algorithm>
+#include <climits>
+#include <cstdint>
+#include <memory>
 #include "config.h"
 
 #ifdef ALIGN
@@ -28,7 +28,7 @@ std::unique_ptr<T> make_unique(Args &&... args)
 {
     return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
-} // namespace std
+}  // namespace std
 #endif
 
 #ifndef HAVE_CLAMP
@@ -43,10 +43,9 @@ const T &clamp(const T &v, const T &lo, const T &hi)
 template <class T, class Compare>
 const T &clamp(const T &v, const T &lo, const T &hi, Compare comp)
 {
-    return assert(!comp(hi, lo)),
-           comp(v, lo) ? lo : comp(hi, v) ? hi : v;
+    return assert(!comp(hi, lo)), comp(v, lo) ? lo : comp(hi, v) ? hi : v;
 }
-} // namespace std
+}  // namespace std
 #endif
 
 namespace newbieGE
@@ -56,8 +55,7 @@ T endian_native_unsigned_int(T net_number)
 {
     T result = 0;
 
-    for (size_t i = 0; i < sizeof(net_number); i++)
-    {
+    for (size_t i = 0; i < sizeof(net_number); i++) {
         result <<= CHAR_BIT;
         result += ((reinterpret_cast<T *>(&net_number))[i] & UCHAR_MAX);
     }
@@ -71,8 +69,7 @@ T endian_net_unsigned_int(T native_number)
     T result = 0;
 
     size_t i = sizeof(native_number);
-    do
-    {
+    do {
         i--;
         (reinterpret_cast<uint8_t *>(&result))[i] = native_number & UCHAR_MAX;
         native_number >>= CHAR_BIT;
@@ -83,37 +80,19 @@ T endian_net_unsigned_int(T native_number)
 
 namespace details
 {
-constexpr int32_t i32(const char *s, int32_t v)
-{
-    return *s ? i32(s + 1, v * 256 + *s) : v;
-}
+constexpr int32_t i32(const char *s, int32_t v) { return *s ? i32(s + 1, v * 256 + *s) : v; }
 
-constexpr uint16_t u16(const char *s, uint16_t v)
-{
-    return *s ? u16(s + 1, v * 256 + *s) : v;
-}
+constexpr uint16_t u16(const char *s, uint16_t v) { return *s ? u16(s + 1, v * 256 + *s) : v; }
 
-constexpr uint32_t u32(const char *s, uint32_t v)
-{
-    return *s ? u32(s + 1, v * 256 + *s) : v;
-}
-} // namespace details
+constexpr uint32_t u32(const char *s, uint32_t v) { return *s ? u32(s + 1, v * 256 + *s) : v; }
+}  // namespace details
 
-constexpr int32_t operator"" _i32(const char *s, size_t)
-{
-    return details::i32(s, 0);
-}
+constexpr int32_t operator"" _i32(const char *s, size_t) { return details::i32(s, 0); }
 
-constexpr uint32_t operator"" _u32(const char *s, size_t)
-{
-    return details::u32(s, 0);
-}
+constexpr uint32_t operator"" _u32(const char *s, size_t) { return details::u32(s, 0); }
 
-constexpr uint16_t operator"" _u16(const char *s, size_t)
-{
-    return details::u16(s, 0);
-}
-} // namespace newbieGE
+constexpr uint16_t operator"" _u16(const char *s, size_t) { return details::u16(s, 0); }
+}  // namespace newbieGE
 
 #ifdef __OBJC__
 #define OBJC_CLASS(name) @class name

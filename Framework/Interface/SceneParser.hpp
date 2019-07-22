@@ -6,7 +6,7 @@ namespace newbieGE
 {
 Interface SceneParser
 {
-public:
+   public:
     virtual std::unique_ptr<Scene> Parse(const std::string &buf) = 0;
 };
-} // namespace newbieGE
+}  // namespace newbieGE

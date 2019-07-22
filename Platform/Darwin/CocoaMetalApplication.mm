@@ -1,7 +1,7 @@
+#include "CocoaMetalApplication.h"
 #include <stdio.h>
 #include <climits>
 #include <cstring>
-#include "CocoaMetalApplication.h"
 
 #import "MetalView.h"
 
@@ -22,7 +22,7 @@ int CocoaMetalApplication::Initialize()
     [m_pWindow setContentView:pView];
 
     result = BaseApplication::Initialize();
-    
+
     return result;
 }
 
@@ -32,8 +32,4 @@ void CocoaMetalApplication::Tick()
     [[m_pWindow contentView] setNeedsDisplay:YES];
 }
 
-void CocoaMetalApplication::Finalize()
-{
-    CocoaApplication::Finalize();
-}
-
+void CocoaMetalApplication::Finalize() { CocoaApplication::Finalize(); }
