@@ -5,7 +5,7 @@
 
 namespace newbieGE
 {
-ENUM(GeometryType){kBox, kSphere, kCylinder, kCone, kPlane, kCapsule, kTriangle, kPolyhydron};
+ENUM(GeometryType){kBox, kCapsule, kCone, kCylinder, kPlane, kPolyhydron, kSphere, kTriangle};
 
 class Geometry
 {

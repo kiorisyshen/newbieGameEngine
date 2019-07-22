@@ -62,14 +62,9 @@ void BulletPhysicsManager::CreateRigidBody(SceneGeometryNode& node, const SceneO
             btTransform startTransform;
             startTransform.setIdentity();
             startTransform.setOrigin(btVector3(trans->data[3][0], trans->data[3][1], trans->data[3][2]));
-            //                startTransform.setBasis(btMatrix3x3(trans->data[0][0],
-            //                trans->data[1][0], trans->data[2][0],
-            //                                            trans->data[0][1],
-            //                                            trans->data[1][1],
-            //                                            trans->data[2][1],
-            //                                            trans->data[0][2],
-            //                                            trans->data[1][2],
-            //                                            trans->data[2][2]));
+            startTransform.setBasis(btMatrix3x3(trans->data[0][0], trans->data[1][0], trans->data[2][0],
+                                                trans->data[0][1], trans->data[1][1], trans->data[2][1],
+                                                trans->data[0][2], trans->data[1][2], trans->data[2][2]));
             btDefaultMotionState* motionState = new btDefaultMotionState(startTransform);
             btScalar              mass        = 1.0f;
             btVector3             fallInertia(0.0f, 0.0f, 0.0f);
@@ -86,14 +81,9 @@ void BulletPhysicsManager::CreateRigidBody(SceneGeometryNode& node, const SceneO
             btTransform startTransform;
             startTransform.setIdentity();
             startTransform.setOrigin(btVector3(trans->data[3][0], trans->data[3][1], trans->data[3][2]));
-            //                startTransform.setBasis(btMatrix3x3(trans->data[0][0],
-            //                trans->data[1][0], trans->data[2][0],
-            //                                            trans->data[0][1],
-            //                                            trans->data[1][1],
-            //                                            trans->data[2][1],
-            //                                            trans->data[0][2],
-            //                                            trans->data[1][2],
-            //                                            trans->data[2][2]));
+            startTransform.setBasis(btMatrix3x3(trans->data[0][0], trans->data[1][0], trans->data[2][0],
+                                                trans->data[0][1], trans->data[1][1], trans->data[2][1],
+                                                trans->data[0][2], trans->data[1][2], trans->data[2][2]));
             btDefaultMotionState*                    motionState = new btDefaultMotionState(startTransform);
             btScalar                                 mass        = 0.0f;
             btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, motionState, box, btVector3(0.0f, 0.0f, 0.0f));
@@ -108,14 +98,9 @@ void BulletPhysicsManager::CreateRigidBody(SceneGeometryNode& node, const SceneO
             btTransform startTransform;
             startTransform.setIdentity();
             startTransform.setOrigin(btVector3(trans->data[3][0], trans->data[3][1], trans->data[3][2]));
-            //                startTransform.setBasis(btMatrix3x3(trans->data[0][0],
-            //                trans->data[1][0], trans->data[2][0],
-            //                                            trans->data[0][1],
-            //                                            trans->data[1][1],
-            //                                            trans->data[2][1],
-            //                                            trans->data[0][2],
-            //                                            trans->data[1][2],
-            //                                            trans->data[2][2]));
+            startTransform.setBasis(btMatrix3x3(trans->data[0][0], trans->data[1][0], trans->data[2][0],
+                                                trans->data[0][1], trans->data[1][1], trans->data[2][1],
+                                                trans->data[0][2], trans->data[1][2], trans->data[2][2]));
             btDefaultMotionState*                    motionState = new btDefaultMotionState(startTransform);
             btScalar                                 mass        = 0.0f;
             btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, motionState, plane, btVector3(0.0f, 0.0f, 0.0f));
@@ -159,11 +144,13 @@ int BulletPhysicsManager::CreateRigidBodies()
 
     // Geometries
     for (auto _it : scene.GeometryNodes) {
-        auto pGeometryNode = _it.second;
-        auto pGeometry     = scene.GetGeometry(pGeometryNode->GetSceneObjectRef());
-        assert(pGeometry);
+        auto pGeometryNode = _it.second.lock();
+        if (pGeometryNode) {
+            auto pGeometry = scene.GetGeometry(pGeometryNode->GetSceneObjectRef());
+            assert(pGeometry);
 
-        CreateRigidBody(*pGeometryNode, *pGeometry);
+            CreateRigidBody(*pGeometryNode, *pGeometry);
+        }
     }
 
     return 0;
@@ -175,8 +162,8 @@ void BulletPhysicsManager::ClearRigidBodies()
 
     // Geometries
     for (auto _it : scene.GeometryNodes) {
-        auto pGeometryNode = _it.second;
-        DeleteRigidBody(*pGeometryNode);
+        auto pGeometryNode = _it.second.lock();
+        if (pGeometryNode) DeleteRigidBody(*pGeometryNode);
     }
 
     for (auto shape : m_btCollisionShapes) {
@@ -194,18 +181,18 @@ Matrix4X4f BulletPhysicsManager::GetRigidBodyTransform(void* rigidBody)
     auto basis  = trans.getBasis();
     auto origin = trans.getOrigin();
     BuildIdentityMatrix(result);
-    result.data[0][0] = basis[0][0];
-    result.data[1][0] = basis[0][1];
-    result.data[2][0] = basis[0][2];
-    result.data[0][1] = basis[1][0];
-    result.data[1][1] = basis[1][1];
-    result.data[2][1] = basis[1][2];
-    result.data[0][2] = basis[2][0];
-    result.data[1][2] = basis[2][1];
-    result.data[2][2] = basis[2][2];
-    result.data[3][0] = origin.getX();
-    result.data[3][1] = origin.getY();
-    result.data[3][2] = origin.getZ();
+    result.data[0][0] = static_cast<float>(basis[0][0]);
+    result.data[1][0] = static_cast<float>(basis[0][1]);
+    result.data[2][0] = static_cast<float>(basis[0][2]);
+    result.data[0][1] = static_cast<float>(basis[1][0]);
+    result.data[1][1] = static_cast<float>(basis[1][1]);
+    result.data[2][1] = static_cast<float>(basis[1][2]);
+    result.data[0][2] = static_cast<float>(basis[2][0]);
+    result.data[1][2] = static_cast<float>(basis[2][1]);
+    result.data[2][2] = static_cast<float>(basis[2][2]);
+    result.data[3][0] = static_cast<float>(origin.getX());
+    result.data[3][1] = static_cast<float>(origin.getY());
+    result.data[3][2] = static_cast<float>(origin.getZ());
 
     return result;
 }

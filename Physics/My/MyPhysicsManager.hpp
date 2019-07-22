@@ -7,23 +7,25 @@ namespace newbieGE
 class MyPhysicsManager : public IPhysicsManager
 {
    public:
-    int  Initialize() override;
-    void Finalize() override;
-    void Tick() override;
+    int  Initialize();
+    void Finalize();
+    void Tick();
 
-    void CreateRigidBody(SceneGeometryNode& node, const SceneObjectGeometry& geometry) override;
-    void DeleteRigidBody(SceneGeometryNode& node) override;
+    void CreateRigidBody(SceneGeometryNode& node, const SceneObjectGeometry& geometry);
+    void DeleteRigidBody(SceneGeometryNode& node);
 
-    int  CreateRigidBodies() override;
-    void ClearRigidBodies() override;
+    int  CreateRigidBodies();
+    void ClearRigidBodies();
 
-    Matrix4X4f GetRigidBodyTransform(void* rigidBody) override;
-    void       UpdateRigidBodyTransform(SceneGeometryNode& node) override;
+    Matrix4X4f GetRigidBodyTransform(void* rigidBody);
+    void       UpdateRigidBodyTransform(SceneGeometryNode& node);
 
-    void ApplyCentralForce(void* rigidBody, Vector3f force) override;
+    void ApplyCentralForce(void* rigidBody, Vector3f force);
+
+    void IterateConvexHull();
 
 #ifdef DEBUG
-    void DrawDebugInfo() override;
+    void DrawDebugInfo();
 #endif
 
    protected:

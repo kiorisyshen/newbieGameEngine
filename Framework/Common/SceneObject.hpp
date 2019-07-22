@@ -1,13 +1,16 @@
 #pragma once
-#include <assert.h>
+#include <cassert>
+#include <chrono>
 #include <functional>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
+#include "Animatable.hpp"
 #include "AssetLoader.hpp"
 #include "BMP.hpp"
 #include "ConvexHull.hpp"
+#include "Curve.hpp"
 #include "Image.hpp"
 #include "JPEG.hpp"
 #include "PNG.hpp"
@@ -20,11 +23,12 @@ namespace newbieGE
 {
 ENUM(SceneObjectType){kSceneObjectTypeMesh = "MESH"_i32,       kSceneObjectTypeMaterial = "MATL"_i32,
                       kSceneObjectTypeTexture = "TXTU"_i32,    kSceneObjectTypeLight = "LGHT"_i32,
-                      kSceneObjectTypeCamera = "CAMR"_i32,     kSceneObjectTypeAnimator = "ANIM"_i32,
+                      kSceneObjectTypeCamera = "CAMR"_i32,     kSceneObjectTypeAnimationClip = "ANIM"_i32,
                       kSceneObjectTypeClip = "CLIP"_i32,       kSceneObjectTypeVertexArray = "VARR"_i32,
                       kSceneObjectTypeIndexArray = "VARR"_i32, kSceneObjectTypeGeometry = "GEOM"_i32,
                       kSceneObjectTypeTransform = "TRFM"_i32,  kSceneObjectTypeTranslate = "TSLT"_i32,
-                      kSceneObjectTypeRotate = "ROTA"_i32,     kSceneObjectTypeScale = "SCAL"_i32};
+                      kSceneObjectTypeRotate = "ROTA"_i32,     kSceneObjectTypeScale = "SCAL"_i32,
+                      kSceneObjectTypeTrack = "TRAC"_i32};
 
 ENUM(SceneObjectCollisionType){
     kSceneObjectCollisionTypeNone = "CNON"_i32,        kSceneObjectCollisionTypeSphere = "CSPH"_i32,
@@ -301,8 +305,8 @@ class SceneObjectMesh : public BaseSceneObject
     {
         return (m_IndexArray.empty() ? 0 : m_IndexArray[index].GetIndexCount());
     };
-    size_t GetVertexCount() const { return (m_VertexArray.empty() ? 0 : m_VertexArray[0].GetVertexCount()); };
-    size_t GetVertexPropertiesCount() const { return m_VertexArray.size(); };
+    size_t   GetVertexCount() const { return (m_VertexArray.empty() ? 0 : m_VertexArray[0].GetVertexCount()); };
+    uint32_t GetVertexPropertiesCount() const { return static_cast<uint32_t>(m_VertexArray.size()); };
     const SceneObjectVertexArray& GetVertexPropertyArray(const size_t index) const { return m_VertexArray[index]; };
     const SceneObjectIndexArray&  GetIndexArray(const size_t index) const { return m_IndexArray[index]; };
     const PrimitiveType&          GetPrimitiveType() { return m_PrimitiveType; };
@@ -826,13 +830,18 @@ class SceneObjectTransform : public BaseSceneObject
     friend std::ostream& operator<<(std::ostream& out, const SceneObjectTransform& obj);
 };
 
-class SceneObjectTranslation : public SceneObjectTransform
+class SceneObjectTranslation : public SceneObjectTransform, implements Animatable<float>
 {
+   private:
+    char m_Kind = 0;
+
    public:
     SceneObjectTranslation() { m_Type = SceneObjectType::kSceneObjectTypeTranslate; }
     SceneObjectTranslation(const char axis, const float amount, const bool object_only = false)
         : SceneObjectTranslation()
     {
+        m_Kind = axis;
+
         switch (axis) {
             case 'x':
                 MatrixTranslation(m_matrix, amount, 0.0f, 0.0f);
@@ -853,17 +862,40 @@ class SceneObjectTranslation : public SceneObjectTransform
     SceneObjectTranslation(const float x, const float y, const float z, const bool object_only = false)
         : SceneObjectTranslation()
     {
+        m_Kind = 0;
         MatrixTranslation(m_matrix, x, y, z);
         m_bSceneObjectOnly = object_only;
     }
+
+    void Update(const float amount) final
+    {
+        switch (m_Kind) {
+            case 'x':
+                MatrixTranslation(m_matrix, amount, 0.0f, 0.0f);
+                break;
+            case 'y':
+                MatrixTranslation(m_matrix, 0.0f, amount, 0.0f);
+                break;
+            case 'z':
+                MatrixTranslation(m_matrix, 0.0f, 0.0f, amount);
+                break;
+            default:
+                assert(0);
+        }
+    }
 };
 
-class SceneObjectRotation : public SceneObjectTransform
+class SceneObjectRotation : public SceneObjectTransform, implements Animatable<float>
 {
+   private:
+    char m_Kind = 0;
+
    public:
     SceneObjectRotation() { m_Type = SceneObjectType::kSceneObjectTypeRotate; }
     SceneObjectRotation(const char axis, const float theta, const bool object_only = false) : SceneObjectRotation()
     {
+        m_Kind = axis;
+
         switch (axis) {
             case 'x':
                 MatrixRotationX(m_matrix, theta);
@@ -883,6 +915,8 @@ class SceneObjectRotation : public SceneObjectTransform
 
     SceneObjectRotation(Vector3f axis, const float theta, const bool object_only = false) : SceneObjectRotation()
     {
+        m_Kind = 0;
+
         Normalize(axis);
         MatrixRotationAxis(m_matrix, axis, theta);
 
@@ -891,18 +925,42 @@ class SceneObjectRotation : public SceneObjectTransform
 
     SceneObjectRotation(const Quaternion quaternion, const bool object_only = false) : SceneObjectRotation()
     {
+        m_Kind = 0;
+
         MatrixRotationQuaternion(m_matrix, quaternion);
 
         m_bSceneObjectOnly = object_only;
     }
+
+    void Update(const float theta) final
+    {
+        switch (m_Kind) {
+            case 'x':
+                MatrixRotationX(m_matrix, theta);
+                break;
+            case 'y':
+                MatrixRotationY(m_matrix, theta);
+                break;
+            case 'z':
+                MatrixRotationZ(m_matrix, theta);
+                break;
+            default:
+                assert(0);
+        }
+    }
 };
 
-class SceneObjectScale : public SceneObjectTransform
+class SceneObjectScale : public SceneObjectTransform, implements Animatable<float>
 {
+   private:
+    char m_Kind = 0;
+
    public:
     SceneObjectScale() { m_Type = SceneObjectType::kSceneObjectTypeScale; }
     SceneObjectScale(const char axis, const float amount) : SceneObjectScale()
     {
+        m_Kind = axis;
+
         switch (axis) {
             case 'x':
                 MatrixScale(m_matrix, amount, 0.0f, 0.0f);
@@ -920,7 +978,64 @@ class SceneObjectScale : public SceneObjectTransform
 
     SceneObjectScale(const float x, const float y, const float z) : SceneObjectScale()
     {
+        m_Kind = 0;
         MatrixScale(m_matrix, x, y, z);
     }
+
+    void Update(const float amount) final
+    {
+        switch (m_Kind) {
+            case 'x':
+                MatrixScale(m_matrix, amount, 0.0f, 0.0f);
+                break;
+            case 'y':
+                MatrixScale(m_matrix, 0.0f, amount, 0.0f);
+                break;
+            case 'z':
+                MatrixScale(m_matrix, 0.0f, 0.0f, amount);
+                break;
+            default:
+                assert(0);
+        }
+    }
+};
+
+class SceneObjectTrack : public BaseSceneObject, implements Animatable<float>
+{
+   private:
+    std::shared_ptr<SceneObjectTransform> m_pTransform;
+    std::shared_ptr<Curve<float>>         m_Time;
+    std::shared_ptr<Curve<float>>         m_Value;
+
+   public:
+    SceneObjectTrack() = delete;
+    SceneObjectTrack(std::shared_ptr<SceneObjectTransform>& trans, std::shared_ptr<Curve<float>>& time,
+                     std::shared_ptr<Curve<float>>& value)
+        : BaseSceneObject(SceneObjectType::kSceneObjectTypeTrack), m_pTransform(trans), m_Time(time), m_Value(value)
+    {
+    }
+    void Update(const float time_point) final;
+
+    friend std::ostream& operator<<(std::ostream& out, const SceneObjectTrack& obj);
+};
+
+class SceneObjectAnimationClip : public BaseSceneObject, implements Animatable<float>
+{
+   private:
+    int                                            m_nIndex = 0;
+    bool                                           m_bLoop  = false;
+    std::vector<std::shared_ptr<SceneObjectTrack>> m_Tracks;
+
+   public:
+    SceneObjectAnimationClip() = delete;
+    SceneObjectAnimationClip(int index)
+        : BaseSceneObject(SceneObjectType::kSceneObjectTypeAnimationClip), m_nIndex(index)
+    {
+    }
+    int  GetIndex() { return m_nIndex; }
+    void AddTrack(std::shared_ptr<SceneObjectTrack>& track);
+    void Update(const float time_point) final;
+
+    friend std::ostream& operator<<(std::ostream& out, const SceneObjectAnimationClip& obj);
 };
 }  // namespace newbieGE

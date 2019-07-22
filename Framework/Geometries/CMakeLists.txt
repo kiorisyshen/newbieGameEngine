@@ -1,6 +1,6 @@
 add_library(Geometries
-            Geometry.cpp
             Box.cpp
+            Geometry.cpp
             Sphere.cpp
             Plane.cpp
             Polyhedron.cpp)

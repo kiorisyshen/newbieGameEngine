@@ -22,26 +22,40 @@ void MyPhysicsManager::Finalize()
     ClearRigidBodies();
 }
 
+void MyPhysicsManager::IterateConvexHull()
+{
+    auto& scene = g_pSceneManager->GetSceneForPhysicalSimulation();
+
+    // Geometries
+    for (auto _it : scene.GeometryNodes) {
+        auto pGeometryNode = _it.second.lock();
+        if (pGeometryNode) {
+            void* rigidBody = pGeometryNode->RigidBody();
+            if (rigidBody) {
+                RigidBody* _rigidBody = reinterpret_cast<RigidBody*>(rigidBody);
+                auto       pGeometry  = _rigidBody->GetCollisionShape();
+                if (pGeometry->GetGeometryType() == GeometryType::kPolyhydron) {
+                    if (dynamic_pointer_cast<ConvexHull>(pGeometry)->Iterate()) {
+                        // The geometry convex hull is not fully iterated,
+                        // so we break the loop to postpending the process to
+                        // next loop, to avoid too much process in single tick.
+                        break;
+                    }
+
+                    // The geometry convex hull is fully iterated,
+                    // so we move to next geometry
+                }
+            }
+        }
+    }
+}
+
 void MyPhysicsManager::Tick()
 {
     if (g_pSceneManager->IsSceneChanged()) {
         ClearRigidBodies();
         CreateRigidBodies();
         g_pSceneManager->NotifySceneIsPhysicalSimulationQueued();
-    } else {
-        auto& scene = g_pSceneManager->GetSceneForPhysicalSimulation();
-
-        // Geometries
-        for (auto _it : scene.GeometryNodes) {
-            auto pGeometryNode = _it.second;
-            if (void* rigidBody = pGeometryNode->RigidBody()) {
-                RigidBody* _rigidBody = reinterpret_cast<RigidBody*>(rigidBody);
-                auto       pGeometry  = _rigidBody->GetCollisionShape();
-                if (pGeometry->GetGeometryType() == GeometryType::kPolyhydron) {
-                    dynamic_pointer_cast<ConvexHull>(pGeometry)->Iterate();
-                }
-            }
-        }
     }
 }
 
@@ -73,13 +87,19 @@ void MyPhysicsManager::CreateRigidBody(SceneGeometryNode& node, const SceneObjec
             rigidBody              = new RigidBody(collision_box, motionState);
         } break;
         default: {
+            /*
             // create collision box using convex hull
-            auto bounding_box  = geometry.GetBoundingBox();
+            auto bounding_box = geometry.GetBoundingBox();
             auto collision_box = make_shared<ConvexHull>(geometry.GetConvexHull());
 
-            const auto trans       = node.GetCalculatedTransform();
-            auto       motionState = make_shared<MotionState>(*trans, bounding_box.centroid);
-            rigidBody              = new RigidBody(collision_box, motionState);
+            const auto trans = node.GetCalculatedTransform();
+            auto motionState =
+                make_shared<MotionState>(
+                            *trans,
+                            bounding_box.centroid
+                        );
+            rigidBody = new RigidBody(collision_box, motionState);
+            */
         }
     }
 
@@ -108,11 +128,13 @@ int MyPhysicsManager::CreateRigidBodies()
 
     // Geometries
     for (auto _it : scene.GeometryNodes) {
-        auto pGeometryNode = _it.second;
-        auto pGeometry     = scene.GetGeometry(pGeometryNode->GetSceneObjectRef());
-        assert(pGeometry);
+        auto pGeometryNode = _it.second.lock();
+        if (pGeometryNode) {
+            auto pGeometry = scene.GetGeometry(pGeometryNode->GetSceneObjectRef());
+            assert(pGeometry);
 
-        CreateRigidBody(*pGeometryNode, *pGeometry);
+            CreateRigidBody(*pGeometryNode, *pGeometry);
+        }
     }
 
     return 0;
@@ -124,8 +146,10 @@ void MyPhysicsManager::ClearRigidBodies()
 
     // Geometries
     for (auto _it : scene.GeometryNodes) {
-        auto pGeometryNode = _it.second;
-        DeleteRigidBody(*pGeometryNode);
+        auto pGeometryNode = _it.second.lock();
+        if (pGeometryNode) {
+            DeleteRigidBody(*pGeometryNode);
+        }
     }
 }
 
@@ -145,15 +169,17 @@ void MyPhysicsManager::DrawDebugInfo()
 
     // Geometries
     for (auto _it : scene.GeometryNodes) {
-        auto pGeometryNode = _it.second;
-        if (void* rigidBody = pGeometryNode->RigidBody()) {
-            RigidBody* _rigidBody   = reinterpret_cast<RigidBody*>(rigidBody);
-            auto       motionState  = _rigidBody->GetMotionState();
-            auto       centerOfMass = motionState->GetCenterOfMassOffset();
-            auto       trans        = motionState->GetTransition();
-            auto       pGeometry    = _rigidBody->GetCollisionShape();
-            DrawAabb(*pGeometry, trans, centerOfMass);
-            DrawShape(*pGeometry, trans, centerOfMass);
+        auto pGeometryNode = _it.second.lock();
+        if (pGeometryNode) {
+            if (void* rigidBody = pGeometryNode->RigidBody()) {
+                RigidBody* _rigidBody   = reinterpret_cast<RigidBody*>(rigidBody);
+                auto       motionState  = _rigidBody->GetMotionState();
+                auto       centerOfMass = motionState->GetCenterOfMassOffset();
+                auto       trans        = motionState->GetTransition();
+                auto       pGeometry    = _rigidBody->GetCollisionShape();
+                DrawAabb(*pGeometry, trans, centerOfMass);
+                DrawShape(*pGeometry, trans, centerOfMass);
+            }
         }
     }
 }

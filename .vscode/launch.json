@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/Debug/Editor/Editor.app/Contents/MacOS/Editor",
             "args": [
-                "Scene/Rocks_02.ogex"
+                "Scene/splash.ogex"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

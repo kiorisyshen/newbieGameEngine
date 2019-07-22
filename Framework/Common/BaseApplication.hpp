@@ -1,4 +1,5 @@
 #pragma once
+#include "AnimationManager.hpp"
 #include "AssetLoader.hpp"
 #include "DebugManager.hpp"
 #include "GraphicsManager.hpp"

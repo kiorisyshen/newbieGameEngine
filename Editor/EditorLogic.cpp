@@ -1,4 +1,5 @@
 #include "EditorLogic.hpp"
+#include "AnimationManager.hpp"
 #include "IApplication.hpp"
 #include "SceneManager.hpp"
 
@@ -17,15 +18,17 @@ int EditorLogic::Initialize()
         result = g_pSceneManager->LoadScene(scene_filename);
     } else {
         cout << "[EditorLogic] Loading Splash Scene" << endl;
-        result = g_pSceneManager->LoadScene("Scene/Rocks_02.ogex");
+        result = g_pSceneManager->LoadScene("Scene/splash.ogex");
     }
+
+    g_pAnimationManager->Initialize();
 
     return result;
 }
 
 void EditorLogic::Finalize() { cout << "[EditorLogic] Finalize" << endl; }
 
-void EditorLogic::Tick() {}
+void EditorLogic::Tick() { g_pAnimationManager->Tick(); }
 
 #ifdef DEBUG
 void EditorLogic::DrawDebugInfo() {}

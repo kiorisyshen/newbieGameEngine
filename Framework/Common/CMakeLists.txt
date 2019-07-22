@@ -1,5 +1,6 @@
 add_library(Common
             Allocator.cpp
+            AnimationManager.cpp
             AssetLoader.cpp
             BaseApplication.cpp
             DebugManager.cpp

@@ -44,8 +44,8 @@ void MetalGraphicsManager::InitializeBuffers(const Scene& scene)
     uint32_t index_offset      = 0;
 
     for (auto _it : scene.GeometryNodes) {
-        auto pGeometryNode = _it.second;
-        if (!pGeometryNode->Visible()) {
+        auto pGeometryNode = _it.second.lock();
+        if (!pGeometryNode->Visible() || !pGeometryNode) {
             continue;
         }
 

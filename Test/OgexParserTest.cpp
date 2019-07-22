@@ -14,10 +14,10 @@ AssetLoader*   g_pAssetLoader   = new AssetLoader();
 }  // namespace newbieGE
 
 template <typename Key, typename T>
-static ostream& operator<<(ostream& out, unordered_map<Key, T> map)
+static ostream& operator<<(ostream& out, unordered_map<Key, shared_ptr<T>> map)
 {
     for (auto p : map) {
-        out << *p.second << endl;
+        if (auto ptr = p.second) out << *ptr << endl;
     }
 
     return out;
