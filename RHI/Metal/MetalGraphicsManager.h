@@ -49,6 +49,7 @@ class MetalGraphicsManager : public GraphicsManager
 
    private:
     void InitializeBuffers(const Scene& scene);
+    void SetLightInfo() final;
     void SetPerFrameConstants() final;
     void SetPerBatchConstants() final;
 

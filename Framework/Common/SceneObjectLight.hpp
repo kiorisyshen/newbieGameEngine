@@ -10,7 +10,8 @@ ENUM(AttenCurveType){
     kLinear        = 1,
     kSmooth        = 2,
     kInverse       = 3,
-    kInverseSquare = 4};
+    kInverseSquare = 4,
+};
 
 struct AttenCurve {
     AttenCurveType type;

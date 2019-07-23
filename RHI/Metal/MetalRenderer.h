@@ -28,6 +28,8 @@ struct MtlDrawBatchContext : public DrawBatchConstants {
 
 - (void)createIndexBuffer:(const newbieGE::SceneObjectIndexArray&)index_array;
 
+- (void)setLightInfo:(const LightInfo&)lightInfo;
+
 - (void)setPerFrameConstants:(const PerFrameConstants&)context;
 
 - (void)setPerBatchConstants:(const std::vector<std::shared_ptr<DrawBatchConstants>>&)batches;

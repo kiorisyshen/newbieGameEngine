@@ -23,6 +23,7 @@ using namespace newbieGE;
     std::vector<id<MTLBuffer>>  _vertexBuffers;
     std::vector<id<MTLBuffer>>  _indexBuffers;
     id<MTLBuffer>               _uniformBuffers;
+    id<MTLBuffer>               _lightInfo;
 
 #ifdef DEBUG
     id<MTLBuffer>              _DEBUG_Buffer;
@@ -91,6 +92,9 @@ using namespace newbieGE;
                                            options:MTLResourceStorageModeShared];
     _uniformBuffers.label = [NSString stringWithFormat:@"uniformBuffer"];
 
+    _lightInfo       = [_device newBufferWithLength:kSizeLightInfo options:MTLResourceStorageModeShared];
+    _lightInfo.label = [NSString stringWithFormat:@"lightInfo"];
+
     // Texture sampler
     MTLSamplerDescriptor* samplerDescriptor = [[MTLSamplerDescriptor alloc] init];
     samplerDescriptor.minFilter             = MTLSamplerMinMagFilterLinear;
@@ -143,8 +147,8 @@ using namespace newbieGE;
     pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
     pipelineStateDescriptor.depthAttachmentPixelFormat      = _mtkView.depthStencilPixelFormat;
 
-    _DEBUG_pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
-    depthStateDesc       = [[MTLDepthStencilDescriptor alloc] init];
+    _DEBUG_pipelineState                = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
+    depthStateDesc                      = [[MTLDepthStencilDescriptor alloc] init];
     depthStateDesc.depthCompareFunction = MTLCompareFunctionLessEqual;
     depthStateDesc.depthWriteEnabled    = NO;
     _DEBUG_depthState                   = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
@@ -164,6 +168,7 @@ using namespace newbieGE;
 
         [_renderEncoder setVertexBuffer:_uniformBuffers offset:0 atIndex:10];
         [_renderEncoder setFragmentBuffer:_uniformBuffers offset:0 atIndex:10];
+        [_renderEncoder setFragmentBuffer:_lightInfo offset:0 atIndex:12];
         [_renderEncoder setFragmentSamplerState:_sampler0 atIndex:0];
 
         for (const auto& pDbc : batches) {
@@ -273,6 +278,11 @@ static MTLPixelFormat getMtlPixelFormat(const Image& img)
     auto          pData    = index_array.GetData();
     indexBuffer            = [_device newBufferWithBytes:pData length:dataSize options:MTLResourceStorageModeShared];
     _indexBuffers.push_back(indexBuffer);
+}
+
+- (void)setLightInfo:(const LightInfo&)lightInfo
+{
+    std::memcpy(_lightInfo.contents, &(lightInfo), sizeof(LightInfo));
 }
 
 - (void)setPerFrameConstants:(const PerFrameConstants&)context

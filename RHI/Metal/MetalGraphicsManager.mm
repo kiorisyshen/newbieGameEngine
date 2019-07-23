@@ -22,13 +22,14 @@ void MetalGraphicsManager::Finalize()
     m_DrawBatchContext.clear();
 }
 
-// void MetalGraphicsManager::RenderBuffers() {
-//    [m_pRenderer tick:m_DrawBatchContext];
-//}
-
 void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstants>>& batches)
 {
     [m_pRenderer drawBatch:batches];
+}
+
+void MetalGraphicsManager::SetLightInfo()
+{
+    [m_pRenderer setLightInfo:m_LightInfo];
 }
 
 void MetalGraphicsManager::SetPerFrameConstants()

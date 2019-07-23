@@ -17,10 +17,12 @@ using namespace newbieGE;
 
 namespace newbieGE
 {
-enum LightType { Omni     = 0,
-                 Spot     = 1,
-                 Infinity = 2,
-                 Area     = 3 };
+enum LightType {
+    Omni     = 0,
+    Spot     = 1,
+    Infinity = 2,
+    Area     = 3,
+};
 #else
 #define SEMANTIC(a) : a
 #define REGISTER(x) : register(x)
@@ -37,37 +39,17 @@ enum LightType { Omni     = 0,
 #define AttenCurveType int
 #endif
 
-// struct Light{
-//     float       lightIntensity;               	// 4 bytes
-//     LightType   lightType;                    	// 4 bytes
-//     int			lightCastShadow;				// 4 bytes
-//     int         lightShadowMapIndex;			// 4 bytes
-//     AttenCurveType lightAngleAttenCurveType;  	// 4 bytes
-//     AttenCurveType lightDistAttenCurveType; 	// 4 bytes
-//     Vector2f    lightSize;               		// 8 bytes
-//     Guid        lightGuid;                    	// 16 bytes
-//     Vector4f    lightPosition;   				// 16 bytes
-//     Vector4f    lightColor;   					// 16 bytes
-//     Vector4f    lightDirection;   				// 16 bytes
-//     Vector4f    lightDistAttenCurveParams[2]; 	// 32 bytes
-//     Vector4f    lightAngleAttenCurveParams[2];	// 32 bytes
-//     Matrix4X4f  lightVP;						// 64 bytes
-//     Vector4f    padding[2];						// 32 bytes
-// };
-
-// unistruct Constants
-// {
-//     Matrix4X4f       m_modelView;
-//     Matrix4X4f       m_modelViewProjection;
-//     Vector4f         m_lightPosition;
-//     Vector4f         m_lightColor;
-//     Vector4f         m_ambientColor;
-//     Vector4f         m_lightAttenuation;
-// };
-
+// 128 bytes
 struct Light {
-    Vector4f m_lightPosition;
-    Vector4f m_lightColor;
+    Vector4f m_lightPosition;                  // 16 bytes
+    Vector4f m_lightColor;                     // 16 bytes
+    Vector4f m_lightDirection;                 // 16 bytes
+    Vector4f m_lightDistAttenCurveParams[2];   // 32 bytes
+    Vector4f m_lightAngleAttenCurveParams[2];  // 32 bytes
+    int32_t  m_lightDistAttenCurveType;        // 4 bytes
+    int32_t  m_lightAngleAttenCurveType;       // 4 bytes
+    float    m_lightIntensity;                 // 4 bytes
+    float    m_alignTmp;                       // 4 bytes
 };
 
 unistruct LightInfo REGISTER(b12)
@@ -77,18 +59,11 @@ unistruct LightInfo REGISTER(b12)
 
 // Align for metal
 struct PerFrameConstants REGISTER(b10) {
-    Matrix4X4f m_worldMatrix;                    // 64 bytes
-    Matrix4X4f m_viewMatrix;                     // 64 bytes
-    Matrix4X4f m_projectionMatrix;               // 64 bytes
-    Vector4f   m_lightPosition;                  // 16 bytes
-    Vector4f   m_lightColor;                     // 16 bytes
-    Vector4f   m_ambientColor;                   // 16 bytes
-    Vector4f   m_lightDirection;                 // 16 bytes
-    Vector4f   m_lightDistAttenCurveParams[2];   // 32 bytes
-    Vector4f   m_lightAngleAttenCurveParams[2];  // 32 bytes
-    int32_t    m_lightDistAttenCurveType;        // 4 bytes
-    int32_t    m_lightAngleAttenCurveType;       // 4 bytes
-    float      m_lightIntensity;                 // 4 bytes
+    Matrix4X4f m_worldMatrix;       // 64 bytes
+    Matrix4X4f m_viewMatrix;        // 64 bytes
+    Matrix4X4f m_projectionMatrix;  // 64 bytes
+    Vector4f   m_ambientColor;      // 16 bytes
+    int32_t    m_numLights;         // 4 bytes
 };
 
 struct PerBatchConstants REGISTER(b11) {
