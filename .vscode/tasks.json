@@ -6,7 +6,7 @@
         {
             "label": "build all Release",
             "type": "shell",
-            "command": "mkdir -p build/Release && cd build && rm -rf Release && mkdir -p Release && cd Release && cmake -DCMAKE_BUILD_TYPE=Release ../.. && cmake --build . -- -j 4 && cd ../..",
+            "command": "mkdir -p build/Release && cd build && rm -rf Release && mkdir -p Release && cd Release && cmake -DCMAKE_BUILD_TYPE=Release ../.. && cmake --build . -- -j 8 && cd ../..",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -15,7 +15,7 @@
         {
             "label": "build all Debug",
             "type": "shell",
-            "command": "mkdir -p build/Debug && cd build && rm -rf Debug && mkdir -p Debug && cd Debug && cmake -DCMAKE_BUILD_TYPE=Debug ../.. && cmake --build . -- -j 4 && cd ../.."
+            "command": "mkdir -p build/Debug && cd build && rm -rf Debug && mkdir -p Debug && cd Debug && cmake -DCMAKE_BUILD_TYPE=Debug ../.. && cmake --build . -- -j 8 && cd ../.."
         },
         {
             "label": "build Xcode project",

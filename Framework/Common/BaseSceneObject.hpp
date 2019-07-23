@@ -8,7 +8,9 @@ ENUM(SceneObjectType){
     kSceneObjectTypeMesh          = "MESH"_i32,
     kSceneObjectTypeMaterial      = "MATL"_i32,
     kSceneObjectTypeTexture       = "TXTU"_i32,
-    kSceneObjectTypeLight         = "LGHT"_i32,
+    kSceneObjectTypeLightOmni     = "LGHO"_i32,
+    kSceneObjectTypeLightInfi     = "LGHI"_i32,
+    kSceneObjectTypeLightSpot     = "LGHS"_i32,
     kSceneObjectTypeCamera        = "CAMR"_i32,
     kSceneObjectTypeAnimationClip = "ANIM"_i32,
     kSceneObjectTypeClip          = "CLIP"_i32,
@@ -19,8 +21,7 @@ ENUM(SceneObjectType){
     kSceneObjectTypeTranslate     = "TSLT"_i32,
     kSceneObjectTypeRotate        = "ROTA"_i32,
     kSceneObjectTypeScale         = "SCAL"_i32,
-    kSceneObjectTypeTrack         = "TRAC"_i32,
-};
+    kSceneObjectTypeTrack         = "TRAC"_i32};
 
 ENUM(SceneObjectCollisionType){
     kSceneObjectCollisionTypeNone        = "CNON"_i32,

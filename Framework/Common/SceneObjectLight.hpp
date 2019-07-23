@@ -5,16 +5,52 @@
 
 namespace newbieGE
 {
-typedef std::function<float(float /* Intensity */, float /* Distance */)> AttenFunc;
+ENUM(AttenCurveType){
+    kNone          = 0,
+    kLinear        = 1,
+    kSmooth        = 2,
+    kInverse       = 3,
+    kInverseSquare = 4};
 
-float DefaultAttenFunc(float intensity, float distance);
+struct AttenCurve {
+    AttenCurveType type;
+    union AttenCurveParams {
+        struct LinearParam {
+            float begin_atten;
+            float end_atten;
+        } linear_params;
+        struct SmoothParam {
+            float begin_atten;
+            float end_atten;
+        } smooth_params;
+        struct InverseParam {
+            float scale;
+            float offset;
+            float kl;
+            float kc;
+        } inverse_params;
+        struct InverseSquareParam {
+            float scale;
+            float offset;
+            float kq;
+            float kl;
+            float kc;
+        } inverse_squre_params;
+    } u;
+
+    AttenCurve()
+        : type(AttenCurveType::kLinear),
+          u({{0.0f, 1.0f}})
+    {
+    }
+};
 
 class SceneObjectLight : public BaseSceneObject
 {
    protected:
     Color       m_LightColor;
     float       m_fIntensity;
-    AttenFunc   m_LightAttenuation;
+    AttenCurve  m_LightDistanceAttenuation;
     bool        m_bCastShadows;
     std::string m_strTexture;
 
@@ -45,9 +81,14 @@ class SceneObjectLight : public BaseSceneObject
         }
     };
 
-    void SetAttenuation(AttenFunc func)
+    void SetDistanceAttenuation(AttenCurve curve)
     {
-        m_LightAttenuation = func;
+        m_LightDistanceAttenuation = curve;
+    }
+
+    const AttenCurve& GetDistanceAttenuation(void)
+    {
+        return m_LightDistanceAttenuation;
     }
 
     const Color& GetColor()
@@ -61,8 +102,11 @@ class SceneObjectLight : public BaseSceneObject
 
    protected:
     // can only be used as base class of delivered lighting objects
-    SceneObjectLight(void)
-        : BaseSceneObject(SceneObjectType::kSceneObjectTypeLight), m_LightColor(Vector4f(1.0f)), m_fIntensity(100.0f), m_LightAttenuation(DefaultAttenFunc), m_bCastShadows(false){};
+    SceneObjectLight(const SceneObjectType type)
+        : BaseSceneObject(type),
+          m_LightColor(Vector4f(1.0f)),
+          m_fIntensity(1.0f),
+          m_bCastShadows(false){};
 
     friend std::ostream& operator<<(std::ostream& out, const SceneObjectLight& obj);
 };
@@ -70,7 +114,10 @@ class SceneObjectLight : public BaseSceneObject
 class SceneObjectOmniLight : public SceneObjectLight
 {
    public:
-    using SceneObjectLight::SceneObjectLight;
+    SceneObjectOmniLight(void)
+        : SceneObjectLight(SceneObjectType::kSceneObjectTypeLightOmni)
+    {
+    }
 
     friend std::ostream& operator<<(std::ostream& out, const SceneObjectOmniLight& obj);
 };
@@ -78,12 +125,23 @@ class SceneObjectOmniLight : public SceneObjectLight
 class SceneObjectSpotLight : public SceneObjectLight
 {
    protected:
-    float m_fConeAngle;
-    float m_fPenumbraAngle;
+    float      m_fConeBeginAngle;
+    float      m_fConeEndAngle;
+    AttenCurve m_LightAngleAttenuation;
 
    public:
     SceneObjectSpotLight(void)
-        : SceneObjectLight(), m_fConeAngle(PI / 4.0f), m_fPenumbraAngle(PI / 3.0f){};
+        : SceneObjectLight(SceneObjectType::kSceneObjectTypeLightSpot){};
+
+    void SetAngleAttenuation(AttenCurve curve)
+    {
+        m_LightAngleAttenuation = curve;
+    }
+
+    const AttenCurve& GetAngleAttenuation(void)
+    {
+        return m_LightAngleAttenuation;
+    }
 
     friend std::ostream& operator<<(std::ostream& out, const SceneObjectSpotLight& obj);
 };
@@ -91,7 +149,10 @@ class SceneObjectSpotLight : public SceneObjectLight
 class SceneObjectInfiniteLight : public SceneObjectLight
 {
    public:
-    using SceneObjectLight::SceneObjectLight;
+    SceneObjectInfiniteLight(void)
+        : SceneObjectLight(SceneObjectType::kSceneObjectTypeLightInfi)
+    {
+    }
 
     friend std::ostream& operator<<(std::ostream& out, const SceneObjectInfiniteLight& obj);
 };

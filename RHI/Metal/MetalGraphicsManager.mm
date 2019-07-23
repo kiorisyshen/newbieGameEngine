@@ -141,7 +141,7 @@ void MetalGraphicsManager::InitializeBuffers(const Scene& scene)
                 color                = material->GetSpecularColor();
                 dbc->m_specularColor = color.Value;
                 Parameter param      = material->GetSpecularPower();
-                // dbc->m_specularPower = param.Value;
+                dbc->m_specularPower = param.Value;
             }
             dbc->materialIdx         = texture_id;
             dbc->index_count         = (uint32_t)index_array.GetIndexCount();

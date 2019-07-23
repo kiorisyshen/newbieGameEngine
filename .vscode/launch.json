@@ -10,10 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/Debug/Editor/Editor.app/Contents/MacOS/Editor",
             "args": [
-                // "Scene/interpolation_test.ogex"
-                "Scene/LinearInterpolateTest.ogex"
-                // "Scene/gus.ogex"
-                // "Scene/luxo_by_cristoon.ogex"
+                "Scene/splash.ogex"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

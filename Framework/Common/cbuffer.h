@@ -17,7 +17,10 @@ using namespace newbieGE;
 
 namespace newbieGE
 {
-enum LightType { Omni = 0, Spot = 1, Infinity = 2, Area = 3 };
+enum LightType { Omni     = 0,
+                 Spot     = 1,
+                 Infinity = 2,
+                 Area     = 3 };
 #else
 #define SEMANTIC(a) : a
 #define REGISTER(x) : register(x)
@@ -72,19 +75,27 @@ unistruct LightInfo REGISTER(b12)
     struct Light lights[MAX_LIGHTS];
 };
 
+// Align for metal
 struct PerFrameConstants REGISTER(b10) {
-    Matrix4X4f m_worldMatrix;
-    Matrix4X4f m_viewMatrix;
-    Matrix4X4f m_projectionMatrix;
-    Vector4f   m_lightPosition;
-    Vector4f   m_lightColor;
+    Matrix4X4f m_worldMatrix;                    // 64 bytes
+    Matrix4X4f m_viewMatrix;                     // 64 bytes
+    Matrix4X4f m_projectionMatrix;               // 64 bytes
+    Vector4f   m_lightPosition;                  // 16 bytes
+    Vector4f   m_lightColor;                     // 16 bytes
+    Vector4f   m_ambientColor;                   // 16 bytes
+    Vector4f   m_lightDirection;                 // 16 bytes
+    Vector4f   m_lightDistAttenCurveParams[2];   // 32 bytes
+    Vector4f   m_lightAngleAttenCurveParams[2];  // 32 bytes
+    int32_t    m_lightDistAttenCurveType;        // 4 bytes
+    int32_t    m_lightAngleAttenCurveType;       // 4 bytes
+    float      m_lightIntensity;                 // 4 bytes
 };
 
 struct PerBatchConstants REGISTER(b11) {
-    Matrix4X4f m_objectLocalMatrix;
-    Vector4f   m_diffuseColor;
-    Vector4f   m_specularColor;
-    // float m_specularPower;
+    Matrix4X4f m_objectLocalMatrix;  // 64 bytes
+    Vector4f   m_diffuseColor;       // 16 bytes
+    Vector4f   m_specularColor;      // 16 bytes
+    float      m_specularPower;      // 4 bytes
 };
 
 #ifdef DEBUG
@@ -109,17 +120,14 @@ struct DEBUG_TriangleParam REGISTER(b7) {
 };
 
 #ifdef __cplusplus
-const size_t kSizeDebugMaxAtomBuffer =
-    ALIGN(sizeof(DEBUG_TriangleParam), 256);  // CB size is required to be 256-byte aligned.
+const size_t kSizeDebugMaxAtomBuffer = ALIGN(sizeof(DEBUG_TriangleParam), 256);  // CB size is required to be 256-byte aligned.
 #endif
-#endif
+#endif  // DEBUG
 
 #ifdef __cplusplus
-const size_t kSizePerFrameConstantBuffer =
-    ALIGN(sizeof(PerFrameConstants), 256);  // CB size is required to be 256-byte aligned.
-const size_t kSizePerBatchConstantBuffer =
-    ALIGN(sizeof(PerBatchConstants), 256);                    // CB size is required to be 256-byte aligned.
-const size_t kSizeLightInfo = ALIGN(sizeof(LightInfo), 256);  // CB size is required to be 256-byte aligned.
+const size_t kSizePerFrameConstantBuffer = ALIGN(sizeof(PerFrameConstants), 256);  // CB size is required to be 256-byte aligned.
+const size_t kSizePerBatchConstantBuffer = ALIGN(sizeof(PerBatchConstants), 256);  // CB size is required to be 256-byte aligned.
+const size_t kSizeLightInfo              = ALIGN(sizeof(LightInfo), 256);          // CB size is required to be 256-byte aligned.
 #endif
 
 #ifdef __cplusplus
