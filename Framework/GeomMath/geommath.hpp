@@ -767,46 +767,40 @@ inline void MatrixTranslation(Matrix4X4f& matrix, const Vector4f& v)
 
 inline void MatrixRotationX(Matrix4X4f& matrix, const float angle)
 {
-    float c = cosf(angle), s = sinf(angle);
+    const float c = cosf(angle), s = sinf(angle);
 
-    Matrix4X4f rotation = {{
+    matrix = {{
         {1.0f, 0.0f, 0.0f, 0.0f},
         {0.0f, c, s, 0.0f},
         {0.0f, -s, c, 0.0f},
         {0.0f, 0.0f, 0.0f, 1.0f},
     }};
 
-    matrix = rotation;
-
     return;
 }
 
 inline void MatrixRotationY(Matrix4X4f& matrix, const float angle)
 {
-    float c = cosf(angle), s = sinf(angle);
+    const float c = cosf(angle), s = sinf(angle);
 
-    Matrix4X4f rotation = {{
+    matrix = {{
         {c, 0.0f, -s, 0.0f},
         {0.0f, 1.0f, 0.0f, 0.0f},
         {s, 0.0f, c, 0.0f},
         {0.0f, 0.0f, 0.0f, 1.0f},
     }};
 
-    matrix = rotation;
-
     return;
 }
 
 inline void MatrixRotationZ(Matrix4X4f& matrix, const float angle)
 {
-    float c = cosf(angle), s = sinf(angle);
+    const float c = cosf(angle), s = sinf(angle);
 
-    Matrix4X4f rotation = {{{c, s, 0.0f, 0.0f},
-                            {-s, c, 0.0f, 0.0f},
-                            {0.0f, 0.0f, 1.0f, 0.0f},
-                            {0.0f, 0.0f, 0.0f, 1.0f}}};
-
-    matrix = rotation;
+    matrix = {{{c, s, 0.0f, 0.0f},
+               {-s, c, 0.0f, 0.0f},
+               {0.0f, 0.0f, 1.0f, 0.0f},
+               {0.0f, 0.0f, 0.0f, 1.0f}}};
 
     return;
 }
@@ -883,6 +877,9 @@ inline Matrix8X8f IDCT8X8(const Matrix8X8f& matrix)
     return result;
 }
 
+typedef Vector<float, 2>              Point2D;
+typedef std::shared_ptr<Point2D>      Point2DPtr;
+typedef std::vector<Point2DPtr>       Point2DList;
 typedef Vector<float, 3>              Point3;
 typedef std::shared_ptr<Point3>       PointPtr;
 typedef std::unordered_set<PointPtr>  PointSet;

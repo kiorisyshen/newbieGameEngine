@@ -91,7 +91,7 @@ class PngParser : implements ImageParser
     uint8_t  m_CompressionMethod;
     uint8_t  m_FilterMethod;
     uint8_t  m_InterlaceMethod;
-    size_t   m_ScanLineSize;
+    int32_t  m_ScanLineSize;
     uint8_t  m_BytesPerPixel;
 
    public:
