@@ -25,9 +25,9 @@
             "name": "(lldb) Test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/Debug/Test/LinearInterpolateTest",
+            "program": "${workspaceFolder}/build/Debug/Test/RasterizationTest",
             "args": [
-                "3"
+                // "3"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
