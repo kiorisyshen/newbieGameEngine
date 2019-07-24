@@ -1,47 +1,38 @@
 #pragma once
+#include <map>
 #include <new>
-#include "Allocator.hpp"
-#include "IRuntimeModule.hpp"
+#include <ostream>
+#include "IMemoryManager.hpp"
+#include "portable.hpp"
 
 namespace newbieGE
 {
-class MemoryManager : implements IRuntimeModule
+ENUM(MemoryType){
+    CPU = "CPU"_i32,
+    GPU = "GPU"_i32};
+
+std::ostream& operator<<(std::ostream& out, MemoryType type);
+
+class MemoryManager : implements IMemoryManager
 {
    public:
-    template <class T, typename... Arguments>
-    T* New(Arguments... parameters)
-    {
-        return new (Allocate(sizeof(T))) T(parameters...);
-    }
-
-    template <class T>
-    void Delete(T* p)
-    {
-        p->~T();
-        Free(p, sizeof(T));
-    }
-
-   public:
-    virtual ~MemoryManager()
+    ~MemoryManager()
     {
     }
 
-    virtual int  Initialize();
-    virtual void Finalize();
-    virtual void Tick();
+    int  Initialize();
+    void Finalize();
+    void Tick();
 
-    void* Allocate(size_t size);
-    void* Allocate(size_t size, size_t alignment);
-    void  Free(void* p, size_t size);
+    void* AllocatePage(size_t size);
+    void  FreePage(void* p);
 
-   private:
-    static size_t*    m_pBlockSizeLookup;
-    static Allocator* m_pAllocators;
-    static bool       m_bInitialized;
+   protected:
+    struct MemoryAllocationInfo {
+        size_t     PageSize;
+        MemoryType PageMemoryType;
+    };
 
-   private:
-    static Allocator* LookUpAllocator(size_t size);
+    std::map<void*, MemoryAllocationInfo> m_mapMemoryAllocationInfo;
 };
-
-extern MemoryManager* g_pMemoryManager;
 }  // namespace newbieGE

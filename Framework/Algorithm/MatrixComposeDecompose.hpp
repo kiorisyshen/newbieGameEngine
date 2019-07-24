@@ -91,9 +91,9 @@ inline void Matrix4X4fDecompose(const Matrix4X4f& matrix, Vector3f& rotation, Ve
     scalar.Set({scale_x, scale_y, scale_z});
 
     // decompose the rotation matrix
-    float theta_x = atan2(U[1][2], U[2][2]);
-    float theta_y = -asinf(U[0][2]);
-    float theta_z = atan2(U[0][1], U[0][0]);
+    float theta_x = std::atan2(U[1][2], U[2][2]);
+    float theta_y = -std::asin(U[0][2]);
+    float theta_z = std::atan2(U[0][1], U[0][0]);
 
     rotation.Set({theta_x, theta_y, theta_z});
 }
@@ -120,10 +120,9 @@ void Matrix3X3EigenValues(Vector3f& eigen_values, Matrix<T, 3, 3>& eigen_vectors
         // A is diagonal.
         eigen_values.Set({A[0][0], A[1][1], A[2][2]});
     } else {
-        T q  = Trace(A) / 3;
-        T p2 = pow(A[0][0] - q, 2) + pow(A[1][1] - q, 2) + pow(A[2][2] - q, 2) + 2 * p1;
-        T p  = sqrt(p2 / 6);
-
+        T               q  = Trace(A) / 3;
+        T               p2 = pow(A[0][0] - q, 2) + pow(A[1][1] - q, 2) + pow(A[2][2] - q, 2) + 2 * p1;
+        T               p  = sqrt(p2 / 6);
         Matrix<T, 3, 3> I;
         BuildIdentityMatrix(I);
         auto B = (1 / p) * (A - q * I);  // I is the identity matrix

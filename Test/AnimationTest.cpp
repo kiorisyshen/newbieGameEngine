@@ -12,7 +12,7 @@ using namespace std;
 
 namespace newbieGE
 {
-MemoryManager*    g_pMemoryManager    = new MemoryManager();
+IMemoryManager*   g_pMemoryManager    = new MemoryManager();
 AssetLoader*      g_pAssetLoader      = new AssetLoader();
 SceneManager*     g_pSceneManager     = new SceneManager();
 AnimationManager* g_pAnimationManager = new AnimationManager();

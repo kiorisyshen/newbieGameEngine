@@ -8,8 +8,8 @@ using namespace newbieGE;
 
 namespace newbieGE
 {
-MemoryManager* g_pMemoryManager = new MemoryManager();
-AssetLoader*   g_pAssetLoader   = new AssetLoader();
+IMemoryManager* g_pMemoryManager = new MemoryManager();
+AssetLoader*    g_pAssetLoader   = new AssetLoader();
 }  // namespace newbieGE
 
 int main(int, char**)

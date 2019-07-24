@@ -20,6 +20,7 @@ class SceneManager : implements IRuntimeModule
     bool IsSceneChanged();
     void NotifySceneIsRenderingQueued();
     void NotifySceneIsPhysicalSimulationQueued();
+    void NotifySceneIsAnimationQueued();
 
     const Scene& GetSceneForRendering();
     const Scene& GetSceneForPhysicalSimulation();
@@ -37,6 +38,7 @@ class SceneManager : implements IRuntimeModule
     std::shared_ptr<Scene> m_pScene;
     bool                   m_bRenderingQueued          = false;
     bool                   m_bPhysicalSimulationQueued = false;
+    bool                   m_bAnimationQueued          = false;
     bool                   m_bDirtyFlag                = false;
 };
 

@@ -9,9 +9,9 @@ using namespace std;
 
 namespace newbieGE
 {
-MemoryManager* g_pMemoryManager = new MemoryManager();
-AssetLoader*   g_pAssetLoader   = new AssetLoader();
-SceneManager*  g_pSceneManager  = new SceneManager();
+IMemoryManager* g_pMemoryManager = new MemoryManager();
+AssetLoader*    g_pAssetLoader   = new AssetLoader();
+SceneManager*   g_pSceneManager  = new SceneManager();
 }  // namespace newbieGE
 
 template <typename T>

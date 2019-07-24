@@ -6,8 +6,7 @@ namespace newbieGE
 {
 ENUM(CurveType){
     kLinear = "LINE"_i32,
-    kBezier = "BEZI"_i32,
-};
+    kBezier = "BEZI"_i32};
 
 class CurveBase
 {
