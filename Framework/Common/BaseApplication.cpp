@@ -48,12 +48,12 @@ int BaseApplication::Initialize()
         return ret;
     }
 
-    if ((ret = g_pGameLogic->Initialize()) != 0) {
+    if ((ret = g_pAnimationManager->Initialize()) != 0) {
         cerr << "Failed. err =" << ret;
         return ret;
     }
 
-    if ((ret = g_pAnimationManager->Initialize()) != 0) {
+    if ((ret = g_pGameLogic->Initialize()) != 0) {
         cerr << "Failed. err =" << ret;
         return ret;
     }

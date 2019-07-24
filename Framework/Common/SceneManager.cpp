@@ -25,6 +25,11 @@ void SceneManager::Tick()
 {
     if (m_bDirtyFlag) {
         m_bDirtyFlag = !(m_bRenderingQueued && m_bPhysicalSimulationQueued && m_bAnimationQueued);
+        if (m_bDirtyFlag == false) {
+            m_bRenderingQueued          = false;
+            m_bPhysicalSimulationQueued = false;
+            m_bAnimationQueued          = false;
+        }
     }
 }
 
@@ -36,6 +41,7 @@ int SceneManager::LoadScene(const char* scene_file_name)
         m_bDirtyFlag                = true;
         m_bRenderingQueued          = false;
         m_bPhysicalSimulationQueued = false;
+        m_bAnimationQueued          = false;
         return 0;
     } else {
         return -1;

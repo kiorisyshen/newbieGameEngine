@@ -18,7 +18,7 @@ int EditorLogic::Initialize()
         result = g_pSceneManager->LoadScene(scene_filename);
     } else {
         cout << "[EditorLogic] Loading Splash Scene" << endl;
-        result = g_pSceneManager->LoadScene("Scene/area_light.ogex");
+        result = g_pSceneManager->LoadScene("Scene/light_all.ogex");
     }
 
     return result;

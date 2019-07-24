@@ -34,6 +34,7 @@ void AnimationManager::Tick()
         cerr << "[AnimationManager] Detected Scene Change, reinitialize animations ..." << endl;
         Finalize();
         Initialize();
+        m_bTimeLineStarted = false;
         g_pSceneManager->NotifySceneIsAnimationQueued();
     }
 
