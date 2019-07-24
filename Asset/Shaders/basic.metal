@@ -192,5 +192,8 @@ fragment float4 basic_frag_main(basic_vert_main_out in [[stage_in]], constant Pe
         }
     }
 
-    return float4(pfc.ambientColor.xyz + linearColor, 1.0f);
+    // gama correction
+    linearColor = clamp(pow(pfc.ambientColor.xyz + linearColor, float3(1.0f / 2.2f)), 0.0f, 1.0f);
+
+    return float4(linearColor, 1.0f);
 }

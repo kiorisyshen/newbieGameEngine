@@ -40,8 +40,7 @@ struct AttenCurve {
     } u;
 
     AttenCurve()
-        : type(AttenCurveType::kLinear),
-          u({{0.0f, 1.0f}})
+        : type(AttenCurveType::kNone)
     {
     }
 };
