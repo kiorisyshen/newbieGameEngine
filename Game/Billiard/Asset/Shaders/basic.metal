@@ -5,26 +5,35 @@
 
 using namespace metal;
 
+struct Light {
+    float4 lightPosition;                  // 16 bytes
+    float4 lightColor;                     // 16 bytes
+    float4 lightDirection;                 // 16 bytes
+    float4 lightDistAttenCurveParams[2];   // 32 bytes
+    float4 lightAngleAttenCurveParams[2];  // 32 bytes
+    int    lightDistAttenCurveType;        // 4 bytes
+    int    lightAngleAttenCurveType;       // 4 bytes
+    float  lightIntensity;                 // 4 bytes
+    float  alignTmp;                       // 4 bytes
+};
+
+struct LightInfo {
+    Light lights[100];
+};
+
 struct PerFrameConstants {
-    float4x4 worldMatrix;
-    float4x4 viewMatrix;
-    float4x4 projectionMatrix;
-    float4   lightPosition;
-    float4   lightColor;
-    float4   ambientColor;                   // 16 bytes
-    float4   lightDirection;                 // 16 bytes
-    float4   lightDistAttenCurveParams[2];   // 32 bytes
-    float4   lightAngleAttenCurveParams[2];  // 32 bytes
-    int      lightDistAttenCurveType;        // 4 bytes
-    int      lightAngleAttenCurveType;       // 4 bytes
-    float    lightIntensity;                 // 4 bytes
+    float4x4 worldMatrix;       // 64 bytes
+    float4x4 viewMatrix;        // 64 bytes
+    float4x4 projectionMatrix;  // 64 bytes
+    float4   ambientColor;      // 16 bytes
+    int      numLights;         // 4 bytes
 };
 
 struct PerBatchConstants {
-    float4x4 objectLocalMatrix;
-    float4   diffuseColor;
-    float4   specularColor;
-    float    specularPower;
+    float4x4 objectLocalMatrix;  // 64 bytes
+    float4   diffuseColor;       // 16 bytes
+    float4   specularColor;      // 16 bytes
+    float    specularPower;      // 4 bytes
 };
 
 struct basic_vert_main_out {
@@ -127,57 +136,64 @@ float apply_atten_curve(thread const float& dist, thread const int& atten_curve_
     return atten;
 }
 
-vertex basic_vert_main_out basic_vert_main(basic_vert_main_in in [[stage_in]], constant PerFrameConstants& v_43 [[buffer(10)]], constant PerBatchConstants& v_24 [[buffer(11)]])
+vertex basic_vert_main_out basic_vert_main(basic_vert_main_in in [[stage_in]], constant PerFrameConstants& pfc [[buffer(10)]], constant PerBatchConstants& pbc [[buffer(11)]])
 {
     basic_vert_main_out out = {};
 
-    float4x4 transM = v_43.worldMatrix * v_24.objectLocalMatrix;
+    float4x4 transM = pfc.worldMatrix * pbc.objectLocalMatrix;
     out.v_world     = transM * float4(in.inputPosition, 1.0f);
-    out.v           = v_43.viewMatrix * out.v_world;
-    out.gl_Position = v_43.projectionMatrix * out.v;
+    out.v           = pfc.viewMatrix * out.v_world;
+    out.gl_Position = pfc.projectionMatrix * out.v;
 
     out.normal_world = normalize(transM * float4(in.inputNormal, 0.0f));
-    out.normal       = normalize(v_43.viewMatrix * out.normal_world);
+    out.normal       = normalize(pfc.viewMatrix * out.normal_world);
     out.uv.x         = in.inputUV.x;
     out.uv.y         = 1.0 - in.inputUV.y;
     return out;
 }
 
-fragment float4 basic_frag_main(basic_vert_main_out in [[stage_in]], texture2d<float> diffuseMap [[texture(0)]], sampler samp0 [[sampler(0)]], constant PerFrameConstants& v_43 [[buffer(10)]], constant PerBatchConstants& v_24 [[buffer(11)]])
+fragment float4 basic_frag_main(basic_vert_main_out in [[stage_in]], constant PerFrameConstants& pfc [[buffer(10)]], constant PerBatchConstants& pbc [[buffer(11)]], constant LightInfo& pfc_light [[buffer(12)]], texture2d<float> diffuseMap [[texture(0)]], sampler samp0 [[sampler(0)]])
 {
-    float3 N         = in.normal.xyz;
-    float3 L         = (v_43.viewMatrix * v_43.worldMatrix * v_43.lightPosition).xyz - in.v.xyz;
-    float3 light_dir = normalize((v_43.viewMatrix * v_43.worldMatrix * v_43.lightDirection).xyz);
+    float3 linearColor = float3(0.0);
 
-    float lightToSurfDist  = length(L);
-    L                      = normalize(L);
-    float lightToSurfAngle = acos(dot(L, -light_dir));
-    float cosTheta         = clamp(dot(N, L), 0.0, 1.0);
+    for (int i = 0; i < pfc.numLights; i++) {
+        float3 N         = in.normal.xyz;
+        float3 L         = (pfc.viewMatrix * pfc.worldMatrix * pfc_light.lights[i].lightPosition).xyz - in.v.xyz;
+        float3 light_dir = normalize((pfc.viewMatrix * pfc.worldMatrix * pfc_light.lights[i].lightDirection).xyz);
 
-    int    param_1 = v_43.lightAngleAttenCurveType;
-    float4 param_2[2];
-    spvArrayCopyConstant(param_2, v_43.lightAngleAttenCurveParams);
-    // angle attenuation
-    float atten = apply_atten_curve(lightToSurfAngle, param_1, param_2);
+        float lightToSurfDist  = length(L);
+        L                      = normalize(L);
+        float lightToSurfAngle = acos(dot(L, -light_dir));
+        float cosTheta         = clamp(dot(N, L), 0.0, 1.0);
 
-    int    param_4 = v_43.lightDistAttenCurveType;
-    float4 param_5[2];
-    spvArrayCopyConstant(param_5, v_43.lightDistAttenCurveParams);
-    // distance attenuation
-    atten *= apply_atten_curve(lightToSurfDist, param_4, param_5);
+        int    param_1 = pfc_light.lights[i].lightAngleAttenCurveType;
+        float4 param_2[2];
+        spvArrayCopyConstant(param_2, pfc_light.lights[i].lightAngleAttenCurveParams);
+        float atten = apply_atten_curve(lightToSurfAngle, param_1, param_2);
 
-    float3 R = normalize((N * (2.0 * dot(L, N))) - L);
-    float3 V = normalize(-in.v.xyz);
+        int    param_4 = pfc_light.lights[i].lightDistAttenCurveType;
+        float4 param_5[2];
+        spvArrayCopyConstant(param_5, pfc_light.lights[i].lightDistAttenCurveParams);
+        atten *= apply_atten_curve(lightToSurfDist, param_4, param_5);
 
-    if (v_24.diffuseColor.r < 0) {
-        float3 linearColor = diffuseMap.sample(samp0, in.uv).xyz * cosTheta;
-        linearColor        = linearColor + v_24.specularColor.xyz * pow(clamp(dot(R, V), 0.0f, 1.0f), v_24.specularPower);
-        float3 admit_light = v_43.lightColor.xyz * (v_43.lightIntensity * atten);
+        float3 R = normalize((N * (2.0 * dot(L, N))) - L);
+        float3 V = normalize(-in.v.xyz);
 
-        return float4(v_43.ambientColor.xyz + linearColor * admit_light, 1.0f);
-    } else {
-        float3 linearColor = v_24.diffuseColor.xyz * cosTheta + v_24.specularColor.xyz * pow(clamp(dot(R, V), 0.0f, 1.0f), v_24.specularPower);
-        float3 admit_light = v_43.lightColor.xyz * (v_43.lightIntensity * atten);
-        return float4(v_43.ambientColor.xyz + linearColor * admit_light, 1.0f);
+        if (pbc.diffuseColor.r < 0) {
+            float3 deltaColor  = diffuseMap.sample(samp0, in.uv).xyz * cosTheta;
+            deltaColor         = deltaColor + pbc.specularColor.xyz * pow(clamp(dot(R, V), 0.0f, 1.0f), pbc.specularPower);
+            float3 admit_light = pfc_light.lights[i].lightColor.xyz * (pfc_light.lights[i].lightIntensity * atten);
+
+            linearColor += deltaColor * admit_light;
+        } else {
+            float3 deltaColor  = pbc.diffuseColor.xyz * cosTheta + pbc.specularColor.xyz * pow(clamp(dot(R, V), 0.0f, 1.0f), pbc.specularPower);
+            float3 admit_light = pfc_light.lights[i].lightColor.xyz * (pfc_light.lights[i].lightIntensity * atten);
+            linearColor += deltaColor * admit_light;
+        }
     }
+
+    // gama correction
+    linearColor = clamp(pow(pfc.ambientColor.xyz + linearColor, float3(1.0f / 2.2f)), 0.0f, 1.0f);
+
+    return float4(linearColor, 1.0f);
 }
