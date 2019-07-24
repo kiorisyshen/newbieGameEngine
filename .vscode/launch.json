@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/Debug/Editor/Editor.app/Contents/MacOS/Editor",
             "args": [
-                "Scene/lightmap_test.ogex"
+                "Scene/area_light.ogex"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

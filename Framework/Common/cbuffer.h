@@ -6,7 +6,7 @@
 #include "config.h"
 
 #ifdef __cplusplus
-#include "SceneObject.hpp"
+#include "SceneObjectLight.hpp"
 #include "crossguid/Guid.hpp"
 #include "geommath.hpp"
 using namespace newbieGE;
@@ -44,12 +44,17 @@ struct Light {
     Vector4f m_lightPosition;                  // 16 bytes
     Vector4f m_lightColor;                     // 16 bytes
     Vector4f m_lightDirection;                 // 16 bytes
-    Vector4f m_lightDistAttenCurveParams[2];   // 32 bytes
-    Vector4f m_lightAngleAttenCurveParams[2];  // 32 bytes
+    float    m_lightDistAttenCurveParams[5];   // 20 bytes
+    float    m_lightAngleAttenCurveParams[5];  // 20 bytes
+    Vector2f m_lightSize;                      // 8 bytes
     int32_t  m_lightDistAttenCurveType;        // 4 bytes
     int32_t  m_lightAngleAttenCurveType;       // 4 bytes
     float    m_lightIntensity;                 // 4 bytes
-    float    m_alignTmp;                       // 4 bytes
+    int32_t  m_lightType;                      // 4 bytes
+    // Above is 112 bytes
+
+    // Add 16 bytes to align to 128 bytes (Metal required)
+    float _alignTmp[4];  // 16 bytes
 };
 
 unistruct LightInfo REGISTER(b12)

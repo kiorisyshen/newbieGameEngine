@@ -1,18 +1,9 @@
 #pragma once
 #include <functional>
 #include "BaseSceneObject.hpp"
-#include "SceneObjectTypeDef.hpp"
 
 namespace newbieGE
 {
-ENUM(AttenCurveType){
-    kNone          = 0,
-    kLinear        = 1,
-    kSmooth        = 2,
-    kInverse       = 3,
-    kInverseSquare = 4,
-};
-
 struct AttenCurve {
     AttenCurveType type;
     union AttenCurveParams {
@@ -125,8 +116,6 @@ class SceneObjectOmniLight : public SceneObjectLight
 class SceneObjectSpotLight : public SceneObjectLight
 {
    protected:
-    float      m_fConeBeginAngle;
-    float      m_fConeEndAngle;
     AttenCurve m_LightAngleAttenuation;
 
    public:
@@ -157,4 +146,28 @@ class SceneObjectInfiniteLight : public SceneObjectLight
     friend std::ostream& operator<<(std::ostream& out, const SceneObjectInfiniteLight& obj);
 };
 
+class SceneObjectAreaLight : public SceneObjectLight
+{
+   protected:
+    Vector2f m_LightDimension;
+
+   public:
+    SceneObjectAreaLight(void)
+        : SceneObjectLight(SceneObjectType::kSceneObjectTypeLightArea),
+          m_LightDimension({1.0f, 1.0f})
+    {
+    }
+
+    const Vector2f& GetDimension() const
+    {
+        return m_LightDimension;
+    }
+
+    void SetDimension(const Vector2f& dimension)
+    {
+        m_LightDimension = dimension;
+    }
+
+    friend std::ostream& operator<<(std::ostream& out, const SceneObjectAreaLight& obj);
+};
 }  // namespace newbieGE

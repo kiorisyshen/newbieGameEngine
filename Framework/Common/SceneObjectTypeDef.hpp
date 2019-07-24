@@ -4,6 +4,43 @@
 
 namespace newbieGE
 {
+ENUM(SceneObjectType){
+    kSceneObjectTypeMesh          = "MESH"_i32,
+    kSceneObjectTypeMaterial      = "MATL"_i32,
+    kSceneObjectTypeTexture       = "TXTU"_i32,
+    kSceneObjectTypeLightOmni     = "LGHO"_i32,
+    kSceneObjectTypeLightInfi     = "LGHI"_i32,
+    kSceneObjectTypeLightSpot     = "LGHS"_i32,
+    kSceneObjectTypeLightArea     = "LGHA"_i32,
+    kSceneObjectTypeCamera        = "CAMR"_i32,
+    kSceneObjectTypeAnimationClip = "ANIM"_i32,
+    kSceneObjectTypeClip          = "CLIP"_i32,
+    kSceneObjectTypeVertexArray   = "VARR"_i32,
+    kSceneObjectTypeIndexArray    = "VARR"_i32,
+    kSceneObjectTypeGeometry      = "GEOM"_i32,
+    kSceneObjectTypeTransform     = "TRFM"_i32,
+    kSceneObjectTypeTranslate     = "TSLT"_i32,
+    kSceneObjectTypeRotate        = "ROTA"_i32,
+    kSceneObjectTypeScale         = "SCAL"_i32,
+    kSceneObjectTypeTrack         = "TRAC"_i32};
+
+ENUM(SceneObjectCollisionType){
+    kSceneObjectCollisionTypeNone        = "CNON"_i32,
+    kSceneObjectCollisionTypeSphere      = "CSPH"_i32,
+    kSceneObjectCollisionTypeBox         = "CBOX"_i32,
+    kSceneObjectCollisionTypeCylinder    = "CCYL"_i32,
+    kSceneObjectCollisionTypeCapsule     = "CCAP"_i32,
+    kSceneObjectCollisionTypeCone        = "CCON"_i32,
+    kSceneObjectCollisionTypeMultiSphere = "CMUL"_i32,
+    kSceneObjectCollisionTypeConvexHull  = "CCVH"_i32,
+    kSceneObjectCollisionTypeConvexMesh  = "CCVM"_i32,
+    kSceneObjectCollisionTypeBvhMesh     = "CBVM"_i32,
+    kSceneObjectCollisionTypeHeightfield = "CHIG"_i32,
+    kSceneObjectCollisionTypePlane       = "CPLN"_i32,
+};
+
+std::ostream& operator<<(std::ostream& out, SceneObjectType type);
+
 ENUM(IndexDataType){
     kIndexDataTypeInt8  = "I8  "_i32,
     kIndexDataTypeInt16 = "I16 "_i32,
@@ -21,8 +58,7 @@ ENUM(VertexDataType){
     kVertexDataTypeDouble1 = "DUB1"_i32,
     kVertexDataTypeDouble2 = "DUB2"_i32,
     kVertexDataTypeDouble3 = "DUB3"_i32,
-    kVertexDataTypeDouble4 = "DUB4"_i32,
-};
+    kVertexDataTypeDouble4 = "DUB4"_i32};
 
 std::ostream& operator<<(std::ostream& out, VertexDataType type);
 
@@ -45,6 +81,13 @@ ENUM(PrimitiveType){
     kPrimitiveTypeQuadStrip          = "QSTR"_i32,  ///< For N>=0, vertices [N*2+0, N*2+1, N*2+3] and [N*2+0, N*2+3, N*2+2] render triangles.
     kPrimitiveTypePolygon            = "POLY"_i32,  ///< For N>=0, vertices [0, N+1, N+2] render a triangle.
 };
+
+ENUM(AttenCurveType){
+    kNone          = 0,
+    kLinear        = 1,
+    kSmooth        = 2,
+    kInverse       = 3,
+    kInverseSquare = 4};
 
 struct BoundingBox {
     Vector3f centroid;

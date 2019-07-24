@@ -137,18 +137,20 @@ void GraphicsManager::CalculateLights()
             memcpy(light.m_lightDistAttenCurveParams, &atten_curve.u, sizeof(atten_curve.u));
 
             if (pLight->GetType() == SceneObjectType::kSceneObjectTypeLightInfi) {
+                light.m_lightType        = (int32_t)LightType::Infinity;
                 light.m_lightPosition[3] = 0.0f;
-            }
-
-            if (pLight->GetType() == SceneObjectType::kSceneObjectTypeLightSpot) {
+            } else if (pLight->GetType() == SceneObjectType::kSceneObjectTypeLightSpot) {
                 auto              plight            = dynamic_pointer_cast<SceneObjectSpotLight>(pLight);
                 const AttenCurve& angle_atten_curve = plight->GetAngleAttenuation();
+                light.m_lightType                   = (int32_t)LightType::Spot;
                 light.m_lightAngleAttenCurveType    = (int32_t)angle_atten_curve.type;
                 memcpy(light.m_lightAngleAttenCurveParams, &angle_atten_curve.u, sizeof(angle_atten_curve.u));
+            } else if (pLight->GetType() == SceneObjectType::kSceneObjectTypeLightArea) {
+                auto plight       = dynamic_pointer_cast<SceneObjectAreaLight>(pLight);
+                light.m_lightType = (int32_t)LightType::Area;
+                light.m_lightSize = plight->GetDimension();
             } else {
-                light.m_lightAngleAttenCurveType      = (int32_t)AttenCurveType::kLinear;
-                light.m_lightAngleAttenCurveParams[0] = {PI, PI, 0.0f, 0.0f};
-                light.m_lightAngleAttenCurveParams[1] = {0.0f, 0.0f, 0.0f, 0.0f};
+                light.m_lightType = (int32_t)LightType::Omni;
             }
 
             ++m_DrawFrameContext.m_numLights;
@@ -184,15 +186,23 @@ void GraphicsManager::BeginScene(const Scene& scene)
 }
 
 #ifdef DEBUG
+bool GraphicsManager::DEBUG_IsShowDebug()
+{
+    return m_DEBUG_showFlag;
+}
+
+void GraphicsManager::DEBUG_ToggleDebugInfo()
+{
+    m_DEBUG_showFlag = !m_DEBUG_showFlag;
+}
+
 void GraphicsManager::DEBUG_SetDrawPointParam(const Point3& point, const Vector3f& color)
 {
-    m_DEBUG_showFlag = true;
     m_DEBUG_Batches[0].pointParams.push_back({point, color});
 }
 
 void GraphicsManager::DEBUG_SetDrawPointSetParam(const PointSet& point_set, const Vector3f& color)
 {
-    m_DEBUG_showFlag = true;
     for (auto pt : point_set) {
         m_DEBUG_Batches[0].pointParams.push_back({*pt, color});
     }
@@ -201,7 +211,6 @@ void GraphicsManager::DEBUG_SetDrawPointSetParam(const PointSet& point_set, cons
 void GraphicsManager::DEBUG_SetDrawPointSetParam(const PointSet& point_set, const Vector3f& color,
                                                  DEBUG_DrawBatch& batch)
 {
-    m_DEBUG_showFlag = true;
     for (auto pt : point_set) {
         batch.pointParams.push_back({*pt, color});
     }
@@ -209,14 +218,12 @@ void GraphicsManager::DEBUG_SetDrawPointSetParam(const PointSet& point_set, cons
 
 void GraphicsManager::DEBUG_SetDrawLineParam(const Vector3f& from, const Vector3f& to, const Vector3f& color)
 {
-    m_DEBUG_showFlag = true;
     m_DEBUG_Batches[0].lineParams.push_back({{from, color}, {to, color}});
 }
 
 void GraphicsManager::DEBUG_SetDrawLineParam(const Vector3f& from, const Vector3f& to, const Vector3f& color,
                                              DEBUG_DrawBatch& batch)
 {
-    m_DEBUG_showFlag = true;
     batch.lineParams.push_back({{from, color}, {to, color}});
 }
 
@@ -224,8 +231,6 @@ void GraphicsManager::DEBUG_SetDrawTriangleParam(const PointList& vertices, cons
 {
     auto count = vertices.size();
     assert(count >= 3);
-
-    m_DEBUG_showFlag = true;
 
     for (auto i = 0; i < vertices.size(); i += 3) {
         m_DEBUG_Batches[0].triParams.push_back(
@@ -238,8 +243,6 @@ void GraphicsManager::DEBUG_SetDrawTriangleParam(const PointList& vertices, cons
 {
     auto count = vertices.size();
     assert(count >= 3);
-
-    m_DEBUG_showFlag = true;
 
     for (auto i = 0; i < vertices.size(); i += 3) {
         batch.triParams.push_back({{*vertices[i], color}, {*vertices[i + 1], color}, {*vertices[i + 2], color}});
@@ -291,7 +294,6 @@ void GraphicsManager::DEBUG_SetDrawPolyhydronParam(const Polyhedron& polyhedron,
 
 void GraphicsManager::DEBUG_SetDrawBoxParam(const Vector3f& bbMin, const Vector3f& bbMax, const Vector3f& color)
 {
-    m_DEBUG_showFlag = true;
     // 12 lines
     m_DEBUG_Batches[0].lineParams.push_back({{bbMin, color}, {{bbMin[0], bbMin[1], bbMax[2], 1.0f}, color}});
     m_DEBUG_Batches[0].lineParams.push_back({{bbMin, color}, {{bbMin[0], bbMax[1], bbMin[2], 1.0f}, color}});
@@ -324,7 +326,6 @@ void GraphicsManager::DEBUG_ClearDebugBuffers()
     m_DEBUG_Batches.clear();
     m_DEBUG_Batches.emplace_back(DEBUG_DrawBatch());
     BuildIdentityMatrix(m_DEBUG_Batches[0].pbc.modelMatrix);
-    m_DEBUG_showFlag = false;
 }
 
 void GraphicsManager::DEBUG_DrawDebug()

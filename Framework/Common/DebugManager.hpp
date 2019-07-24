@@ -18,8 +18,6 @@ class DebugManager : implements IRuntimeModule
    protected:
     void DrawAxis();
     void DrawGrid();
-
-    bool m_bDrawDebugInfo = false;
 };
 
 extern DebugManager* g_pDebugManager;

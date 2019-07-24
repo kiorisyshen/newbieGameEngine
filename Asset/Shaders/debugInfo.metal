@@ -6,18 +6,11 @@
 using namespace metal;
 
 struct PerFrameConstants {
-    float4x4 worldMatrix;                    // 64 bytes
-    float4x4 viewMatrix;                     // 64 bytes
-    float4x4 projectionMatrix;               // 64 bytes
-    float4   lightPosition;                  // 16 bytes
-    float4   lightColor;                     // 16 bytes
-    float4   ambientColor;                   // 16 bytes
-    float4   lightDirection;                 // 16 bytes
-    float4   lightDistAttenCurveParams[2];   // 32 bytes
-    float4   lightAngleAttenCurveParams[2];  // 32 bytes
-    int      lightDistAttenCurveType;        // 4 bytes
-    int      lightAngleAttenCurveType;       // 4 bytes
-    float    lightIntensity;                 // 4 bytes
+    float4x4 worldMatrix;       // 64 bytes
+    float4x4 viewMatrix;        // 64 bytes
+    float4x4 projectionMatrix;  // 64 bytes
+    float4   ambientColor;      // 16 bytes
+    int      numLights;         // 4 bytes
 };
 
 struct Debug_PerBatchConstants {

@@ -40,6 +40,9 @@ class GraphicsManager : implements IRuntimeModule
     }
 
 #ifdef DEBUG
+    virtual void DEBUG_ToggleDebugInfo() final;
+    virtual bool DEBUG_IsShowDebug() final;
+
     virtual void DEBUG_SetDrawPointParam(const Point3& point, const Vector3f& color) final;
     virtual void DEBUG_SetDrawPointSetParam(const PointSet& point_set, const Vector3f& color) final;
     virtual void DEBUG_SetDrawLineParam(const Vector3f& from, const Vector3f& to, const Vector3f& color) final;
@@ -49,7 +52,6 @@ class GraphicsManager : implements IRuntimeModule
     virtual void DEBUG_SetDrawPolyhydronParam(const Polyhedron& polyhedron, const Vector3f& color) final;
     virtual void DEBUG_SetDrawPolyhydronParam(const Polyhedron& polyhedron, const Matrix4X4f& trans,
                                               const Vector3f& color) final;
-
     virtual void DEBUG_SetDrawBoxParam(const Vector3f& bbMin, const Vector3f& bbMax, const Vector3f& color) final;
 
     virtual void DEBUG_SetBuffer() = 0;
