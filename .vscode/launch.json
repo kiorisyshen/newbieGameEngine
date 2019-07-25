@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/Debug/Editor/Editor.app/Contents/MacOS/Editor",
             "args": [
-                "Scene/light_all.ogex"
+                "Scene/city.ogex"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
