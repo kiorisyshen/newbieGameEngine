@@ -200,7 +200,7 @@ LightNode $node8
 LightObject $light3 (type = "spot", shadow = false)		// Lamp.003
 {
 	Color (attrib = "light") {float[3] {{1.0, 0.0010070281568914652, 0.00051426503341645}}}
-	Param (attrib = "intensity") {float {4.0}}
+	Param (attrib = "intensity") {float {6.0}}
 
 	Atten (curve = "inverse_square")
 	{
@@ -217,7 +217,7 @@ LightObject $light3 (type = "spot", shadow = false)		// Lamp.003
 LightObject $light2 (type = "spot", shadow = false)		// Lamp.002
 {
 	Color (attrib = "light") {float[3] {{0.01141956727951765, 1.0, 0.026550518348813057}}}
-	Param (attrib = "intensity") {float {4.0}}
+	Param (attrib = "intensity") {float {6.0}}
 
 	Atten (curve = "inverse_square")
 	{
@@ -234,7 +234,7 @@ LightObject $light2 (type = "spot", shadow = false)		// Lamp.002
 LightObject $light4 (type = "point", shadow = false)		// Point
 {
 	Color (attrib = "light") {float[3] {{0.006716880481690168, 0.008378240279853344, 1.0}}}
-	Param (attrib = "intensity") {float {4.0}}
+	Param (attrib = "intensity") {float {6.0}}
 
 	Atten (curve = "inverse_square")
 	{
