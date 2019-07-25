@@ -10,7 +10,20 @@ using namespace std;
 int GraphicsManager::Initialize()
 {
     int result = 0;
-    InitConstants();
+
+    m_Frames.resize(GfxConfiguration::kMaxInFlightFrameCount);
+    for (auto& frame : m_Frames) {
+        BuildIdentityMatrix(frame.frameContext.worldMatrix);
+    }
+
+#ifdef DEBUG
+    m_DEBUG_showFlag = false;
+    for (auto& frame : m_Frames) {
+        frame.DEBUG_Batches.emplace_back(DEBUG_DrawBatch());
+        BuildIdentityMatrix(frame.DEBUG_Batches[0].pbc.modelMatrix);
+    }
+#endif
+
     return result;
 }
 
@@ -40,7 +53,10 @@ void GraphicsManager::Tick()
 
 void GraphicsManager::UpdateConstants()
 {
-    for (auto pbc : m_DrawBatchContext) {
+    // update scene object position
+    auto& frame = m_Frames[m_nFrameIndex];
+
+    for (auto pbc : frame.batchContext) {
         if (void* rigidBody = pbc->node->RigidBody()) {
             Matrix4X4f trans;
             BuildIdentityMatrix(trans);
@@ -56,35 +72,26 @@ void GraphicsManager::UpdateConstants()
             // replace the translation part of the matrix with simlation result directly
             memcpy(trans[3], simulated_result[3], sizeof(float) * 3);
 
-            pbc->m_objectLocalMatrix = trans;
+            pbc->objectLocalMatrix = trans;
         } else {
-            pbc->m_objectLocalMatrix = *pbc->node->GetCalculatedTransform();
+            pbc->objectLocalMatrix = *pbc->node->GetCalculatedTransform();
         }
     }
 }
 
-void GraphicsManager::InitConstants()
-{
-    // Initialize the world/model matrix to the identity matrix.
-    BuildIdentityMatrix(m_DrawFrameContext.m_worldMatrix);
-#ifdef DEBUG
-    m_DEBUG_showFlag = false;
-    m_DEBUG_Batches.emplace_back(DEBUG_DrawBatch());
-    BuildIdentityMatrix(m_DEBUG_Batches[0].pbc.modelMatrix);
-#endif
-}
-
 void GraphicsManager::CalculateCameraMatrix()
 {
-    auto& scene       = g_pSceneManager->GetSceneForRendering();
-    auto  pCameraNode = scene.GetFirstCameraNode();
+    auto&             scene        = g_pSceneManager->GetSceneForRendering();
+    auto              pCameraNode  = scene.GetFirstCameraNode();
+    DrawFrameContext& frameContext = m_Frames[m_nFrameIndex].frameContext;
+
     if (pCameraNode) {
-        m_DrawFrameContext.m_viewMatrix = *pCameraNode->GetCalculatedTransform();
-        InverseMatrix4X4f(m_DrawFrameContext.m_viewMatrix);
+        frameContext.viewMatrix = *pCameraNode->GetCalculatedTransform();
+        InverseMatrix4X4f(frameContext.viewMatrix);
     } else {
         // use default build-in camera
         Vector3f position = {0, -5, 0}, lookAt = {0, 0, 0}, up = {0, 0, 1};
-        BuildViewMatrix(m_DrawFrameContext.m_viewMatrix, position, lookAt, up);
+        BuildViewMatrix(frameContext.viewMatrix, position, lookAt, up);
     }
 
     float fieldOfView      = PI / 2.0f;
@@ -104,15 +111,17 @@ void GraphicsManager::CalculateCameraMatrix()
     float screenAspect = (float)conf.screenWidth / (float)conf.screenHeight;
 
     // Build the perspective projection matrix.
-    BuildPerspectiveFovRHMatrix(m_DrawFrameContext.m_projectionMatrix, fieldOfView, screenAspect, nearClipDistance,
+    BuildPerspectiveFovRHMatrix(frameContext.projectionMatrix, fieldOfView, screenAspect, nearClipDistance,
                                 farClipDistance);
 }
 
 void GraphicsManager::CalculateLights()
 {
-    m_DrawFrameContext.m_ambientColor = {0.01f, 0.01f, 0.01f, 1.0f};
+    DrawFrameContext& frameContext = m_Frames[m_nFrameIndex].frameContext;
+    LightInfo&        light_info   = m_Frames[m_nFrameIndex].lightInfo;
 
-    m_DrawFrameContext.m_numLights = 0;
+    frameContext.ambientColor = {0.01f, 0.01f, 0.01f, 1.0f};
+    frameContext.numLights    = 0;
 
     auto& scene = g_pSceneManager->GetSceneForRendering();
     for (auto LightNode : scene.LightNodes) {
@@ -120,40 +129,40 @@ void GraphicsManager::CalculateLights()
         // No light will be added. (Or we could add a default light)
         if (!pLightNode) continue;
 
-        Light& light = m_LightInfo.lights[m_DrawFrameContext.m_numLights];
+        Light& light = light_info.lights[frameContext.numLights];
 
-        auto trans_ptr        = pLightNode->GetCalculatedTransform();
-        light.m_lightPosition = {0.0f, 0.0f, 0.0f, 1.0f};
-        Transform(light.m_lightPosition, *trans_ptr);
-        light.m_lightDirection = {0.0f, 0.0f, -1.0f, 0.0f};
-        Transform(light.m_lightDirection, *trans_ptr);
+        auto trans_ptr      = pLightNode->GetCalculatedTransform();
+        light.lightPosition = {0.0f, 0.0f, 0.0f, 1.0f};
+        Transform(light.lightPosition, *trans_ptr);
+        light.lightDirection = {0.0f, 0.0f, -1.0f, 0.0f};
+        Transform(light.lightDirection, *trans_ptr);
 
         auto pLight = scene.GetLight(pLightNode->GetSceneObjectRef());
         if (pLight) {
-            light.m_lightColor              = pLight->GetColor().Value;
-            light.m_lightIntensity          = pLight->GetIntensity();
-            const AttenCurve& atten_curve   = pLight->GetDistanceAttenuation();
-            light.m_lightDistAttenCurveType = (int32_t)atten_curve.type;
-            memcpy(light.m_lightDistAttenCurveParams, &atten_curve.u, sizeof(atten_curve.u));
+            light.lightColor              = pLight->GetColor().Value;
+            light.lightIntensity          = pLight->GetIntensity();
+            const AttenCurve& atten_curve = pLight->GetDistanceAttenuation();
+            light.lightDistAttenCurveType = (int32_t)atten_curve.type;
+            memcpy(light.lightDistAttenCurveParams, &atten_curve.u, sizeof(atten_curve.u));
 
             if (pLight->GetType() == SceneObjectType::kSceneObjectTypeLightInfi) {
-                light.m_lightType        = (int32_t)LightType::Infinity;
-                light.m_lightPosition[3] = 0.0f;
+                light.lightType        = (int32_t)LightType::Infinity;
+                light.lightPosition[3] = 0.0f;
             } else if (pLight->GetType() == SceneObjectType::kSceneObjectTypeLightSpot) {
                 auto              plight            = dynamic_pointer_cast<SceneObjectSpotLight>(pLight);
                 const AttenCurve& angle_atten_curve = plight->GetAngleAttenuation();
-                light.m_lightType                   = (int32_t)LightType::Spot;
-                light.m_lightAngleAttenCurveType    = (int32_t)angle_atten_curve.type;
-                memcpy(light.m_lightAngleAttenCurveParams, &angle_atten_curve.u, sizeof(angle_atten_curve.u));
+                light.lightType                     = (int32_t)LightType::Spot;
+                light.lightAngleAttenCurveType      = (int32_t)angle_atten_curve.type;
+                memcpy(light.lightAngleAttenCurveParams, &angle_atten_curve.u, sizeof(angle_atten_curve.u));
             } else if (pLight->GetType() == SceneObjectType::kSceneObjectTypeLightArea) {
-                auto plight       = dynamic_pointer_cast<SceneObjectAreaLight>(pLight);
-                light.m_lightType = (int32_t)LightType::Area;
-                light.m_lightSize = plight->GetDimension();
+                auto plight     = dynamic_pointer_cast<SceneObjectAreaLight>(pLight);
+                light.lightType = (int32_t)LightType::Area;
+                light.lightSize = plight->GetDimension();
             } else {
-                light.m_lightType = (int32_t)LightType::Omni;
+                light.lightType = (int32_t)LightType::Omni;
             }
 
-            ++m_DrawFrameContext.m_numLights;
+            ++frameContext.numLights;
         } else {
             assert(0);
         }
@@ -165,7 +174,7 @@ void GraphicsManager::RenderBuffers()
     BeginFrame();
 
     BeginPass();
-    DrawBatch(m_DrawBatchContext);
+    DrawBatch(m_Frames[m_nFrameIndex].batchContext);
 #ifdef DEBUG
     if (m_DEBUG_showFlag) {
         DEBUG_DrawDebug();
@@ -198,13 +207,13 @@ void GraphicsManager::DEBUG_ToggleDebugInfo()
 
 void GraphicsManager::DEBUG_SetDrawPointParam(const Point3& point, const Vector3f& color)
 {
-    m_DEBUG_Batches[0].pointParams.push_back({point, color});
+    m_Frames[m_nFrameIndex].DEBUG_Batches[0].pointParams.push_back({point, color});
 }
 
 void GraphicsManager::DEBUG_SetDrawPointSetParam(const PointSet& point_set, const Vector3f& color)
 {
     for (auto pt : point_set) {
-        m_DEBUG_Batches[0].pointParams.push_back({*pt, color});
+        m_Frames[m_nFrameIndex].DEBUG_Batches[0].pointParams.push_back({*pt, color});
     }
 }
 
@@ -218,7 +227,7 @@ void GraphicsManager::DEBUG_SetDrawPointSetParam(const PointSet& point_set, cons
 
 void GraphicsManager::DEBUG_SetDrawLineParam(const Vector3f& from, const Vector3f& to, const Vector3f& color)
 {
-    m_DEBUG_Batches[0].lineParams.push_back({{from, color}, {to, color}});
+    m_Frames[m_nFrameIndex].DEBUG_Batches[0].lineParams.push_back({{from, color}, {to, color}});
 }
 
 void GraphicsManager::DEBUG_SetDrawLineParam(const Vector3f& from, const Vector3f& to, const Vector3f& color,
@@ -233,7 +242,7 @@ void GraphicsManager::DEBUG_SetDrawTriangleParam(const PointList& vertices, cons
     assert(count >= 3);
 
     for (auto i = 0; i < vertices.size(); i += 3) {
-        m_DEBUG_Batches[0].triParams.push_back(
+        m_Frames[m_nFrameIndex].DEBUG_Batches[0].triParams.push_back(
             {{*vertices[i], color}, {*vertices[i + 1], color}, {*vertices[i + 2], color}});
     }
 }
@@ -289,50 +298,50 @@ void GraphicsManager::DEBUG_SetDrawPolyhydronParam(const Polyhedron& polyhedron,
     for (auto pFace : polyhedron.Faces) {
         DEBUG_SetDrawPolygonParam(*pFace, color, newDrawBatch);
     }
-    m_DEBUG_Batches.emplace_back(newDrawBatch);
+    m_Frames[m_nFrameIndex].DEBUG_Batches.emplace_back(newDrawBatch);
 }
 
 void GraphicsManager::DEBUG_SetDrawBoxParam(const Vector3f& bbMin, const Vector3f& bbMax, const Vector3f& color)
 {
     // 12 lines
-    m_DEBUG_Batches[0].lineParams.push_back({{bbMin, color}, {{bbMin[0], bbMin[1], bbMax[2], 1.0f}, color}});
-    m_DEBUG_Batches[0].lineParams.push_back({{bbMin, color}, {{bbMin[0], bbMax[1], bbMin[2], 1.0f}, color}});
-    m_DEBUG_Batches[0].lineParams.push_back({{bbMin, color}, {{bbMax[0], bbMin[1], bbMin[2], 1.0f}, color}});
+    m_Frames[m_nFrameIndex].DEBUG_Batches[0].lineParams.push_back({{bbMin, color}, {{bbMin[0], bbMin[1], bbMax[2], 1.0f}, color}});
+    m_Frames[m_nFrameIndex].DEBUG_Batches[0].lineParams.push_back({{bbMin, color}, {{bbMin[0], bbMax[1], bbMin[2], 1.0f}, color}});
+    m_Frames[m_nFrameIndex].DEBUG_Batches[0].lineParams.push_back({{bbMin, color}, {{bbMax[0], bbMin[1], bbMin[2], 1.0f}, color}});
 
-    m_DEBUG_Batches[0].lineParams.push_back(
+    m_Frames[m_nFrameIndex].DEBUG_Batches[0].lineParams.push_back(
         {{{bbMin[0], bbMax[1], bbMax[2], 1.0f}, color}, {{bbMin[0], bbMax[1], bbMin[2], 1.0f}, color}});
-    m_DEBUG_Batches[0].lineParams.push_back(
+    m_Frames[m_nFrameIndex].DEBUG_Batches[0].lineParams.push_back(
         {{{bbMin[0], bbMax[1], bbMax[2], 1.0f}, color}, {{bbMin[0], bbMin[1], bbMax[2], 1.0f}, color}});
-    m_DEBUG_Batches[0].lineParams.push_back(
+    m_Frames[m_nFrameIndex].DEBUG_Batches[0].lineParams.push_back(
         {{{bbMin[0], bbMax[1], bbMax[2], 1.0f}, color}, {{bbMax[0], bbMax[1], bbMax[2], 1.0f}, color}});
 
-    m_DEBUG_Batches[0].lineParams.push_back(
+    m_Frames[m_nFrameIndex].DEBUG_Batches[0].lineParams.push_back(
         {{{bbMax[0], bbMin[1], bbMax[2], 1.0f}, color}, {{bbMax[0], bbMin[1], bbMin[2], 1.0f}, color}});
-    m_DEBUG_Batches[0].lineParams.push_back(
+    m_Frames[m_nFrameIndex].DEBUG_Batches[0].lineParams.push_back(
         {{{bbMax[0], bbMin[1], bbMax[2], 1.0f}, color}, {{bbMax[0], bbMax[1], bbMax[2], 1.0f}, color}});
-    m_DEBUG_Batches[0].lineParams.push_back(
+    m_Frames[m_nFrameIndex].DEBUG_Batches[0].lineParams.push_back(
         {{{bbMax[0], bbMin[1], bbMax[2], 1.0f}, color}, {{bbMin[0], bbMin[1], bbMax[2], 1.0f}, color}});
 
-    m_DEBUG_Batches[0].lineParams.push_back(
+    m_Frames[m_nFrameIndex].DEBUG_Batches[0].lineParams.push_back(
         {{{bbMax[0], bbMax[1], bbMin[2], 1.0f}, color}, {{bbMax[0], bbMax[1], bbMax[2], 1.0f}, color}});
-    m_DEBUG_Batches[0].lineParams.push_back(
+    m_Frames[m_nFrameIndex].DEBUG_Batches[0].lineParams.push_back(
         {{{bbMax[0], bbMax[1], bbMin[2], 1.0f}, color}, {{bbMax[0], bbMin[1], bbMin[2], 1.0f}, color}});
-    m_DEBUG_Batches[0].lineParams.push_back(
+    m_Frames[m_nFrameIndex].DEBUG_Batches[0].lineParams.push_back(
         {{{bbMax[0], bbMax[1], bbMin[2], 1.0f}, color}, {{bbMin[0], bbMax[1], bbMin[2], 1.0f}, color}});
 }
 
 void GraphicsManager::DEBUG_ClearDebugBuffers()
 {
-    m_DEBUG_Batches.clear();
-    m_DEBUG_Batches.emplace_back(DEBUG_DrawBatch());
-    BuildIdentityMatrix(m_DEBUG_Batches[0].pbc.modelMatrix);
+    m_Frames[m_nFrameIndex].DEBUG_Batches.clear();
+    m_Frames[m_nFrameIndex].DEBUG_Batches.emplace_back(DEBUG_DrawBatch());
+    BuildIdentityMatrix(m_Frames[m_nFrameIndex].DEBUG_Batches[0].pbc.modelMatrix);
 }
 
 void GraphicsManager::DEBUG_DrawDebug()
 {
     cout << "[GraphicsManager] GraphicsManager::DEBUG_DrawDebug" << endl;
     long idx = 0;
-    for (auto batch : m_DEBUG_Batches) {
+    for (auto batch : m_Frames[m_nFrameIndex].DEBUG_Batches) {
         cout << "Batch id: " << idx << endl;
         ++idx;
 

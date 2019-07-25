@@ -1,4 +1,6 @@
 #pragma once
+#include "FrameStructure.hpp"
+#include "IDrawPass.hpp"
 #include "IRuntimeModule.hpp"
 #include "Polyhedron.hpp"
 #include "Scene.hpp"
@@ -7,22 +9,6 @@
 
 namespace newbieGE
 {
-struct DrawBatchConstants : public PerBatchConstants {
-    uint32_t                           batchIndex;
-    std::shared_ptr<SceneGeometryNode> node;
-
-    virtual ~DrawBatchConstants() = default;
-};
-
-#ifdef DEBUG
-struct DEBUG_DrawBatch {
-    DEBUG_PerBatchConstants          pbc;
-    std::vector<DEBUG_LineParam>     lineParams;
-    std::vector<DEBUG_PointParam>    pointParams;
-    std::vector<DEBUG_TriangleParam> triParams;
-};
-#endif
-
 class GraphicsManager : implements IRuntimeModule
 {
    public:
@@ -84,8 +70,6 @@ class GraphicsManager : implements IRuntimeModule
 #endif
 
    private:
-    void InitConstants();
-
     void CalculateCameraMatrix();
     void CalculateLights();
     void UpdateConstants();
@@ -95,13 +79,9 @@ class GraphicsManager : implements IRuntimeModule
     virtual void SetPerBatchConstants(){};
 
    protected:
-    LightInfo                                        m_LightInfo;
-    PerFrameConstants                                m_DrawFrameContext;
-    std::vector<std::shared_ptr<DrawBatchConstants>> m_DrawBatchContext;
-
+    uint32_t           m_nFrameIndex = 0;
+    std::vector<Frame> m_Frames;
 #ifdef DEBUG
-    std::vector<DEBUG_DrawBatch> m_DEBUG_Batches;
-
     bool m_DEBUG_showFlag;
 #endif
 };

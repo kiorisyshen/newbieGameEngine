@@ -285,9 +285,9 @@ static MTLPixelFormat getMtlPixelFormat(const Image& img)
     std::memcpy(_lightInfo.contents, &(lightInfo), sizeof(LightInfo));
 }
 
-- (void)setPerFrameConstants:(const PerFrameConstants&)context
+- (void)setPerFrameConstants:(const DrawFrameContext&)context
 {
-    std::memcpy(_uniformBuffers.contents, &(context), sizeof(PerFrameConstants));
+    std::memcpy(_uniformBuffers.contents, &(context), sizeof(DrawFrameContext));
 }
 
 - (void)setPerBatchConstants:(const std::vector<std::shared_ptr<DrawBatchConstants>>&)batches

@@ -30,7 +30,7 @@ struct MtlDrawBatchContext : public DrawBatchConstants {
 
 - (void)setLightInfo:(const LightInfo&)lightInfo;
 
-- (void)setPerFrameConstants:(const PerFrameConstants&)context;
+- (void)setPerFrameConstants:(const DrawFrameContext&)context;
 
 - (void)setPerBatchConstants:(const std::vector<std::shared_ptr<DrawBatchConstants>>&)batches;
 

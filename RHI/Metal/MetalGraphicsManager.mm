@@ -19,7 +19,7 @@ int MetalGraphicsManager::Initialize()
 void MetalGraphicsManager::Finalize()
 {
     [m_pRenderer Finalize];
-    m_DrawBatchContext.clear();
+    m_Frames.clear();
 }
 
 void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstants>>& batches)
@@ -29,22 +29,22 @@ void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatch
 
 void MetalGraphicsManager::SetLightInfo()
 {
-    [m_pRenderer setLightInfo:m_LightInfo];
+    [m_pRenderer setLightInfo:m_Frames[m_nFrameIndex].lightInfo];
 }
 
 void MetalGraphicsManager::SetPerFrameConstants()
 {
-    [m_pRenderer setPerFrameConstants:m_DrawFrameContext];
+    [m_pRenderer setPerFrameConstants:m_Frames[m_nFrameIndex].frameContext];
 }
 
 void MetalGraphicsManager::SetPerBatchConstants()
 {
-    [m_pRenderer setPerBatchConstants:m_DrawBatchContext];
+    [m_pRenderer setPerBatchConstants:m_Frames[m_nFrameIndex].batchContext];
 }
 
 void MetalGraphicsManager::InitializeBuffers(const Scene& scene)
 {
-    m_DrawBatchContext.clear();
+    m_Frames[m_nFrameIndex].batchContext.clear();
 
     uint32_t batch_index       = 0;
     uint32_t v_property_offset = 0;
@@ -133,29 +133,29 @@ void MetalGraphicsManager::InitializeBuffers(const Scene& scene)
             if (material) {
                 auto color = material->GetBaseColor();
                 if (color.ValueMap) {
-                    const Image& image  = color.ValueMap->GetTextureImage();
-                    texture_id          = [m_pRenderer createTexture:image];
-                    dbc->m_diffuseColor = {-1.0f, -1.0f, -1.0f, 1.0f};
+                    const Image& image = color.ValueMap->GetTextureImage();
+                    texture_id         = [m_pRenderer createTexture:image];
+                    dbc->diffuseColor  = {-1.0f, -1.0f, -1.0f, 1.0f};
                 } else {
-                    dbc->m_diffuseColor = color.Value;
+                    dbc->diffuseColor = color.Value;
                 }
-                color                = material->GetSpecularColor();
-                dbc->m_specularColor = color.Value;
-                Parameter param      = material->GetSpecularPower();
-                dbc->m_specularPower = param.Value;
+                color              = material->GetSpecularColor();
+                dbc->specularColor = color.Value;
+                Parameter param    = material->GetSpecularPower();
+                dbc->specularPower = param.Value;
             }
-            dbc->materialIdx         = texture_id;
-            dbc->index_count         = (uint32_t)index_array.GetIndexCount();
-            dbc->index_type          = type;
-            dbc->batchIndex          = batch_index++;
-            dbc->index_offset        = index_offset++;
-            dbc->index_mode          = mode;
-            dbc->property_offset     = v_property_offset;
-            dbc->property_count      = vertexPropertiesCount;
-            dbc->m_objectLocalMatrix = *(pGeometryNode->GetCalculatedTransform()).get();
-            dbc->node                = pGeometryNode;
+            dbc->materialIdx       = texture_id;
+            dbc->index_count       = (uint32_t)index_array.GetIndexCount();
+            dbc->index_type        = type;
+            dbc->batchIndex        = batch_index++;
+            dbc->index_offset      = index_offset++;
+            dbc->index_mode        = mode;
+            dbc->property_offset   = v_property_offset;
+            dbc->property_count    = vertexPropertiesCount;
+            dbc->objectLocalMatrix = *(pGeometryNode->GetCalculatedTransform()).get();
+            dbc->node              = pGeometryNode;
             //            [m_pRenderer getPBC].emplace_back(dbc);
-            m_DrawBatchContext.push_back(dbc);
+            m_Frames[m_nFrameIndex].batchContext.push_back(dbc);
         }
 
         v_property_offset += vertexPropertiesCount;
@@ -209,7 +209,7 @@ void MetalGraphicsManager::EndCompute()
 #ifdef DEBUG
 void MetalGraphicsManager::DEBUG_SetBuffer()
 {
-    [m_pRenderer DEBUG_SetBuffer:m_DEBUG_Batches];
+    [m_pRenderer DEBUG_SetBuffer:m_Frames[m_nFrameIndex].DEBUG_Batches];
 }
 
 void MetalGraphicsManager::DEBUG_ClearDebugBuffers()
@@ -221,7 +221,7 @@ void MetalGraphicsManager::DEBUG_ClearDebugBuffers()
 
 void MetalGraphicsManager::DEBUG_DrawDebug()
 {
-    [m_pRenderer DEBUG_DrawDebug:m_DEBUG_Batches];
+    [m_pRenderer DEBUG_DrawDebug:m_Frames[m_nFrameIndex].DEBUG_Batches];
 }
 
 #endif

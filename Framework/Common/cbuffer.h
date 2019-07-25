@@ -41,16 +41,16 @@ enum LightType {
 
 // 128 bytes
 struct Light {
-    Vector4f m_lightPosition;                  // 16 bytes
-    Vector4f m_lightColor;                     // 16 bytes
-    Vector4f m_lightDirection;                 // 16 bytes
-    float    m_lightDistAttenCurveParams[5];   // 20 bytes
-    float    m_lightAngleAttenCurveParams[5];  // 20 bytes
-    Vector2f m_lightSize;                      // 8 bytes
-    int32_t  m_lightDistAttenCurveType;        // 4 bytes
-    int32_t  m_lightAngleAttenCurveType;       // 4 bytes
-    float    m_lightIntensity;                 // 4 bytes
-    int32_t  m_lightType;                      // 4 bytes
+    Vector4f lightPosition;                  // 16 bytes
+    Vector4f lightColor;                     // 16 bytes
+    Vector4f lightDirection;                 // 16 bytes
+    float    lightDistAttenCurveParams[5];   // 20 bytes
+    float    lightAngleAttenCurveParams[5];  // 20 bytes
+    Vector2f lightSize;                      // 8 bytes
+    int32_t  lightDistAttenCurveType;        // 4 bytes
+    int32_t  lightAngleAttenCurveType;       // 4 bytes
+    float    lightIntensity;                 // 4 bytes
+    int32_t  lightType;                      // 4 bytes
     // Above is 112 bytes
 
     // Add 16 bytes to align to 128 bytes (Metal required)
@@ -64,18 +64,18 @@ unistruct LightInfo REGISTER(b12)
 
 // Align for metal
 struct PerFrameConstants REGISTER(b10) {
-    Matrix4X4f m_worldMatrix;       // 64 bytes
-    Matrix4X4f m_viewMatrix;        // 64 bytes
-    Matrix4X4f m_projectionMatrix;  // 64 bytes
-    Vector4f   m_ambientColor;      // 16 bytes
-    int32_t    m_numLights;         // 4 bytes
+    Matrix4X4f worldMatrix;       // 64 bytes
+    Matrix4X4f viewMatrix;        // 64 bytes
+    Matrix4X4f projectionMatrix;  // 64 bytes
+    Vector4f   ambientColor;      // 16 bytes
+    int32_t    numLights;         // 4 bytes
 };
 
 struct PerBatchConstants REGISTER(b11) {
-    Matrix4X4f m_objectLocalMatrix;  // 64 bytes
-    Vector4f   m_diffuseColor;       // 16 bytes
-    Vector4f   m_specularColor;      // 16 bytes
-    float      m_specularPower;      // 4 bytes
+    Matrix4X4f objectLocalMatrix;  // 64 bytes
+    Vector4f   diffuseColor;       // 16 bytes
+    Vector4f   specularColor;      // 16 bytes
+    float      specularPower;      // 4 bytes
 };
 
 #ifdef DEBUG
