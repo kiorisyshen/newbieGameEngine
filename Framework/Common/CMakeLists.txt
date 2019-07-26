@@ -17,6 +17,7 @@ add_library(Common
 
 target_link_libraries(Common
                       Algorithm
+                      DrawPass
                       Geometries
                       GeomMath
                       ${OPENGEX_LIBRARY}
