@@ -21,7 +21,7 @@ class GraphicsManager : implements IRuntimeModule
 
     virtual void RenderBuffers() final;
 
-    virtual void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstants>>& batches)
+    virtual void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>>& batches)
     {
     }
 
@@ -74,9 +74,9 @@ class GraphicsManager : implements IRuntimeModule
     void CalculateLights();
     void UpdateConstants();
 
-    virtual void SetLightInfo(){};
-    virtual void SetPerFrameConstants(){};
-    virtual void SetPerBatchConstants(){};
+    virtual void SetLightInfo(const LightInfo& lightInfo);
+    virtual void SetPerFrameConstants(const DrawFrameContext& context);
+    virtual void SetPerBatchConstants(const DrawBatchConstant& context);
 
    protected:
     uint32_t           m_nFrameIndex = 0;

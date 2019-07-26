@@ -22,29 +22,31 @@ void MetalGraphicsManager::Finalize()
     m_Frames.clear();
 }
 
-void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstants>>& batches)
+void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>>& batches)
 {
     [m_pRenderer drawBatch:batches];
 }
 
-void MetalGraphicsManager::SetLightInfo()
+void MetalGraphicsManager::SetLightInfo(const LightInfo& lightInfo)
 {
-    [m_pRenderer setLightInfo:m_Frames[m_nFrameIndex].lightInfo];
+    [m_pRenderer setLightInfo:lightInfo];
 }
 
-void MetalGraphicsManager::SetPerFrameConstants()
+void MetalGraphicsManager::SetPerFrameConstants(const DrawFrameContext& context)
 {
-    [m_pRenderer setPerFrameConstants:m_Frames[m_nFrameIndex].frameContext];
+    [m_pRenderer setPerFrameConstants:context];
 }
 
-void MetalGraphicsManager::SetPerBatchConstants()
+void MetalGraphicsManager::SetPerBatchConstants(const DrawBatchConstant& context)
 {
-    [m_pRenderer setPerBatchConstants:m_Frames[m_nFrameIndex].batchContext];
+    [m_pRenderer setPerBatchConstants:context];
 }
 
 void MetalGraphicsManager::InitializeBuffers(const Scene& scene)
 {
-    m_Frames[m_nFrameIndex].batchContext.clear();
+    for (auto& frame : m_Frames) {
+        frame.batchContext.clear();
+    }
 
     uint32_t batch_index       = 0;
     uint32_t v_property_offset = 0;

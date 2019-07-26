@@ -8,11 +8,11 @@ namespace newbieGE
 struct DrawFrameContext : public PerFrameConstants {
 };
 
-struct DrawBatchConstants : public PerBatchConstants {
+struct DrawBatchConstant : public PerBatchConstants {
     uint32_t                           batchIndex;
     std::shared_ptr<SceneGeometryNode> node;
 
-    virtual ~DrawBatchConstants() = default;
+    virtual ~DrawBatchConstant() = default;
 };
 
 #ifdef DEBUG
@@ -25,9 +25,9 @@ struct DEBUG_DrawBatch {
 #endif
 
 struct Frame {
-    LightInfo                                        lightInfo;
-    DrawFrameContext                                 frameContext;
-    std::vector<std::shared_ptr<DrawBatchConstants>> batchContext;
+    LightInfo                                       lightInfo;
+    DrawFrameContext                                frameContext;
+    std::vector<std::shared_ptr<DrawBatchConstant>> batchContext;
 #ifdef DEBUG
     std::vector<DEBUG_DrawBatch> DEBUG_Batches;
 #endif

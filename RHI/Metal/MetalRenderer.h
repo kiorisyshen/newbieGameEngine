@@ -5,7 +5,7 @@
 
 namespace newbieGE
 {
-struct MtlDrawBatchContext : public DrawBatchConstants {
+struct MtlDrawBatchContext : public DrawBatchConstant {
     uint32_t         index_offset;
     MTLPrimitiveType index_mode;
     uint32_t         index_count;
@@ -20,7 +20,7 @@ struct MtlDrawBatchContext : public DrawBatchConstants {
 
 - (nonnull instancetype)initWithMetalKitView:(nonnull MTKView*)view;
 
-- (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstants>>&)batches;
+- (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstant>>&)batches;
 
 - (uint32_t)createTexture:(const newbieGE::Image&)image;
 
@@ -32,7 +32,7 @@ struct MtlDrawBatchContext : public DrawBatchConstants {
 
 - (void)setPerFrameConstants:(const DrawFrameContext&)context;
 
-- (void)setPerBatchConstants:(const std::vector<std::shared_ptr<DrawBatchConstants>>&)batches;
+- (void)setPerBatchConstants:(const std::vector<std::shared_ptr<DrawBatchConstant>>&)batches;
 
 - (void)loadMetal;
 

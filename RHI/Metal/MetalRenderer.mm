@@ -155,7 +155,7 @@ using namespace newbieGE;
 #endif
 }
 
-- (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstants>>&)batches
+- (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstant>>&)batches
 {
     if (_renderPassDescriptor != nil) {
         [_renderEncoder setRenderPipelineState:_pipelineState];
@@ -290,7 +290,7 @@ static MTLPixelFormat getMtlPixelFormat(const Image& img)
     std::memcpy(_uniformBuffers.contents, &(context), sizeof(DrawFrameContext));
 }
 
-- (void)setPerBatchConstants:(const std::vector<std::shared_ptr<DrawBatchConstants>>&)batches
+- (void)setPerBatchConstants:(const std::vector<std::shared_ptr<DrawBatchConstant>>&)batches
 {
     for (const auto& pDbc : batches) {
         std::memcpy(reinterpret_cast<uint8_t*>(_uniformBuffers.contents) + kSizePerFrameConstantBuffer +
