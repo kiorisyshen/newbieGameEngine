@@ -51,7 +51,7 @@ class MetalGraphicsManager : public GraphicsManager
     void InitializeBuffers(const Scene& scene);
     void SetLightInfo(const LightInfo& lightInfo) final;
     void SetPerFrameConstants(const DrawFrameContext& context) final;
-    void SetPerBatchConstants(const DrawBatchConstant& context) final;
+    void SetPerBatchConstants(const std::vector<std::shared_ptr<DrawBatchConstant>>& context) final;
 
     MetalRenderer* m_pRenderer;
 };

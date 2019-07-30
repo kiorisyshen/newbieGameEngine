@@ -37,7 +37,7 @@ void MetalGraphicsManager::SetPerFrameConstants(const DrawFrameContext& context)
     [m_pRenderer setPerFrameConstants:context];
 }
 
-void MetalGraphicsManager::SetPerBatchConstants(const DrawBatchConstant& context)
+void MetalGraphicsManager::SetPerBatchConstants(const std::vector<std::shared_ptr<DrawBatchConstant>>& context)
 {
     [m_pRenderer setPerBatchConstants:context];
 }

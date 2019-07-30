@@ -46,9 +46,11 @@ void GraphicsManager::Tick()
 
     UpdateConstants();
 
-    SetPerFrameConstants();
-    SetPerBatchConstants();
-    SetLightInfo();
+    auto& frame = m_Frames[m_nFrameIndex];
+
+    SetPerFrameConstants(frame.frameContext);
+    SetPerBatchConstants(frame.batchContext);
+    SetLightInfo(frame.lightInfo);
 }
 
 void GraphicsManager::UpdateConstants()

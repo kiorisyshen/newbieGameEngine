@@ -74,9 +74,9 @@ class GraphicsManager : implements IRuntimeModule
     void CalculateLights();
     void UpdateConstants();
 
-    virtual void SetLightInfo(const LightInfo& lightInfo);
-    virtual void SetPerFrameConstants(const DrawFrameContext& context);
-    virtual void SetPerBatchConstants(const DrawBatchConstant& context);
+    virtual void SetLightInfo(const LightInfo& lightInfo)                                             = 0;
+    virtual void SetPerFrameConstants(const DrawFrameContext& context)                                = 0;
+    virtual void SetPerBatchConstants(const std::vector<std::shared_ptr<DrawBatchConstant>>& context) = 0;
 
    protected:
     uint32_t           m_nFrameIndex = 0;
