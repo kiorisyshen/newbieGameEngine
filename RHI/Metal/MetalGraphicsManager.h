@@ -21,10 +21,6 @@ class MetalGraphicsManager : public GraphicsManager
         m_pRenderer = renderer;
     }
 
-    //    void RenderBuffers() final;
-
-    void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>>& batches) final;
-
 #ifdef DEBUG
     void DEBUG_ClearDebugBuffers() final;
     void DEBUG_SetBuffer() final;
@@ -43,15 +39,17 @@ class MetalGraphicsManager : public GraphicsManager
     void BeginCompute() final;
     void EndCompute() final;
 
+    void SetLightInfo(const LightInfo& lightInfo) final;
+    void SetPerFrameConstants(const DrawFrameContext& context) final;
+    void SetPerBatchConstants(const std::vector<std::shared_ptr<DrawBatchConstant>>& context) final;
+    void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>>& batches) final;
+
 #ifdef DEBUG
     void DEBUG_DrawDebug() final;
 #endif
 
    private:
     void InitializeBuffers(const Scene& scene);
-    void SetLightInfo(const LightInfo& lightInfo) final;
-    void SetPerFrameConstants(const DrawFrameContext& context) final;
-    void SetPerBatchConstants(const std::vector<std::shared_ptr<DrawBatchConstant>>& context) final;
 
     MetalRenderer* m_pRenderer;
 };

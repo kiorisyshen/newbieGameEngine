@@ -18,8 +18,8 @@ int MetalGraphicsManager::Initialize()
 
 void MetalGraphicsManager::Finalize()
 {
+    GraphicsManager::Finalize();
     [m_pRenderer Finalize];
-    m_Frames.clear();
 }
 
 void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>>& batches)
@@ -156,7 +156,7 @@ void MetalGraphicsManager::InitializeBuffers(const Scene& scene)
             dbc->property_count    = vertexPropertiesCount;
             dbc->objectLocalMatrix = *(pGeometryNode->GetCalculatedTransform()).get();
             dbc->node              = pGeometryNode;
-            //            [m_pRenderer getPBC].emplace_back(dbc);
+
             m_Frames[m_nFrameIndex].batchContext.push_back(dbc);
         }
 

@@ -322,9 +322,9 @@ static MTLPixelFormat getMtlPixelFormat(const Image& img)
     // Obtain a renderPassDescriptor generated from the view's drawable textures
     _renderPassDescriptor = _mtkView.currentRenderPassDescriptor;
     if (_renderPassDescriptor != nil) {
-        _renderPassDescriptor.colorAttachments[0].loadAction  = MTLLoadActionClear;
-        _renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStoreAndMultisampleResolve;
-        _renderPassDescriptor.colorAttachments[0].clearColor  = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
+        // _renderPassDescriptor.colorAttachments[0].loadAction  = MTLLoadActionClear;
+        // _renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStoreAndMultisampleResolve;
+        _renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
     }
 }
 

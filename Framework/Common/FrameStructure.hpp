@@ -29,7 +29,7 @@ struct Frame {
     DrawFrameContext                                frameContext;
     std::vector<std::shared_ptr<DrawBatchConstant>> batchContext;
 #ifdef DEBUG
-    std::vector<DEBUG_DrawBatch> DEBUG_Batches;
+    std::vector<DEBUG_DrawBatch> DEBUG_Batches;  // The first batch is static with identity transformation
 #endif
 };
 }  // namespace newbieGE

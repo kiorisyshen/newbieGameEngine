@@ -29,6 +29,10 @@ int GraphicsManager::Initialize()
 
 void GraphicsManager::Finalize()
 {
+#ifdef DEBUG
+    DEBUG_ClearDebugBuffers();
+#endif
+    EndScene();
 }
 
 void GraphicsManager::Tick()
@@ -196,6 +200,12 @@ void GraphicsManager::BeginScene(const Scene& scene)
     //    }
 }
 
+void GraphicsManager::EndScene()
+{
+    m_Frames.clear();
+    m_nFrameIndex = 0;
+}
+
 #ifdef DEBUG
 bool GraphicsManager::DEBUG_IsShowDebug()
 {
@@ -291,8 +301,7 @@ void GraphicsManager::DEBUG_SetDrawPolyhydronParam(const Polyhedron& polyhedron,
     }
 }
 
-void GraphicsManager::DEBUG_SetDrawPolyhydronParam(const Polyhedron& polyhedron, const Matrix4X4f& trans,
-                                                   const Vector3f& color)
+void GraphicsManager::DEBUG_SetDrawPolyhydronParam(const Polyhedron& polyhedron, const Matrix4X4f& trans, const Vector3f& color)
 {
     DEBUG_DrawBatch newDrawBatch;
     newDrawBatch.pbc.modelMatrix = trans;
@@ -339,29 +348,29 @@ void GraphicsManager::DEBUG_ClearDebugBuffers()
     BuildIdentityMatrix(m_Frames[m_nFrameIndex].DEBUG_Batches[0].pbc.modelMatrix);
 }
 
-void GraphicsManager::DEBUG_DrawDebug()
-{
-    cout << "[GraphicsManager] GraphicsManager::DEBUG_DrawDebug" << endl;
-    long idx = 0;
-    for (auto batch : m_Frames[m_nFrameIndex].DEBUG_Batches) {
-        cout << "Batch id: " << idx << endl;
-        ++idx;
+// void GraphicsManager::DEBUG_DrawDebug()
+// {
+//     cout << "[GraphicsManager] GraphicsManager::DEBUG_DrawDebug" << endl;
+//     long idx = 0;
+//     for (auto batch : m_Frames[m_nFrameIndex].DEBUG_Batches) {
+//         cout << "Batch id: " << idx << endl;
+//         ++idx;
 
-        // Points
-        for (DEBUG_PointParam pointParam : batch.pointParams) {
-            cout << "Points(" << pointParam.pos << "," << pointParam.color << ")" << endl;
-        }
-        // Lines
-        for (DEBUG_LineParam lineParam : batch.lineParams) {
-            cout << "Lines(" << lineParam.from.pos << "," << lineParam.from.color << "), (" << lineParam.to.pos << ", "
-                 << lineParam.to.color << ")" << endl;
-        }
-        // Triangles
-        for (DEBUG_TriangleParam triParam : batch.triParams) {
-            cout << "Triangles(" << triParam.v0.pos << "," << triParam.v1.pos << "," << triParam.v2.pos << ","
-                 << triParam.v0.color << ")" << endl;
-        }
-    }
-}
+//         // Points
+//         for (DEBUG_PointParam pointParam : batch.pointParams) {
+//             cout << "Points(" << pointParam.pos << "," << pointParam.color << ")" << endl;
+//         }
+//         // Lines
+//         for (DEBUG_LineParam lineParam : batch.lineParams) {
+//             cout << "Lines(" << lineParam.from.pos << "," << lineParam.from.color << "), (" << lineParam.to.pos << ", "
+//                  << lineParam.to.color << ")" << endl;
+//         }
+//         // Triangles
+//         for (DEBUG_TriangleParam triParam : batch.triParams) {
+//             cout << "Triangles(" << triParam.v0.pos << "," << triParam.v1.pos << "," << triParam.v2.pos << ","
+//                  << triParam.v0.color << ")" << endl;
+//         }
+//     }
+// }
 
 #endif

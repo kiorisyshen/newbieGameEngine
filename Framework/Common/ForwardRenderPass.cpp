@@ -1,6 +1,5 @@
 #include "ForwardRenderPass.hpp"
 #include "GraphicsManager.hpp"
-#include "IShaderManager.hpp"
 
 using namespace newbieGE;
 using namespace std;
