@@ -13,6 +13,7 @@ using namespace std;
 int MetalGraphicsManager::Initialize()
 {
     int result = GraphicsManager::Initialize();
+    [m_pRenderer Initialize];
     return result;
 }
 
@@ -22,9 +23,9 @@ void MetalGraphicsManager::Finalize()
     [m_pRenderer Finalize];
 }
 
-void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>>& batches)
+void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>>& batches, const DefaultShaderIndex idx)
 {
-    [m_pRenderer drawBatch:batches];
+    [m_pRenderer drawBatch:batches shaderIndex:idx];
 }
 
 void MetalGraphicsManager::SetLightInfo(const LightInfo& lightInfo)
@@ -164,6 +165,11 @@ void MetalGraphicsManager::InitializeBuffers(const Scene& scene)
     }
 }
 
+bool MetalGraphicsManager::InitializeShaders()
+{
+    return [m_pRenderer InitializeShaders];
+}
+
 void MetalGraphicsManager::BeginScene(const Scene& scene)
 {
     GraphicsManager::BeginScene(scene);
@@ -176,6 +182,7 @@ void MetalGraphicsManager::BeginScene(const Scene& scene)
 void MetalGraphicsManager::EndScene()
 {
     GraphicsManager::EndScene();
+    [m_pRenderer endScene];
 }
 
 void MetalGraphicsManager::BeginFrame()
@@ -188,14 +195,14 @@ void MetalGraphicsManager::EndFrame()
     [m_pRenderer endFrame];
 }
 
-void MetalGraphicsManager::BeginPass()
+void MetalGraphicsManager::BeginPass(const RenderPassIndex idx)
 {
-    [m_pRenderer beginPass];
+    [m_pRenderer beginPass:idx];
 }
 
-void MetalGraphicsManager::EndPass()
+void MetalGraphicsManager::EndPass(const RenderPassIndex idx)
 {
-    [m_pRenderer endPass];
+    [m_pRenderer endPass:idx];
 }
 
 void MetalGraphicsManager::BeginCompute()

@@ -27,14 +27,16 @@ class MetalGraphicsManager : public GraphicsManager
 #endif
 
    protected:
+    bool InitializeShaders() final;
+
     void BeginScene(const Scene& scene) final;
     void EndScene() final;
 
     void BeginFrame() final;
     void EndFrame() final;
 
-    void BeginPass() final;
-    void EndPass() final;
+    void BeginPass(const RenderPassIndex idx) final;
+    void EndPass(const RenderPassIndex idx) final;
 
     void BeginCompute() final;
     void EndCompute() final;
@@ -42,7 +44,7 @@ class MetalGraphicsManager : public GraphicsManager
     void SetLightInfo(const LightInfo& lightInfo) final;
     void SetPerFrameConstants(const DrawFrameContext& context) final;
     void SetPerBatchConstants(const std::vector<std::shared_ptr<DrawBatchConstant>>& context) final;
-    void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>>& batches) final;
+    void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>>& batches, const DefaultShaderIndex idx) final;
 
 #ifdef DEBUG
     void DEBUG_DrawDebug() final;

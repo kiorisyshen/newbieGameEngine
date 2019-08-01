@@ -24,6 +24,9 @@ int GraphicsManager::Initialize()
     }
 #endif
 
+    bool initShaderSucc = InitializeShaders();
+    if (!initShaderSucc) result = -1;
+
     return result;
 }
 
@@ -179,14 +182,14 @@ void GraphicsManager::RenderBuffers()
 {
     BeginFrame();
 
-    BeginPass();
-    DrawBatch(m_Frames[m_nFrameIndex].batchContext);
+    BeginPass(RenderPassIndex::ForwardPass);
+    DrawBatch(m_Frames[m_nFrameIndex].batchContext, DefaultShaderIndex::BasicShader);
 #ifdef DEBUG
     if (m_DEBUG_showFlag) {
         DEBUG_DrawDebug();
     }
 #endif
-    EndPass();
+    EndPass(RenderPassIndex::ForwardPass);
     EndFrame();
 }
 

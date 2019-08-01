@@ -1,10 +1,16 @@
 #import <MetalKit/MetalKit.h>
 
 #include "IApplication.hpp"
+#include "IDrawPass.hpp"
 #import "MetalGraphicsManager.h"
 #import "MetalRenderer.h"
 
 using namespace newbieGE;
+
+struct ShaderState {
+    id<MTLRenderPipelineState> pipelineState;
+    id<MTLDepthStencilState>   depthStencilState;
+};
 
 @implementation MetalRenderer {
     dispatch_semaphore_t        _inFlightSemaphore;
@@ -12,29 +18,21 @@ using namespace newbieGE;
     id<MTLDevice>               _device;
     id<MTLCommandQueue>         _commandQueue;
     id<MTLCommandBuffer>        _commandBuffer;
-    MTLRenderPassDescriptor*    _renderPassDescriptor;
     id<MTLRenderCommandEncoder> _renderEncoder;
 
-    id<MTLRenderPipelineState> _pipelineState;
-    id<MTLDepthStencilState>   _depthState;
-
-    std::vector<id<MTLTexture>> _textures;
     id<MTLSamplerState>         _sampler0;
+    std::vector<id<MTLTexture>> _textures;
     std::vector<id<MTLBuffer>>  _vertexBuffers;
     std::vector<id<MTLBuffer>>  _indexBuffers;
     id<MTLBuffer>               _uniformBuffers;
     id<MTLBuffer>               _lightInfo;
 
 #ifdef DEBUG
-    id<MTLBuffer>              _DEBUG_Buffer;
-    id<MTLRenderPipelineState> _DEBUG_pipelineState;
-    MTLVertexDescriptor*       _DEBUG_mtlDebugDescriptor;
-    id<MTLDepthStencilState>   _DEBUG_depthState;
+    id<MTLBuffer> _DEBUG_Buffer;
 #endif
 
-    // Vertex descriptor specifying how vertices will by laid out for input into
-    // our render pipeline and how ModelIO should layout vertices
-    MTLVertexDescriptor* _mtlVertexDescriptor;
+    std::unordered_map<int32_t, MTLRenderPassDescriptor*> _renderPassDescriptors;
+    std::unordered_map<int32_t, ShaderState>              _renderPassStates;
 }
 
 - (nonnull instancetype)initWithMetalKitView:(nonnull MTKView*)view;
@@ -42,100 +40,92 @@ using namespace newbieGE;
     if (self = [super init]) {
         _mtkView           = view;
         _device            = view.device;
-        _inFlightSemaphore = dispatch_semaphore_create(2);
+        _inFlightSemaphore = dispatch_semaphore_create(GfxConfiguration::kMaxInFlightFrameCount);
         _commandQueue      = [_device newCommandQueue];
-
-        [self loadMetal];
     }
 
     return self;
 }
 
-- (void)loadMetal
+- (bool)InitializeShaders
 {
+    bool succ = true;
+
     NSError* error = NULL;
 
-    NSString*       libraryFile      = [[NSBundle mainBundle] pathForResource:@"Main" ofType:@"metallib"];
-    id<MTLLibrary>  myLibrary        = [_device newLibraryWithFile:libraryFile error:&error];
+    NSString*      libraryFile = [[NSBundle mainBundle] pathForResource:@"Main" ofType:@"metallib"];
+    id<MTLLibrary> myLibrary   = [_device newLibraryWithFile:libraryFile error:&error];
+    if (!myLibrary) {
+        NSLog(@"Failed to in create metal library, error %@", error);
+        succ = false;
+    }
+
+    // --------------
+    // Basic shaders
     id<MTLFunction> vertexFunction   = [myLibrary newFunctionWithName:@"basic_vert_main"];
     id<MTLFunction> fragmentFunction = [myLibrary newFunctionWithName:@"basic_frag_main"];
 
-    _mtlVertexDescriptor = [[MTLVertexDescriptor alloc] init];
+    // Vertex descriptor specifying how vertices will by laid out for input into
+    // our render pipeline and how ModelIO should layout vertices
+    MTLVertexDescriptor* mtlVertexDescriptor = [[MTLVertexDescriptor alloc] init];
     // Positions.
-    _mtlVertexDescriptor.attributes[0].format      = MTLVertexFormatFloat3;
-    _mtlVertexDescriptor.attributes[0].offset      = 0;
-    _mtlVertexDescriptor.attributes[0].bufferIndex = 0;
+    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributePosition].format      = MTLVertexFormatFloat3;
+    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributePosition].offset      = 0;
+    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributePosition].bufferIndex = 0;
     // Position Buffer Layout
-    _mtlVertexDescriptor.layouts[0].stride       = 12;
-    _mtlVertexDescriptor.layouts[0].stepRate     = 1;
-    _mtlVertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
+    mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributePosition].stride       = 12;
+    mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributePosition].stepRate     = 1;
+    mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributePosition].stepFunction = MTLVertexStepFunctionPerVertex;
     // Normals.
-    _mtlVertexDescriptor.attributes[1].format      = MTLVertexFormatFloat3;
-    _mtlVertexDescriptor.attributes[1].offset      = 0;
-    _mtlVertexDescriptor.attributes[1].bufferIndex = 1;
+    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeNormal].format      = MTLVertexFormatFloat3;
+    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeNormal].offset      = 0;
+    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeNormal].bufferIndex = 1;
     // Normal Buffer Layout
-    _mtlVertexDescriptor.layouts[1].stride       = 12;
-    _mtlVertexDescriptor.layouts[1].stepRate     = 1;
-    _mtlVertexDescriptor.layouts[1].stepFunction = MTLVertexStepFunctionPerVertex;
+    mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributeNormal].stride       = 12;
+    mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributeNormal].stepRate     = 1;
+    mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributeNormal].stepFunction = MTLVertexStepFunctionPerVertex;
     // Texture UV.
-    _mtlVertexDescriptor.attributes[2].format      = MTLVertexFormatFloat2;
-    _mtlVertexDescriptor.attributes[2].offset      = 0;
-    _mtlVertexDescriptor.attributes[2].bufferIndex = 2;
+    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTexcoord].format      = MTLVertexFormatFloat2;
+    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTexcoord].offset      = 0;
+    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTexcoord].bufferIndex = 2;
     // Texture UV Buffer Layout
-    _mtlVertexDescriptor.layouts[2].stride       = 8;
-    _mtlVertexDescriptor.layouts[2].stepRate     = 1;
-    _mtlVertexDescriptor.layouts[2].stepFunction = MTLVertexStepFunctionPerVertex;
-
-    // PerFrameBuffer
-    _uniformBuffers       = [_device newBufferWithLength:kSizePerFrameConstantBuffer +
-                                                   kSizePerBatchConstantBuffer * GfxConfiguration::kMaxSceneObjectCount
-                                           options:MTLResourceStorageModeShared];
-    _uniformBuffers.label = [NSString stringWithFormat:@"uniformBuffer"];
-
-    _lightInfo       = [_device newBufferWithLength:kSizeLightInfo options:MTLResourceStorageModeShared];
-    _lightInfo.label = [NSString stringWithFormat:@"lightInfo"];
-
-    // Texture sampler
-    MTLSamplerDescriptor* samplerDescriptor = [[MTLSamplerDescriptor alloc] init];
-    samplerDescriptor.minFilter             = MTLSamplerMinMagFilterLinear;
-    samplerDescriptor.magFilter             = MTLSamplerMinMagFilterLinear;
-    samplerDescriptor.mipFilter             = MTLSamplerMipFilterLinear;
-    samplerDescriptor.rAddressMode          = MTLSamplerAddressModeRepeat;
-    samplerDescriptor.sAddressMode          = MTLSamplerAddressModeRepeat;
-    samplerDescriptor.tAddressMode          = MTLSamplerAddressModeRepeat;
-    _sampler0                               = [_device newSamplerStateWithDescriptor:samplerDescriptor];
+    mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributeTexcoord].stride       = 8;
+    mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributeTexcoord].stepRate     = 1;
+    mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributeTexcoord].stepFunction = MTLVertexStepFunctionPerVertex;
 
     MTLRenderPipelineDescriptor* pipelineStateDescriptor    = [[MTLRenderPipelineDescriptor alloc] init];
-    pipelineStateDescriptor.label                           = @"Simple Pipeline";
+    pipelineStateDescriptor.label                           = @"Basic Pipeline";
     pipelineStateDescriptor.sampleCount                     = _mtkView.sampleCount;
     pipelineStateDescriptor.vertexFunction                  = vertexFunction;
     pipelineStateDescriptor.fragmentFunction                = fragmentFunction;
-    pipelineStateDescriptor.vertexDescriptor                = _mtlVertexDescriptor;
+    pipelineStateDescriptor.vertexDescriptor                = mtlVertexDescriptor;
     pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
     pipelineStateDescriptor.depthAttachmentPixelFormat      = _mtkView.depthStencilPixelFormat;
 
-    _pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
-
+    ShaderState basicSS;
+    basicSS.pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
+    if (!basicSS.pipelineState) {
+        NSLog(@"Failed to created pipeline state, error %@", error);
+        succ = false;
+    }
     MTLDepthStencilDescriptor* depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
     depthStateDesc.depthCompareFunction       = MTLCompareFunctionLess;
     depthStateDesc.depthWriteEnabled          = YES;
-    _depthState                               = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
+    basicSS.depthStencilState                 = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
 
-    if (!_pipelineState) {
-        // Pipeline State creation could fail if we haven't properly set up our
-        // pipeline descriptor.
-        //  If the Metal API validation is enabled, we can find out more information
-        //  about what went wrong.  (Metal API validation is enabled by default when
-        //  a debug build is run from Xcode)
-        NSLog(@"Failed to created pipeline state, error %@", error);
+    _renderPassStates[(int32_t)DefaultShaderIndex::BasicShader] = basicSS;
+
+    MTLRenderPassDescriptor* forwarRenderPassDescriptor = _mtkView.currentRenderPassDescriptor;
+    if (forwarRenderPassDescriptor != nil) {
+        forwarRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
     }
 
-#ifdef DEBUG
-    // Debug line buffer
-    _DEBUG_Buffer       = [_device newBufferWithLength:kSizeDebugMaxAtomBuffer * GfxConfiguration::kMaxDebugObjectCount
-                                         options:MTLResourceStorageModeShared];
-    _DEBUG_Buffer.label = [NSString stringWithFormat:@"DEBUG_Buffer"];
+    _renderPassDescriptors[(int32_t)RenderPassIndex::ForwardPass] = forwarRenderPassDescriptor;
+    // --------------
 
+    // --------------
+    // Debug shaders
+#ifdef DEBUG
     vertexFunction   = [myLibrary newFunctionWithName:@"debug_vert_main"];
     fragmentFunction = [myLibrary newFunctionWithName:@"debug_frag_main"];
 
@@ -147,66 +137,113 @@ using namespace newbieGE;
     pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
     pipelineStateDescriptor.depthAttachmentPixelFormat      = _mtkView.depthStencilPixelFormat;
 
-    _DEBUG_pipelineState                = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
+    ShaderState debugSS;
+    debugSS.pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
+    if (!debugSS.pipelineState) {
+        NSLog(@"Failed to created pipeline state, error %@", error);
+        succ = false;
+    }
+
     depthStateDesc                      = [[MTLDepthStencilDescriptor alloc] init];
     depthStateDesc.depthCompareFunction = MTLCompareFunctionLessEqual;
     depthStateDesc.depthWriteEnabled    = NO;
-    _DEBUG_depthState                   = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
+    debugSS.depthStencilState           = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
+
+    _renderPassStates[(int32_t)DefaultShaderIndex::DebugShader] = debugSS;
+#endif
+    // --------------
+
+    return succ;
+}
+
+- (void)Initialize
+{
+    // PerFrameBuffer
+    if (!_uniformBuffers) {
+        _uniformBuffers       = [_device newBufferWithLength:kSizePerFrameConstantBuffer +
+                                                       kSizePerBatchConstantBuffer * GfxConfiguration::kMaxSceneObjectCount
+                                               options:MTLResourceStorageModeShared];
+        _uniformBuffers.label = [NSString stringWithFormat:@"uniformBuffer"];
+    }
+
+    if (!_lightInfo) {
+        _lightInfo       = [_device newBufferWithLength:kSizeLightInfo options:MTLResourceStorageModeShared];
+        _lightInfo.label = [NSString stringWithFormat:@"lightInfo"];
+    }
+
+    // Texture sampler
+    if (!_sampler0) {
+        MTLSamplerDescriptor* samplerDescriptor = [[MTLSamplerDescriptor alloc] init];
+        samplerDescriptor.minFilter             = MTLSamplerMinMagFilterLinear;
+        samplerDescriptor.magFilter             = MTLSamplerMinMagFilterLinear;
+        samplerDescriptor.mipFilter             = MTLSamplerMipFilterLinear;
+        samplerDescriptor.rAddressMode          = MTLSamplerAddressModeRepeat;
+        samplerDescriptor.sAddressMode          = MTLSamplerAddressModeRepeat;
+        samplerDescriptor.tAddressMode          = MTLSamplerAddressModeRepeat;
+        _sampler0                               = [_device newSamplerStateWithDescriptor:samplerDescriptor];
+    }
+
+#ifdef DEBUG
+    // Debug line buffer
+    if (!_DEBUG_Buffer) {
+        _DEBUG_Buffer       = [_device newBufferWithLength:kSizeDebugMaxAtomBuffer * GfxConfiguration::kMaxDebugObjectCount
+                                             options:MTLResourceStorageModeShared];
+        _DEBUG_Buffer.label = [NSString stringWithFormat:@"DEBUG_Buffer"];
+    }
 #endif
 }
 
-- (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstant>>&)batches
+- (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstant>>&)batches shaderIndex:(const DefaultShaderIndex)idx
 {
-    if (_renderPassDescriptor != nil) {
-        [_renderEncoder setRenderPipelineState:_pipelineState];
-        [_renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
-        [_renderEncoder setCullMode:MTLCullModeBack];
-        [_renderEncoder setDepthStencilState:_depthState];
-        // Push a debug group allowing us to identify render commands in the GPU
-        // Frame Capture tool
-        [_renderEncoder pushDebugGroup:@"DrawMesh"];
+    [_renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
+    [_renderEncoder setCullMode:MTLCullModeBack];
+    [_renderEncoder setRenderPipelineState:_renderPassStates[(int32_t)idx].pipelineState];
+    [_renderEncoder setDepthStencilState:_renderPassStates[(int32_t)idx].depthStencilState];
 
-        [_renderEncoder setVertexBuffer:_uniformBuffers offset:0 atIndex:10];
-        [_renderEncoder setFragmentBuffer:_uniformBuffers offset:0 atIndex:10];
-        [_renderEncoder setFragmentBuffer:_lightInfo offset:0 atIndex:12];
-        [_renderEncoder setFragmentSamplerState:_sampler0 atIndex:0];
+    // Push a debug group allowing us to identify render commands in the GPU
+    // Frame Capture tool
+    [_renderEncoder pushDebugGroup:@"DrawMesh"];
 
-        for (const auto& pDbc : batches) {
-            const MtlDrawBatchContext& dbc = dynamic_cast<const MtlDrawBatchContext&>(*pDbc);
+    [_renderEncoder setVertexBuffer:_uniformBuffers offset:0 atIndex:10];
+    [_renderEncoder setFragmentBuffer:_uniformBuffers offset:0 atIndex:10];
+    [_renderEncoder setFragmentBuffer:_lightInfo offset:0 atIndex:12];
+    [_renderEncoder setFragmentSamplerState:_sampler0 atIndex:0];
 
-            [_renderEncoder setVertexBuffer:_uniformBuffers
-                                     offset:kSizePerFrameConstantBuffer + dbc.batchIndex * kSizePerBatchConstantBuffer
-                                    atIndex:11];
+    for (const auto& pDbc : batches) {
+        const MtlDrawBatchContext& dbc = dynamic_cast<const MtlDrawBatchContext&>(*pDbc);
 
-            [_renderEncoder setFragmentBuffer:_uniformBuffers
-                                       offset:kSizePerFrameConstantBuffer + dbc.batchIndex * kSizePerBatchConstantBuffer
-                                      atIndex:11];
+        [_renderEncoder setVertexBuffer:_uniformBuffers
+                                 offset:kSizePerFrameConstantBuffer + dbc.batchIndex * kSizePerBatchConstantBuffer
+                                atIndex:11];
 
-            // Set mesh's vertex buffers
-            for (uint32_t bufferIndex = 0; bufferIndex < dbc.property_count; bufferIndex++) {
-                id<MTLBuffer> vertexBuffer = _vertexBuffers[dbc.property_offset + bufferIndex];
-                [_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:bufferIndex];
-            }
-            /* well, we have different material for each index buffer so we can not
+        [_renderEncoder setFragmentBuffer:_uniformBuffers
+                                   offset:kSizePerFrameConstantBuffer + dbc.batchIndex * kSizePerBatchConstantBuffer
+                                  atIndex:11];
+
+        // Set mesh's vertex buffers
+        for (uint32_t bufferIndex = 0; bufferIndex < dbc.property_count; bufferIndex++) {
+            id<MTLBuffer> vertexBuffer = _vertexBuffers[dbc.property_offset + bufferIndex];
+            [_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:bufferIndex];
+        }
+        /* well, we have different material for each index buffer so we can not
              * draw them together in future we should group indicies according to its
              * material and draw them together
              */
-            if (dbc.materialIdx >= 0) {
-                [_renderEncoder setFragmentTexture:_textures[dbc.materialIdx] atIndex:0];
-            }
-            if (dbc.property_count <= 2) {
-                id<MTLBuffer> vertexBuffer = _vertexBuffers[dbc.property_offset];
-                [_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:2];
-            }
-
-            [_renderEncoder drawIndexedPrimitives:dbc.index_mode
-                                       indexCount:dbc.index_count
-                                        indexType:dbc.index_type
-                                      indexBuffer:_indexBuffers[dbc.index_offset]
-                                indexBufferOffset:0];
+        if (dbc.materialIdx >= 0) {
+            [_renderEncoder setFragmentTexture:_textures[dbc.materialIdx] atIndex:0];
         }
-        [_renderEncoder popDebugGroup];
+        if (dbc.property_count <= 2) {
+            id<MTLBuffer> vertexBuffer = _vertexBuffers[dbc.property_offset];
+            [_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:2];
+        }
+
+        [_renderEncoder drawIndexedPrimitives:dbc.index_mode
+                                   indexCount:dbc.index_count
+                                    indexType:dbc.index_type
+                                  indexBuffer:_indexBuffers[dbc.index_offset]
+                            indexBufferOffset:0];
     }
+    [_renderEncoder popDebugGroup];
 }
 
 static MTLPixelFormat getMtlPixelFormat(const Image& img)
@@ -301,6 +338,15 @@ static MTLPixelFormat getMtlPixelFormat(const Image& img)
 
 - (void)Finalize
 {
+    _renderPassDescriptors.clear();
+    _renderPassStates.clear();
+}
+
+- (void)endScene
+{
+    _textures.clear();
+    _vertexBuffers.clear();
+    _indexBuffers.clear();
 }
 
 - (void)beginFrame
@@ -319,13 +365,11 @@ static MTLPixelFormat getMtlPixelFormat(const Image& img)
       dispatch_semaphore_signal(block_sema);
     }];
 
-    // Obtain a renderPassDescriptor generated from the view's drawable textures
-    _renderPassDescriptor = _mtkView.currentRenderPassDescriptor;
-    if (_renderPassDescriptor != nil) {
-        // _renderPassDescriptor.colorAttachments[0].loadAction  = MTLLoadActionClear;
-        // _renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStoreAndMultisampleResolve;
-        _renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
+    MTLRenderPassDescriptor* forwarRenderPassDescriptor = _mtkView.currentRenderPassDescriptor;
+    if (forwarRenderPassDescriptor != nil) {
+        forwarRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
     }
+    _renderPassDescriptors[(int32_t)RenderPassIndex::ForwardPass] = forwarRenderPassDescriptor;
 }
 
 - (void)endFrame
@@ -336,15 +380,27 @@ static MTLPixelFormat getMtlPixelFormat(const Image& img)
     [_commandBuffer commit];
 }
 
-- (void)beginPass
+- (void)beginPass:(const RenderPassIndex)idx
 {
-    if (_renderPassDescriptor != nil) {
-        _renderEncoder       = [_commandBuffer renderCommandEncoderWithDescriptor:_renderPassDescriptor];
-        _renderEncoder.label = @"MyRenderEncoder";
+    if (_renderPassDescriptors[(int32_t)idx] != nil) {
+        NSString* encoderLabel = @"";
+        switch (idx) {
+            case RenderPassIndex::ForwardPass:
+                encoderLabel = @"ForwardRenderEncoder";
+                break;
+            case RenderPassIndex::ShadowPass:
+                encoderLabel = @"ShadowRenderEncoder";
+                break;
+            default:
+                assert(0);
+                break;
+        }
+        _renderEncoder       = [_commandBuffer renderCommandEncoderWithDescriptor:_renderPassDescriptors[(int32_t)idx]];
+        _renderEncoder.label = encoderLabel;
     }
 }
 
-- (void)endPass
+- (void)endPass:(const RenderPassIndex)idx
 {
     [_renderEncoder endEncoding];
 }
@@ -394,44 +450,42 @@ static MTLPixelFormat getMtlPixelFormat(const Image& img)
 
 - (void)DEBUG_DrawDebug:(const std::vector<DEBUG_DrawBatch>&)debugBatches
 {
-    if (_renderPassDescriptor != nil) {
-        [_renderEncoder setRenderPipelineState:_DEBUG_pipelineState];
-        [_renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
-        [_renderEncoder setCullMode:MTLCullModeBack];
-        [_renderEncoder setDepthStencilState:_DEBUG_depthState];
-        // Push a debug group allowing us to identify render commands in the GPU
-        // Frame Capture tool
-        [_renderEncoder pushDebugGroup:@"DrawDebugInfo"];
+    [_renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
+    [_renderEncoder setCullMode:MTLCullModeBack];
+    [_renderEncoder setRenderPipelineState:_renderPassStates[(int32_t)DefaultShaderIndex::DebugShader].pipelineState];
+    [_renderEncoder setDepthStencilState:_renderPassStates[(int32_t)DefaultShaderIndex::DebugShader].depthStencilState];
+    // Push a debug group allowing us to identify render commands in the GPU
+    // Frame Capture tool
+    [_renderEncoder pushDebugGroup:@"DrawDebugInfo"];
 
-        [_renderEncoder setVertexBuffer:_uniformBuffers offset:0 atIndex:10];
+    [_renderEncoder setVertexBuffer:_uniformBuffers offset:0 atIndex:10];
 
-        auto offset = debugBatches.size();
-        offset      = 0;
-        for (auto batch : debugBatches) {
-            [_renderEncoder setVertexBytes:&batch.pbc length:sizeof(DEBUG_PerBatchConstants) atIndex:8];
+    auto offset = debugBatches.size();
+    offset      = 0;
+    for (auto batch : debugBatches) {
+        [_renderEncoder setVertexBytes:&batch.pbc length:sizeof(DEBUG_PerBatchConstants) atIndex:8];
 
-            // Draw primitive type debug info
-            // Use buffer than setVertexBytes for buffer >= 4096 bytes
-            // Triangles
-            [_renderEncoder setVertexBuffer:_DEBUG_Buffer offset:offset atIndex:7];
-            [_renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
-                               vertexStart:0
-                               vertexCount:3 * batch.triParams.size()];
-            offset += ALIGN(sizeof(DEBUG_TriangleParam) * batch.triParams.size(), 256);
+        // Draw primitive type debug info
+        // Use buffer than setVertexBytes for buffer >= 4096 bytes
+        // Triangles
+        [_renderEncoder setVertexBuffer:_DEBUG_Buffer offset:offset atIndex:7];
+        [_renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
+                           vertexStart:0
+                           vertexCount:3 * batch.triParams.size()];
+        offset += ALIGN(sizeof(DEBUG_TriangleParam) * batch.triParams.size(), 256);
 
-            // Lines
-            [_renderEncoder setVertexBuffer:_DEBUG_Buffer offset:offset atIndex:7];
-            [_renderEncoder drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:2 * batch.lineParams.size()];
-            offset += ALIGN(sizeof(DEBUG_LineParam) * batch.lineParams.size(), 256);
+        // Lines
+        [_renderEncoder setVertexBuffer:_DEBUG_Buffer offset:offset atIndex:7];
+        [_renderEncoder drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:2 * batch.lineParams.size()];
+        offset += ALIGN(sizeof(DEBUG_LineParam) * batch.lineParams.size(), 256);
 
-            // Points
-            [_renderEncoder setVertexBuffer:_DEBUG_Buffer offset:offset atIndex:7];
-            [_renderEncoder drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:batch.pointParams.size()];
-            offset += ALIGN(sizeof(DEBUG_PointParam) * batch.pointParams.size(), 256);
-        }
-
-        [_renderEncoder popDebugGroup];
+        // Points
+        [_renderEncoder setVertexBuffer:_DEBUG_Buffer offset:offset atIndex:7];
+        [_renderEncoder drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:batch.pointParams.size()];
+        offset += ALIGN(sizeof(DEBUG_PointParam) * batch.pointParams.size(), 256);
     }
+
+    [_renderEncoder popDebugGroup];
 }
 
 #endif

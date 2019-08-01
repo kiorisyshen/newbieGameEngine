@@ -4,6 +4,12 @@
 
 namespace newbieGE
 {
+enum VertexAttribute : unsigned long {
+    VertexAttributePosition = 0,
+    VertexAttributeNormal,
+    VertexAttributeTexcoord,
+};
+
 class SceneObjectVertexArray
 {
    protected:

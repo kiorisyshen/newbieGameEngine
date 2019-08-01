@@ -9,14 +9,6 @@
 
 namespace newbieGE
 {
-ENUM(DefaultShaderIndex){
-    ShadowMap = "SHMP"_i32,
-    Forward   = "FRWD"_i32,
-    Differed  = "DIFR"_i32,
-    Debug     = "DEBG"_i32,
-    Copy      = "BTBL"_i32,
-};
-
 class GraphicsManager : implements IRuntimeModule
 {
    public:
@@ -48,22 +40,24 @@ class GraphicsManager : implements IRuntimeModule
 #endif
 
    protected:
+    virtual bool InitializeShaders() = 0;  // Need to initialize all shaders in DefaultShaderIndex
+
     virtual void BeginScene(const Scene& scene);
     virtual void EndScene();
 
     virtual void BeginFrame() = 0;
     virtual void EndFrame()   = 0;
 
-    virtual void BeginPass() = 0;
-    virtual void EndPass()   = 0;
+    virtual void BeginPass(const RenderPassIndex idx) = 0;
+    virtual void EndPass(const RenderPassIndex idx)   = 0;
 
     virtual void BeginCompute() = 0;
     virtual void EndCompute()   = 0;
 
-    virtual void SetLightInfo(const LightInfo& lightInfo)                                             = 0;
-    virtual void SetPerFrameConstants(const DrawFrameContext& context)                                = 0;
-    virtual void SetPerBatchConstants(const std::vector<std::shared_ptr<DrawBatchConstant>>& context) = 0;
-    virtual void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>>& batches)            = 0;
+    virtual void SetLightInfo(const LightInfo& lightInfo)                                                                = 0;
+    virtual void SetPerFrameConstants(const DrawFrameContext& context)                                                   = 0;
+    virtual void SetPerBatchConstants(const std::vector<std::shared_ptr<DrawBatchConstant>>& context)                    = 0;
+    virtual void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>>& batches, const DefaultShaderIndex idx) = 0;
 
     virtual void CalculateCameraMatrix() final;
     virtual void CalculateLights() final;
@@ -79,8 +73,10 @@ class GraphicsManager : implements IRuntimeModule
 #endif
 
    protected:
-    uint32_t           m_nFrameIndex = 0;
-    std::vector<Frame> m_Frames;
+    uint32_t                                m_nFrameIndex = 0;
+    std::vector<Frame>                      m_Frames;
+    std::vector<std::shared_ptr<IDrawPass>> m_DrawPasses;
+
 #ifdef DEBUG
     bool m_DEBUG_showFlag;
 #endif

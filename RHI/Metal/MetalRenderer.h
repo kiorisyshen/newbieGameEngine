@@ -1,6 +1,6 @@
 #pragma once
 #import <MetalKit/MetalKit.h>
-#include "GraphicsManager.hpp"
+#include "FrameStructure.hpp"
 #include "geommath.hpp"
 
 namespace newbieGE
@@ -20,7 +20,7 @@ struct MtlDrawBatchContext : public DrawBatchConstant {
 
 - (nonnull instancetype)initWithMetalKitView:(nonnull MTKView*)view;
 
-- (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstant>>&)batches;
+- (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstant>>&)batches shaderIndex:(const DefaultShaderIndex)idx;
 
 - (uint32_t)createTexture:(const newbieGE::Image&)image;
 
@@ -34,17 +34,21 @@ struct MtlDrawBatchContext : public DrawBatchConstant {
 
 - (void)setPerBatchConstants:(const std::vector<std::shared_ptr<DrawBatchConstant>>&)batches;
 
-- (void)loadMetal;
+- (void)Initialize;
 
 - (void)Finalize;
+
+- (bool)InitializeShaders;
+
+- (void)endScene;
 
 - (void)beginFrame;
 
 - (void)endFrame;
 
-- (void)beginPass;
+- (void)beginPass:(const RenderPassIndex)idx;
 
-- (void)endPass;
+- (void)endPass:(const RenderPassIndex)idx;
 
 - (void)beginCompute;
 
