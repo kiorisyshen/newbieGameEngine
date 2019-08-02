@@ -1,5 +1,6 @@
 #include "GraphicsManager.hpp"
 #include <iostream>
+#include "ForwardRenderPass.hpp"
 #include "IApplication.hpp"
 #include "IPhysicsManager.hpp"
 #include "SceneManager.hpp"
@@ -23,6 +24,8 @@ int GraphicsManager::Initialize() {
     }
 #endif
 
+    m_DrawPasses.push_back(make_shared<ForwardRenderPass>());
+
     bool initShaderSucc = InitializeShaders();
     if (!initShaderSucc) result = -1;
 
@@ -39,7 +42,7 @@ void GraphicsManager::Finalize() {
 void GraphicsManager::Tick() {
     if (g_pSceneManager->IsSceneChanged()) {
         EndScene();
-        cout << "Detected Scene Change, reinitialize Graphics Manager..." << endl;
+        cout << "[GraphicsManager] Detected Scene Change, reinitialize Graphics Manager..." << endl;
         const Scene &scene = g_pSceneManager->GetSceneForRendering();
         BeginScene(scene);
         g_pSceneManager->NotifySceneIsRenderingQueued();
@@ -175,14 +178,13 @@ void GraphicsManager::CalculateLights() {
 void GraphicsManager::RenderBuffers() {
     BeginFrame();
 
-    BeginPass(RenderPassIndex::ForwardPass);
-    DrawBatch(m_Frames[m_nFrameIndex].batchContext, DefaultShaderIndex::BasicShader);
-#ifdef DEBUG
-    if (m_DEBUG_showFlag) {
-        DEBUG_DrawDebug();
+    auto &frame = m_Frames[m_nFrameIndex];
+    for (auto &pDrawPass : m_DrawPasses) {
+        BeginPass(pDrawPass->GetPassIndex());
+        pDrawPass->Draw(frame);
+        EndPass(pDrawPass->GetPassIndex());
     }
-#endif
-    EndPass(RenderPassIndex::ForwardPass);
+
     EndFrame();
 }
 

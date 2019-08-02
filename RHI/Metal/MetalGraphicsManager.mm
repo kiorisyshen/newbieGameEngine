@@ -167,7 +167,7 @@ void MetalGraphicsManager::BeginScene(const Scene &scene) {
 
     InitializeBuffers(scene);
 
-    cout << "BeginScene Done!" << endl;
+    cout << "[MetalGraphicsManager] BeginScene Done!" << endl;
 }
 
 void MetalGraphicsManager::EndScene() {
