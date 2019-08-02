@@ -6,62 +6,52 @@
 #include "Tree.hpp"
 #include "geommath.hpp"
 
-namespace newbieGE
-{
-class BaseSceneNode : public TreeNode
-{
+namespace newbieGE {
+class BaseSceneNode : public TreeNode {
    protected:
-    std::string                                                  m_strName;
-    std::vector<std::shared_ptr<SceneObjectTransform>>           m_Transforms;
-    std::map<int, std::shared_ptr<SceneObjectAnimationClip>>     m_AnimationClips;
+    std::string m_strName;
+    std::vector<std::shared_ptr<SceneObjectTransform>> m_Transforms;
+    std::map<int, std::shared_ptr<SceneObjectAnimationClip>> m_AnimationClips;
     std::map<std::string, std::shared_ptr<SceneObjectTransform>> m_LUTtransform;
-    Matrix4X4f                                                   m_RuntimeTransform;
+    Matrix4X4f m_RuntimeTransform;
 
    public:
     typedef std::map<int, std::shared_ptr<SceneObjectAnimationClip>>::const_iterator animation_clip_iterator;
 
    public:
-    BaseSceneNode()
-    {
+    BaseSceneNode() {
         BuildIdentityMatrix(m_RuntimeTransform);
     };
-    BaseSceneNode(const std::string& name)
-    {
+    BaseSceneNode(const std::string &name) {
         m_strName = name;
         BuildIdentityMatrix(m_RuntimeTransform);
     };
     virtual ~BaseSceneNode(){};
 
-    const std::string GetName() const
-    {
+    const std::string GetName() const {
         return m_strName;
     };
 
-    void AttachAnimationClip(int clip_index, std::shared_ptr<SceneObjectAnimationClip> clip)
-    {
+    void AttachAnimationClip(int clip_index, std::shared_ptr<SceneObjectAnimationClip> clip) {
         m_AnimationClips.insert({clip_index, clip});
     }
 
-    inline bool GetFirstAnimationClip(animation_clip_iterator& it)
-    {
+    inline bool GetFirstAnimationClip(animation_clip_iterator &it) {
         it = m_AnimationClips.cbegin();
         return it != m_AnimationClips.cend();
     }
 
-    inline bool GetNextAnimationClip(animation_clip_iterator& it)
-    {
+    inline bool GetNextAnimationClip(animation_clip_iterator &it) {
         it++;
         return it != m_AnimationClips.cend();
     }
 
-    void AppendTransform(const char* key, const std::shared_ptr<SceneObjectTransform>& transform)
-    {
+    void AppendTransform(const char *key, const std::shared_ptr<SceneObjectTransform> &transform) {
         m_Transforms.push_back(transform);
         m_LUTtransform.insert({std::string(key), transform});
     }
 
-    std::shared_ptr<SceneObjectTransform> GetTransform(const std::string& key)
-    {
+    std::shared_ptr<SceneObjectTransform> GetTransform(const std::string &key) {
         auto it = m_LUTtransform.find(key);
         if (it != m_LUTtransform.end()) {
             return it->second;
@@ -70,8 +60,7 @@ class BaseSceneNode : public TreeNode
         }
     }
 
-    const std::shared_ptr<Matrix4X4f> GetCalculatedTransform() const
-    {
+    const std::shared_ptr<Matrix4X4f> GetCalculatedTransform() const {
         std::shared_ptr<Matrix4X4f> result(new Matrix4X4f());
         BuildIdentityMatrix(*result);
 
@@ -86,34 +75,29 @@ class BaseSceneNode : public TreeNode
         return result;
     }
 
-    void RotateBy(float rotation_angle_x, float rotation_angle_y, float rotation_angle_z)
-    {
+    void RotateBy(float rotation_angle_x, float rotation_angle_y, float rotation_angle_z) {
         Matrix4X4f rotate;
         MatrixRotationYawPitchRoll(rotate, rotation_angle_x, rotation_angle_y, rotation_angle_z);
         m_RuntimeTransform = m_RuntimeTransform * rotate;
     }
 
-    void MoveBy(float distance_x, float distance_y, float distance_z)
-    {
+    void MoveBy(float distance_x, float distance_y, float distance_z) {
         Matrix4X4f translation;
         MatrixTranslation(translation, distance_x, distance_y, distance_z);
         m_RuntimeTransform = m_RuntimeTransform * translation;
     }
 
-    void MoveBy(const Vector3f& distance)
-    {
+    void MoveBy(const Vector3f &distance) {
         MoveBy(distance[0], distance[1], distance[2]);
     }
 
-    virtual Matrix3X3f GetLocalAxis()
-    {
+    virtual Matrix3X3f GetLocalAxis() {
         return {{{1.0f, 0.0f, 0.0f},
                  {0.0f, 1.0f, 0.0f},
                  {0.0f, 0.0f, 1.0f}}};
     }
 
-    friend std::ostream& operator<<(std::ostream& out, const BaseSceneNode& node)
-    {
+    friend std::ostream &operator<<(std::ostream &out, const BaseSceneNode &node) {
         static thread_local int32_t indent = 0;
         indent++;
 
@@ -142,14 +126,12 @@ class BaseSceneNode : public TreeNode
 };
 
 template <typename T>
-class SceneNode : public BaseSceneNode
-{
+class SceneNode : public BaseSceneNode {
    protected:
     std::string m_keySceneObject;
 
    protected:
-    virtual void dump(std::ostream& out) const
-    {
+    virtual void dump(std::ostream &out) const {
         out << m_keySceneObject << std::endl;
     };
 
@@ -157,13 +139,11 @@ class SceneNode : public BaseSceneNode
     using BaseSceneNode::BaseSceneNode;
     SceneNode() = default;
 
-    void AddSceneObjectRef(const std::string& key)
-    {
+    void AddSceneObjectRef(const std::string &key) {
         m_keySceneObject = key;
     };
 
-    const std::string& GetSceneObjectRef()
-    {
+    const std::string &GetSceneObjectRef() {
         return m_keySceneObject;
     };
 };

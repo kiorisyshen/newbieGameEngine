@@ -2,8 +2,7 @@
 #include "geommath.hpp"
 #include "portable.hpp"
 
-namespace newbieGE
-{
+namespace newbieGE {
 typedef Vector<float, 3> RGBf;
 typedef Vector<float, 3> YCbCrf;
 
@@ -19,8 +18,7 @@ const Matrix<float, 4, 4> YCbCr2RGB = {{
     {-179.456f, 135.458816f, -226.816f, 0.0f},
 }};
 
-inline YCbCrf ConvertRGB2YCbCr(const RGBf& rgb)
-{
+inline YCbCrf ConvertRGB2YCbCr(const RGBf &rgb) {
     Vector4f result({rgb[0], rgb[1], rgb[2], 1.0f});
     ispc::Transform(result, RGB2YCbCr);
     return YCbCrf({std::clamp<float>(result[0] + 0.5f, 0.0f, 255.0f),
@@ -28,8 +26,7 @@ inline YCbCrf ConvertRGB2YCbCr(const RGBf& rgb)
                    std::clamp<float>(result[2] + 0.5f, 0.0f, 255.0f)});
 }
 
-inline RGBf ConvertYCbCr2RGB(const YCbCrf& ycbcr)
-{
+inline RGBf ConvertYCbCr2RGB(const YCbCrf &ycbcr) {
     Vector4f result({ycbcr[0], ycbcr[1], ycbcr[2], 1.0f});
     ispc::Transform(result, YCbCr2RGB);
     return RGBf({std::clamp<float>(result[0] + 0.5f, 0.0f, 255.0f),

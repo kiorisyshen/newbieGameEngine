@@ -3,81 +3,68 @@
 #include "BaseSceneObject.hpp"
 #include "geommath.hpp"
 
-namespace newbieGE
-{
+namespace newbieGE {
 class SceneObjectTransform : public BaseSceneObject,
                              implements Animatable<float>,
                              Animatable<Vector3f>,
                              Animatable<Quaternion<float>>,
-                             Animatable<Matrix4X4f>
-{
+                             Animatable<Matrix4X4f> {
    protected:
     Matrix4X4f m_matrix;
-    bool       m_bSceneObjectOnly;
+    bool m_bSceneObjectOnly;
 
    public:
     SceneObjectTransform()
-        : BaseSceneObject(SceneObjectType::kSceneObjectTypeTransform)
-    {
+        : BaseSceneObject(SceneObjectType::kSceneObjectTypeTransform) {
         BuildIdentityMatrix(m_matrix);
         m_bSceneObjectOnly = false;
     }
 
-    SceneObjectTransform(const Matrix4X4f& matrix, const bool object_only = false)
-        : SceneObjectTransform()
-    {
+    SceneObjectTransform(const Matrix4X4f &matrix, const bool object_only = false)
+        : SceneObjectTransform() {
         m_matrix           = matrix;
         m_bSceneObjectOnly = object_only;
     }
 
-    operator Matrix4X4f()
-    {
+    operator Matrix4X4f() {
         return m_matrix;
     }
-    operator const Matrix4X4f() const
-    {
+    operator const Matrix4X4f() const {
         return m_matrix;
     }
 
-    void Update(const float amount)
-    {
+    void Update(const float amount) {
         // should not be used.
         assert(0);
     }
 
-    void Update(const Vector3f amount)
-    {
+    void Update(const Vector3f amount) {
         // should not be used.
         assert(0);
     }
 
-    void Update(const Quaternion<float> amount)
-    {
+    void Update(const Quaternion<float> amount) {
         // should not be used.
         assert(0);
     }
 
-    void Update(const Matrix4X4f amount) final
-    {
+    void Update(const Matrix4X4f amount) final {
         m_matrix = amount;
     }
 
-    friend std::ostream& operator<<(std::ostream& out, const SceneObjectTransform& obj);
+    friend std::ostream &operator<<(std::ostream &out, const SceneObjectTransform &obj);
 };
 
-class SceneObjectTranslation : public SceneObjectTransform
-{
+class SceneObjectTranslation : public SceneObjectTransform {
    private:
     char m_Kind = 0;
 
    public:
-    SceneObjectTranslation()
-    {
+    SceneObjectTranslation() {
         m_Type = SceneObjectType::kSceneObjectTypeTranslate;
     }
     SceneObjectTranslation(const char axis, const float amount, const bool object_only = false)
-        : SceneObjectTranslation()
-    {
+        : SceneObjectTranslation() {
         m_Kind = axis;
 
         switch (axis) {
@@ -98,15 +85,13 @@ class SceneObjectTranslation : public SceneObjectTransform
     }
 
     SceneObjectTranslation(const float x, const float y, const float z, const bool object_only = false)
-        : SceneObjectTranslation()
-    {
+        : SceneObjectTranslation() {
         m_Kind = 0;
         MatrixTranslation(m_matrix, x, y, z);
         m_bSceneObjectOnly = object_only;
     }
 
-    void Update(const float amount) final
-    {
+    void Update(const float amount) final {
         switch (m_Kind) {
             case 'x':
                 MatrixTranslation(m_matrix, amount, 0.0f, 0.0f);
@@ -122,25 +107,21 @@ class SceneObjectTranslation : public SceneObjectTransform
         }
     }
 
-    void Update(const Vector3f amount) final
-    {
+    void Update(const Vector3f amount) final {
         MatrixTranslation(m_matrix, amount);
     }
 };
 
-class SceneObjectRotation : public SceneObjectTransform
-{
+class SceneObjectRotation : public SceneObjectTransform {
    private:
     char m_Kind = 0;
 
    public:
-    SceneObjectRotation()
-    {
+    SceneObjectRotation() {
         m_Type = SceneObjectType::kSceneObjectTypeRotate;
     }
     SceneObjectRotation(const char axis, const float theta, const bool object_only = false)
-        : SceneObjectRotation()
-    {
+        : SceneObjectRotation() {
         m_Kind = axis;
 
         switch (axis) {
@@ -161,8 +142,7 @@ class SceneObjectRotation : public SceneObjectTransform
     }
 
     SceneObjectRotation(Vector3f axis, const float theta, const bool object_only = false)
-        : SceneObjectRotation()
-    {
+        : SceneObjectRotation() {
         m_Kind = 0;
 
         Normalize(axis);
@@ -173,8 +153,7 @@ class SceneObjectRotation : public SceneObjectTransform
 
     template <typename T>
     SceneObjectRotation(const Quaternion<T> quaternion, const bool object_only = false)
-        : SceneObjectRotation()
-    {
+        : SceneObjectRotation() {
         m_Kind = 0;
 
         MatrixRotationQuaternion(m_matrix, quaternion);
@@ -182,8 +161,7 @@ class SceneObjectRotation : public SceneObjectTransform
         m_bSceneObjectOnly = object_only;
     }
 
-    void Update(const float theta) final
-    {
+    void Update(const float theta) final {
         switch (m_Kind) {
             case 'x':
                 MatrixRotationX(m_matrix, theta);
@@ -199,30 +177,25 @@ class SceneObjectRotation : public SceneObjectTransform
         }
     }
 
-    void Update(const Vector3f amount) final
-    {
+    void Update(const Vector3f amount) final {
         MatrixRotationYawPitchRoll(m_matrix, amount[0], amount[1], amount[2]);
     }
 
-    void Update(const Quaternion<float> quaternion) final
-    {
+    void Update(const Quaternion<float> quaternion) final {
         MatrixRotationQuaternion(m_matrix, quaternion);
     }
 };
 
-class SceneObjectScale : public SceneObjectTransform
-{
+class SceneObjectScale : public SceneObjectTransform {
    private:
     char m_Kind = 0;
 
    public:
-    SceneObjectScale()
-    {
+    SceneObjectScale() {
         m_Type = SceneObjectType::kSceneObjectTypeScale;
     }
     SceneObjectScale(const char axis, const float amount, const bool object_only = false)
-        : SceneObjectScale()
-    {
+        : SceneObjectScale() {
         m_Kind = axis;
 
         switch (axis) {
@@ -243,15 +216,13 @@ class SceneObjectScale : public SceneObjectTransform
     }
 
     SceneObjectScale(const float x, const float y, const float z, const bool object_only = false)
-        : SceneObjectScale()
-    {
+        : SceneObjectScale() {
         m_Kind = 0;
         MatrixScale(m_matrix, x, y, z);
         m_bSceneObjectOnly = object_only;
     }
 
-    void Update(const float amount) final
-    {
+    void Update(const float amount) final {
         switch (m_Kind) {
             case 'x':
                 MatrixScale(m_matrix, amount, 1.0f, 1.0f);
@@ -267,8 +238,7 @@ class SceneObjectScale : public SceneObjectTransform
         }
     }
 
-    void Update(const Vector3f amount) final
-    {
+    void Update(const Vector3f amount) final {
         MatrixScale(m_matrix, amount);
     }
 };

@@ -5,34 +5,31 @@
 #include "IMemoryManager.hpp"
 #include "portable.hpp"
 
-namespace newbieGE
-{
+namespace newbieGE {
 ENUM(MemoryType){
     CPU = "CPU"_i32,
     GPU = "GPU"_i32};
 
-std::ostream& operator<<(std::ostream& out, MemoryType type);
+std::ostream &operator<<(std::ostream &out, MemoryType type);
 
-class MemoryManager : implements IMemoryManager
-{
+class MemoryManager : implements IMemoryManager {
    public:
-    ~MemoryManager()
-    {
+    ~MemoryManager() {
     }
 
-    int  Initialize();
+    int Initialize();
     void Finalize();
     void Tick();
 
-    void* AllocatePage(size_t size);
-    void  FreePage(void* p);
+    void *AllocatePage(size_t size);
+    void FreePage(void *p);
 
    protected:
     struct MemoryAllocationInfo {
-        size_t     PageSize;
+        size_t PageSize;
         MemoryType PageMemoryType;
     };
 
-    std::map<void*, MemoryAllocationInfo> m_mapMemoryAllocationInfo;
+    std::map<void *, MemoryAllocationInfo> m_mapMemoryAllocationInfo;
 };
 }  // namespace newbieGE

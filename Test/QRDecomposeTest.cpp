@@ -7,20 +7,19 @@
 using namespace newbieGE;
 using namespace std;
 
-int main(int, char**)
-{
+int main(int, char **) {
     default_random_engine generator;
     generator.seed(48);
     uniform_real_distribution<float> distribution_r(-1.0f * PI, 1.0f * PI);
     uniform_real_distribution<float> distribution_s(0.1f, 100.0f);
     uniform_real_distribution<float> distribution_t(-1000.0f, 1000.0f);
-    auto                             dice_r = bind(distribution_r, generator);
-    auto                             dice_s = bind(distribution_s, generator);
-    auto                             dice_t = bind(distribution_t, generator);
+    auto dice_r = bind(distribution_r, generator);
+    auto dice_s = bind(distribution_s, generator);
+    auto dice_t = bind(distribution_t, generator);
 
-    Vector3f   translation({dice_t(), dice_t(), dice_t()});
-    Vector3f   scale({dice_s(), dice_s(), dice_s()});
-    Vector3f   rotation({dice_r(), dice_r(), dice_r()});
+    Vector3f translation({dice_t(), dice_t(), dice_t()});
+    Vector3f scale({dice_s(), dice_s(), dice_s()});
+    Vector3f rotation({dice_r(), dice_r(), dice_r()});
     Matrix4X4f matrix;
     Matrix4X4fCompose(matrix, rotation, scale, translation);
 

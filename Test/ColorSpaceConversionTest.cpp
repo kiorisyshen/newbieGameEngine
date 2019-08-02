@@ -4,8 +4,7 @@
 using namespace std;
 using namespace newbieGE;
 
-int main(int argc, const char** argv)
-{
+int main(int argc, const char **argv) {
     int result = 0;
 
     RGBf rgb = {64, 35, 17};

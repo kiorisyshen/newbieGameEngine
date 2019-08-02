@@ -7,15 +7,13 @@
 using namespace newbieGE;
 using namespace std;
 
-namespace newbieGE
-{
-IMemoryManager* g_pMemoryManager = new MemoryManager();
-AssetLoader*    g_pAssetLoader   = new AssetLoader();
+namespace newbieGE {
+IMemoryManager *g_pMemoryManager = new MemoryManager();
+AssetLoader *g_pAssetLoader      = new AssetLoader();
 }  // namespace newbieGE
 
 template <typename Key, typename T>
-static ostream& operator<<(ostream& out, unordered_map<Key, shared_ptr<T>> map)
-{
+static ostream &operator<<(ostream &out, unordered_map<Key, shared_ptr<T>> map) {
     for (auto p : map) {
         if (auto ptr = p.second) out << *ptr << endl;
     }
@@ -23,15 +21,14 @@ static ostream& operator<<(ostream& out, unordered_map<Key, shared_ptr<T>> map)
     return out;
 }
 
-int main(int, char**)
-{
+int main(int, char **) {
     g_pMemoryManager->Initialize();
     g_pAssetLoader->Initialize();
 
     string ogex_text = g_pAssetLoader->SyncOpenAndReadTextFileToString("Scene/Example.ogex");
 
-    OgexParser*       ogex_parser = new OgexParser();
-    unique_ptr<Scene> pScene      = ogex_parser->Parse(ogex_text);
+    OgexParser *ogex_parser  = new OgexParser();
+    unique_ptr<Scene> pScene = ogex_parser->Parse(ogex_text);
     delete ogex_parser;
 
     cout << "Dump of Scene Graph" << endl;

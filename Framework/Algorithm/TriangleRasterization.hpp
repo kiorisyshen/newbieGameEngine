@@ -6,10 +6,8 @@
 using namespace std;
 using namespace newbieGE;
 
-namespace newbieGE
-{
-Point2DList BottomFlatTriangleInterpolation(const Point2D& v1, const Point2D& v2, const Point2D& v3)
-{
+namespace newbieGE {
+Point2DList BottomFlatTriangleInterpolation(const Point2D &v1, const Point2D &v2, const Point2D &v3) {
     Point2DList result;
 
     assert(v2[1] == v3[1]);  // the bottom must be flat
@@ -32,8 +30,7 @@ Point2DList BottomFlatTriangleInterpolation(const Point2D& v1, const Point2D& v2
     return result;
 }
 
-Point2DList TopFlatTriangleInterpolation(const Point2D& v1, const Point2D& v2, const Point2D& v3)
-{
+Point2DList TopFlatTriangleInterpolation(const Point2D &v1, const Point2D &v2, const Point2D &v3) {
     Point2DList result;
 
     assert(v1[1] == v2[1]);  // the top must be flat
@@ -56,8 +53,7 @@ Point2DList TopFlatTriangleInterpolation(const Point2D& v1, const Point2D& v2, c
     return result;
 }
 
-void SortTriangleVerticesAccording2YAscend(Point2DPtr& pV1, Point2DPtr& pV2, Point2DPtr& pV3)
-{
+void SortTriangleVerticesAccording2YAscend(Point2DPtr &pV1, Point2DPtr &pV2, Point2DPtr &pV3) {
     if (pV2->data[1] < pV1->data[1]) {
         swap(pV1, pV2);
     }
@@ -71,12 +67,11 @@ void SortTriangleVerticesAccording2YAscend(Point2DPtr& pV1, Point2DPtr& pV2, Poi
     }
 }
 
-Point2DList StandardTriangleInterpolation(const Point2D& v1, const Point2D& v2, const Point2D& v3)
-{
+Point2DList StandardTriangleInterpolation(const Point2D &v1, const Point2D &v2, const Point2D &v3) {
     Point2DList result;
-    Point2DPtr  pV1 = make_shared<Point2D>(v1);
-    Point2DPtr  pV2 = make_shared<Point2D>(v2);
-    Point2DPtr  pV3 = make_shared<Point2D>(v3);
+    Point2DPtr pV1 = make_shared<Point2D>(v1);
+    Point2DPtr pV2 = make_shared<Point2D>(v2);
+    Point2DPtr pV3 = make_shared<Point2D>(v3);
     SortTriangleVerticesAccording2YAscend(pV1, pV2, pV3);
 
     // now v1.y <= v2.y <= v3.y
@@ -105,8 +100,7 @@ Point2DList StandardTriangleInterpolation(const Point2D& v1, const Point2D& v2, 
     return result;
 }
 
-Point2DList BaryCentricTriangleInterpolation(const Point2D& v1, const Point2D& v2, const Point2D& v3)
-{
+Point2DList BaryCentricTriangleInterpolation(const Point2D &v1, const Point2D &v2, const Point2D &v3) {
     Point2DList result;
 
     auto minX = min({v1[0], v2[0], v3[0]});

@@ -3,8 +3,7 @@
 using namespace newbieGE;
 using namespace std;
 
-bool QuickHull::Init(Polyhedron& hull, PointSet& point_set)
-{
+bool QuickHull::Init(Polyhedron &hull, PointSet &point_set) {
     if (point_set.size() < 4) {
         // too few points in the point set, nothing could be done
         return false;
@@ -121,8 +120,7 @@ bool QuickHull::Init(Polyhedron& hull, PointSet& point_set)
     return true;
 }
 
-bool QuickHull::Iterate(Polyhedron& hull, PointSet& point_set)
-{
+bool QuickHull::Iterate(Polyhedron &hull, PointSet &point_set) {
     auto point_num_before = point_set.size();
 
     if (point_num_before != 0) {
@@ -138,9 +136,8 @@ bool QuickHull::Iterate(Polyhedron& hull, PointSet& point_set)
     return point_set.size() < point_num_before;
 }
 
-void QuickHull::IterateHull(Polyhedron& hull, PointSet& point_set)
-{
-    PointPtr        far_point = nullptr;
+void QuickHull::IterateHull(Polyhedron &hull, PointSet &point_set) {
+    PointPtr far_point = nullptr;
     vector<FacePtr> faces;
 
     AssignPointsToFaces(hull, point_set, far_point, faces);
@@ -188,12 +185,11 @@ void QuickHull::IterateHull(Polyhedron& hull, PointSet& point_set)
     }
 }
 
-void QuickHull::AssignPointsToFaces(const Polyhedron& hull, PointSet& point_set, PointPtr& far_point, FaceList& faces)
-{
+void QuickHull::AssignPointsToFaces(const Polyhedron &hull, PointSet &point_set, PointPtr &far_point, FaceList &faces) {
     float max_distance = 0.0f;
-    auto  it           = point_set.begin();
+    auto it            = point_set.begin();
     while (it != point_set.end()) {
-        bool     isInsideHull = true;
+        bool isInsideHull = true;
         FaceList tmp;
         for (auto pFace : hull.Faces) {
             float d;

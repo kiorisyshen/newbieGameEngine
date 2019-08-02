@@ -1,12 +1,10 @@
 #pragma once
 #include "IRuntimeModule.hpp"
 
-namespace newbieGE
-{
-class InputManager : implements IRuntimeModule
-{
+namespace newbieGE {
+class InputManager : implements IRuntimeModule {
    public:
-    virtual int  Initialize();
+    virtual int Initialize();
     virtual void Finalize();
     virtual void Tick();
 
@@ -35,5 +33,5 @@ class InputManager : implements IRuntimeModule
     bool m_bRightKeyPressed = false;
 };
 
-extern InputManager* g_pInputManager;
+extern InputManager *g_pInputManager;
 }  // namespace newbieGE

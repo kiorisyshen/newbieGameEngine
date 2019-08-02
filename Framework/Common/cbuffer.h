@@ -15,8 +15,7 @@ using namespace newbieGE;
 #define unistruct struct
 #define SamplerState void
 
-namespace newbieGE
-{
+namespace newbieGE {
 enum LightType {
     Omni     = 0,
     Spot     = 1,
@@ -41,24 +40,23 @@ enum LightType {
 
 // 128 bytes
 struct Light {
-    Vector4f lightPosition;                  // 16 bytes
-    Vector4f lightColor;                     // 16 bytes
-    Vector4f lightDirection;                 // 16 bytes
-    float    lightDistAttenCurveParams[5];   // 20 bytes
-    float    lightAngleAttenCurveParams[5];  // 20 bytes
-    Vector2f lightSize;                      // 8 bytes
-    int32_t  lightDistAttenCurveType;        // 4 bytes
-    int32_t  lightAngleAttenCurveType;       // 4 bytes
-    float    lightIntensity;                 // 4 bytes
-    int32_t  lightType;                      // 4 bytes
+    Vector4f lightPosition;               // 16 bytes
+    Vector4f lightColor;                  // 16 bytes
+    Vector4f lightDirection;              // 16 bytes
+    float lightDistAttenCurveParams[5];   // 20 bytes
+    float lightAngleAttenCurveParams[5];  // 20 bytes
+    Vector2f lightSize;                   // 8 bytes
+    int32_t lightDistAttenCurveType;      // 4 bytes
+    int32_t lightAngleAttenCurveType;     // 4 bytes
+    float lightIntensity;                 // 4 bytes
+    int32_t lightType;                    // 4 bytes
     // Above is 112 bytes
 
     // Add 16 bytes to align to 128 bytes (Metal required)
     float _alignTmp[4];  // 16 bytes
 };
 
-unistruct LightInfo REGISTER(b12)
-{
+unistruct LightInfo REGISTER(b12) {
     struct Light lights[MAX_LIGHTS];
 };
 
@@ -67,15 +65,15 @@ struct PerFrameConstants REGISTER(b10) {
     Matrix4X4f worldMatrix;       // 64 bytes
     Matrix4X4f viewMatrix;        // 64 bytes
     Matrix4X4f projectionMatrix;  // 64 bytes
-    Vector4f   ambientColor;      // 16 bytes
-    int32_t    numLights;         // 4 bytes
+    Vector4f ambientColor;        // 16 bytes
+    int32_t numLights;            // 4 bytes
 };
 
 struct PerBatchConstants REGISTER(b11) {
     Matrix4X4f objectLocalMatrix;  // 64 bytes
-    Vector4f   diffuseColor;       // 16 bytes
-    Vector4f   specularColor;      // 16 bytes
-    float      specularPower;      // 4 bytes
+    Vector4f diffuseColor;         // 16 bytes
+    Vector4f specularColor;        // 16 bytes
+    float specularPower;           // 4 bytes
 };
 
 #ifdef DEBUG

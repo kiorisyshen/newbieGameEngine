@@ -5,15 +5,13 @@
 
 using namespace std;
 
-namespace newbieGE
-{
+namespace newbieGE {
 template <typename TVAL, typename TPARAM>
 struct NewtonRapson {
     typedef std::function<TVAL(TPARAM)> nr_f;
     typedef std::function<TVAL(TPARAM)> nr_fprime;
 
-    static inline TPARAM Solve(TPARAM x0, nr_f f, nr_fprime fprime)
-    {
+    static inline TPARAM Solve(TPARAM x0, nr_f f, nr_fprime fprime) {
         TPARAM x, x1 = x0;
 
         do {

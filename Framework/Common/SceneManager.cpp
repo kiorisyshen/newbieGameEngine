@@ -5,24 +5,20 @@
 using namespace newbieGE;
 using namespace std;
 
-SceneManager::~SceneManager()
-{
+SceneManager::~SceneManager() {
 }
 
-int SceneManager::Initialize()
-{
+int SceneManager::Initialize() {
     int result = 0;
 
     m_pScene = make_shared<Scene>();
     return result;
 }
 
-void SceneManager::Finalize()
-{
+void SceneManager::Finalize() {
 }
 
-void SceneManager::Tick()
-{
+void SceneManager::Tick() {
     if (m_bDirtyFlag) {
         m_bDirtyFlag = !(m_bRenderingQueued && m_bPhysicalSimulationQueued && m_bAnimationQueued);
         if (m_bDirtyFlag == false) {
@@ -33,8 +29,7 @@ void SceneManager::Tick()
     }
 }
 
-int SceneManager::LoadScene(const char* scene_file_name)
-{
+int SceneManager::LoadScene(const char *scene_file_name) {
     // now we only has ogex scene parser, call it directly
     if (LoadOgexScene(scene_file_name)) {
         m_pScene->LoadResource();
@@ -48,13 +43,11 @@ int SceneManager::LoadScene(const char* scene_file_name)
     }
 }
 
-void SceneManager::ResetScene()
-{
+void SceneManager::ResetScene() {
     m_bDirtyFlag = true;
 }
 
-bool SceneManager::LoadOgexScene(const char* ogex_scene_file_name)
-{
+bool SceneManager::LoadOgexScene(const char *ogex_scene_file_name) {
     string ogex_text = g_pAssetLoader->SyncOpenAndReadTextFileToString(ogex_scene_file_name);
 
     if (ogex_text.empty()) {
@@ -71,45 +64,37 @@ bool SceneManager::LoadOgexScene(const char* ogex_scene_file_name)
     return true;
 }
 
-const Scene& SceneManager::GetSceneForRendering()
-{
+const Scene &SceneManager::GetSceneForRendering() {
     // TODO: we should perform CPU scene crop at here
     return *m_pScene;
 }
 
-const Scene& SceneManager::GetSceneForPhysicalSimulation()
-{
+const Scene &SceneManager::GetSceneForPhysicalSimulation() {
     // TODO: we should perform CPU scene crop at here
     return *m_pScene;
 }
 
-bool SceneManager::IsSceneChanged()
-{
+bool SceneManager::IsSceneChanged() {
     return m_bDirtyFlag;
 }
 
-void SceneManager::NotifySceneIsRenderingQueued()
-{
+void SceneManager::NotifySceneIsRenderingQueued() {
     m_bRenderingQueued = true;
 }
 
-void SceneManager::NotifySceneIsPhysicalSimulationQueued()
-{
+void SceneManager::NotifySceneIsPhysicalSimulationQueued() {
     m_bPhysicalSimulationQueued = true;
 }
 
-void SceneManager::NotifySceneIsAnimationQueued()
-{
+void SceneManager::NotifySceneIsAnimationQueued() {
     m_bAnimationQueued = true;
 }
 
-weak_ptr<BaseSceneNode> SceneManager::GetRootNode()
-{
+weak_ptr<BaseSceneNode> SceneManager::GetRootNode() {
     return m_pScene->SceneGraph;
 }
 
-weak_ptr<SceneGeometryNode> SceneManager::GetSceneGeometryNode(string name)
-{
+weak_ptr<SceneGeometryNode> SceneManager::GetSceneGeometryNode(string name) {
     auto it = m_pScene->LUT_Name_GeometryNode.find(name);
     if (it != m_pScene->LUT_Name_GeometryNode.end())
         return it->second;
@@ -117,7 +102,6 @@ weak_ptr<SceneGeometryNode> SceneManager::GetSceneGeometryNode(string name)
         return weak_ptr<SceneGeometryNode>();
 }
 
-weak_ptr<SceneObjectGeometry> SceneManager::GetSceneGeometryObject(string key)
-{
+weak_ptr<SceneObjectGeometry> SceneManager::GetSceneGeometryObject(string key) {
     return m_pScene->Geometries.find(key)->second;
 }

@@ -1,30 +1,25 @@
 #pragma once
 #include "BaseSceneNode.hpp"
 
-namespace newbieGE
-{
-class SceneCameraNode : public SceneNode<SceneObjectCamera>
-{
+namespace newbieGE {
+class SceneCameraNode : public SceneNode<SceneObjectCamera> {
    protected:
     Vector3f m_Target = {0.0f};
 
    public:
     using SceneNode::SceneNode;
 
-    void SetTarget(Vector3f& target)
-    {
+    void SetTarget(Vector3f &target) {
         m_Target = target;
     };
-    const Vector3f& GetTarget()
-    {
+    const Vector3f &GetTarget() {
         return m_Target;
     };
-    Matrix3X3f GetLocalAxis()
-    {
+    Matrix3X3f GetLocalAxis() {
         Matrix3X3f result;
-        auto       pTransform      = GetCalculatedTransform();
-        Vector3f   target          = GetTarget();
-        Vector3f   camera_position = Vector3f(0.0f);
+        auto pTransform          = GetCalculatedTransform();
+        Vector3f target          = GetTarget();
+        Vector3f camera_position = Vector3f(0.0f);
         TransformCoord(camera_position, *pTransform);
         Vector3f up({0.0f, 0.0f, 1.0f});
         Vector3f camera_z_axis = camera_position - target;

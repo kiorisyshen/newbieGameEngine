@@ -4,12 +4,10 @@
 #include "IRuntimeModule.hpp"
 #include "SceneObject.hpp"
 
-namespace newbieGE
-{
-class AnimationManager : public IRuntimeModule
-{
+namespace newbieGE {
+class AnimationManager : public IRuntimeModule {
    public:
-    int  Initialize();
+    int Initialize();
     void Finalize();
     void Tick();
 
@@ -17,12 +15,12 @@ class AnimationManager : public IRuntimeModule
     void ClearAnimationClips();
 
    private:
-    std::chrono::steady_clock                            m_Clock;
-    std::chrono::steady_clock::time_point                m_TimeLineStartPoint;
-    std::chrono::duration<float>                         m_TimeLineValue;
+    std::chrono::steady_clock m_Clock;
+    std::chrono::steady_clock::time_point m_TimeLineStartPoint;
+    std::chrono::duration<float> m_TimeLineValue;
     std::list<std::shared_ptr<SceneObjectAnimationClip>> m_AnimationClips;
-    bool                                                 m_bTimeLineStarted = false;
+    bool m_bTimeLineStarted = false;
 };
 
-extern AnimationManager* g_pAnimationManager;
+extern AnimationManager *g_pAnimationManager;
 }  // namespace newbieGE

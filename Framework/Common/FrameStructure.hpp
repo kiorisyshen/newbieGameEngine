@@ -3,8 +3,7 @@
 #include "Scene.hpp"
 #include "cbuffer.h"
 
-namespace newbieGE
-{
+namespace newbieGE {
 ENUM(DefaultShaderIndex){
     BasicShader     = "BSIC"_i32,
     ShadowMapShader = "SHMP"_i32,
@@ -20,7 +19,7 @@ struct DrawFrameContext : public PerFrameConstants {
 };
 
 struct DrawBatchConstant : public PerBatchConstants {
-    uint32_t                           batchIndex;
+    uint32_t batchIndex;
     std::shared_ptr<SceneGeometryNode> node;
 
     virtual ~DrawBatchConstant() = default;
@@ -28,16 +27,16 @@ struct DrawBatchConstant : public PerBatchConstants {
 
 #ifdef DEBUG
 struct DEBUG_DrawBatch {
-    DEBUG_PerBatchConstants          pbc;
-    std::vector<DEBUG_LineParam>     lineParams;
-    std::vector<DEBUG_PointParam>    pointParams;
+    DEBUG_PerBatchConstants pbc;
+    std::vector<DEBUG_LineParam> lineParams;
+    std::vector<DEBUG_PointParam> pointParams;
     std::vector<DEBUG_TriangleParam> triParams;
 };
 #endif
 
 struct Frame {
-    LightInfo                                       lightInfo;
-    DrawFrameContext                                frameContext;
+    LightInfo lightInfo;
+    DrawFrameContext frameContext;
     std::vector<std::shared_ptr<DrawBatchConstant>> batchContext;
 #ifdef DEBUG
     std::vector<DEBUG_DrawBatch> DEBUG_Batches;  // The first batch is static with identity transformation

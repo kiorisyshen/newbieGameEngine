@@ -1,39 +1,33 @@
 #pragma once
 #include "SceneObjectTypeDef.hpp"
 
-namespace newbieGE
-{
-class SceneObjectIndexArray
-{
+namespace newbieGE {
+class SceneObjectIndexArray {
    protected:
-    const uint32_t      m_nMaterialIndex;
-    const size_t        m_szRestartIndex;
+    const uint32_t m_nMaterialIndex;
+    const size_t m_szRestartIndex;
     const IndexDataType m_DataType;
 
-    const void* m_pData;
+    const void *m_pData;
 
     const size_t m_szData;
 
    public:
-    SceneObjectIndexArray(const uint32_t material_index = 0, const size_t restart_index = 0, const IndexDataType data_type = IndexDataType::kIndexDataTypeInt16, const void* data = nullptr, const size_t data_size = 0)
+    SceneObjectIndexArray(const uint32_t material_index = 0, const size_t restart_index = 0, const IndexDataType data_type = IndexDataType::kIndexDataTypeInt16, const void *data = nullptr, const size_t data_size = 0)
         : m_nMaterialIndex(material_index), m_szRestartIndex(restart_index), m_DataType(data_type), m_pData(data), m_szData(data_size){};
-    SceneObjectIndexArray(SceneObjectIndexArray& arr)  = default;
-    SceneObjectIndexArray(SceneObjectIndexArray&& arr) = default;
+    SceneObjectIndexArray(SceneObjectIndexArray &arr)  = default;
+    SceneObjectIndexArray(SceneObjectIndexArray &&arr) = default;
 
-    const uint32_t GetMaterialIndex() const
-    {
+    const uint32_t GetMaterialIndex() const {
         return m_nMaterialIndex;
     };
-    const IndexDataType GetIndexType() const
-    {
+    const IndexDataType GetIndexType() const {
         return m_DataType;
     };
-    const void* GetData() const
-    {
+    const void *GetData() const {
         return m_pData;
     };
-    size_t GetDataSize() const
-    {
+    size_t GetDataSize() const {
         size_t size = m_szData;
 
         switch (m_DataType) {
@@ -58,11 +52,10 @@ class SceneObjectIndexArray
         return size;
     };
 
-    size_t GetIndexCount() const
-    {
+    size_t GetIndexCount() const {
         return m_szData;
     }
 
-    friend std::ostream& operator<<(std::ostream& out, const SceneObjectIndexArray& obj);
+    friend std::ostream &operator<<(std::ostream &out, const SceneObjectIndexArray &obj);
 };
 }  // namespace newbieGE

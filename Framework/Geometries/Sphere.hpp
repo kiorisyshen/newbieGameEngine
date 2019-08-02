@@ -1,21 +1,18 @@
 #pragma once
 #include "Geometry.hpp"
 
-namespace newbieGE
-{
-class Sphere : public Geometry
-{
+namespace newbieGE {
+class Sphere : public Geometry {
    public:
     Sphere() = delete;
     Sphere(const float radius)
         : Geometry(GeometryType::kSphere), m_fRadius(radius){};
 
-    void GetAabb(const Matrix4X4f& trans,
-                 Vector3f&         aabbMin,
-                 Vector3f&         aabbMax) const final;
+    void GetAabb(const Matrix4X4f &trans,
+                 Vector3f &aabbMin,
+                 Vector3f &aabbMax) const final;
 
-    float GetRadius() const
-    {
+    float GetRadius() const {
         return m_fRadius;
     };
 

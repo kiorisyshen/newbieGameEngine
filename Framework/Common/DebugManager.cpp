@@ -8,17 +8,14 @@ using namespace newbieGE;
 using namespace std;
 
 #ifdef DEBUG
-int DebugManager::Initialize()
-{
+int DebugManager::Initialize() {
     return 0;
 }
 
-void DebugManager::Finalize()
-{
+void DebugManager::Finalize() {
 }
 
-void DebugManager::Tick()
-{
+void DebugManager::Tick() {
     if (g_pGraphicsManager->DEBUG_IsShowDebug()) {
         g_pGraphicsManager->DEBUG_ClearDebugBuffers();
         DrawDebugInfo();
@@ -28,19 +25,16 @@ void DebugManager::Tick()
     }
 }
 
-void DebugManager::ToggleDebugInfo()
-{
+void DebugManager::ToggleDebugInfo() {
     g_pGraphicsManager->DEBUG_ToggleDebugInfo();
 }
 
-void DebugManager::DrawDebugInfo()
-{
+void DebugManager::DrawDebugInfo() {
     DrawGrid();
     DrawAxis();
 }
 
-void DebugManager::DrawAxis()
-{
+void DebugManager::DrawAxis() {
     // x - axis
     Vector3f from({-1000.0f, 0.0f, 0.0f});
     Vector3f to({1000.0f, 0.0f, 0.0f});
@@ -60,8 +54,7 @@ void DebugManager::DrawAxis()
     g_pGraphicsManager->DEBUG_SetDrawLineParam(from, to, color);
 }
 
-void DebugManager::DrawGrid()
-{
+void DebugManager::DrawGrid() {
     Vector3f color({0.1f, 0.1f, 0.1f});
 
     for (int x = -100; x <= 100; x += 10) {

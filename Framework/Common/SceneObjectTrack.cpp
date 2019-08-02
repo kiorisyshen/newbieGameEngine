@@ -6,14 +6,13 @@
 using namespace newbieGE;
 using namespace std;
 
-void SceneObjectTrack::Update(const float time_point)
-{
+void SceneObjectTrack::Update(const float time_point) {
     if (m_pTransform) {
         auto time_curve_type  = m_Time->GetCurveType();
         auto value_curve_type = m_Value->GetCurveType();
 
-        float  proportion = 0.0f;
-        size_t index      = 0;
+        float proportion = 0.0f;
+        size_t index     = 0;
         switch (time_curve_type) {
             case CurveType::kLinear:
                 proportion = dynamic_pointer_cast<Linear<float, float>>(m_Time)->Reverse(time_point, index);
@@ -81,7 +80,6 @@ void SceneObjectTrack::Update(const float time_point)
 }
 
 template <typename U>
-inline void SceneObjectTrack::UpdateTransform(const U new_val)
-{
+inline void SceneObjectTrack::UpdateTransform(const U new_val) {
     m_pTransform->Update(new_val);
 }

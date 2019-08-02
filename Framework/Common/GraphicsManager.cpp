@@ -7,18 +7,17 @@
 using namespace newbieGE;
 using namespace std;
 
-int GraphicsManager::Initialize()
-{
+int GraphicsManager::Initialize() {
     int result = 0;
 
     m_Frames.resize(GfxConfiguration::kMaxInFlightFrameCount);
-    for (auto& frame : m_Frames) {
+    for (auto &frame : m_Frames) {
         BuildIdentityMatrix(frame.frameContext.worldMatrix);
     }
 
 #ifdef DEBUG
     m_DEBUG_showFlag = false;
-    for (auto& frame : m_Frames) {
+    for (auto &frame : m_Frames) {
         frame.DEBUG_Batches.emplace_back(DEBUG_DrawBatch());
         BuildIdentityMatrix(frame.DEBUG_Batches[0].pbc.modelMatrix);
     }
@@ -30,20 +29,18 @@ int GraphicsManager::Initialize()
     return result;
 }
 
-void GraphicsManager::Finalize()
-{
+void GraphicsManager::Finalize() {
 #ifdef DEBUG
     DEBUG_ClearDebugBuffers();
 #endif
     EndScene();
 }
 
-void GraphicsManager::Tick()
-{
+void GraphicsManager::Tick() {
     if (g_pSceneManager->IsSceneChanged()) {
         EndScene();
         cout << "Detected Scene Change, reinitialize Graphics Manager..." << endl;
-        const Scene& scene = g_pSceneManager->GetSceneForRendering();
+        const Scene &scene = g_pSceneManager->GetSceneForRendering();
         BeginScene(scene);
         g_pSceneManager->NotifySceneIsRenderingQueued();
     }
@@ -53,20 +50,19 @@ void GraphicsManager::Tick()
 
     UpdateConstants();
 
-    auto& frame = m_Frames[m_nFrameIndex];
+    auto &frame = m_Frames[m_nFrameIndex];
 
     SetPerFrameConstants(frame.frameContext);
     SetPerBatchConstants(frame.batchContext);
     SetLightInfo(frame.lightInfo);
 }
 
-void GraphicsManager::UpdateConstants()
-{
+void GraphicsManager::UpdateConstants() {
     // update scene object position
-    auto& frame = m_Frames[m_nFrameIndex];
+    auto &frame = m_Frames[m_nFrameIndex];
 
     for (auto pbc : frame.batchContext) {
-        if (void* rigidBody = pbc->node->RigidBody()) {
+        if (void *rigidBody = pbc->node->RigidBody()) {
             Matrix4X4f trans;
             BuildIdentityMatrix(trans);
 
@@ -88,11 +84,10 @@ void GraphicsManager::UpdateConstants()
     }
 }
 
-void GraphicsManager::CalculateCameraMatrix()
-{
-    auto&             scene        = g_pSceneManager->GetSceneForRendering();
-    auto              pCameraNode  = scene.GetFirstCameraNode();
-    DrawFrameContext& frameContext = m_Frames[m_nFrameIndex].frameContext;
+void GraphicsManager::CalculateCameraMatrix() {
+    auto &scene                    = g_pSceneManager->GetSceneForRendering();
+    auto pCameraNode               = scene.GetFirstCameraNode();
+    DrawFrameContext &frameContext = m_Frames[m_nFrameIndex].frameContext;
 
     if (pCameraNode) {
         frameContext.viewMatrix = *pCameraNode->GetCalculatedTransform();
@@ -115,7 +110,7 @@ void GraphicsManager::CalculateCameraMatrix()
         farClipDistance  = pCamera->GetFarClipDistance();
     }
 
-    const GfxConfiguration& conf = g_pApp->GetConfiguration();
+    const GfxConfiguration &conf = g_pApp->GetConfiguration();
 
     float screenAspect = (float)conf.screenWidth / (float)conf.screenHeight;
 
@@ -124,21 +119,20 @@ void GraphicsManager::CalculateCameraMatrix()
                                 farClipDistance);
 }
 
-void GraphicsManager::CalculateLights()
-{
-    DrawFrameContext& frameContext = m_Frames[m_nFrameIndex].frameContext;
-    LightInfo&        light_info   = m_Frames[m_nFrameIndex].lightInfo;
+void GraphicsManager::CalculateLights() {
+    DrawFrameContext &frameContext = m_Frames[m_nFrameIndex].frameContext;
+    LightInfo &light_info          = m_Frames[m_nFrameIndex].lightInfo;
 
     frameContext.ambientColor = {0.01f, 0.01f, 0.01f, 1.0f};
     frameContext.numLights    = 0;
 
-    auto& scene = g_pSceneManager->GetSceneForRendering();
+    auto &scene = g_pSceneManager->GetSceneForRendering();
     for (auto LightNode : scene.LightNodes) {
         auto pLightNode = LightNode.second.lock();
         // No light will be added. (Or we could add a default light)
         if (!pLightNode) continue;
 
-        Light& light = light_info.lights[frameContext.numLights];
+        Light &light = light_info.lights[frameContext.numLights];
 
         auto trans_ptr      = pLightNode->GetCalculatedTransform();
         light.lightPosition = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -150,7 +144,7 @@ void GraphicsManager::CalculateLights()
         if (pLight) {
             light.lightColor              = pLight->GetColor().Value;
             light.lightIntensity          = pLight->GetIntensity();
-            const AttenCurve& atten_curve = pLight->GetDistanceAttenuation();
+            const AttenCurve &atten_curve = pLight->GetDistanceAttenuation();
             light.lightDistAttenCurveType = (int32_t)atten_curve.type;
             memcpy(light.lightDistAttenCurveParams, &atten_curve.u, sizeof(atten_curve.u));
 
@@ -158,8 +152,8 @@ void GraphicsManager::CalculateLights()
                 light.lightType        = (int32_t)LightType::Infinity;
                 light.lightPosition[3] = 0.0f;
             } else if (pLight->GetType() == SceneObjectType::kSceneObjectTypeLightSpot) {
-                auto              plight            = dynamic_pointer_cast<SceneObjectSpotLight>(pLight);
-                const AttenCurve& angle_atten_curve = plight->GetAngleAttenuation();
+                auto plight                         = dynamic_pointer_cast<SceneObjectSpotLight>(pLight);
+                const AttenCurve &angle_atten_curve = plight->GetAngleAttenuation();
                 light.lightType                     = (int32_t)LightType::Spot;
                 light.lightAngleAttenCurveType      = (int32_t)angle_atten_curve.type;
                 memcpy(light.lightAngleAttenCurveParams, &angle_atten_curve.u, sizeof(angle_atten_curve.u));
@@ -178,8 +172,7 @@ void GraphicsManager::CalculateLights()
     }
 }
 
-void GraphicsManager::RenderBuffers()
-{
+void GraphicsManager::RenderBuffers() {
     BeginFrame();
 
     BeginPass(RenderPassIndex::ForwardPass);
@@ -193,8 +186,7 @@ void GraphicsManager::RenderBuffers()
     EndFrame();
 }
 
-void GraphicsManager::BeginScene(const Scene& scene)
-{
+void GraphicsManager::BeginScene(const Scene &scene) {
     //    for (auto pPass : m_InitPasses)
     //    {
     //        BeginCompute();
@@ -203,56 +195,47 @@ void GraphicsManager::BeginScene(const Scene& scene)
     //    }
 }
 
-void GraphicsManager::EndScene()
-{
+void GraphicsManager::EndScene() {
     m_Frames.clear();
     m_nFrameIndex = 0;
 }
 
 #ifdef DEBUG
-bool GraphicsManager::DEBUG_IsShowDebug()
-{
+bool GraphicsManager::DEBUG_IsShowDebug() {
     return m_DEBUG_showFlag;
 }
 
-void GraphicsManager::DEBUG_ToggleDebugInfo()
-{
+void GraphicsManager::DEBUG_ToggleDebugInfo() {
     m_DEBUG_showFlag = !m_DEBUG_showFlag;
 }
 
-void GraphicsManager::DEBUG_SetDrawPointParam(const Point3& point, const Vector3f& color)
-{
+void GraphicsManager::DEBUG_SetDrawPointParam(const Point3 &point, const Vector3f &color) {
     m_Frames[m_nFrameIndex].DEBUG_Batches[0].pointParams.push_back({point, color});
 }
 
-void GraphicsManager::DEBUG_SetDrawPointSetParam(const PointSet& point_set, const Vector3f& color)
-{
+void GraphicsManager::DEBUG_SetDrawPointSetParam(const PointSet &point_set, const Vector3f &color) {
     for (auto pt : point_set) {
         m_Frames[m_nFrameIndex].DEBUG_Batches[0].pointParams.push_back({*pt, color});
     }
 }
 
-void GraphicsManager::DEBUG_SetDrawPointSetParam(const PointSet& point_set, const Vector3f& color,
-                                                 DEBUG_DrawBatch& batch)
-{
+void GraphicsManager::DEBUG_SetDrawPointSetParam(const PointSet &point_set, const Vector3f &color,
+                                                 DEBUG_DrawBatch &batch) {
     for (auto pt : point_set) {
         batch.pointParams.push_back({*pt, color});
     }
 }
 
-void GraphicsManager::DEBUG_SetDrawLineParam(const Vector3f& from, const Vector3f& to, const Vector3f& color)
-{
+void GraphicsManager::DEBUG_SetDrawLineParam(const Vector3f &from, const Vector3f &to, const Vector3f &color) {
     m_Frames[m_nFrameIndex].DEBUG_Batches[0].lineParams.push_back({{from, color}, {to, color}});
 }
 
-void GraphicsManager::DEBUG_SetDrawLineParam(const Vector3f& from, const Vector3f& to, const Vector3f& color,
-                                             DEBUG_DrawBatch& batch)
-{
+void GraphicsManager::DEBUG_SetDrawLineParam(const Vector3f &from, const Vector3f &to, const Vector3f &color,
+                                             DEBUG_DrawBatch &batch) {
     batch.lineParams.push_back({{from, color}, {to, color}});
 }
 
-void GraphicsManager::DEBUG_SetDrawTriangleParam(const PointList& vertices, const Vector3f& color)
-{
+void GraphicsManager::DEBUG_SetDrawTriangleParam(const PointList &vertices, const Vector3f &color) {
     auto count = vertices.size();
     assert(count >= 3);
 
@@ -262,9 +245,8 @@ void GraphicsManager::DEBUG_SetDrawTriangleParam(const PointList& vertices, cons
     }
 }
 
-void GraphicsManager::DEBUG_SetDrawTriangleParam(const PointList& vertices, const Vector3f& color,
-                                                 DEBUG_DrawBatch& batch)
-{
+void GraphicsManager::DEBUG_SetDrawTriangleParam(const PointList &vertices, const Vector3f &color,
+                                                 DEBUG_DrawBatch &batch) {
     auto count = vertices.size();
     assert(count >= 3);
 
@@ -273,8 +255,7 @@ void GraphicsManager::DEBUG_SetDrawTriangleParam(const PointList& vertices, cons
     }
 }
 
-void GraphicsManager::DEBUG_SetDrawPolygonParam(const Face& face, const Vector3f& color)
-{
+void GraphicsManager::DEBUG_SetDrawPolygonParam(const Face &face, const Vector3f &color) {
     PointSet vertices;
     for (auto pEdge : face.Edges) {
         DEBUG_SetDrawLineParam(*pEdge->first, *pEdge->second, color);
@@ -285,8 +266,7 @@ void GraphicsManager::DEBUG_SetDrawPolygonParam(const Face& face, const Vector3f
     DEBUG_SetDrawTriangleParam(face.GetVertices(), {color[0] / 2.0f, color[1] / 2.0f, color[2] / 2.0f});
 }
 
-void GraphicsManager::DEBUG_SetDrawPolygonParam(const Face& face, const Vector3f& color, DEBUG_DrawBatch& batch)
-{
+void GraphicsManager::DEBUG_SetDrawPolygonParam(const Face &face, const Vector3f &color, DEBUG_DrawBatch &batch) {
     PointSet vertices;
     for (auto pEdge : face.Edges) {
         DEBUG_SetDrawLineParam(*pEdge->first, *pEdge->second, color, batch);
@@ -297,15 +277,13 @@ void GraphicsManager::DEBUG_SetDrawPolygonParam(const Face& face, const Vector3f
     DEBUG_SetDrawTriangleParam(face.GetVertices(), {color[0] / 2.0f, color[1] / 2.0f, color[2] / 2.0f}, batch);
 }
 
-void GraphicsManager::DEBUG_SetDrawPolyhydronParam(const Polyhedron& polyhedron, const Vector3f& color)
-{
+void GraphicsManager::DEBUG_SetDrawPolyhydronParam(const Polyhedron &polyhedron, const Vector3f &color) {
     for (auto pFace : polyhedron.Faces) {
         DEBUG_SetDrawPolygonParam(*pFace, color);
     }
 }
 
-void GraphicsManager::DEBUG_SetDrawPolyhydronParam(const Polyhedron& polyhedron, const Matrix4X4f& trans, const Vector3f& color)
-{
+void GraphicsManager::DEBUG_SetDrawPolyhydronParam(const Polyhedron &polyhedron, const Matrix4X4f &trans, const Vector3f &color) {
     DEBUG_DrawBatch newDrawBatch;
     newDrawBatch.pbc.modelMatrix = trans;
 
@@ -315,8 +293,7 @@ void GraphicsManager::DEBUG_SetDrawPolyhydronParam(const Polyhedron& polyhedron,
     m_Frames[m_nFrameIndex].DEBUG_Batches.emplace_back(newDrawBatch);
 }
 
-void GraphicsManager::DEBUG_SetDrawBoxParam(const Vector3f& bbMin, const Vector3f& bbMax, const Vector3f& color)
-{
+void GraphicsManager::DEBUG_SetDrawBoxParam(const Vector3f &bbMin, const Vector3f &bbMax, const Vector3f &color) {
     // 12 lines
     m_Frames[m_nFrameIndex].DEBUG_Batches[0].lineParams.push_back({{bbMin, color}, {{bbMin[0], bbMin[1], bbMax[2], 1.0f}, color}});
     m_Frames[m_nFrameIndex].DEBUG_Batches[0].lineParams.push_back({{bbMin, color}, {{bbMin[0], bbMax[1], bbMin[2], 1.0f}, color}});
@@ -344,8 +321,7 @@ void GraphicsManager::DEBUG_SetDrawBoxParam(const Vector3f& bbMin, const Vector3
         {{{bbMax[0], bbMax[1], bbMin[2], 1.0f}, color}, {{bbMin[0], bbMax[1], bbMin[2], 1.0f}, color}});
 }
 
-void GraphicsManager::DEBUG_ClearDebugBuffers()
-{
+void GraphicsManager::DEBUG_ClearDebugBuffers() {
     m_Frames[m_nFrameIndex].DEBUG_Batches.clear();
     m_Frames[m_nFrameIndex].DEBUG_Batches.emplace_back(DEBUG_DrawBatch());
     BuildIdentityMatrix(m_Frames[m_nFrameIndex].DEBUG_Batches[0].pbc.modelMatrix);

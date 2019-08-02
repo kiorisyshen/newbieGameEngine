@@ -10,42 +10,35 @@
 using namespace newbieGE;
 using namespace std;
 
-int MetalGraphicsManager::Initialize()
-{
+int MetalGraphicsManager::Initialize() {
     int result = GraphicsManager::Initialize();
     [m_pRenderer Initialize];
     return result;
 }
 
-void MetalGraphicsManager::Finalize()
-{
+void MetalGraphicsManager::Finalize() {
     GraphicsManager::Finalize();
     [m_pRenderer Finalize];
 }
 
-void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>>& batches, const DefaultShaderIndex idx)
-{
+void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches, const DefaultShaderIndex idx) {
     [m_pRenderer drawBatch:batches shaderIndex:idx];
 }
 
-void MetalGraphicsManager::SetLightInfo(const LightInfo& lightInfo)
-{
+void MetalGraphicsManager::SetLightInfo(const LightInfo &lightInfo) {
     [m_pRenderer setLightInfo:lightInfo];
 }
 
-void MetalGraphicsManager::SetPerFrameConstants(const DrawFrameContext& context)
-{
+void MetalGraphicsManager::SetPerFrameConstants(const DrawFrameContext &context) {
     [m_pRenderer setPerFrameConstants:context];
 }
 
-void MetalGraphicsManager::SetPerBatchConstants(const std::vector<std::shared_ptr<DrawBatchConstant>>& context)
-{
+void MetalGraphicsManager::SetPerBatchConstants(const std::vector<std::shared_ptr<DrawBatchConstant>> &context) {
     [m_pRenderer setPerBatchConstants:context];
 }
 
-void MetalGraphicsManager::InitializeBuffers(const Scene& scene)
-{
-    for (auto& frame : m_Frames) {
+void MetalGraphicsManager::InitializeBuffers(const Scene &scene) {
+    for (auto &frame : m_Frames) {
         frame.batchContext.clear();
     }
 
@@ -72,7 +65,7 @@ void MetalGraphicsManager::InitializeBuffers(const Scene& scene)
         //        auto vertexCount = pMesh->GetVertexCount();
 
         for (decltype(vertexPropertiesCount) i = 0; i < vertexPropertiesCount; i++) {
-            const SceneObjectVertexArray& v_property_array = pMesh->GetVertexPropertyArray(i);
+            const SceneObjectVertexArray &v_property_array = pMesh->GetVertexPropertyArray(i);
 
             [m_pRenderer createVertexBuffer:v_property_array];
         }
@@ -104,7 +97,7 @@ void MetalGraphicsManager::InitializeBuffers(const Scene& scene)
 
         auto indexGroupCount = pMesh->GetIndexGroupCount();
         for (decltype(indexGroupCount) i = 0; i < indexGroupCount; i++) {
-            const SceneObjectIndexArray& index_array = pMesh->GetIndexArray(i);
+            const SceneObjectIndexArray &index_array = pMesh->GetIndexArray(i);
             [m_pRenderer createIndexBuffer:index_array];
 
             MTLIndexType type;
@@ -127,16 +120,16 @@ void MetalGraphicsManager::InitializeBuffers(const Scene& scene)
                     continue;
             }
 
-            size_t      material_index = index_array.GetMaterialIndex();
-            std::string material_key   = pGeometryNode->GetMaterialRef(material_index);
-            auto        material       = scene.GetMaterial(material_key);
+            size_t material_index    = index_array.GetMaterialIndex();
+            std::string material_key = pGeometryNode->GetMaterialRef(material_index);
+            auto material            = scene.GetMaterial(material_key);
 
-            auto    dbc        = make_shared<MtlDrawBatchContext>();
+            auto dbc           = make_shared<MtlDrawBatchContext>();
             int32_t texture_id = -1;
             if (material) {
                 auto color = material->GetBaseColor();
                 if (color.ValueMap) {
-                    const Image& image = color.ValueMap->GetTextureImage();
+                    const Image &image = color.ValueMap->GetTextureImage();
                     texture_id         = [m_pRenderer createTexture:image];
                     dbc->diffuseColor  = {-1.0f, -1.0f, -1.0f, 1.0f};
                 } else {
@@ -165,13 +158,11 @@ void MetalGraphicsManager::InitializeBuffers(const Scene& scene)
     }
 }
 
-bool MetalGraphicsManager::InitializeShaders()
-{
+bool MetalGraphicsManager::InitializeShaders() {
     return [m_pRenderer InitializeShaders];
 }
 
-void MetalGraphicsManager::BeginScene(const Scene& scene)
-{
+void MetalGraphicsManager::BeginScene(const Scene &scene) {
     GraphicsManager::BeginScene(scene);
 
     InitializeBuffers(scene);
@@ -179,57 +170,47 @@ void MetalGraphicsManager::BeginScene(const Scene& scene)
     cout << "BeginScene Done!" << endl;
 }
 
-void MetalGraphicsManager::EndScene()
-{
+void MetalGraphicsManager::EndScene() {
     GraphicsManager::EndScene();
     [m_pRenderer endScene];
 }
 
-void MetalGraphicsManager::BeginFrame()
-{
+void MetalGraphicsManager::BeginFrame() {
     [m_pRenderer beginFrame];
 }
 
-void MetalGraphicsManager::EndFrame()
-{
+void MetalGraphicsManager::EndFrame() {
     [m_pRenderer endFrame];
 }
 
-void MetalGraphicsManager::BeginPass(const RenderPassIndex idx)
-{
+void MetalGraphicsManager::BeginPass(const RenderPassIndex idx) {
     [m_pRenderer beginPass:idx];
 }
 
-void MetalGraphicsManager::EndPass(const RenderPassIndex idx)
-{
+void MetalGraphicsManager::EndPass(const RenderPassIndex idx) {
     [m_pRenderer endPass:idx];
 }
 
-void MetalGraphicsManager::BeginCompute()
-{
+void MetalGraphicsManager::BeginCompute() {
     [m_pRenderer beginCompute];
 }
 
-void MetalGraphicsManager::EndCompute()
-{
+void MetalGraphicsManager::EndCompute() {
     [m_pRenderer endCompute];
 }
 
 #ifdef DEBUG
-void MetalGraphicsManager::DEBUG_SetBuffer()
-{
+void MetalGraphicsManager::DEBUG_SetBuffer() {
     [m_pRenderer DEBUG_SetBuffer:m_Frames[m_nFrameIndex].DEBUG_Batches];
 }
 
-void MetalGraphicsManager::DEBUG_ClearDebugBuffers()
-{
+void MetalGraphicsManager::DEBUG_ClearDebugBuffers() {
     GraphicsManager::DEBUG_ClearDebugBuffers();
 
     [m_pRenderer DEBUG_ClearDebugBuffers];
 }
 
-void MetalGraphicsManager::DEBUG_DrawDebug()
-{
+void MetalGraphicsManager::DEBUG_DrawDebug() {
     [m_pRenderer DEBUG_DrawDebug:m_Frames[m_nFrameIndex].DEBUG_Batches];
 }
 

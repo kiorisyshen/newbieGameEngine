@@ -6,8 +6,7 @@
 using namespace newbieGE;
 using namespace std;
 
-int EditorLogic::Initialize()
-{
+int EditorLogic::Initialize() {
     int result;
 
     cout << "[EditorLogic] Editor Logic Initialize" << endl;
@@ -24,27 +23,23 @@ int EditorLogic::Initialize()
     return result;
 }
 
-void EditorLogic::Finalize()
-{
+void EditorLogic::Finalize() {
     cout << "[EditorLogic] Finalize" << endl;
 }
 
-void EditorLogic::Tick()
-{
+void EditorLogic::Tick() {
 }
 
 #ifdef DEBUG
-void EditorLogic::DrawDebugInfo()
-{
+void EditorLogic::DrawDebugInfo() {
 }
 #endif
 
-void EditorLogic::OnLeftKeyDown()
-{
-    auto& scene       = g_pSceneManager->GetSceneForRendering();
-    auto  pCameraNode = scene.GetFirstCameraNode();
+void EditorLogic::OnLeftKeyDown() {
+    auto &scene      = g_pSceneManager->GetSceneForRendering();
+    auto pCameraNode = scene.GetFirstCameraNode();
     if (pCameraNode) {
-        auto     local_axis = pCameraNode->GetLocalAxis();
+        auto local_axis = pCameraNode->GetLocalAxis();
         Vector3f camera_x_axis;
         memcpy(camera_x_axis.data, local_axis[0], sizeof(camera_x_axis));
 
@@ -53,12 +48,11 @@ void EditorLogic::OnLeftKeyDown()
     }
 }
 
-void EditorLogic::OnRightKeyDown()
-{
-    auto& scene       = g_pSceneManager->GetSceneForRendering();
-    auto  pCameraNode = scene.GetFirstCameraNode();
+void EditorLogic::OnRightKeyDown() {
+    auto &scene      = g_pSceneManager->GetSceneForRendering();
+    auto pCameraNode = scene.GetFirstCameraNode();
     if (pCameraNode) {
-        auto     local_axis = pCameraNode->GetLocalAxis();
+        auto local_axis = pCameraNode->GetLocalAxis();
         Vector3f camera_x_axis;
         memcpy(camera_x_axis.data, local_axis[0], sizeof(camera_x_axis));
 
@@ -67,12 +61,11 @@ void EditorLogic::OnRightKeyDown()
     }
 }
 
-void EditorLogic::OnUpKeyDown()
-{
-    auto& scene       = g_pSceneManager->GetSceneForRendering();
-    auto  pCameraNode = scene.GetFirstCameraNode();
+void EditorLogic::OnUpKeyDown() {
+    auto &scene      = g_pSceneManager->GetSceneForRendering();
+    auto pCameraNode = scene.GetFirstCameraNode();
     if (pCameraNode) {
-        auto     local_axis = pCameraNode->GetLocalAxis();
+        auto local_axis = pCameraNode->GetLocalAxis();
         Vector3f camera_y_axis;
         memcpy(camera_y_axis.data, local_axis[1], sizeof(camera_y_axis));
 
@@ -81,12 +74,11 @@ void EditorLogic::OnUpKeyDown()
     }
 }
 
-void EditorLogic::OnDownKeyDown()
-{
-    auto& scene       = g_pSceneManager->GetSceneForRendering();
-    auto  pCameraNode = scene.GetFirstCameraNode();
+void EditorLogic::OnDownKeyDown() {
+    auto &scene      = g_pSceneManager->GetSceneForRendering();
+    auto pCameraNode = scene.GetFirstCameraNode();
     if (pCameraNode) {
-        auto     local_axis = pCameraNode->GetLocalAxis();
+        auto local_axis = pCameraNode->GetLocalAxis();
         Vector3f camera_y_axis;
         memcpy(camera_y_axis.data, local_axis[1], sizeof(camera_y_axis));
 
@@ -95,11 +87,10 @@ void EditorLogic::OnDownKeyDown()
     }
 }
 
-void EditorLogic::OnAnalogStick(int id, float deltaX, float deltaY)
-{
+void EditorLogic::OnAnalogStick(int id, float deltaX, float deltaY) {
     if (id == 0) {
-        auto& scene       = g_pSceneManager->GetSceneForRendering();
-        auto  pCameraNode = scene.GetFirstCameraNode();
+        auto &scene      = g_pSceneManager->GetSceneForRendering();
+        auto pCameraNode = scene.GetFirstCameraNode();
         if (pCameraNode) {
             auto screen_width  = g_pApp->GetConfiguration().screenWidth;
             auto screen_height = g_pApp->GetConfiguration().screenHeight;

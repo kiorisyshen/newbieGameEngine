@@ -3,26 +3,21 @@
 #include "Geometry.hpp"
 #include "MotionState.hpp"
 
-namespace newbieGE
-{
-class RigidBody
-{
+namespace newbieGE {
+class RigidBody {
    public:
     RigidBody(std::shared_ptr<Geometry> collisionShape, std::shared_ptr<MotionState> state)
-        : m_pCollisionShape(collisionShape), m_pMotionState(state)
-    {
+        : m_pCollisionShape(collisionShape), m_pMotionState(state) {
     }
-    std::shared_ptr<MotionState> GetMotionState()
-    {
+    std::shared_ptr<MotionState> GetMotionState() {
         return m_pMotionState;
     }
-    std::shared_ptr<Geometry> GetCollisionShape()
-    {
+    std::shared_ptr<Geometry> GetCollisionShape() {
         return m_pCollisionShape;
     }
 
    private:
-    std::shared_ptr<Geometry>    m_pCollisionShape;
+    std::shared_ptr<Geometry> m_pCollisionShape;
     std::shared_ptr<MotionState> m_pMotionState;
 };
 }  // namespace newbieGE

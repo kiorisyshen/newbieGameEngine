@@ -3,11 +3,10 @@
 using namespace newbieGE;
 using namespace std;
 
-BoundingBox SceneObjectMesh::GetBoundingBox() const
-{
+BoundingBox SceneObjectMesh::GetBoundingBox() const {
     Vector3f bbmin(numeric_limits<float>::max());
     Vector3f bbmax(numeric_limits<float>::lowest());
-    auto     count = m_VertexArray.size();
+    auto count = m_VertexArray.size();
     for (decltype(count) n = 0; n < count; n++) {
         if (m_VertexArray[n].GetAttributeName() == "position") {
             auto data_type      = m_VertexArray[n].GetDataType();
@@ -16,7 +15,7 @@ BoundingBox SceneObjectMesh::GetBoundingBox() const
             for (decltype(vertices_count) i = 0; i < vertices_count; i++) {
                 switch (data_type) {
                     case VertexDataType::kVertexDataTypeFloat3: {
-                        const Vector3f* vertex = reinterpret_cast<const Vector3f*>(data) + i;
+                        const Vector3f *vertex = reinterpret_cast<const Vector3f *>(data) + i;
                         bbmin[0]               = (bbmin[0] < vertex->data[0]) ? bbmin[0] : vertex->data[0];
                         bbmin[1]               = (bbmin[1] < vertex->data[1]) ? bbmin[1] : vertex->data[1];
                         bbmin[2]               = (bbmin[2] < vertex->data[2]) ? bbmin[2] : vertex->data[2];
@@ -26,7 +25,7 @@ BoundingBox SceneObjectMesh::GetBoundingBox() const
                         break;
                     }
                     case VertexDataType::kVertexDataTypeDouble3: {
-                        const Vector3* vertex = reinterpret_cast<const Vector3*>(data) + i;
+                        const Vector3 *vertex = reinterpret_cast<const Vector3 *>(data) + i;
                         bbmin[0]              = static_cast<float>((bbmin[0] < vertex->data[0]) ? bbmin[0] : vertex->data[0]);
                         bbmin[1]              = static_cast<float>((bbmin[1] < vertex->data[1]) ? bbmin[1] : vertex->data[1]);
                         bbmin[2]              = static_cast<float>((bbmin[2] < vertex->data[2]) ? bbmin[2] : vertex->data[2]);
@@ -49,8 +48,7 @@ BoundingBox SceneObjectMesh::GetBoundingBox() const
     return result;
 }
 
-ConvexHull SceneObjectMesh::GetConvexHull() const
-{
+ConvexHull SceneObjectMesh::GetConvexHull() const {
     ConvexHull hull;
 
     auto count = m_VertexArray.size();
@@ -62,12 +60,12 @@ ConvexHull SceneObjectMesh::GetConvexHull() const
             for (decltype(vertices_count) i = 0; i < vertices_count; i++) {
                 switch (data_type) {
                     case VertexDataType::kVertexDataTypeFloat3: {
-                        const Vector3f* vertex = reinterpret_cast<const Vector3f*>(data) + i;
+                        const Vector3f *vertex = reinterpret_cast<const Vector3f *>(data) + i;
                         hull.AddPoint(*vertex);
                         break;
                     }
                     case VertexDataType::kVertexDataTypeDouble3: {
-                        const Vector3* vertex = reinterpret_cast<const Vector3*>(data) + i;
+                        const Vector3 *vertex = reinterpret_cast<const Vector3 *>(data) + i;
                         hull.AddPoint(*vertex);
                         break;
                     }

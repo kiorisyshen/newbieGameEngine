@@ -4,9 +4,8 @@
 using namespace newbieGE;
 using namespace std;
 
-int AnimationManager::Initialize()
-{
-    auto& scene = g_pSceneManager->GetSceneForRendering();
+int AnimationManager::Initialize() {
+    auto &scene = g_pSceneManager->GetSceneForRendering();
 
     for (auto node : scene.AnimatableNodes) {
         auto pNode = node.lock();
@@ -23,13 +22,11 @@ int AnimationManager::Initialize()
     return 0;
 }
 
-void AnimationManager::Finalize()
-{
+void AnimationManager::Finalize() {
     ClearAnimationClips();
 }
 
-void AnimationManager::Tick()
-{
+void AnimationManager::Tick() {
     if (g_pSceneManager->IsSceneChanged()) {
         cerr << "[AnimationManager] Detected Scene Change, reinitialize animations ..." << endl;
         Finalize();
@@ -50,12 +47,10 @@ void AnimationManager::Tick()
     }
 }
 
-void AnimationManager::AddAnimationClip(std::shared_ptr<SceneObjectAnimationClip> clip)
-{
+void AnimationManager::AddAnimationClip(std::shared_ptr<SceneObjectAnimationClip> clip) {
     m_AnimationClips.push_back(clip);
 }
 
-void AnimationManager::ClearAnimationClips()
-{
+void AnimationManager::ClearAnimationClips() {
     m_AnimationClips.clear();
 }

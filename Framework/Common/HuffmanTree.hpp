@@ -2,66 +2,55 @@
 #include <vector>
 #include "portable.hpp"
 
-namespace newbieGE
-{
+namespace newbieGE {
 template <typename T>
-class HuffmanNode
-{
+class HuffmanNode {
    protected:
-    T                               m_Value;
+    T m_Value;
     std::shared_ptr<HuffmanNode<T>> m_pLeft;
     std::shared_ptr<HuffmanNode<T>> m_pRight;
-    bool                            m_isLeaf = false;
+    bool m_isLeaf = false;
 
    public:
     HuffmanNode() = default;
     HuffmanNode(T value)
         : m_Value(value), m_isLeaf(true){};
-    ~HuffmanNode()             = default;
-    HuffmanNode(HuffmanNode&)  = default;
-    HuffmanNode(HuffmanNode&&) = default;
-    HuffmanNode& operator=(HuffmanNode&) = default;
-    HuffmanNode& operator=(HuffmanNode&&) = default;
-    bool         IsLeaf(void) const
-    {
+    ~HuffmanNode()              = default;
+    HuffmanNode(HuffmanNode &)  = default;
+    HuffmanNode(HuffmanNode &&) = default;
+    HuffmanNode &operator=(HuffmanNode &) = default;
+    HuffmanNode &operator=(HuffmanNode &&) = default;
+    bool IsLeaf(void) const {
         return m_isLeaf;
     };
-    void SetLeft(std::shared_ptr<HuffmanNode> pNode)
-    {
+    void SetLeft(std::shared_ptr<HuffmanNode> pNode) {
         m_pLeft = pNode;
     };
-    void SetRight(std::shared_ptr<HuffmanNode> pNode)
-    {
+    void SetRight(std::shared_ptr<HuffmanNode> pNode) {
         m_pRight = pNode;
     };
-    const std::shared_ptr<HuffmanNode<T>> GetLeft(void) const
-    {
+    const std::shared_ptr<HuffmanNode<T>> GetLeft(void) const {
         return m_pLeft;
     };
-    const std::shared_ptr<HuffmanNode<T>> GetRight(void) const
-    {
+    const std::shared_ptr<HuffmanNode<T>> GetRight(void) const {
         return m_pRight;
     };
-    void SetValue(T value)
-    {
+    void SetValue(T value) {
         m_Value  = value;
         m_isLeaf = true;
     };
-    T GetValue() const
-    {
+    T GetValue() const {
         return m_Value;
     };
 };
 
 template <typename T>
-class HuffmanTree
-{
+class HuffmanTree {
    protected:
     std::shared_ptr<HuffmanNode<T>> m_pRoot;
 
    private:
-    void recursiveDump(const std::shared_ptr<HuffmanNode<T>>& pNode, std::string bit_stream)
-    {
+    void recursiveDump(const std::shared_ptr<HuffmanNode<T>> &pNode, std::string bit_stream) {
         if (pNode) {
             if (pNode->IsLeaf()) {
                 printf("%20s | %x\n", bit_stream.c_str(), pNode->GetValue());
@@ -73,21 +62,19 @@ class HuffmanTree
     }
 
    public:
-    HuffmanTree()
-    {
+    HuffmanTree() {
         m_pRoot = std::make_shared<HuffmanNode<uint8_t>>();
     };
 
-    size_t PopulateWithHuffmanTable(const uint8_t num_of_codes[16], const uint8_t* code_values)
-    {
+    size_t PopulateWithHuffmanTable(const uint8_t num_of_codes[16], const uint8_t *code_values) {
         int num_symbo = 0;
         for (int i = 0; i < 16; i++) {
             num_symbo += num_of_codes[i];
         }
-        const uint8_t* pCodeValueEnd = code_values + num_symbo - 1;
+        const uint8_t *pCodeValueEnd = code_values + num_symbo - 1;
 
         std::queue<std::shared_ptr<HuffmanNode<uint8_t>>> node_queue;
-        bool                                              found_bottom = false;
+        bool found_bottom = false;
 
         for (int i = 15; i >= 0; i--) {
             int l = num_of_codes[i];
@@ -105,7 +92,7 @@ class HuffmanTree
             if (l) {
                 // create leaf node for level i
                 pCodeValueEnd             = pCodeValueEnd - l;
-                const uint8_t* pCodeValue = pCodeValueEnd + 1;
+                const uint8_t *pCodeValue = pCodeValueEnd + 1;
 
                 for (int j = 0; j < l; j++) {
                     auto pNode = std::make_shared<HuffmanNode<uint8_t>>(*pCodeValue++);
@@ -146,10 +133,9 @@ class HuffmanTree
         return num_symbo;
     }
 
-    T DecodeSingleValue(const uint8_t* encoded_stream, const size_t encoded_stream_length,
-                        size_t* byte_offset, uint8_t* bit_offset)
-    {
-        T                               res   = 0;
+    T DecodeSingleValue(const uint8_t *encoded_stream, const size_t encoded_stream_length,
+                        size_t *byte_offset, uint8_t *bit_offset) {
+        T res                                 = 0;
         std::shared_ptr<HuffmanNode<T>> pNode = m_pRoot;
         for (size_t i = *byte_offset; i < encoded_stream_length; i++) {
             uint8_t data = encoded_stream[i];
@@ -186,9 +172,8 @@ class HuffmanTree
         return res;
     }
 
-    std::vector<T> Decode(const uint8_t* encoded_stream, const size_t encoded_stream_length)
-    {
-        std::vector<T>                  res;
+    std::vector<T> Decode(const uint8_t *encoded_stream, const size_t encoded_stream_length) {
+        std::vector<T> res;
         std::shared_ptr<HuffmanNode<T>> pNode = m_pRoot;
         for (size_t i = 0; i < encoded_stream_length; i++) {
             uint8_t data = encoded_stream[i];
@@ -212,8 +197,7 @@ class HuffmanTree
         return res;
     }
 
-    void Dump()
-    {
+    void Dump() {
         std::string bit_stream;
         recursiveDump(m_pRoot, bit_stream);
         std::cout << std::endl;

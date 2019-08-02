@@ -2,25 +2,23 @@
 #include "Geometry.hpp"
 #include "IPhysicsManager.hpp"
 
-namespace newbieGE
-{
-class MyPhysicsManager : public IPhysicsManager
-{
+namespace newbieGE {
+class MyPhysicsManager : public IPhysicsManager {
    public:
-    int  Initialize();
+    int Initialize();
     void Finalize();
     void Tick();
 
-    void CreateRigidBody(SceneGeometryNode& node, const SceneObjectGeometry& geometry);
-    void DeleteRigidBody(SceneGeometryNode& node);
+    void CreateRigidBody(SceneGeometryNode &node, const SceneObjectGeometry &geometry);
+    void DeleteRigidBody(SceneGeometryNode &node);
 
-    int  CreateRigidBodies();
+    int CreateRigidBodies();
     void ClearRigidBodies();
 
-    Matrix4X4f GetRigidBodyTransform(void* rigidBody);
-    void       UpdateRigidBodyTransform(SceneGeometryNode& node);
+    Matrix4X4f GetRigidBodyTransform(void *rigidBody);
+    void UpdateRigidBodyTransform(SceneGeometryNode &node);
 
-    void ApplyCentralForce(void* rigidBody, Vector3f force);
+    void ApplyCentralForce(void *rigidBody, Vector3f force);
 
     void IterateConvexHull();
 
@@ -30,8 +28,8 @@ class MyPhysicsManager : public IPhysicsManager
 
    protected:
 #ifdef DEBUG
-    void DrawAabb(const Geometry& geometry, const Matrix4X4f& trans, const Vector3f& centerOfMass);
-    void DrawShape(const Geometry& geometry, const Matrix4X4f& trans, const Vector3f& centerOfMass);
+    void DrawAabb(const Geometry &geometry, const Matrix4X4f &trans, const Vector3f &centerOfMass);
+    void DrawShape(const Geometry &geometry, const Matrix4X4f &trans, const Vector3f &centerOfMass);
 #endif
 };
 }  // namespace newbieGE

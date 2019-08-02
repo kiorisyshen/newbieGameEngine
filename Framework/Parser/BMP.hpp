@@ -2,8 +2,7 @@
 #include <iostream>
 #include "ImageParser.hpp"
 
-namespace newbieGE
-{
+namespace newbieGE {
 #pragma pack(push, 1)
 typedef struct _BITMAP_FILEHEADER {
     uint16_t Signature;
@@ -16,27 +15,25 @@ typedef struct _BITMAP_FILEHEADER {
 
 typedef struct _BITMAP_HEADER {
     uint32_t HeaderSize;
-    int32_t  Width;
-    int32_t  Height;
+    int32_t Width;
+    int32_t Height;
     uint16_t Planes;
     uint16_t BitCount;
     uint32_t Compression;
     uint32_t SizeImage;
-    int32_t  PelsPerMeterX;
-    int32_t  PelsPerMeterY;
+    int32_t PelsPerMeterX;
+    int32_t PelsPerMeterY;
     uint32_t ClrUsed;
     uint32_t ClrImportant;
 } BITMAP_HEADER;
 #pragma pack(pop)
 
-class BmpParser : implements ImageParser
-{
+class BmpParser : implements ImageParser {
    public:
-    virtual Image Parse(Buffer& buf)
-    {
-        Image                    img;
-        const BITMAP_FILEHEADER* pFileHeader = reinterpret_cast<const BITMAP_FILEHEADER*>(buf.GetData());
-        const BITMAP_HEADER*     pBmpHeader  = reinterpret_cast<const BITMAP_HEADER*>(reinterpret_cast<const uint8_t*>(buf.GetData()) + BITMAP_FILEHEADER_SIZE);
+    virtual Image Parse(Buffer &buf) {
+        Image img;
+        const BITMAP_FILEHEADER *pFileHeader = reinterpret_cast<const BITMAP_FILEHEADER *>(buf.GetData());
+        const BITMAP_HEADER *pBmpHeader      = reinterpret_cast<const BITMAP_HEADER *>(reinterpret_cast<const uint8_t *>(buf.GetData()) + BITMAP_FILEHEADER_SIZE);
         if (pFileHeader->Signature == 0x4D42 /* 'B''M' */) {
             std::cout << "Asset is Windows BMP file" << std::endl;
             std::cout << "BMP Header" << std::endl;
@@ -61,11 +58,11 @@ class BmpParser : implements ImageParser
             if (img.bitcount < 24) {
                 std::cout << "Sorry, only true color BMP is supported at now." << std::endl;
             } else {
-                const uint8_t* pSourceData = reinterpret_cast<const uint8_t*>(buf.GetData()) + pFileHeader->BitsOffset;
+                const uint8_t *pSourceData = reinterpret_cast<const uint8_t *>(buf.GetData()) + pFileHeader->BitsOffset;
                 for (int32_t y = img.Height - 1; y >= 0; y--) {
                     for (uint32_t x = 0; x < img.Width; x++) {
-                        auto dst     = reinterpret_cast<R8G8B8A8Unorm*>(reinterpret_cast<uint8_t*>(img.data) + img.pitch * (img.Height - y - 1) + x * byte_count);
-                        auto src     = reinterpret_cast<const R8G8B8A8Unorm*>(pSourceData + img.pitch * y + x * byte_count);
+                        auto dst     = reinterpret_cast<R8G8B8A8Unorm *>(reinterpret_cast<uint8_t *>(img.data) + img.pitch * (img.Height - y - 1) + x * byte_count);
+                        auto src     = reinterpret_cast<const R8G8B8A8Unorm *>(pSourceData + img.pitch * y + x * byte_count);
                         dst->data[2] = src->data[0];
                         dst->data[1] = src->data[1];
                         dst->data[0] = src->data[2];

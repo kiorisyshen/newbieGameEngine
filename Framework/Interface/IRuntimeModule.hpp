@@ -2,15 +2,13 @@
 
 #include "Interface.hpp"
 
-namespace newbieGE
-{
-Interface IRuntimeModule
-{
+namespace newbieGE {
+Interface IRuntimeModule {
    public:
     virtual ~IRuntimeModule(){};
 
-    virtual int  Initialize() = 0;
-    virtual void Finalize()   = 0;
+    virtual int Initialize() = 0;
+    virtual void Finalize()  = 0;
 
     virtual void Tick() = 0;
 

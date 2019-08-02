@@ -2,10 +2,8 @@
 
 using namespace std;
 
-namespace newbieGE
-{
-ostream& operator<<(ostream& out, const Image& image)
-{
+namespace newbieGE {
+ostream &operator<<(ostream &out, const Image &image) {
     out << "Image" << endl;
     out << "-----" << endl;
     out << "Width: " << image.Width << endl;
@@ -20,7 +18,7 @@ ostream& operator<<(ostream& out, const Image& image)
     for (uint32_t i = 0; i < image.Height; i++) {
         for (uint32_t j = 0; j < image.Width; j++) {
             for (auto k = 0; k < byte_count; k++) {
-                printf("%x ", reinterpret_cast<uint8_t*>(image.data)[image.pitch * i + j * byte_count + k]);
+                printf("%x ", reinterpret_cast<uint8_t *>(image.data)[image.pitch * i + j * byte_count + k]);
             }
             cout << "\t";
         }

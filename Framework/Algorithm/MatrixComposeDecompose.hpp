@@ -1,14 +1,12 @@
 #pragma once
 #include "geommath.hpp"
 
-namespace newbieGE
-{
+namespace newbieGE {
 // infact our matrix is column-major, so it is RQ decompose ...
 template <typename T, int ROWS, int COLS>
-inline void MatrixQRDecompose(const Matrix<T, ROWS, COLS>& in_matrix,
-                              Matrix<T, COLS, COLS>&       Q,
-                              Matrix<T, ROWS, COLS>&       R)
-{
+inline void MatrixQRDecompose(const Matrix<T, ROWS, COLS> &in_matrix,
+                              Matrix<T, COLS, COLS> &Q,
+                              Matrix<T, ROWS, COLS> &R) {
     static_assert(ROWS >= COLS, "We can only QR Decompose a Matrix which ROWS >= COLS. (note our matrix is column major)");
     Matrix<T, ROWS, COLS> U;
     std::memset(U, 0x00, sizeof(U));
@@ -35,10 +33,9 @@ inline void MatrixQRDecompose(const Matrix<T, ROWS, COLS>& in_matrix,
 }
 
 template <typename T>
-inline void MatrixPolarDecompose(const Matrix<T, 3, 3>& in_matrix,
-                                 Matrix<T, 3, 3>&       U,
-                                 Matrix<T, 3, 3>&       P)
-{
+inline void MatrixPolarDecompose(const Matrix<T, 3, 3> &in_matrix,
+                                 Matrix<T, 3, 3> &U,
+                                 Matrix<T, 3, 3> &P) {
     U = in_matrix;
     Matrix<T, 3, 3> U_inv;
     Matrix<T, 3, 3> U_pre;
@@ -57,8 +54,7 @@ inline void MatrixPolarDecompose(const Matrix<T, 3, 3>& in_matrix,
     P = in_matrix * U_inv;
 }
 
-inline void Matrix4X4fCompose(Matrix4X4f& matrix, const Vector3f& rotation, const Vector3f& scalar, const Vector3f& translation)
-{
+inline void Matrix4X4fCompose(Matrix4X4f &matrix, const Vector3f &rotation, const Vector3f &scalar, const Vector3f &translation) {
     Matrix4X4f matrix_rotate_x, matrix_rotate_y, matrix_rotate_z, matrix_rotate;
     MatrixRotationX(matrix_rotate_x, rotation[0]);
     MatrixRotationY(matrix_rotate_y, rotation[1]);
@@ -71,8 +67,7 @@ inline void Matrix4X4fCompose(Matrix4X4f& matrix, const Vector3f& rotation, cons
     matrix = matrix_scale * matrix_rotate * matrix_translation;
 }
 
-inline void Matrix4X4fDecompose(const Matrix4X4f& matrix, Vector3f& rotation, Vector3f& scalar, Vector3f& translation)
-{
+inline void Matrix4X4fDecompose(const Matrix4X4f &matrix, Vector3f &rotation, Vector3f &scalar, Vector3f &translation) {
     translation.Set({matrix[3][0], matrix[3][1], matrix[3][2]});
 
     // QR decompose the top-left 3x3 matrix
@@ -99,9 +94,8 @@ inline void Matrix4X4fDecompose(const Matrix4X4f& matrix, Vector3f& rotation, Ve
 }
 
 template <typename T, int N>
-T Determin(const Matrix<T, N, N>& matrix)
-{
-    T               result = 1;
+T Determin(const Matrix<T, N, N> &matrix) {
+    T result = 1;
     Matrix<T, N, N> Q, R;
     MatrixQRDecompose(matrix, Q, R);
     for (int i = 0; i < N; i++) {
@@ -112,21 +106,20 @@ T Determin(const Matrix<T, N, N>& matrix)
 }
 
 template <typename T>
-void Matrix3X3EigenValues(Vector3f& eigen_values, Matrix<T, 3, 3>& eigen_vectors, const Matrix<T, 3, 3>& real_symmetric_matrix)
-{
-    auto& A  = real_symmetric_matrix;
-    T     p1 = pow(A[0][1], 2) + pow(A[0][2], 2) + pow(A[1][2], 2);
+void Matrix3X3EigenValues(Vector3f &eigen_values, Matrix<T, 3, 3> &eigen_vectors, const Matrix<T, 3, 3> &real_symmetric_matrix) {
+    auto &A = real_symmetric_matrix;
+    T p1    = pow(A[0][1], 2) + pow(A[0][2], 2) + pow(A[1][2], 2);
     if (p1 == 0) {
         // A is diagonal.
         eigen_values.Set({A[0][0], A[1][1], A[2][2]});
     } else {
-        T               q  = Trace(A) / 3;
-        T               p2 = pow(A[0][0] - q, 2) + pow(A[1][1] - q, 2) + pow(A[2][2] - q, 2) + 2 * p1;
-        T               p  = sqrt(p2 / 6);
+        T q  = Trace(A) / 3;
+        T p2 = pow(A[0][0] - q, 2) + pow(A[1][1] - q, 2) + pow(A[2][2] - q, 2) + 2 * p1;
+        T p  = sqrt(p2 / 6);
         Matrix<T, 3, 3> I;
         BuildIdentityMatrix(I);
         auto B = (1 / p) * (A - q * I);  // I is the identity matrix
-        T    r = Determin(B) / 2;
+        T r    = Determin(B) / 2;
 
         // In exact arithmetic for a symmetric matrix  -1 <= r <= 1
         // but computation error can leave it slightly outside this range.

@@ -6,8 +6,7 @@
 using namespace std;
 using namespace newbieGE;
 
-void vector_test()
-{
+void vector_test() {
     Vector2f x = {55.3f, 22.1f};
     cout << "Vector2f: ";
     cout << x;
@@ -48,8 +47,7 @@ void vector_test()
     cout << "normalized: " << g;
 }
 
-void matrix_test()
-{
+void matrix_test() {
     Matrix4X4f m1;
     BuildIdentityMatrix(m1);
 
@@ -57,14 +55,14 @@ void matrix_test()
     cout << m1;
 
     Matrix4X4f mEu;
-    float      yaw = 0.2f, pitch = 0.3f, roll = 0.4f;
+    float yaw = 0.2f, pitch = 0.3f, roll = 0.4f;
     MatrixRotationYawPitchRoll(mEu, yaw, pitch, roll);
 
     cout << "Matrix of yaw(" << yaw << ") pitch(" << pitch << ") roll(" << roll << "):";
     cout << mEu;
 
     Matrix4X4f ry;
-    float      angle = PI / 2.0f;
+    float angle = PI / 2.0f;
     MatrixRotationY(ry, angle);
 
     cout << "Matrix of Rotation on Y(angle = " << angle << "):";
@@ -76,7 +74,7 @@ void matrix_test()
     cout << "Matrix of Rotation on Z(angle = " << angle << "):";
     cout << rz;
 
-    float      x = 5.0f, y = 6.5f, z = -7.0f;
+    float x = 5.0f, y = 6.5f, z = -7.0f;
     Matrix4X4f translate;
     MatrixTranslation(translate, x, y, z);
 
@@ -145,13 +143,13 @@ void matrix_test()
     cout << endl;
     assert(Length(v1 - v2) < 10E-6f);
 
-    Vector3f   position = {0, 0, -5}, lookAt = {0, 0, 0}, up = {0, 1, 0};
+    Vector3f position = {0, 0, -5}, lookAt = {0, 0, 0}, up = {0, 1, 0};
     Matrix4X4f view;
     BuildViewMatrix(view, position, lookAt, up);
     cout << "View Matrix with position(" << position << ") lookAt(" << lookAt << ") up(" << up << "):";
     cout << view;
 
-    float      fov = PI / 2.0f, aspect = 16.0f / 9.0f, near = 1.0f, far = 100.0f;
+    float fov = PI / 2.0f, aspect = 16.0f / 9.0f, near = 1.0f, far = 100.0f;
     Matrix4X4f perspective;
     BuildPerspectiveFovLHMatrix(perspective, fov, aspect, near, far);
     cout << "(Left-Handed Coordinate System) Perspective Matrix with fov(" << fov << ") aspect(" << aspect << ") near ... far(" << near << " ... " << far << "):";
@@ -208,8 +206,7 @@ void matrix_test()
     cout << "DCT-IDCT error: " << pixel_error;
 }
 
-int main()
-{
+int main() {
     cout << fixed;
 
     vector_test();

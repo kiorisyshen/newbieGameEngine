@@ -3,10 +3,8 @@
 #include "FrameStructure.hpp"
 #include "Interface.hpp"
 
-namespace newbieGE
-{
-Interface IDrawPass
-{
+namespace newbieGE {
+Interface IDrawPass {
    public:
     IDrawPass() = default;
     virtual ~IDrawPass(){};

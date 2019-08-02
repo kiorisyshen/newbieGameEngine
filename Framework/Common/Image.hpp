@@ -3,15 +3,14 @@
 #include "config.h"
 #include "geommath.hpp"
 
-namespace newbieGE
-{
+namespace newbieGE {
 struct Image {
     uint32_t Width;
     uint32_t Height;
-    void*    data;
+    void *data;
     uint32_t bitcount;
     uint32_t pitch;
-    size_t   data_size;
+    size_t data_size;
 
     Image()
         : Width(0),
@@ -22,5 +21,5 @@ struct Image {
           data_size(0){};
 };
 
-std::ostream& operator<<(std::ostream& out, const Image& image);
+std::ostream &operator<<(std::ostream &out, const Image &image);
 }  // namespace newbieGE

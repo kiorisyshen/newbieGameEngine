@@ -10,17 +10,15 @@
 using namespace newbieGE;
 using namespace std;
 
-namespace newbieGE
-{
-IMemoryManager*   g_pMemoryManager    = new MemoryManager();
-AssetLoader*      g_pAssetLoader      = new AssetLoader();
-SceneManager*     g_pSceneManager     = new SceneManager();
-AnimationManager* g_pAnimationManager = new AnimationManager();
+namespace newbieGE {
+IMemoryManager *g_pMemoryManager      = new MemoryManager();
+AssetLoader *g_pAssetLoader           = new AssetLoader();
+SceneManager *g_pSceneManager         = new SceneManager();
+AnimationManager *g_pAnimationManager = new AnimationManager();
 }  // namespace newbieGE
 
 template <typename T>
-static ostream& operator<<(ostream& out, unordered_map<string, shared_ptr<T>> map)
-{
+static ostream &operator<<(ostream &out, unordered_map<string, shared_ptr<T>> map) {
     for (auto p : map) {
         out << *p.second << endl;
     }
@@ -28,8 +26,7 @@ static ostream& operator<<(ostream& out, unordered_map<string, shared_ptr<T>> ma
     return out;
 }
 
-int main(int argc, char** argv)
-{
+int main(int argc, char **argv) {
     g_pMemoryManager->Initialize();
     g_pSceneManager->Initialize();
     g_pAssetLoader->Initialize();
@@ -42,7 +39,7 @@ int main(int argc, char** argv)
 
     g_pAnimationManager->Initialize();
 
-    auto& scene = g_pSceneManager->GetSceneForRendering();
+    auto &scene = g_pSceneManager->GetSceneForRendering();
 
     cout.precision(4);
     cout.setf(ios::fixed);

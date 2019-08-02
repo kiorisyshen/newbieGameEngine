@@ -6,8 +6,7 @@ using namespace newbieGE;
 using namespace std;
 
 template <class T>
-void visualize(T points, const string& name)
-{
+void visualize(T points, const string &name) {
     cout << name << ':' << endl;
 
     // dump the result
@@ -35,12 +34,11 @@ void visualize(T points, const string& name)
     cout << endl;
 }
 
-int main(int argc, char** argv)
-{
+int main(int argc, char **argv) {
     // raster a line
     Point2D start_point({0, 0, 0});
     Point2D end_point({11, 4, 0});
-    auto    points = BresenhamLineInterpolate(start_point, end_point);
+    auto points = BresenhamLineInterpolate(start_point, end_point);
 
     visualize(points, "Line");
 

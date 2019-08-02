@@ -7,15 +7,14 @@
 
 using namespace newbieGE;
 
-int CocoaMetalApplication::Initialize()
-{
+int CocoaMetalApplication::Initialize() {
     int result = 0;
     result     = CocoaApplication::Initialize();
     if (result) {
         return result;
     }
 
-    MetalView* pView = [MetalView new];
+    MetalView *pView = [MetalView new];
 
     [pView initWithFrame:CGRectMake(0, 0, m_Config.screenWidth, m_Config.screenHeight)];
 
@@ -26,13 +25,11 @@ int CocoaMetalApplication::Initialize()
     return result;
 }
 
-void CocoaMetalApplication::Tick()
-{
+void CocoaMetalApplication::Tick() {
     CocoaApplication::Tick();
     [[m_pWindow contentView] setNeedsDisplay:YES];
 }
 
-void CocoaMetalApplication::Finalize()
-{
+void CocoaMetalApplication::Finalize() {
     CocoaApplication::Finalize();
 }

@@ -2,8 +2,7 @@
 #include <functional>
 #include "BaseSceneObject.hpp"
 
-namespace newbieGE
-{
+namespace newbieGE {
 struct AttenCurve {
     AttenCurveType type;
     union AttenCurveParams {
@@ -31,63 +30,53 @@ struct AttenCurve {
     } u;
 
     AttenCurve()
-        : type(AttenCurveType::kNone)
-    {
+        : type(AttenCurveType::kNone) {
     }
 };
 
-class SceneObjectLight : public BaseSceneObject
-{
+class SceneObjectLight : public BaseSceneObject {
    protected:
-    Color       m_LightColor;
-    float       m_fIntensity;
-    AttenCurve  m_LightDistanceAttenuation;
-    bool        m_bCastShadows;
+    Color m_LightColor;
+    float m_fIntensity;
+    AttenCurve m_LightDistanceAttenuation;
+    bool m_bCastShadows;
     std::string m_strTexture;
 
    public:
-    void SetIfCastShadow(bool shadow)
-    {
+    void SetIfCastShadow(bool shadow) {
         m_bCastShadows = shadow;
     };
 
-    void SetColor(std::string& attrib, Vector4f& color)
-    {
+    void SetColor(std::string &attrib, Vector4f &color) {
         if (attrib == "light") {
             m_LightColor = Color(color);
         }
     };
 
-    void SetParam(std::string& attrib, float param)
-    {
+    void SetParam(std::string &attrib, float param) {
         if (attrib == "intensity") {
             m_fIntensity = param;
         }
     };
 
-    void SetTexture(std::string& attrib, std::string& textureName)
-    {
+    void SetTexture(std::string &attrib, std::string &textureName) {
         if (attrib == "projection") {
             m_strTexture = textureName;
         }
     };
 
-    void SetDistanceAttenuation(AttenCurve curve)
-    {
+    void SetDistanceAttenuation(AttenCurve curve) {
         m_LightDistanceAttenuation = curve;
     }
 
-    const AttenCurve& GetDistanceAttenuation(void)
-    {
+    const AttenCurve &GetDistanceAttenuation(void) {
         return m_LightDistanceAttenuation;
     }
 
-    const Color& GetColor()
-    {
+    const Color &GetColor() {
         return m_LightColor;
     };
-    float GetIntensity()
-    {
+    float GetIntensity() {
         return m_fIntensity;
     };
 
@@ -99,22 +88,19 @@ class SceneObjectLight : public BaseSceneObject
           m_fIntensity(1.0f),
           m_bCastShadows(false){};
 
-    friend std::ostream& operator<<(std::ostream& out, const SceneObjectLight& obj);
+    friend std::ostream &operator<<(std::ostream &out, const SceneObjectLight &obj);
 };
 
-class SceneObjectOmniLight : public SceneObjectLight
-{
+class SceneObjectOmniLight : public SceneObjectLight {
    public:
     SceneObjectOmniLight(void)
-        : SceneObjectLight(SceneObjectType::kSceneObjectTypeLightOmni)
-    {
+        : SceneObjectLight(SceneObjectType::kSceneObjectTypeLightOmni) {
     }
 
-    friend std::ostream& operator<<(std::ostream& out, const SceneObjectOmniLight& obj);
+    friend std::ostream &operator<<(std::ostream &out, const SceneObjectOmniLight &obj);
 };
 
-class SceneObjectSpotLight : public SceneObjectLight
-{
+class SceneObjectSpotLight : public SceneObjectLight {
    protected:
     AttenCurve m_LightAngleAttenuation;
 
@@ -122,52 +108,44 @@ class SceneObjectSpotLight : public SceneObjectLight
     SceneObjectSpotLight(void)
         : SceneObjectLight(SceneObjectType::kSceneObjectTypeLightSpot){};
 
-    void SetAngleAttenuation(AttenCurve curve)
-    {
+    void SetAngleAttenuation(AttenCurve curve) {
         m_LightAngleAttenuation = curve;
     }
 
-    const AttenCurve& GetAngleAttenuation(void)
-    {
+    const AttenCurve &GetAngleAttenuation(void) {
         return m_LightAngleAttenuation;
     }
 
-    friend std::ostream& operator<<(std::ostream& out, const SceneObjectSpotLight& obj);
+    friend std::ostream &operator<<(std::ostream &out, const SceneObjectSpotLight &obj);
 };
 
-class SceneObjectInfiniteLight : public SceneObjectLight
-{
+class SceneObjectInfiniteLight : public SceneObjectLight {
    public:
     SceneObjectInfiniteLight(void)
-        : SceneObjectLight(SceneObjectType::kSceneObjectTypeLightInfi)
-    {
+        : SceneObjectLight(SceneObjectType::kSceneObjectTypeLightInfi) {
     }
 
-    friend std::ostream& operator<<(std::ostream& out, const SceneObjectInfiniteLight& obj);
+    friend std::ostream &operator<<(std::ostream &out, const SceneObjectInfiniteLight &obj);
 };
 
-class SceneObjectAreaLight : public SceneObjectLight
-{
+class SceneObjectAreaLight : public SceneObjectLight {
    protected:
     Vector2f m_LightDimension;
 
    public:
     SceneObjectAreaLight(void)
         : SceneObjectLight(SceneObjectType::kSceneObjectTypeLightArea),
-          m_LightDimension({1.0f, 1.0f})
-    {
+          m_LightDimension({1.0f, 1.0f}) {
     }
 
-    const Vector2f& GetDimension() const
-    {
+    const Vector2f &GetDimension() const {
         return m_LightDimension;
     }
 
-    void SetDimension(const Vector2f& dimension)
-    {
+    void SetDimension(const Vector2f &dimension) {
         m_LightDimension = dimension;
     }
 
-    friend std::ostream& operator<<(std::ostream& out, const SceneObjectAreaLight& obj);
+    friend std::ostream &operator<<(std::ostream &out, const SceneObjectAreaLight &obj);
 };
 }  // namespace newbieGE

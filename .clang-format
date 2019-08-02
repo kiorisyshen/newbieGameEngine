@@ -1,14 +1,13 @@
 BasedOnStyle: Google
 ColumnLimit: 0
 IndentWidth: 4
-BreakBeforeBraces: Linux
 ObjCSpaceAfterProperty: true
 ObjCSpaceBeforeProtocolList: true
-AlignConsecutiveDeclarations: true
+AlignConsecutiveDeclarations: false
 AlignConsecutiveAssignments: true
 DerivePointerBinding: false
-PointerBindsToType: true
+PointerBindsToType: false
 DerivePointerAlignment: false
-PointerAlignment: Left
+PointerAlignment: Right
 AllowShortLoopsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: false

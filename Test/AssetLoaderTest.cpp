@@ -6,14 +6,12 @@
 using namespace std;
 using namespace newbieGE;
 
-namespace newbieGE
-{
-IMemoryManager* g_pMemoryManager = new MemoryManager();
-AssetLoader*    g_pAssetLoader   = new AssetLoader();
+namespace newbieGE {
+IMemoryManager *g_pMemoryManager = new MemoryManager();
+AssetLoader *g_pAssetLoader      = new AssetLoader();
 }  // namespace newbieGE
 
-int main(int, char**)
-{
+int main(int, char **) {
     g_pMemoryManager->Initialize();
     g_pAssetLoader->Initialize();
 

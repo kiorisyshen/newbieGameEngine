@@ -9,21 +9,17 @@
 using namespace newbieGE;
 using namespace std;
 
-int InputManager::Initialize()
-{
+int InputManager::Initialize() {
     return 0;
 }
 
-void InputManager::Finalize()
-{
+void InputManager::Finalize() {
 }
 
-void InputManager::Tick()
-{
+void InputManager::Tick() {
 }
 
-void InputManager::UpArrowKeyDown()
-{
+void InputManager::UpArrowKeyDown() {
 #ifdef DEBUG
     cerr << "[InputManager] Up Arrow Key Down!" << endl;
 #endif
@@ -34,8 +30,7 @@ void InputManager::UpArrowKeyDown()
     }
 }
 
-void InputManager::UpArrowKeyUp()
-{
+void InputManager::UpArrowKeyUp() {
 #ifdef DEBUG
     cerr << "[InputManager] Up Arrow Key Up!" << endl;
 #endif
@@ -43,8 +38,7 @@ void InputManager::UpArrowKeyUp()
     m_bUpKeyPressed = false;
 }
 
-void InputManager::DownArrowKeyDown()
-{
+void InputManager::DownArrowKeyDown() {
 #ifdef DEBUG
     cerr << "[InputManager] Down Arrow Key Down!" << endl;
 #endif
@@ -55,8 +49,7 @@ void InputManager::DownArrowKeyDown()
     }
 }
 
-void InputManager::DownArrowKeyUp()
-{
+void InputManager::DownArrowKeyUp() {
 #ifdef DEBUG
     cerr << "[InputManager] Down Arrow Key Up!" << endl;
 #endif
@@ -64,8 +57,7 @@ void InputManager::DownArrowKeyUp()
     m_bDownKeyPressed = false;
 }
 
-void InputManager::LeftArrowKeyDown()
-{
+void InputManager::LeftArrowKeyDown() {
 #ifdef DEBUG
     cerr << "[InputManager] Left Arrow Key Down!" << endl;
 #endif
@@ -76,8 +68,7 @@ void InputManager::LeftArrowKeyDown()
     }
 }
 
-void InputManager::LeftArrowKeyUp()
-{
+void InputManager::LeftArrowKeyUp() {
 #ifdef DEBUG
     cerr << "[InputManager] Left Arrow Key Up!" << endl;
 #endif
@@ -85,8 +76,7 @@ void InputManager::LeftArrowKeyUp()
     m_bLeftKeyPressed = false;
 }
 
-void InputManager::RightArrowKeyDown()
-{
+void InputManager::RightArrowKeyDown() {
 #ifdef DEBUG
     cerr << "[InputManager] Right Arrow Key Down!" << endl;
 #endif
@@ -97,8 +87,7 @@ void InputManager::RightArrowKeyDown()
     }
 }
 
-void InputManager::RightArrowKeyUp()
-{
+void InputManager::RightArrowKeyUp() {
 #ifdef DEBUG
     cerr << "[InputManager] Right Arrow Key Up!" << endl;
 #endif
@@ -106,8 +95,7 @@ void InputManager::RightArrowKeyUp()
     m_bRightKeyPressed = false;
 }
 
-void InputManager::AsciiKeyDown(char keycode)
-{
+void InputManager::AsciiKeyDown(char keycode) {
 #ifdef DEBUG
     cerr << "[InputManager] ASCII Key Down! (" << keycode << ")" << endl;
 #endif
@@ -128,8 +116,7 @@ void InputManager::AsciiKeyDown(char keycode)
     }
 }
 
-void InputManager::AsciiKeyUp(char keycode)
-{
+void InputManager::AsciiKeyUp(char keycode) {
 #ifdef DEBUG
     cerr << "[InputManager] ASCII Key Up! (" << keycode << ")" << endl;
 #endif
@@ -146,18 +133,15 @@ void InputManager::AsciiKeyUp(char keycode)
     }
 }
 
-void InputManager::LeftMouseButtonDown()
-{
+void InputManager::LeftMouseButtonDown() {
     cerr << "[InputManager] Left Mouse Button Down!" << endl;
 }
 
-void InputManager::LeftMouseButtonUp()
-{
+void InputManager::LeftMouseButtonUp() {
     cerr << "[InputManager] Left Mouse Button Up!" << endl;
 }
 
-void InputManager::LeftMouseDrag(int deltaX, int deltaY)
-{
+void InputManager::LeftMouseDrag(int deltaX, int deltaY) {
     cerr << "[InputManager] Left Mouse Dragged! ("
          << deltaX << ","
          << deltaY << ")"

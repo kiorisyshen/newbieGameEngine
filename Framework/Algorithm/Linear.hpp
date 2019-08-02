@@ -3,32 +3,26 @@
 #include "MatrixComposeDecompose.hpp"
 #include "geommath.hpp"
 
-namespace newbieGE
-{
+namespace newbieGE {
 template <typename TVAL, typename TPARAM>
-class Linear : public CurveBase, public Curve<TVAL, TPARAM>
-{
+class Linear : public CurveBase, public Curve<TVAL, TPARAM> {
    public:
     Linear()
-        : CurveBase(CurveType::kLinear)
-    {
+        : CurveBase(CurveType::kLinear) {
     }
     Linear(const std::vector<TVAL> knots)
-        : Linear()
-    {
+        : Linear() {
         Curve<TVAL, TPARAM>::m_Knots = knots;
     }
 
-    Linear(const TVAL* knots, const size_t count)
-        : Linear()
-    {
+    Linear(const TVAL *knots, const size_t count)
+        : Linear() {
         for (size_t i = 0; i < count; i++) {
             Curve<TVAL, TPARAM>::m_Knots.push_back(knots[i]);
         }
     }
 
-    TPARAM Reverse(TVAL t, size_t& index) const final
-    {
+    TPARAM Reverse(TVAL t, size_t &index) const final {
         TVAL t1 = 0, t2 = 0;
 
         if (Curve<TVAL, TPARAM>::m_Knots.size() < 2)
@@ -57,8 +51,7 @@ class Linear : public CurveBase, public Curve<TVAL, TPARAM>
         return TPARAM((t - t1) / (t2 - t1));
     }
 
-    TVAL Interpolate(TPARAM s, const size_t index) const final
-    {
+    TVAL Interpolate(TPARAM s, const size_t index) const final {
         if (Curve<TVAL, TPARAM>::m_Knots.size() == 0)
             return 0;
         else if (Curve<TVAL, TPARAM>::m_Knots.size() == 1)
@@ -77,37 +70,31 @@ class Linear : public CurveBase, public Curve<TVAL, TPARAM>
 };
 
 template <typename T>
-class Linear<Quaternion<T>, T> : public CurveBase, public Curve<Quaternion<T>, T>
-{
+class Linear<Quaternion<T>, T> : public CurveBase, public Curve<Quaternion<T>, T> {
    public:
     Linear()
-        : CurveBase(CurveType::kLinear)
-    {
+        : CurveBase(CurveType::kLinear) {
     }
     Linear(const std::vector<Quaternion<T>> knots)
-        : Linear()
-    {
+        : Linear() {
         Curve<Quaternion<T>, T>::m_Knots = knots;
     }
 
-    Linear(const Quaternion<T>* knots, const size_t count)
-        : Linear()
-    {
+    Linear(const Quaternion<T> *knots, const size_t count)
+        : Linear() {
         for (size_t i = 0; i < count; i++) {
             Curve<Quaternion<T>, T>::m_Knots.push_back(knots[i]);
         }
     }
 
-    T Reverse(Quaternion<T> v, size_t& index) const final
-    {
+    T Reverse(Quaternion<T> v, size_t &index) const final {
         T result = 0;
         assert(0);
 
         return result;
     }
 
-    Quaternion<T> Interpolate(T s, const size_t index) const final
-    {
+    Quaternion<T> Interpolate(T s, const size_t index) const final {
         Quaternion<T> result = 0;
         assert(0);
 
@@ -116,37 +103,31 @@ class Linear<Quaternion<T>, T> : public CurveBase, public Curve<Quaternion<T>, T
 };
 
 template <>
-class Linear<Matrix4X4f, float> : public CurveBase, public Curve<Matrix4X4f, float>
-{
+class Linear<Matrix4X4f, float> : public CurveBase, public Curve<Matrix4X4f, float> {
    public:
     Linear()
-        : CurveBase(CurveType::kLinear)
-    {
+        : CurveBase(CurveType::kLinear) {
     }
     Linear(const std::vector<Matrix4X4f> knots)
-        : Linear()
-    {
+        : Linear() {
         Curve<Matrix4X4f, float>::m_Knots = knots;
     }
 
-    Linear(const Matrix4X4f* knots, const size_t count)
-        : Linear()
-    {
+    Linear(const Matrix4X4f *knots, const size_t count)
+        : Linear() {
         for (size_t i = 0; i < count; i++) {
             Curve<Matrix4X4f, float>::m_Knots.push_back(knots[i]);
         }
     }
 
-    float Reverse(Matrix4X4f v, size_t& index) const final
-    {
+    float Reverse(Matrix4X4f v, size_t &index) const final {
         float result = 0.0f;
         assert(0);
 
         return result;
     }
 
-    Matrix4X4f Interpolate(float s, const size_t index) const final
-    {
+    Matrix4X4f Interpolate(float s, const size_t index) const final {
         Matrix4X4f result;
         BuildIdentityMatrix(result);
         if (Curve<Matrix4X4f, float>::m_Knots.size() == 0)
