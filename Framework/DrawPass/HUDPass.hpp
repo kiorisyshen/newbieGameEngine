@@ -2,9 +2,9 @@
 #include "IDrawPass.hpp"
 
 namespace newbieGE {
-class ForwardRenderPass : implements IDrawPass {
+class HUDPass : implements IDrawPass {
    public:
-    ~ForwardRenderPass() = default;
+    ~HUDPass() = default;
 
     void Draw(Frame &frame) final;
 };

@@ -9,7 +9,6 @@ Interface IDrawPass {
     IDrawPass() = default;
     virtual ~IDrawPass(){};
 
-    virtual RenderPassIndex GetPassIndex() = 0;
-    virtual void Draw(Frame & frame)       = 0;
+    virtual void Draw(Frame & frame) = 0;
 };
 }  // namespace newbieGE

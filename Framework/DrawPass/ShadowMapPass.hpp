@@ -11,9 +11,6 @@ class ShadowMapPass : implements IDrawPass {
     const uint32_t kGlobalShadowMapWidth  = 2048;  // shadow map for sun light
     const uint32_t kGlobalShadowMapHeight = 2048;  // shadow map for sun light
 
-    RenderPassIndex GetPassIndex() final {
-        return RenderPassIndex::ShadowPass;
-    };
     void Draw(Frame &frame) final;
 };
 }  // namespace newbieGE

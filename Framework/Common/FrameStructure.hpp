@@ -10,11 +10,6 @@ ENUM(DefaultShaderIndex){
     DebugShader     = "DEBG"_i32,
 };
 
-ENUM(RenderPassIndex){
-    ForwardPass = "FWPS"_i32,
-    ShadowPass  = "SHPS"_i32,
-};
-
 struct DrawFrameContext : PerFrameConstants, frame_textures {
 };
 
