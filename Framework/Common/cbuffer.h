@@ -40,11 +40,12 @@ enum LightType {
 
 // 128 bytes
 struct Light {
+    Matrix4X4f lightVP;                   // 64 bytes
     Vector4f lightPosition;               // 16 bytes
     Vector4f lightColor;                  // 16 bytes
     Vector4f lightDirection;              // 16 bytes
-    float lightDistAttenCurveParams[5];   // 20 bytes
-    float lightAngleAttenCurveParams[5];  // 20 bytes
+    float lightDistAttenCurveParams[6];   // 32 bytes
+    float lightAngleAttenCurveParams[6];  // 32 bytes
     Vector2f lightSize;                   // 8 bytes
     int32_t lightDistAttenCurveType;      // 4 bytes
     int32_t lightAngleAttenCurveType;     // 4 bytes
@@ -52,11 +53,10 @@ struct Light {
     int32_t lightType;                    // 4 bytes
     int32_t lightCastShadow;              // 4 bytes
     int32_t lightShadowMapIndex;          // 4 bytes
-    Matrix4X4f lightVP;                   // 64 bytes
-    // Above is 184 bytes
+    // Above is 208 bytes
 
     // Fill bytes to align to 256 bytes (Metal required)
-    float padding[18];  // 72 bytes
+    float padding[16];  // 48 bytes
 };
 
 unistruct LightInfo REGISTER(b12) {

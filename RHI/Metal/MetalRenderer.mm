@@ -301,7 +301,10 @@ struct ShaderState {
     renderPassDescriptor.depthAttachment.texture  = _shadowMaps[shadowmap];
 
     _renderEncoder       = [_commandBuffer renderCommandEncoderWithDescriptor:_renderPassDescriptors[(int32_t)RenderPassIndex::ForwardPass]];
-    _renderEncoder.label = @"ForwardRenderEncoder";
+    _renderEncoder.label = @"ShadowRenderEncoder";
+    [_renderEncoder setVertexBytes:&light.lightVP
+                            length:sizeof(light.lightVP)
+                           atIndex:14];
 }
 
 - (void)endShadowPass:(const int32_t)shadowmap {

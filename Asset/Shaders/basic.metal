@@ -6,11 +6,12 @@
 using namespace metal;
 
 struct Light {
+    float4x4 lightVP;                     // 64 bytes
     float4 lightPosition;                 // 16 bytes
     float4 lightColor;                    // 16 bytes
     float4 lightDirection;                // 16 bytes
-    float lightDistAttenCurveParams[5];   // 20 bytes
-    float lightAngleAttenCurveParams[5];  // 20 bytes
+    float lightDistAttenCurveParams[6];   // 24 bytes
+    float lightAngleAttenCurveParams[6];  // 24 bytes
     float2 lightSize;                     // 8 bytes
     int lightDistAttenCurveType;          // 4 bytes
     int lightAngleAttenCurveType;         // 4 bytes
@@ -18,11 +19,10 @@ struct Light {
     int lightType;                        // 4 bytes
     int lightCastShadow;                  // 4 bytes
     int lightShadowMapIndex;              // 4 bytes
-    float4x4 lightVP;                     // 64 bytes
     // Above is 184 bytes
 
     // Fill bytes to align to 256 bytes (Metal required)
-    float padding[18];  // 72 bytes
+    float padding[16];  // 64 bytes
 };
 
 struct LightInfo {
@@ -85,7 +85,7 @@ float linear_interpolate(thread const float &t, thread const float &begin, threa
     }
 }
 
-float apply_atten_curve(thread const float &dist, thread const int &atten_curve_type, thread const float (&atten_params)[5]) {
+float apply_atten_curve(thread const float &dist, thread const int &atten_curve_type, thread const float (&atten_params)[6]) {
     float atten = 1.0;
     switch (atten_curve_type) {
         case 1: {
@@ -179,7 +179,7 @@ float3 apply_areaLight(constant Light &light, thread const basic_vert_main_out &
 
     float param_3 = lightToSurfDist;
     int param_4   = light.lightDistAttenCurveType;
-    float param_5[5];
+    float param_5[6];
     spvArrayCopyConstant(param_5, light.lightDistAttenCurveParams);
 
     float atten    = apply_atten_curve(param_3, param_4, param_5);
@@ -233,12 +233,12 @@ float3 apply_light(constant Light &light, thread const basic_vert_main_out &in, 
     float cosTheta         = clamp(dot(N, L), 0.0, 1.0);
 
     int param_1 = light.lightAngleAttenCurveType;
-    float param_2[5];
+    float param_2[6];
     spvArrayCopyConstant(param_2, light.lightAngleAttenCurveParams);
     float atten = apply_atten_curve(lightToSurfAngle, param_1, param_2);
 
     int param_4 = light.lightDistAttenCurveType;
-    float param_5[5];
+    float param_5[6];
     spvArrayCopyConstant(param_5, light.lightDistAttenCurveParams);
     atten *= apply_atten_curve(lightToSurfDist, param_4, param_5);
 
