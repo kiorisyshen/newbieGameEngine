@@ -41,6 +41,7 @@ void GraphicsManager::Finalize() {
 
 void GraphicsManager::Tick() {
     if (g_pSceneManager->IsSceneChanged()) {
+        m_bFinishInit = false;
         EndScene();
         cout << "[GraphicsManager] Detected Scene Change, reinitialize Graphics Manager..." << endl;
         const Scene &scene = g_pSceneManager->GetSceneForRendering();
@@ -58,6 +59,8 @@ void GraphicsManager::Tick() {
     SetPerFrameConstants(frame.frameContext);
     SetPerBatchConstants(frame.batchContext);
     SetLightInfo(frame.lightInfo);
+
+    m_bFinishInit = true;
 }
 
 void GraphicsManager::UpdateConstants() {
@@ -176,15 +179,15 @@ void GraphicsManager::CalculateLights() {
 }
 
 void GraphicsManager::RenderBuffers() {
-    BeginFrame();
+    if (!m_bFinishInit) return;
 
+    BeginFrame();
     auto &frame = m_Frames[m_nFrameIndex];
     for (auto &pDrawPass : m_DrawPasses) {
         BeginPass(pDrawPass->GetPassIndex());
         pDrawPass->Draw(frame);
         EndPass(pDrawPass->GetPassIndex());
     }
-
     EndFrame();
 }
 

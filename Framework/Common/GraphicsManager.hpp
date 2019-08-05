@@ -72,6 +72,7 @@ class GraphicsManager : implements IRuntimeModule {
 #endif
 
    protected:
+    bool m_bFinishInit     = false;
     uint32_t m_nFrameIndex = 0;
     std::vector<Frame> m_Frames;
     std::vector<std::shared_ptr<IDrawPass>> m_DrawPasses;
