@@ -18,7 +18,21 @@ class MetalGraphicsManager : public GraphicsManager {
         m_pRenderer = renderer;
     }
 
-    void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches, const DefaultShaderIndex idx) final;
+    void UseShaderProgram(const DefaultShaderIndex idx) final;
+
+    void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) final;
+
+    void BeginForwardPass() final;
+    void EndForwardPass() final;
+
+    // Shadow Map
+    void BeginShadowPass(const Light &light, const int32_t shadowmap) final;
+    void EndShadowPass(const int32_t shadowmap) final;
+
+    // int32_t GenerateShadowMapArray(const uint32_t width, const uint32_t height, const uint32_t count) final;
+    int32_t GenerateShadowMap(const uint32_t width, const uint32_t height) final;
+    void DestroyShadowMap(int32_t &shadowmap) final;
+    void SetShadowMaps(const Frame &frame) final;
 
 #ifdef DEBUG
     void DEBUG_ClearDebugBuffers() final;
@@ -34,9 +48,6 @@ class MetalGraphicsManager : public GraphicsManager {
 
     void BeginFrame() final;
     void EndFrame() final;
-
-    void BeginPass(const RenderPassIndex idx) final;
-    void EndPass(const RenderPassIndex idx) final;
 
     void BeginCompute() final;
     void EndCompute() final;

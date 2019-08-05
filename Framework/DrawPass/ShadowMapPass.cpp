@@ -5,41 +5,35 @@ using namespace std;
 using namespace newbieGE;
 
 void ShadowMapPass::Draw(Frame &frame) {
-    // auto shaderProgram = g_pShaderManager->GetDefaultShaderProgram(DefaultShaderIndex::ShadowMap);
+    if (frame.frameContext.shadowMap.size() > 0) {
+        for (auto it : frame.frameContext.shadowMap) {
+            g_pGraphicsManager->DestroyShadowMap(it);
+        }
+    }
 
-    // // Set the color shader as the current shader program and set the matrices that it will use for rendering.
-    // g_pGraphicsManager->UseShaderProgram(shaderProgram);
+    // count shadow map
+    vector<Light *> lights_cast_shadow;
 
-    // if (frame.shadowMap != -1)
-    //     g_pGraphicsManager->DestroyShadowMap(frame.shadowMap);
+    for (int32_t i = 0; i < frame.frameContext.numLights; i++) {
+        auto &light = frame.lightInfo.lights[i];
 
-    // frame.shadowMapCount = 0;
+        if (light.lightCastShadow) {
+            lights_cast_shadow.push_back(&light);
+        }
+    }
 
-    // // count shadow map
-    // vector<decltype(frame.frameContext.m_lights)::iterator> lights_cast_shadow;
+    // generate shadow map array
+    int32_t shadowmap_index = 0;
+    for (auto it : lights_cast_shadow) {
+        frame.frameContext.shadowMap.push_back(
+            g_pGraphicsManager->GenerateShadowMap(kShadowMapWidth, kShadowMapHeight));
+        it->lightShadowMapIndex = shadowmap_index;
 
-    // for (auto it = frame.frameContext.m_lights.begin(); it != frame.frameContext.m_lights.end(); it++) {
-    //     if (it->m_lightCastShadow) {
-    //         frame.shadowMapCount++;
-    //         lights_cast_shadow.push_back(it);
-    //     }
-    // }
+        g_pGraphicsManager->BeginShadowPass(*it, it->lightShadowMapIndex);
+        g_pGraphicsManager->UseShaderProgram(DefaultShaderIndex::ShadowMapShader);
+        g_pGraphicsManager->DrawBatch(frame.batchContext);
+        g_pGraphicsManager->EndShadowPass(it->lightShadowMapIndex);
 
-    // // generate shadow map array
-    // frame.shadowMap = g_pGraphicsManager->GenerateShadowMapArray(frame.shadowMapCount);
-
-    // uint32_t shadowmap_index = 0;
-
-    // for (auto it : lights_cast_shadow) {
-    //     // update shadow map
-    //     g_pGraphicsManager->BeginShadowMap(*it, frame.shadowMap, shadowmap_index);
-
-    //     for (auto dbc : frame.batchContexts) {
-    //         g_pGraphicsManager->DrawBatchDepthOnly(*dbc);
-    //     }
-
-    //     g_pGraphicsManager->EndShadowMap(frame.shadowMap, shadowmap_index);
-
-    //     it->m_lightShadowMapIndex = shadowmap_index++;
-    // }
+        ++shadowmap_index;
+    }
 }

@@ -22,6 +22,8 @@ struct ShaderState {
 
     id<MTLSamplerState> _sampler0;
     std::vector<id<MTLTexture>> _textures;
+    std::vector<id<MTLTexture>> _shadowMaps;
+
     std::vector<id<MTLBuffer>> _vertexBuffers;
     std::vector<id<MTLBuffer>> _indexBuffers;
     id<MTLBuffer> _uniformBuffers;
@@ -104,7 +106,7 @@ struct ShaderState {
     ShaderState basicSS;
     basicSS.pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
     if (!basicSS.pipelineState) {
-        NSLog(@"Failed to created pipeline state, error %@", error);
+        NSLog(@"Failed to created basic pipeline state, error %@", error);
         succ = false;
     }
     MTLDepthStencilDescriptor *depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
@@ -120,6 +122,38 @@ struct ShaderState {
     }
 
     _renderPassDescriptors[(int32_t)RenderPassIndex::ForwardPass] = forwarRenderPassDescriptor;
+    // --------------
+
+    // --------------
+    // Shadow shaders
+    vertexFunction = [myLibrary newFunctionWithName:@"shadow_vert_main"];
+
+    pipelineStateDescriptor                            = [[MTLRenderPipelineDescriptor alloc] init];
+    pipelineStateDescriptor.label                      = @"Shadow Pipeline";
+    pipelineStateDescriptor.vertexDescriptor           = nil;
+    pipelineStateDescriptor.vertexFunction             = vertexFunction;
+    pipelineStateDescriptor.fragmentFunction           = nil;
+    pipelineStateDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+
+    ShaderState shadowSS;
+    shadowSS.pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
+    if (!shadowSS.pipelineState) {
+        NSLog(@"Failed to created shadow pipeline state, error %@", error);
+        succ = false;
+    }
+    depthStateDesc                      = [[MTLDepthStencilDescriptor alloc] init];
+    depthStateDesc.depthCompareFunction = MTLCompareFunctionLessEqual;
+    depthStateDesc.depthWriteEnabled    = YES;
+    shadowSS.depthStencilState          = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
+
+    _renderPassStates[(int32_t)DefaultShaderIndex::ShadowMapShader] = shadowSS;
+
+    MTLRenderPassDescriptor *renderPassDescriptor    = [MTLRenderPassDescriptor new];
+    renderPassDescriptor.depthAttachment.loadAction  = MTLLoadActionClear;
+    renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
+    renderPassDescriptor.depthAttachment.clearDepth  = 1.0;
+
+    _renderPassDescriptors[(int32_t)RenderPassIndex::ShadowPass] = renderPassDescriptor;
     // --------------
 
     // --------------
@@ -191,11 +225,14 @@ struct ShaderState {
 #endif
 }
 
-- (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches shaderIndex:(const DefaultShaderIndex)idx {
-    [_renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
-    [_renderEncoder setCullMode:MTLCullModeBack];
+- (void)useShaderProgram:(const DefaultShaderIndex)idx {
     [_renderEncoder setRenderPipelineState:_renderPassStates[(int32_t)idx].pipelineState];
     [_renderEncoder setDepthStencilState:_renderPassStates[(int32_t)idx].depthStencilState];
+}
+
+- (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches {
+    [_renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
+    [_renderEncoder setCullMode:MTLCullModeBack];
 
     // Push a debug group allowing us to identify render commands in the GPU
     // Frame Capture tool
@@ -223,9 +260,9 @@ struct ShaderState {
             [_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:bufferIndex];
         }
         /* well, we have different material for each index buffer so we can not
-             * draw them together in future we should group indicies according to its
-             * material and draw them together
-             */
+        * draw them together in future we should group indicies according to its
+        * material and draw them together
+        */
         if (dbc.materialIdx >= 0) {
             [_renderEncoder setFragmentTexture:_textures[dbc.materialIdx] atIndex:0];
         }
@@ -241,6 +278,34 @@ struct ShaderState {
                             indexBufferOffset:0];
     }
     [_renderEncoder popDebugGroup];
+}
+
+- (void)beginForwardPass {
+    MTLRenderPassDescriptor *forwarRenderPassDescriptor = _mtkView.currentRenderPassDescriptor;
+    if (forwarRenderPassDescriptor != nil) {
+        forwarRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
+    }
+    _renderPassDescriptors[(int32_t)RenderPassIndex::ForwardPass] = forwarRenderPassDescriptor;
+
+    _renderEncoder       = [_commandBuffer renderCommandEncoderWithDescriptor:_renderPassDescriptors[(int32_t)RenderPassIndex::ForwardPass]];
+    _renderEncoder.label = @"ForwardRenderEncoder";
+}
+
+- (void)endForwardPass {
+    [_renderEncoder endEncoding];
+}
+
+- (void)beginShadowPass:(const Light &)light
+              shadowmap:(const int32_t)shadowmap {
+    MTLRenderPassDescriptor *renderPassDescriptor = _renderPassDescriptors[(int32_t)RenderPassIndex::ShadowPass];
+    renderPassDescriptor.depthAttachment.texture  = _shadowMaps[shadowmap];
+
+    _renderEncoder       = [_commandBuffer renderCommandEncoderWithDescriptor:_renderPassDescriptors[(int32_t)RenderPassIndex::ForwardPass]];
+    _renderEncoder.label = @"ForwardRenderEncoder";
+}
+
+- (void)endShadowPass:(const int32_t)shadowmap {
+    [_renderEncoder endEncoding];
 }
 
 static MTLPixelFormat getMtlPixelFormat(const Image &img) {
@@ -292,6 +357,34 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
     _textures.push_back(texture);
 
     return index;
+}
+
+- (int32_t)createTexture:(const uint32_t)width
+                  height:(const uint32_t)height {
+    id<MTLTexture> texture;
+
+    MTLTextureDescriptor *textureDesc = [[MTLTextureDescriptor alloc] init];
+
+    textureDesc.textureType = MTLTextureType2D;
+    textureDesc.pixelFormat = MTLPixelFormatDepth32Float;
+    textureDesc.width       = width;
+    textureDesc.height      = height;
+    textureDesc.storageMode = MTLStorageModePrivate;
+
+    // create the texture obj
+    texture = [_device newTextureWithDescriptor:textureDesc];
+
+    uint32_t index = _shadowMaps.size();
+    _shadowMaps.push_back(texture);
+
+    return static_cast<int32_t>(index);
+}
+
+- (void)destroyShadowMap:(int32_t &)shadowmap {
+    _shadowMaps[shadowmap] = Nil;
+}
+
+- (void)setShadowMaps:(const Frame &)frame {
 }
 
 - (void)createVertexBuffer:(const SceneObjectVertexArray &)v_property_array {
@@ -351,12 +444,6 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
     [_commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> buffer) {
       dispatch_semaphore_signal(block_sema);
     }];
-
-    MTLRenderPassDescriptor *forwarRenderPassDescriptor = _mtkView.currentRenderPassDescriptor;
-    if (forwarRenderPassDescriptor != nil) {
-        forwarRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
-    }
-    _renderPassDescriptors[(int32_t)RenderPassIndex::ForwardPass] = forwarRenderPassDescriptor;
 }
 
 - (void)endFrame {
@@ -364,29 +451,6 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
 
     // Finalize rendering here & push the command buffer to the GPU
     [_commandBuffer commit];
-}
-
-- (void)beginPass:(const RenderPassIndex)idx {
-    if (_renderPassDescriptors[(int32_t)idx] != nil) {
-        NSString *encoderLabel = @"";
-        switch (idx) {
-            case RenderPassIndex::ForwardPass:
-                encoderLabel = @"ForwardRenderEncoder";
-                break;
-            case RenderPassIndex::ShadowPass:
-                encoderLabel = @"ShadowRenderEncoder";
-                break;
-            default:
-                assert(0);
-                break;
-        }
-        _renderEncoder       = [_commandBuffer renderCommandEncoderWithDescriptor:_renderPassDescriptors[(int32_t)idx]];
-        _renderEncoder.label = encoderLabel;
-    }
-}
-
-- (void)endPass:(const RenderPassIndex)idx {
-    [_renderEncoder endEncoding];
 }
 
 - (void)beginCompute {

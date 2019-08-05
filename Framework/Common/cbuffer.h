@@ -50,14 +50,21 @@ struct Light {
     int32_t lightAngleAttenCurveType;     // 4 bytes
     float lightIntensity;                 // 4 bytes
     int32_t lightType;                    // 4 bytes
-    // Above is 112 bytes
+    int32_t lightCastShadow;              // 4 bytes
+    int32_t lightShadowMapIndex;          // 4 bytes
+    Matrix4X4f lightVP;                   // 64 bytes
+    // Above is 184 bytes
 
-    // Add 16 bytes to align to 128 bytes (Metal required)
-    float _alignTmp[4];  // 16 bytes
+    // Fill bytes to align to 256 bytes (Metal required)
+    float padding[18];  // 72 bytes
 };
 
 unistruct LightInfo REGISTER(b12) {
     struct Light lights[MAX_LIGHTS];
+};
+
+struct frame_textures {
+    std::vector<int32_t> shadowMap;
 };
 
 // Align for metal

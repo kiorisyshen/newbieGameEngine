@@ -19,7 +19,25 @@ struct MtlDrawBatchContext : public DrawBatchConstant {
 
 - (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view;
 
-- (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches shaderIndex:(const DefaultShaderIndex)idx;
+- (void)useShaderProgram:(const DefaultShaderIndex)idx;
+
+- (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches;
+
+- (void)beginForwardPass;
+
+- (void)endForwardPass;
+
+- (void)beginShadowPass:(const Light &)light
+              shadowmap:(const int32_t)shadowmap;
+
+- (void)endShadowPass:(const int32_t)shadowmap;
+
+- (void)setShadowMaps:(const Frame &)frame;
+
+- (void)destroyShadowMap:(int32_t &)shadowmap;
+
+- (int32_t)createTexture:(const uint32_t)width
+                   height:(const uint32_t)height;
 
 - (uint32_t)createTexture:(const newbieGE::Image &)image;
 
@@ -44,10 +62,6 @@ struct MtlDrawBatchContext : public DrawBatchConstant {
 - (void)beginFrame;
 
 - (void)endFrame;
-
-- (void)beginPass:(const RenderPassIndex)idx;
-
-- (void)endPass:(const RenderPassIndex)idx;
 
 - (void)beginCompute;
 

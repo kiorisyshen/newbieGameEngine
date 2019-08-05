@@ -21,8 +21,40 @@ void MetalGraphicsManager::Finalize() {
     [m_pRenderer Finalize];
 }
 
-void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches, const DefaultShaderIndex idx) {
-    [m_pRenderer drawBatch:batches shaderIndex:idx];
+void MetalGraphicsManager::UseShaderProgram(const DefaultShaderIndex idx) {
+    [m_pRenderer useShaderProgram:idx];
+}
+
+void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) {
+    [m_pRenderer drawBatch:batches];
+}
+
+void MetalGraphicsManager::BeginForwardPass() {
+    [m_pRenderer beginForwardPass];
+}
+
+void MetalGraphicsManager::EndForwardPass() {
+    [m_pRenderer endForwardPass];
+}
+
+void MetalGraphicsManager::BeginShadowPass(const Light &light, const int32_t shadowmap) {
+    [m_pRenderer beginShadowPass:light shadowmap:shadowmap];
+}
+
+void MetalGraphicsManager::EndShadowPass(const int32_t shadowmap) {
+    [m_pRenderer endShadowPass:shadowmap];
+}
+
+int32_t MetalGraphicsManager::GenerateShadowMap(const uint32_t width, const uint32_t height) {
+    return [m_pRenderer createTexture:width height:height];
+}
+
+void MetalGraphicsManager::DestroyShadowMap(int32_t &shadowmap) {
+    [m_pRenderer destroyShadowMap:shadowmap];
+}
+
+void MetalGraphicsManager::SetShadowMaps(const Frame &frame) {
+    [m_pRenderer setShadowMaps:frame];
 }
 
 void MetalGraphicsManager::SetLightInfo(const LightInfo &lightInfo) {
@@ -181,14 +213,6 @@ void MetalGraphicsManager::BeginFrame() {
 
 void MetalGraphicsManager::EndFrame() {
     [m_pRenderer endFrame];
-}
-
-void MetalGraphicsManager::BeginPass(const RenderPassIndex idx) {
-    [m_pRenderer beginPass:idx];
-}
-
-void MetalGraphicsManager::EndPass(const RenderPassIndex idx) {
-    [m_pRenderer endPass:idx];
 }
 
 void MetalGraphicsManager::BeginCompute() {

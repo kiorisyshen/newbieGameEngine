@@ -6,20 +6,23 @@
 using namespace metal;
 
 struct Light {
-    float4 lightPosition;                  // 16 bytes
-    float4 lightColor;                     // 16 bytes
-    float4 lightDirection;                 // 16 bytes
-    float  lightDistAttenCurveParams[5];   // 20 bytes
-    float  lightAngleAttenCurveParams[5];  // 20 bytes
-    float2 lightSize;                      // 8 bytes
-    int    lightDistAttenCurveType;        // 4 bytes
-    int    lightAngleAttenCurveType;       // 4 bytes
-    float  lightIntensity;                 // 4 bytes
-    int    lightType;                      // 4 bytes
-    // Above is 112 bytes
+    float4 lightPosition;                 // 16 bytes
+    float4 lightColor;                    // 16 bytes
+    float4 lightDirection;                // 16 bytes
+    float lightDistAttenCurveParams[5];   // 20 bytes
+    float lightAngleAttenCurveParams[5];  // 20 bytes
+    float2 lightSize;                     // 8 bytes
+    int lightDistAttenCurveType;          // 4 bytes
+    int lightAngleAttenCurveType;         // 4 bytes
+    float lightIntensity;                 // 4 bytes
+    int lightType;                        // 4 bytes
+    int lightCastShadow;                  // 4 bytes
+    int lightShadowMapIndex;              // 4 bytes
+    float4x4 lightVP;                     // 64 bytes
+    // Above is 184 bytes
 
-    // Add 16 bytes to align to 128 bytes (Metal required)
-    float _alignTmp[4];  // 16 bytes
+    // Fill bytes to align to 256 bytes (Metal required)
+    float padding[18];  // 72 bytes
 };
 
 struct LightInfo {
@@ -30,15 +33,15 @@ struct PerFrameConstants {
     float4x4 worldMatrix;       // 64 bytes
     float4x4 viewMatrix;        // 64 bytes
     float4x4 projectionMatrix;  // 64 bytes
-    float4   ambientColor;      // 16 bytes
-    int      numLights;         // 4 bytes
+    float4 ambientColor;        // 16 bytes
+    int numLights;              // 4 bytes
 };
 
 struct PerBatchConstants {
     float4x4 objectLocalMatrix;  // 64 bytes
-    float4   diffuseColor;       // 16 bytes
-    float4   specularColor;      // 16 bytes
-    float    specularPower;      // 4 bytes
+    float4 diffuseColor;         // 16 bytes
+    float4 specularColor;        // 16 bytes
+    float specularPower;         // 4 bytes
 };
 
 struct basic_vert_main_out {
@@ -58,22 +61,19 @@ struct basic_vert_main_in {
 
 // Implementation of an array copy function to cover GLSL's ability to copy an array via assignment.
 template <typename T, uint N>
-void spvArrayCopy(thread T (&dst)[N], thread const T (&src)[N])
-{
+void spvArrayCopy(thread T (&dst)[N], thread const T (&src)[N]) {
     for (uint i = 0; i < N; dst[i] = src[i], i++)
         ;
 }
 
 // An overload for constant arrays.
 template <typename T, uint N>
-void spvArrayCopyConstant(thread T (&dst)[N], constant T (&src)[N])
-{
+void spvArrayCopyConstant(thread T (&dst)[N], constant T (&src)[N]) {
     for (uint i = 0; i < N; dst[i] = src[i], i++)
         ;
 }
 
-float linear_interpolate(thread const float& t, thread const float& begin, thread const float& end)
-{
+float linear_interpolate(thread const float &t, thread const float &begin, thread const float &end) {
     if (t < begin) {
         return 1.0;
     } else {
@@ -85,8 +85,7 @@ float linear_interpolate(thread const float& t, thread const float& begin, threa
     }
 }
 
-float apply_atten_curve(thread const float& dist, thread const int& atten_curve_type, thread const float (&atten_params)[5])
-{
+float apply_atten_curve(thread const float &dist, thread const int &atten_curve_type, thread const float (&atten_params)[5]) {
     float atten = 1.0;
     switch (atten_curve_type) {
         case 1: {
@@ -141,23 +140,19 @@ float apply_atten_curve(thread const float& dist, thread const int& atten_curve_
     return atten;
 }
 
-bool isAbovePlane(thread const float3& _point, thread const float3& center_of_plane, thread const float3& normal_of_plane)
-{
+bool isAbovePlane(thread const float3 &_point, thread const float3 &center_of_plane, thread const float3 &normal_of_plane) {
     return dot(_point - center_of_plane, normal_of_plane) > 0.0;
 }
 
-float3 linePlaneIntersect(thread const float3& line_start, thread const float3& line_dir, thread const float3& center_of_plane, thread const float3& normal_of_plane)
-{
+float3 linePlaneIntersect(thread const float3 &line_start, thread const float3 &line_dir, thread const float3 &center_of_plane, thread const float3 &normal_of_plane) {
     return line_start + (line_dir * (dot(center_of_plane - line_start, normal_of_plane) / dot(line_dir, normal_of_plane)));
 }
 
-float3 projectOnPlane(thread const float3& _point, thread const float3& center_of_plane, thread const float3& normal_of_plane)
-{
+float3 projectOnPlane(thread const float3 &_point, thread const float3 &center_of_plane, thread const float3 &normal_of_plane) {
     return _point - (normal_of_plane * dot(_point - center_of_plane, normal_of_plane));
 }
 
-float3 apply_areaLight(constant Light& light, thread const basic_vert_main_out& in, constant PerFrameConstants& pfc, constant PerBatchConstants& pbc, thread texture2d<float> diffuseMap, thread sampler samp0)
-{
+float3 apply_areaLight(constant Light &light, thread const basic_vert_main_out &in, constant PerFrameConstants &pfc, constant PerBatchConstants &pbc, thread texture2d<float> diffuseMap, thread sampler samp0) {
     float3 linearColor = float3(0.0);
 
     float3 N       = normalize(in.normal.xyz);
@@ -167,8 +162,8 @@ float3 apply_areaLight(constant Light& light, thread const basic_vert_main_out& 
     float3 up      = normalize(cross(pnormal, right));
     right          = normalize(cross(up, pnormal));
 
-    float  width      = light.lightSize.x;
-    float  height     = light.lightSize.y;
+    float width       = light.lightSize.x;
+    float height      = light.lightSize.y;
     float3 param      = in.v.xyz;
     float3 param_1    = ppos;
     float3 param_2    = pnormal;
@@ -179,17 +174,17 @@ float3 apply_areaLight(constant Light& light, thread const basic_vert_main_out& 
     float2 nearest2D          = float2(clamp(diagonal.x, -width, width), clamp(diagonal.y, -height, height));
     float3 nearestPointInside = (ppos + (right * nearest2D.x)) + (up * nearest2D.y);
     float3 L                  = nearestPointInside - in.v.xyz;
-    float  lightToSurfDist    = length(L);
+    float lightToSurfDist     = length(L);
     L                         = normalize(L);
 
     float param_3 = lightToSurfDist;
-    int   param_4 = light.lightDistAttenCurveType;
+    int param_4   = light.lightDistAttenCurveType;
     float param_5[5];
     spvArrayCopyConstant(param_5, light.lightDistAttenCurveParams);
 
-    float  atten   = apply_atten_curve(param_3, param_4, param_5);
-    float  pnDotL  = dot(pnormal, -L);
-    float  nDotL   = dot(N, L);
+    float atten    = apply_atten_curve(param_3, param_4, param_5);
+    float pnDotL   = dot(pnormal, -L);
+    float nDotL    = dot(N, L);
     float3 param_6 = in.v.xyz;
     float3 param_7 = ppos;
     float3 param_8 = pnormal;
@@ -204,11 +199,11 @@ float3 apply_areaLight(constant Light& light, thread const basic_vert_main_out& 
         float3 param_12 = pnormal;
         float3 E        = linePlaneIntersect(param_9, param_10, param_11, param_12);
 
-        float  specAngle     = clamp(dot(-R, pnormal), 0.0, 1.0);
+        float specAngle      = clamp(dot(-R, pnormal), 0.0, 1.0);
         float3 dirSpec       = E - ppos;
         float2 dirSpec2D     = float2(dot(dirSpec, right), dot(dirSpec, up));
         float2 nearestSpec2D = float2(clamp(dirSpec2D.x, -width, width), clamp(dirSpec2D.y, -height, height));
-        float  specFactor    = 1.0 - clamp(length(nearestSpec2D - dirSpec2D), 0.0, 1.0);
+        float specFactor     = 1.0 - clamp(length(nearestSpec2D - dirSpec2D), 0.0, 1.0);
         float3 admit_light   = light.lightColor.xyz * (light.lightIntensity * atten);
 
         if (pbc.diffuseColor.r < 0) {
@@ -225,8 +220,7 @@ float3 apply_areaLight(constant Light& light, thread const basic_vert_main_out& 
     return linearColor;
 }
 
-float3 apply_light(constant Light& light, thread const basic_vert_main_out& in, constant PerFrameConstants& pfc, constant PerBatchConstants& pbc, thread texture2d<float> diffuseMap, thread sampler samp0)
-{
+float3 apply_light(constant Light &light, thread const basic_vert_main_out &in, constant PerFrameConstants &pfc, constant PerBatchConstants &pbc, thread texture2d<float> diffuseMap, thread sampler samp0) {
     float3 linearColor = float3(0.0);
 
     float3 N         = in.normal.xyz;
@@ -238,12 +232,12 @@ float3 apply_light(constant Light& light, thread const basic_vert_main_out& in, 
     float lightToSurfAngle = acos(dot(L, -light_dir));
     float cosTheta         = clamp(dot(N, L), 0.0, 1.0);
 
-    int   param_1 = light.lightAngleAttenCurveType;
+    int param_1 = light.lightAngleAttenCurveType;
     float param_2[5];
     spvArrayCopyConstant(param_2, light.lightAngleAttenCurveParams);
     float atten = apply_atten_curve(lightToSurfAngle, param_1, param_2);
 
-    int   param_4 = light.lightDistAttenCurveType;
+    int param_4 = light.lightDistAttenCurveType;
     float param_5[5];
     spvArrayCopyConstant(param_5, light.lightDistAttenCurveParams);
     atten *= apply_atten_curve(lightToSurfDist, param_4, param_5);
@@ -263,8 +257,7 @@ float3 apply_light(constant Light& light, thread const basic_vert_main_out& in, 
     return linearColor;
 }
 
-vertex basic_vert_main_out basic_vert_main(basic_vert_main_in in [[stage_in]], constant PerFrameConstants& pfc [[buffer(10)]], constant PerBatchConstants& pbc [[buffer(11)]])
-{
+vertex basic_vert_main_out basic_vert_main(basic_vert_main_in in [[stage_in]], constant PerFrameConstants &pfc [[buffer(10)]], constant PerBatchConstants &pbc [[buffer(11)]]) {
     basic_vert_main_out out = {};
 
     float4x4 transM = pfc.worldMatrix * pbc.objectLocalMatrix;
@@ -279,8 +272,7 @@ vertex basic_vert_main_out basic_vert_main(basic_vert_main_in in [[stage_in]], c
     return out;
 }
 
-fragment float4 basic_frag_main(basic_vert_main_out in [[stage_in]], constant PerFrameConstants& pfc [[buffer(10)]], constant PerBatchConstants& pbc [[buffer(11)]], constant LightInfo& pfc_light [[buffer(12)]], texture2d<float> diffuseMap [[texture(0)]], sampler samp0 [[sampler(0)]])
-{
+fragment float4 basic_frag_main(basic_vert_main_out in [[stage_in]], constant PerFrameConstants &pfc [[buffer(10)]], constant PerBatchConstants &pbc [[buffer(11)]], constant LightInfo &pfc_light [[buffer(12)]], texture2d<float> diffuseMap [[texture(0)]], sampler samp0 [[sampler(0)]]) {
     float3 linearColor = float3(0.0);
 
     for (int i = 0; i < pfc.numLights; i++) {

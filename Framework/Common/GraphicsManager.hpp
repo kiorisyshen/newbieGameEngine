@@ -17,9 +17,24 @@ class GraphicsManager : implements IRuntimeModule {
 
     void Tick() override;
 
+    virtual void UseShaderProgram(const DefaultShaderIndex idx) = 0;
+
     virtual void RenderBuffers() final;
 
-    virtual void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches, const DefaultShaderIndex idx) = 0;
+    virtual void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) = 0;
+
+    virtual void BeginForwardPass() = 0;
+    virtual void EndForwardPass()   = 0;
+
+    // Shadow Map
+    virtual void BeginShadowPass(const Light &light, const int32_t shadowmap) = 0;
+    virtual void EndShadowPass(const int32_t shadowmap)                       = 0;
+
+    // virtual int32_t GenerateShadowMapArray(const uint32_t width, const uint32_t height, const uint32_t count) = 0;
+    virtual int32_t GenerateShadowMap(const uint32_t width, const uint32_t height) = 0;
+    virtual void DestroyShadowMap(int32_t &shadowmap)                              = 0;
+
+    virtual void SetShadowMaps(const Frame &frame) = 0;
 
 #ifdef DEBUG
     virtual void DEBUG_ToggleDebugInfo() final;
@@ -49,9 +64,6 @@ class GraphicsManager : implements IRuntimeModule {
 
     virtual void BeginFrame() = 0;
     virtual void EndFrame()   = 0;
-
-    virtual void BeginPass(const RenderPassIndex idx) = 0;
-    virtual void EndPass(const RenderPassIndex idx)   = 0;
 
     virtual void BeginCompute() = 0;
     virtual void EndCompute()   = 0;

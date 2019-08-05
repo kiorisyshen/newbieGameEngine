@@ -15,10 +15,10 @@ ENUM(RenderPassIndex){
     ShadowPass  = "SHPS"_i32,
 };
 
-struct DrawFrameContext : public PerFrameConstants {
+struct DrawFrameContext : PerFrameConstants, frame_textures {
 };
 
-struct DrawBatchConstant : public PerBatchConstants {
+struct DrawBatchConstant : PerBatchConstants {
     uint32_t batchIndex;
     std::shared_ptr<SceneGeometryNode> node;
 
