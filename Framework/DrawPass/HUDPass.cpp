@@ -5,19 +5,18 @@ using namespace newbieGE;
 using namespace std;
 
 void HUDPass::Draw(Frame &frame) {
-    //     auto shaderProgram = g_pShaderManager->GetDefaultShaderProgram(DefaultShaderIndex::Copy);
+#ifdef DEBUG
+    // Draw Shadow Maps
+    float top  = 0.95f;
+    float left = 0.60f;
 
-    //     // Set the color shader as the current shader program and set the matrices that it will use for rendering.
-    //     g_pGraphicsManager->UseShaderProgram(shaderProgram);
-
-    // #ifdef DEBUG
-    //     // Draw Shadow Maps
-    //     float top  = 0.95f;
-    //     float left = 0.60f;
-
-    //     for (uint32_t i = 0; i < frame.shadowMapCount; i++) {
-    //         g_pGraphicsManager->DrawOverlay(frame.shadowMap, i, left, top, 0.35f, 0.35f);
-    //         top -= 0.45f;
-    //     }
-    // #endif
+    g_pGraphicsManager->BeginHUDPass();
+//    g_pGraphicsManager->BeginForwardPass();
+//    g_pGraphicsManager->DEBUG_DrawOverlay(0, left, top, 0.35f, 0.35f);
+    for (auto shadowMap : frame.frameContext.shadowMap) {
+        g_pGraphicsManager->DEBUG_DrawOverlay(shadowMap, left, top, 0.35f, 0.35f);
+        top -= 0.45f;
+    }
+    g_pGraphicsManager->EndHUDPass();
+#endif
 }

@@ -63,128 +63,175 @@ struct ShaderState {
 
     // --------------
     // Basic shaders
-    id<MTLFunction> vertexFunction   = [myLibrary newFunctionWithName:@"basic_vert_main"];
-    id<MTLFunction> fragmentFunction = [myLibrary newFunctionWithName:@"basic_frag_main"];
+    {
+        id<MTLFunction> vertexFunction   = [myLibrary newFunctionWithName:@"basic_vert_main"];
+        id<MTLFunction> fragmentFunction = [myLibrary newFunctionWithName:@"basic_frag_main"];
 
-    // Vertex descriptor specifying how vertices will by laid out for input into
-    // our render pipeline and how ModelIO should layout vertices
-    MTLVertexDescriptor *mtlVertexDescriptor = [[MTLVertexDescriptor alloc] init];
-    // Positions.
-    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributePosition].format      = MTLVertexFormatFloat3;
-    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributePosition].offset      = 0;
-    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributePosition].bufferIndex = 0;
-    // Position Buffer Layout
-    mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributePosition].stride       = 12;
-    mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributePosition].stepRate     = 1;
-    mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributePosition].stepFunction = MTLVertexStepFunctionPerVertex;
-    // Normals.
-    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeNormal].format      = MTLVertexFormatFloat3;
-    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeNormal].offset      = 0;
-    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeNormal].bufferIndex = 1;
-    // Normal Buffer Layout
-    mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributeNormal].stride       = 12;
-    mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributeNormal].stepRate     = 1;
-    mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributeNormal].stepFunction = MTLVertexStepFunctionPerVertex;
-    // Texture UV.
-    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTexcoord].format      = MTLVertexFormatFloat2;
-    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTexcoord].offset      = 0;
-    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTexcoord].bufferIndex = 2;
-    // Texture UV Buffer Layout
-    mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributeTexcoord].stride       = 8;
-    mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributeTexcoord].stepRate     = 1;
-    mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributeTexcoord].stepFunction = MTLVertexStepFunctionPerVertex;
+        // Vertex descriptor specifying how vertices will by laid out for input into
+        // our render pipeline and how ModelIO should layout vertices
+        MTLVertexDescriptor *mtlVertexDescriptor = [[MTLVertexDescriptor alloc] init];
+        // Positions.
+        mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributePosition].format      = MTLVertexFormatFloat3;
+        mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributePosition].offset      = 0;
+        mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributePosition].bufferIndex = 0;
+        // Position Buffer Layout
+        mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributePosition].stride       = 12;
+        mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributePosition].stepRate     = 1;
+        mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributePosition].stepFunction = MTLVertexStepFunctionPerVertex;
+        // Normals.
+        mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeNormal].format      = MTLVertexFormatFloat3;
+        mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeNormal].offset      = 0;
+        mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeNormal].bufferIndex = 1;
+        // Normal Buffer Layout
+        mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributeNormal].stride       = 12;
+        mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributeNormal].stepRate     = 1;
+        mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributeNormal].stepFunction = MTLVertexStepFunctionPerVertex;
+        // Texture UV.
+        mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTexcoord].format      = MTLVertexFormatFloat2;
+        mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTexcoord].offset      = 0;
+        mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTexcoord].bufferIndex = 2;
+        // Texture UV Buffer Layout
+        mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributeTexcoord].stride       = 8;
+        mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributeTexcoord].stepRate     = 1;
+        mtlVertexDescriptor.layouts[VertexAttribute::VertexAttributeTexcoord].stepFunction = MTLVertexStepFunctionPerVertex;
 
-    MTLRenderPipelineDescriptor *pipelineStateDescriptor    = [[MTLRenderPipelineDescriptor alloc] init];
-    pipelineStateDescriptor.label                           = @"Basic Pipeline";
-    pipelineStateDescriptor.sampleCount                     = _mtkView.sampleCount;
-    pipelineStateDescriptor.vertexFunction                  = vertexFunction;
-    pipelineStateDescriptor.fragmentFunction                = fragmentFunction;
-    pipelineStateDescriptor.vertexDescriptor                = mtlVertexDescriptor;
-    pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
-    pipelineStateDescriptor.depthAttachmentPixelFormat      = _mtkView.depthStencilPixelFormat;
+        MTLRenderPipelineDescriptor *pipelineStateDescriptor    = [[MTLRenderPipelineDescriptor alloc] init];
+        pipelineStateDescriptor.label                           = @"Basic Pipeline";
+        pipelineStateDescriptor.sampleCount                     = _mtkView.sampleCount;
+        pipelineStateDescriptor.vertexFunction                  = vertexFunction;
+        pipelineStateDescriptor.fragmentFunction                = fragmentFunction;
+        pipelineStateDescriptor.vertexDescriptor                = mtlVertexDescriptor;
+        pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
+        pipelineStateDescriptor.depthAttachmentPixelFormat      = _mtkView.depthStencilPixelFormat;
 
-    ShaderState basicSS;
-    basicSS.pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
-    if (!basicSS.pipelineState) {
-        NSLog(@"Failed to created basic pipeline state, error %@", error);
-        succ = false;
+        ShaderState basicSS;
+        basicSS.pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
+        if (!basicSS.pipelineState) {
+            NSLog(@"Failed to created basic pipeline state, error %@", error);
+            succ = false;
+        }
+        MTLDepthStencilDescriptor *depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
+        depthStateDesc.depthCompareFunction       = MTLCompareFunctionLess;
+        depthStateDesc.depthWriteEnabled          = YES;
+        basicSS.depthStencilState                 = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
+
+        _renderPassStates[(int32_t)DefaultShaderIndex::BasicShader] = basicSS;
+
+        MTLRenderPassDescriptor *forwarRenderPassDescriptor = _mtkView.currentRenderPassDescriptor;
+        if (forwarRenderPassDescriptor != nil) {
+            forwarRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
+        }
+
+        _renderPassDescriptors[(int32_t)RenderPassIndex::ForwardPass] = forwarRenderPassDescriptor;
     }
-    MTLDepthStencilDescriptor *depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
-    depthStateDesc.depthCompareFunction       = MTLCompareFunctionLess;
-    depthStateDesc.depthWriteEnabled          = YES;
-    basicSS.depthStencilState                 = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
-
-    _renderPassStates[(int32_t)DefaultShaderIndex::BasicShader] = basicSS;
-
-    MTLRenderPassDescriptor *forwarRenderPassDescriptor = _mtkView.currentRenderPassDescriptor;
-    if (forwarRenderPassDescriptor != nil) {
-        forwarRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
-    }
-
-    _renderPassDescriptors[(int32_t)RenderPassIndex::ForwardPass] = forwarRenderPassDescriptor;
     // --------------
 
     // --------------
     // Shadow shaders
-    vertexFunction = [myLibrary newFunctionWithName:@"shadow_vert_main"];
+    {
+        id<MTLFunction> vertexFunction = [myLibrary newFunctionWithName:@"shadow_vert_main"];
 
-    pipelineStateDescriptor                            = [[MTLRenderPipelineDescriptor alloc] init];
-    pipelineStateDescriptor.label                      = @"Shadow Pipeline";
-    pipelineStateDescriptor.vertexDescriptor           = nil;
-    pipelineStateDescriptor.vertexFunction             = vertexFunction;
-    pipelineStateDescriptor.fragmentFunction           = nil;
-    pipelineStateDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+        pipelineStateDescriptor.label                        = @"Shadow Pipeline";
+        pipelineStateDescriptor.vertexDescriptor             = nil;
+        pipelineStateDescriptor.vertexFunction               = vertexFunction;
+        pipelineStateDescriptor.fragmentFunction             = nil;
+        pipelineStateDescriptor.depthAttachmentPixelFormat   = MTLPixelFormatDepth32Float;
 
-    ShaderState shadowSS;
-    shadowSS.pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
-    if (!shadowSS.pipelineState) {
-        NSLog(@"Failed to created shadow pipeline state, error %@", error);
-        succ = false;
+        ShaderState shadowSS;
+        shadowSS.pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
+        if (!shadowSS.pipelineState) {
+            NSLog(@"Failed to created shadow pipeline state, error %@", error);
+            succ = false;
+        }
+        MTLDepthStencilDescriptor *depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
+        depthStateDesc.depthCompareFunction       = MTLCompareFunctionLessEqual;
+        depthStateDesc.depthWriteEnabled          = YES;
+        shadowSS.depthStencilState                = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
+
+        _renderPassStates[(int32_t)DefaultShaderIndex::ShadowMapShader] = shadowSS;
+
+        MTLRenderPassDescriptor *renderPassDescriptor    = [MTLRenderPassDescriptor new];
+        renderPassDescriptor.depthAttachment.loadAction  = MTLLoadActionClear;
+        renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
+        renderPassDescriptor.depthAttachment.clearDepth  = 1.0;
+
+        _renderPassDescriptors[(int32_t)RenderPassIndex::ShadowPass] = renderPassDescriptor;
     }
-    depthStateDesc                      = [[MTLDepthStencilDescriptor alloc] init];
-    depthStateDesc.depthCompareFunction = MTLCompareFunctionLessEqual;
-    depthStateDesc.depthWriteEnabled    = YES;
-    shadowSS.depthStencilState          = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
-
-    _renderPassStates[(int32_t)DefaultShaderIndex::ShadowMapShader] = shadowSS;
-
-    MTLRenderPassDescriptor *renderPassDescriptor    = [MTLRenderPassDescriptor new];
-    renderPassDescriptor.depthAttachment.loadAction  = MTLLoadActionClear;
-    renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
-    renderPassDescriptor.depthAttachment.clearDepth  = 1.0;
-
-    _renderPassDescriptors[(int32_t)RenderPassIndex::ShadowPass] = renderPassDescriptor;
     // --------------
 
+#ifdef DEBUG
     // --------------
     // Debug shaders
-#ifdef DEBUG
-    vertexFunction   = [myLibrary newFunctionWithName:@"debug_vert_main"];
-    fragmentFunction = [myLibrary newFunctionWithName:@"debug_frag_main"];
+    {
+        id<MTLFunction> vertexFunction   = [myLibrary newFunctionWithName:@"debug_vert_main"];
+        id<MTLFunction> fragmentFunction = [myLibrary newFunctionWithName:@"debug_frag_main"];
 
-    pipelineStateDescriptor                                 = [[MTLRenderPipelineDescriptor alloc] init];
-    pipelineStateDescriptor.label                           = @"DEBUG Pipeline";
-    pipelineStateDescriptor.sampleCount                     = _mtkView.sampleCount;
-    pipelineStateDescriptor.vertexFunction                  = vertexFunction;
-    pipelineStateDescriptor.fragmentFunction                = fragmentFunction;
-    pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
-    pipelineStateDescriptor.depthAttachmentPixelFormat      = _mtkView.depthStencilPixelFormat;
+        MTLRenderPipelineDescriptor *pipelineStateDescriptor    = [[MTLRenderPipelineDescriptor alloc] init];
+        pipelineStateDescriptor.label                           = @"DEBUG Pipeline";
+        pipelineStateDescriptor.sampleCount                     = _mtkView.sampleCount;
+        pipelineStateDescriptor.vertexFunction                  = vertexFunction;
+        pipelineStateDescriptor.fragmentFunction                = fragmentFunction;
+        pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
+        pipelineStateDescriptor.depthAttachmentPixelFormat      = _mtkView.depthStencilPixelFormat;
 
-    ShaderState debugSS;
-    debugSS.pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
-    if (!debugSS.pipelineState) {
-        NSLog(@"Failed to created pipeline state, error %@", error);
-        succ = false;
+        ShaderState debugSS;
+        debugSS.pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
+        if (!debugSS.pipelineState) {
+            NSLog(@"Failed to created pipeline state, error %@", error);
+            succ = false;
+        }
+
+        MTLDepthStencilDescriptor *depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
+        depthStateDesc.depthCompareFunction       = MTLCompareFunctionLessEqual;
+        depthStateDesc.depthWriteEnabled          = NO;
+        debugSS.depthStencilState                 = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
+
+        _renderPassStates[(int32_t)DefaultShaderIndex::DebugShader] = debugSS;
     }
-
-    depthStateDesc                      = [[MTLDepthStencilDescriptor alloc] init];
-    depthStateDesc.depthCompareFunction = MTLCompareFunctionLessEqual;
-    depthStateDesc.depthWriteEnabled    = NO;
-    debugSS.depthStencilState           = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
-
-    _renderPassStates[(int32_t)DefaultShaderIndex::DebugShader] = debugSS;
-#endif
     // --------------
+
+    // --------------
+    // 2D overlay shaders
+    {
+        id<MTLFunction> vertexFunction   = [myLibrary newFunctionWithName:@"overlay_vert_main"];
+        id<MTLFunction> fragmentFunction = [myLibrary newFunctionWithName:@"overlay_frag_main"];
+
+        MTLRenderPipelineDescriptor *pipelineStateDescriptor    = [[MTLRenderPipelineDescriptor alloc] init];
+        pipelineStateDescriptor.label                           = @"Overlay Pipeline";
+//        pipelineStateDescriptor.sampleCount                     = _mtkView.sampleCount;
+        pipelineStateDescriptor.vertexFunction                  = vertexFunction;
+        pipelineStateDescriptor.fragmentFunction                = fragmentFunction;
+        pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
+//        pipelineStateDescriptor.depthAttachmentPixelFormat      = _mtkView.depthStencilPixelFormat;
+        //        pipelineStateDescriptor.stencilAttachmentPixelFormat = _mtkView.depthStencilPixelFormat;
+
+        ShaderState overlaySS;
+        overlaySS.pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
+        if (!overlaySS.pipelineState) {
+            NSLog(@"Failed to created pipeline state, error %@", error);
+            succ = false;
+        }
+
+        MTLDepthStencilDescriptor *depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
+        depthStateDesc.depthCompareFunction       = MTLCompareFunctionLessEqual;
+        depthStateDesc.depthWriteEnabled          = NO;
+        overlaySS.depthStencilState               = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
+
+        _renderPassStates[(int32_t)DefaultShaderIndex::Overlay2dShader] = overlaySS;
+
+        MTLRenderPassDescriptor *overlayPassDescriptor        = [MTLRenderPassDescriptor new];
+        overlayPassDescriptor.colorAttachments[0].texture     = _mtkView.currentDrawable.texture;
+        overlayPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+        ////        overlayPassDescriptor.depthAttachment.loadAction      = MTLLoadActionLoad;
+        ////        overlayPassDescriptor.stencilAttachment.loadAction    = MTLLoadActionLoad;
+        ////        overlayPassDescriptor.depthAttachment.texture         = _mtkView.depthStencilTexture;
+        //        //        overlayPassDescriptor.stencilAttachment.texture   = _mtkView.depthStencilTexture;
+        //
+        _renderPassDescriptors[(int32_t)RenderPassIndex::HUDPass] = overlayPassDescriptor;
+    }
+    // --------------
+#endif
 
     return succ;
 }
@@ -295,12 +342,27 @@ struct ShaderState {
     [_renderEncoder endEncoding];
 }
 
+- (void)beginHUDPass {
+    MTLRenderPassDescriptor *renderPassDescriptor        = _renderPassDescriptors[(int32_t)RenderPassIndex::HUDPass];
+    renderPassDescriptor.colorAttachments[0].texture     = _mtkView.currentDrawable.texture;
+    renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+//    renderPassDescriptor.depthAttachment.texture         = _mtkView.depthStencilTexture;
+    //    renderPassDescriptor.stencilAttachment.texture   = _mtkView.depthStencilTexture;
+
+    _renderEncoder       = [_commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+    _renderEncoder.label = @"HUDRenderEncoder";
+}
+
+- (void)endHUDPass {
+    [_renderEncoder endEncoding];
+}
+
 - (void)beginShadowPass:(const Light &)light
               shadowmap:(const int32_t)shadowmap {
     MTLRenderPassDescriptor *renderPassDescriptor = _renderPassDescriptors[(int32_t)RenderPassIndex::ShadowPass];
     renderPassDescriptor.depthAttachment.texture  = _shadowMaps[shadowmap];
 
-    _renderEncoder       = [_commandBuffer renderCommandEncoderWithDescriptor:_renderPassDescriptors[(int32_t)RenderPassIndex::ForwardPass]];
+    _renderEncoder       = [_commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
     _renderEncoder.label = @"ShadowRenderEncoder";
     [_renderEncoder setVertexBytes:&light.lightVP
                             length:sizeof(light.lightVP)
@@ -367,12 +429,12 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
     id<MTLTexture> texture;
 
     MTLTextureDescriptor *textureDesc = [[MTLTextureDescriptor alloc] init];
-
-    textureDesc.textureType = MTLTextureType2D;
-    textureDesc.pixelFormat = MTLPixelFormatDepth32Float;
-    textureDesc.width       = width;
-    textureDesc.height      = height;
-    textureDesc.storageMode = MTLStorageModePrivate;
+    textureDesc.textureType           = MTLTextureType2D;
+    textureDesc.pixelFormat           = MTLPixelFormatDepth32Float;
+    textureDesc.width                 = width;
+    textureDesc.height                = height;
+    textureDesc.storageMode           = MTLStorageModePrivate;
+    textureDesc.usage                 = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
 
     // create the texture obj
     texture = [_device newTextureWithDescriptor:textureDesc];
@@ -383,8 +445,8 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
     return static_cast<int32_t>(index);
 }
 
-- (void)destroyShadowMap:(int32_t &)shadowmap {
-    _shadowMaps[shadowmap] = Nil;
+- (void)destroyShadowMaps {
+    _shadowMaps.clear();
 }
 
 - (void)setShadowMaps:(const Frame &)frame {
@@ -431,6 +493,7 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
     _textures.clear();
     _vertexBuffers.clear();
     _indexBuffers.clear();
+    _shadowMaps.clear();
 }
 
 - (void)beginFrame {
@@ -530,6 +593,48 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
         [_renderEncoder drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:batch.pointParams.size()];
         offset += ALIGN(sizeof(DEBUG_PointParam) * batch.pointParams.size(), 256);
     }
+
+    [_renderEncoder popDebugGroup];
+}
+
+- (void)DEBUG_DrawOverlay:(const int32_t)shadowmap
+                     left:(float)vp_left
+                      top:(float)vp_top
+                    width:(float)vp_width
+                   height:(float)vp_height {
+    [_renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
+    [_renderEncoder setCullMode:MTLCullModeBack];
+    [_renderEncoder setRenderPipelineState:_renderPassStates[(int32_t)DefaultShaderIndex::Overlay2dShader].pipelineState];
+//    [_renderEncoder setDepthStencilState:_renderPassStates[(int32_t)DefaultShaderIndex::Overlay2dShader].depthStencilState];
+
+    [_renderEncoder pushDebugGroup:@"DrawOverlay"];
+
+    float OverlayQuad[] =
+        {vp_left, vp_top,
+         vp_left, vp_top - vp_height,
+         vp_left + vp_width, vp_top,
+         vp_left + vp_width, vp_top - vp_height};
+
+    float OverlayUV[] = {
+        0.0f, 1.0f,
+        0.0f, 0.0f,
+        1.0f, 1.0f,
+        1.0f, 0.0f};
+
+    [_renderEncoder setVertexBytes:&OverlayQuad
+                            length:32
+                           atIndex:0];
+    
+    [_renderEncoder setFragmentBytes:&OverlayUV
+                              length:32
+                             atIndex:20];
+
+    [_renderEncoder setFragmentSamplerState:_sampler0 atIndex:0];
+    [_renderEncoder setFragmentTexture:_shadowMaps[shadowmap] atIndex:0];
+
+    [_renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip
+                       vertexStart:0
+                       vertexCount:4];
 
     [_renderEncoder popDebugGroup];
 }

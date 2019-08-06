@@ -6,9 +6,8 @@ using namespace newbieGE;
 
 void ShadowMapPass::Draw(Frame &frame) {
     if (frame.frameContext.shadowMap.size() > 0) {
-        for (auto it : frame.frameContext.shadowMap) {
-            g_pGraphicsManager->DestroyShadowMap(it);
-        }
+        g_pGraphicsManager->DestroyShadowMaps();
+        frame.frameContext.shadowMap.clear();
     }
 
     // count shadow map

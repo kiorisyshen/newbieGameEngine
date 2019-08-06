@@ -1,5 +1,9 @@
 if(APPLE)
-    set(SHADER_SOURCES basic debugInfo shadowmap.vert)
+    set(SHADER_SOURCES
+        basic
+        debugInfo
+        shadowmap.vert
+        texture2dOverlay)
     foreach(SHADER
             IN
             LISTS

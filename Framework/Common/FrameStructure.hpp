@@ -8,6 +8,13 @@ ENUM(DefaultShaderIndex){
     BasicShader     = "BSIC"_i32,
     ShadowMapShader = "SHMP"_i32,
     DebugShader     = "DEBG"_i32,
+    Overlay2dShader = "OVLY"_i32,
+};
+
+ENUM(RenderPassIndex){
+    ForwardPass = "FWPS"_i32,
+    ShadowPass  = "SHPS"_i32,
+    HUDPass     = "HUDP"_i32,
 };
 
 struct DrawFrameContext : PerFrameConstants, frame_textures {

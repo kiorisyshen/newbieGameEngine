@@ -1,9 +1,11 @@
 #include "GraphicsManager.hpp"
 #include <iostream>
 #include "ForwardRenderPass.hpp"
+#include "HUDPass.hpp"
 #include "IApplication.hpp"
 #include "IPhysicsManager.hpp"
 #include "SceneManager.hpp"
+#include "ShadowMapPass.hpp"
 
 using namespace newbieGE;
 using namespace std;
@@ -24,7 +26,9 @@ int GraphicsManager::Initialize() {
     }
 #endif
 
+    m_DrawPasses.push_back(make_shared<ShadowMapPass>());
     m_DrawPasses.push_back(make_shared<ForwardRenderPass>());
+    m_DrawPasses.push_back(make_shared<HUDPass>());
 
     bool initShaderSucc = InitializeShaders();
     if (!initShaderSucc) result = -1;

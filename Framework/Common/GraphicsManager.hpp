@@ -26,13 +26,16 @@ class GraphicsManager : implements IRuntimeModule {
     virtual void BeginForwardPass() = 0;
     virtual void EndForwardPass()   = 0;
 
+    virtual void BeginHUDPass() = 0;
+    virtual void EndHUDPass()   = 0;
+
     // Shadow Map
     virtual void BeginShadowPass(const Light &light, const int32_t shadowmap) = 0;
     virtual void EndShadowPass(const int32_t shadowmap)                       = 0;
 
     // virtual int32_t GenerateShadowMapArray(const uint32_t width, const uint32_t height, const uint32_t count) = 0;
     virtual int32_t GenerateShadowMap(const uint32_t width, const uint32_t height) = 0;
-    virtual void DestroyShadowMap(int32_t &shadowmap)                              = 0;
+    virtual void DestroyShadowMaps()                                               = 0;
 
     virtual void SetShadowMaps(const Frame &frame) = 0;
 
@@ -53,7 +56,10 @@ class GraphicsManager : implements IRuntimeModule {
     virtual void DEBUG_SetBuffer() = 0;
     virtual void DEBUG_ClearDebugBuffers();
 
-    virtual void DEBUG_DrawDebug() = 0;
+    virtual void DEBUG_DrawDebug()                                  = 0;
+    virtual void DEBUG_DrawOverlay(const int32_t shadowmap,
+                                   float vp_left, float vp_top,
+                                   float vp_width, float vp_height) = 0;
 #endif
 
    protected:

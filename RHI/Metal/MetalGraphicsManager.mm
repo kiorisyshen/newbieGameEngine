@@ -37,6 +37,14 @@ void MetalGraphicsManager::EndForwardPass() {
     [m_pRenderer endForwardPass];
 }
 
+void MetalGraphicsManager::BeginHUDPass() {
+    [m_pRenderer beginHUDPass];
+}
+
+void MetalGraphicsManager::EndHUDPass() {
+    [m_pRenderer endHUDPass];
+}
+
 void MetalGraphicsManager::BeginShadowPass(const Light &light, const int32_t shadowmap) {
     [m_pRenderer beginShadowPass:light shadowmap:shadowmap];
 }
@@ -49,8 +57,8 @@ int32_t MetalGraphicsManager::GenerateShadowMap(const uint32_t width, const uint
     return [m_pRenderer createTexture:width height:height];
 }
 
-void MetalGraphicsManager::DestroyShadowMap(int32_t &shadowmap) {
-    [m_pRenderer destroyShadowMap:shadowmap];
+void MetalGraphicsManager::DestroyShadowMaps() {
+    [m_pRenderer destroyShadowMaps];
 }
 
 void MetalGraphicsManager::SetShadowMaps(const Frame &frame) {
@@ -238,4 +246,9 @@ void MetalGraphicsManager::DEBUG_DrawDebug() {
     [m_pRenderer DEBUG_DrawDebug:m_Frames[m_nFrameIndex].DEBUG_Batches];
 }
 
+void MetalGraphicsManager::DEBUG_DrawOverlay(const int32_t shadowmap,
+                                             float vp_left, float vp_top,
+                                             float vp_width, float vp_height) {
+    [m_pRenderer DEBUG_DrawOverlay:shadowmap left:vp_left top:vp_top width:vp_width height:vp_height];
+}
 #endif

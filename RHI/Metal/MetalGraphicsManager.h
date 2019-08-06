@@ -25,19 +25,25 @@ class MetalGraphicsManager : public GraphicsManager {
     void BeginForwardPass() final;
     void EndForwardPass() final;
 
+    void BeginHUDPass() final;
+    void EndHUDPass() final;
+
     // Shadow Map
     void BeginShadowPass(const Light &light, const int32_t shadowmap) final;
     void EndShadowPass(const int32_t shadowmap) final;
 
     // int32_t GenerateShadowMapArray(const uint32_t width, const uint32_t height, const uint32_t count) final;
     int32_t GenerateShadowMap(const uint32_t width, const uint32_t height) final;
-    void DestroyShadowMap(int32_t &shadowmap) final;
+    void DestroyShadowMaps() final;
     void SetShadowMaps(const Frame &frame) final;
 
 #ifdef DEBUG
     void DEBUG_ClearDebugBuffers() final;
     void DEBUG_SetBuffer() final;
     void DEBUG_DrawDebug() final;
+    void DEBUG_DrawOverlay(const int32_t shadowmap,
+                           float vp_left, float vp_top,
+                           float vp_width, float vp_height) final;
 #endif
 
    protected:

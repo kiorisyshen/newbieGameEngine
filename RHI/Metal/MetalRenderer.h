@@ -27,6 +27,10 @@ struct MtlDrawBatchContext : public DrawBatchConstant {
 
 - (void)endForwardPass;
 
+- (void)beginHUDPass;
+
+- (void)endHUDPass;
+
 - (void)beginShadowPass:(const Light &)light
               shadowmap:(const int32_t)shadowmap;
 
@@ -34,10 +38,10 @@ struct MtlDrawBatchContext : public DrawBatchConstant {
 
 - (void)setShadowMaps:(const Frame &)frame;
 
-- (void)destroyShadowMap:(int32_t &)shadowmap;
+- (void)destroyShadowMaps;
 
 - (int32_t)createTexture:(const uint32_t)width
-                   height:(const uint32_t)height;
+                  height:(const uint32_t)height;
 
 - (uint32_t)createTexture:(const newbieGE::Image &)image;
 
@@ -73,6 +77,12 @@ struct MtlDrawBatchContext : public DrawBatchConstant {
 - (void)DEBUG_ClearDebugBuffers;
 
 - (void)DEBUG_DrawDebug:(const std::vector<DEBUG_DrawBatch> &)debugBatches;
+
+- (void)DEBUG_DrawOverlay:(const int32_t)shadowmap
+                     left:(float)vp_left
+                      top:(float)vp_top
+                    width:(float)vp_width
+                   height:(float)vp_height;
 
 #endif
 
