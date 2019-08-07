@@ -197,13 +197,13 @@ struct ShaderState {
         id<MTLFunction> vertexFunction   = [myLibrary newFunctionWithName:@"overlay_vert_main"];
         id<MTLFunction> fragmentFunction = [myLibrary newFunctionWithName:@"overlay_frag_main"];
 
-        MTLRenderPipelineDescriptor *pipelineStateDescriptor    = [[MTLRenderPipelineDescriptor alloc] init];
-        pipelineStateDescriptor.label                           = @"Overlay Pipeline";
-//        pipelineStateDescriptor.sampleCount                     = _mtkView.sampleCount;
+        MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+        pipelineStateDescriptor.label                        = @"Overlay Pipeline";
+        //        pipelineStateDescriptor.sampleCount                     = _mtkView.sampleCount;
         pipelineStateDescriptor.vertexFunction                  = vertexFunction;
         pipelineStateDescriptor.fragmentFunction                = fragmentFunction;
         pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
-//        pipelineStateDescriptor.depthAttachmentPixelFormat      = _mtkView.depthStencilPixelFormat;
+        //        pipelineStateDescriptor.depthAttachmentPixelFormat      = _mtkView.depthStencilPixelFormat;
         //        pipelineStateDescriptor.stencilAttachmentPixelFormat = _mtkView.depthStencilPixelFormat;
 
         ShaderState overlaySS;
@@ -346,7 +346,7 @@ struct ShaderState {
     MTLRenderPassDescriptor *renderPassDescriptor        = _renderPassDescriptors[(int32_t)RenderPassIndex::HUDPass];
     renderPassDescriptor.colorAttachments[0].texture     = _mtkView.currentDrawable.texture;
     renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
-//    renderPassDescriptor.depthAttachment.texture         = _mtkView.depthStencilTexture;
+    //    renderPassDescriptor.depthAttachment.texture         = _mtkView.depthStencilTexture;
     //    renderPassDescriptor.stencilAttachment.texture   = _mtkView.depthStencilTexture;
 
     _renderEncoder       = [_commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
@@ -597,6 +597,10 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
     [_renderEncoder popDebugGroup];
 }
 
+struct OverlayIn_VertUV {
+    vector_float2 inputPosition;
+    vector_float2 uv;
+};
 - (void)DEBUG_DrawOverlay:(const int32_t)shadowmap
                      left:(float)vp_left
                       top:(float)vp_top
@@ -605,33 +609,21 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
     [_renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
     [_renderEncoder setCullMode:MTLCullModeBack];
     [_renderEncoder setRenderPipelineState:_renderPassStates[(int32_t)DefaultShaderIndex::Overlay2dShader].pipelineState];
-//    [_renderEncoder setDepthStencilState:_renderPassStates[(int32_t)DefaultShaderIndex::Overlay2dShader].depthStencilState];
+    //    [_renderEncoder setDepthStencilState:_renderPassStates[(int32_t)DefaultShaderIndex::Overlay2dShader].depthStencilState];
 
     [_renderEncoder pushDebugGroup:@"DrawOverlay"];
 
-    float OverlayQuad[] =
-        {vp_left, vp_top,
-         vp_left, vp_top - vp_height,
-         vp_left + vp_width, vp_top,
-         vp_left + vp_width, vp_top - vp_height};
-
-    float OverlayUV[] = {
-        0.0f, 1.0f,
-        0.0f, 0.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f};
+    const OverlayIn_VertUV OverlayQuad[] =
+        {{{vp_left, vp_top}, {0.0, 0.0}},
+         {{vp_left, vp_top - vp_height}, {0.0, 1.0}},
+         {{vp_left + vp_width, vp_top}, {1.0, 0.0}},
+         {{vp_left + vp_width, vp_top - vp_height}, {1.0, 1.0}}};
 
     [_renderEncoder setVertexBytes:&OverlayQuad
-                            length:32
+                            length:64
                            atIndex:0];
-    
-    [_renderEncoder setFragmentBytes:&OverlayUV
-                              length:32
-                             atIndex:20];
-
+    [_renderEncoder setFragmentTexture:_textures[0] atIndex:0];
     [_renderEncoder setFragmentSamplerState:_sampler0 atIndex:0];
-    [_renderEncoder setFragmentTexture:_shadowMaps[shadowmap] atIndex:0];
-
     [_renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip
                        vertexStart:0
                        vertexCount:4];
