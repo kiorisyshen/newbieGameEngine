@@ -2,7 +2,7 @@ if(APPLE)
     set(SHADER_SOURCES
         basic
         debugInfo
-        shadowmap.vert
+        shadowmap
         texture2dOverlay)
     foreach(SHADER
             IN

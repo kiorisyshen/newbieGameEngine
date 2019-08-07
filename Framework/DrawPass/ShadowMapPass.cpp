@@ -28,9 +28,9 @@ void ShadowMapPass::Draw(Frame &frame) {
             g_pGraphicsManager->GenerateShadowMap(kShadowMapWidth, kShadowMapHeight));
         it->lightShadowMapIndex = shadowmap_index;
 
-        g_pGraphicsManager->BeginShadowPass(*it, it->lightShadowMapIndex);
-        g_pGraphicsManager->UseShaderProgram(DefaultShaderIndex::ShadowMapShader);
-        g_pGraphicsManager->DrawBatch(frame.batchContext);
+        g_pGraphicsManager->BeginShadowPass(*it, it->lightShadowMapIndex, frame.batchContext);
+        // g_pGraphicsManager->UseShaderProgram(DefaultShaderIndex::ShadowMapShader);
+        g_pGraphicsManager->DrawBatchDepthOnly(frame.batchContext);
         g_pGraphicsManager->EndShadowPass(it->lightShadowMapIndex);
 
         ++shadowmap_index;

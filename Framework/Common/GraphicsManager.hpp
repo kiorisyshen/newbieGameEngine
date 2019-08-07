@@ -21,7 +21,8 @@ class GraphicsManager : implements IRuntimeModule {
 
     virtual void RenderBuffers() final;
 
-    virtual void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) = 0;
+    virtual void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches)          = 0;
+    virtual void DrawBatchDepthOnly(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) = 0;
 
     virtual void BeginForwardPass() = 0;
     virtual void EndForwardPass()   = 0;
@@ -30,8 +31,9 @@ class GraphicsManager : implements IRuntimeModule {
     virtual void EndHUDPass()   = 0;
 
     // Shadow Map
-    virtual void BeginShadowPass(const Light &light, const int32_t shadowmap) = 0;
-    virtual void EndShadowPass(const int32_t shadowmap)                       = 0;
+    virtual void BeginShadowPass(const Light &light, const int32_t shadowmap,
+                                 const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) = 0;
+    virtual void EndShadowPass(const int32_t shadowmap)                                          = 0;
 
     // virtual int32_t GenerateShadowMapArray(const uint32_t width, const uint32_t height, const uint32_t count) = 0;
     virtual int32_t GenerateShadowMap(const uint32_t width, const uint32_t height) = 0;

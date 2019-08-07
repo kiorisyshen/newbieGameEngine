@@ -29,6 +29,10 @@ void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatch
     [m_pRenderer drawBatch:batches];
 }
 
+void MetalGraphicsManager::DrawBatchDepthOnly(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) {
+    [m_pRenderer drawBatchDepthOnly:batches];
+}
+
 void MetalGraphicsManager::BeginForwardPass() {
     [m_pRenderer beginForwardPass];
 }
@@ -45,8 +49,9 @@ void MetalGraphicsManager::EndHUDPass() {
     [m_pRenderer endHUDPass];
 }
 
-void MetalGraphicsManager::BeginShadowPass(const Light &light, const int32_t shadowmap) {
-    [m_pRenderer beginShadowPass:light shadowmap:shadowmap];
+void MetalGraphicsManager::BeginShadowPass(const Light &light, const int32_t shadowmap,
+                                           const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) {
+    [m_pRenderer beginShadowPass:light shadowmap:shadowmap drawBatch:batches];
 }
 
 void MetalGraphicsManager::EndShadowPass(const int32_t shadowmap) {

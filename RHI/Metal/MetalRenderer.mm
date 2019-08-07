@@ -22,7 +22,8 @@ struct ShaderState {
 
     id<MTLSamplerState> _sampler0;
     std::vector<id<MTLTexture>> _textures;
-    std::vector<id<MTLTexture>> _shadowMaps;
+    std::vector<id<MTLTexture>> _shadowMapsDepth;
+    std::vector<id<MTLTexture>> _shadowMapsColor;
 
     std::vector<id<MTLBuffer>> _vertexBuffers;
     std::vector<id<MTLBuffer>> _indexBuffers;
@@ -61,6 +62,7 @@ struct ShaderState {
         succ = false;
     }
 
+    MTLVertexDescriptor *mtlVertexDescriptor = [[MTLVertexDescriptor alloc] init];
     // --------------
     // Basic shaders
     {
@@ -69,7 +71,7 @@ struct ShaderState {
 
         // Vertex descriptor specifying how vertices will by laid out for input into
         // our render pipeline and how ModelIO should layout vertices
-        MTLVertexDescriptor *mtlVertexDescriptor = [[MTLVertexDescriptor alloc] init];
+//        MTLVertexDescriptor *mtlVertexDescriptor = [[MTLVertexDescriptor alloc] init];
         // Positions.
         mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributePosition].format      = MTLVertexFormatFloat3;
         mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributePosition].offset      = 0;
@@ -129,14 +131,17 @@ struct ShaderState {
     // --------------
     // Shadow shaders
     {
-        id<MTLFunction> vertexFunction = [myLibrary newFunctionWithName:@"shadow_vert_main"];
+        id<MTLFunction> vertexFunction   = [myLibrary newFunctionWithName:@"shadow_vert_main"];
+        id<MTLFunction> fragmentFunction = [myLibrary newFunctionWithName:@"shadow_frag_main"];
 
-        MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
-        pipelineStateDescriptor.label                        = @"Shadow Pipeline";
-        pipelineStateDescriptor.vertexDescriptor             = nil;
-        pipelineStateDescriptor.vertexFunction               = vertexFunction;
-        pipelineStateDescriptor.fragmentFunction             = nil;
-        pipelineStateDescriptor.depthAttachmentPixelFormat   = MTLPixelFormatDepth32Float;
+        MTLRenderPipelineDescriptor *pipelineStateDescriptor    = [[MTLRenderPipelineDescriptor alloc] init];
+        pipelineStateDescriptor.label                           = @"Shadow Pipeline";
+        pipelineStateDescriptor.vertexFunction                  = vertexFunction;
+        pipelineStateDescriptor.fragmentFunction                = fragmentFunction;
+        pipelineStateDescriptor.vertexDescriptor                = mtlVertexDescriptor;
+        pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
+        //        pipelineStateDescriptor.depthAttachmentPixelFormat      = _mtkView.depthStencilPixelFormat;
+        //        pipelineStateDescriptor.stencilAttachmentPixelFormat    = MTLPixelFormatDepth32Float_Stencil8;
 
         ShaderState shadowSS;
         shadowSS.pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
@@ -144,17 +149,19 @@ struct ShaderState {
             NSLog(@"Failed to created shadow pipeline state, error %@", error);
             succ = false;
         }
-        MTLDepthStencilDescriptor *depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
-        depthStateDesc.depthCompareFunction       = MTLCompareFunctionLessEqual;
-        depthStateDesc.depthWriteEnabled          = YES;
-        shadowSS.depthStencilState                = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
+        //        MTLDepthStencilDescriptor *depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
+        //        depthStateDesc.depthCompareFunction       = MTLCompareFunctionLessEqual;
+        //        depthStateDesc.depthWriteEnabled          = YES;
+        //        shadowSS.depthStencilState                = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
+        shadowSS.depthStencilState = nil;
 
         _renderPassStates[(int32_t)DefaultShaderIndex::ShadowMapShader] = shadowSS;
 
-        MTLRenderPassDescriptor *renderPassDescriptor    = [MTLRenderPassDescriptor new];
-        renderPassDescriptor.depthAttachment.loadAction  = MTLLoadActionClear;
-        renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
-        renderPassDescriptor.depthAttachment.clearDepth  = 1.0;
+        MTLRenderPassDescriptor *renderPassDescriptor = [MTLRenderPassDescriptor new];
+        //        renderPassDescriptor.depthAttachment.loadAction  = MTLLoadActionClear;
+        //        renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionDontCare;
+        //        renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+        //        renderPassDescriptor.depthAttachment.clearDepth  = 1.0;
 
         _renderPassDescriptors[(int32_t)RenderPassIndex::ShadowPass] = renderPassDescriptor;
     }
@@ -327,6 +334,38 @@ struct ShaderState {
     [_renderEncoder popDebugGroup];
 }
 
+- (void)drawBatchDepthOnly:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches {
+    //    [_renderEncoder pushDebugGroup:@"DrawMesh"];
+
+    [_renderEncoder setVertexBuffer:_uniformBuffers offset:0 atIndex:10];
+    
+    for (const auto &pDbc : batches) {
+        const MtlDrawBatchContext &dbc = dynamic_cast<const MtlDrawBatchContext &>(*pDbc);
+        
+        [_renderEncoder setVertexBuffer:_uniformBuffers
+                                 offset:kSizePerFrameConstantBuffer + dbc.batchIndex * kSizePerBatchConstantBuffer
+                                atIndex:11];
+        
+        // Set mesh's vertex buffers
+        for (uint32_t bufferIndex = 0; bufferIndex < dbc.property_count; bufferIndex++) {
+            id<MTLBuffer> vertexBuffer = _vertexBuffers[dbc.property_offset + bufferIndex];
+            [_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:bufferIndex];
+        }
+        
+        if (dbc.property_count <= 2) {
+            id<MTLBuffer> vertexBuffer = _vertexBuffers[dbc.property_offset];
+            [_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:2];
+        }
+        
+        [_renderEncoder drawIndexedPrimitives:dbc.index_mode
+                                   indexCount:dbc.index_count
+                                    indexType:dbc.index_type
+                                  indexBuffer:_indexBuffers[dbc.index_offset]
+                            indexBufferOffset:0];
+    }
+    //    [_renderEncoder popDebugGroup];
+}
+
 - (void)beginForwardPass {
     MTLRenderPassDescriptor *forwarRenderPassDescriptor = _mtkView.currentRenderPassDescriptor;
     if (forwarRenderPassDescriptor != nil) {
@@ -358,14 +397,28 @@ struct ShaderState {
 }
 
 - (void)beginShadowPass:(const Light &)light
-              shadowmap:(const int32_t)shadowmap {
+              shadowmap:(const int32_t)shadowmap
+              drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches {
     MTLRenderPassDescriptor *renderPassDescriptor = _renderPassDescriptors[(int32_t)RenderPassIndex::ShadowPass];
-    renderPassDescriptor.depthAttachment.texture  = _shadowMaps[shadowmap];
+    renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(1.0f, 1.0f, 1.0f, 1.0f);
+    renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+//    renderPassDescriptor.colorAttachments[0].loadAction  = MTLLoadActionDontCare;
+    renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+    renderPassDescriptor.colorAttachments[0].texture     = _shadowMapsColor[shadowmap];
+    //_mtkView.currentDrawable.texture;
+    //    _shadowMapsColor[shadowmap]
+    //    renderPassDescriptor.depthAttachment.texture     = _shadowMapsDepth[shadowmap];
+    //    renderPassDescriptor.stencilAttachment.texture   = renderPassDescriptor.depthAttachment.texture;
 
     _renderEncoder       = [_commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
     _renderEncoder.label = @"ShadowRenderEncoder";
-    [_renderEncoder setVertexBytes:&light.lightVP
-                            length:sizeof(light.lightVP)
+
+    [_renderEncoder setRenderPipelineState:_renderPassStates[(int32_t)DefaultShaderIndex::ShadowMapShader].pipelineState];
+    [_renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
+    [_renderEncoder setCullMode:MTLCullModeBack];
+
+    [_renderEncoder setVertexBytes:&(light.lightVP)
+                            length:64
                            atIndex:14];
 }
 
@@ -426,27 +479,35 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
 
 - (int32_t)createTexture:(const uint32_t)width
                   height:(const uint32_t)height {
-    id<MTLTexture> texture;
+    id<MTLTexture> textureDepth, textureColor;
 
-    MTLTextureDescriptor *textureDesc = [[MTLTextureDescriptor alloc] init];
-    textureDesc.textureType           = MTLTextureType2D;
-    textureDesc.pixelFormat           = MTLPixelFormatDepth32Float;
-    textureDesc.width                 = width;
-    textureDesc.height                = height;
-    textureDesc.storageMode           = MTLStorageModePrivate;
-    textureDesc.usage                 = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+    //    MTLTextureDescriptor *textureDesc = [[MTLTextureDescriptor alloc] init];
+    //    textureDesc.textureType           = MTLTextureType2D;
+    //    textureDesc.pixelFormat           = MTLPixelFormatDepth32Float_Stencil8;
+    //    textureDesc.width                 = width;
+    //    textureDesc.height                = height;
+    //    textureDesc.storageMode           = MTLStorageModePrivate;
+    //    textureDesc.usage                 = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+    //    textureDepth                      = [_device newTextureWithDescriptor:textureDesc];
 
-    // create the texture obj
-    texture = [_device newTextureWithDescriptor:textureDesc];
+    MTLTextureDescriptor *textureColorDesc = [[MTLTextureDescriptor alloc] init];
+    textureColorDesc.textureType           = MTLTextureType2D;
+    textureColorDesc.pixelFormat           = _mtkView.colorPixelFormat;
+    textureColorDesc.width                 = width;
+    textureColorDesc.height                = height;
+    textureColorDesc.usage                 = MTLTextureUsageRenderTarget | MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead;
+    textureColor                           = [_device newTextureWithDescriptor:textureColorDesc];
 
-    uint32_t index = _shadowMaps.size();
-    _shadowMaps.push_back(texture);
+    uint32_t index = _shadowMapsColor.size();
+    //    _shadowMapsDepth.push_back(textureDepth);
+    _shadowMapsColor.push_back(textureColor);
 
     return static_cast<int32_t>(index);
 }
 
 - (void)destroyShadowMaps {
-    _shadowMaps.clear();
+    _shadowMapsDepth.clear();
+    _shadowMapsColor.clear();
 }
 
 - (void)setShadowMaps:(const Frame &)frame {
@@ -493,7 +554,8 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
     _textures.clear();
     _vertexBuffers.clear();
     _indexBuffers.clear();
-    _shadowMaps.clear();
+    _shadowMapsColor.clear();
+    _shadowMapsDepth.clear();
 }
 
 - (void)beginFrame {
@@ -622,7 +684,8 @@ struct OverlayIn_VertUV {
     [_renderEncoder setVertexBytes:&OverlayQuad
                             length:64
                            atIndex:0];
-    [_renderEncoder setFragmentTexture:_textures[0] atIndex:0];
+    //    [_renderEncoder setFragmentTexture:_textures[0] atIndex:0];
+    [_renderEncoder setFragmentTexture:_shadowMapsColor[shadowmap] atIndex:0];
     [_renderEncoder setFragmentSamplerState:_sampler0 atIndex:0];
     [_renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip
                        vertexStart:0

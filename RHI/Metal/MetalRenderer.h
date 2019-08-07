@@ -23,6 +23,8 @@ struct MtlDrawBatchContext : public DrawBatchConstant {
 
 - (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches;
 
+- (void)drawBatchDepthOnly:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches;
+
 - (void)beginForwardPass;
 
 - (void)endForwardPass;
@@ -32,7 +34,8 @@ struct MtlDrawBatchContext : public DrawBatchConstant {
 - (void)endHUDPass;
 
 - (void)beginShadowPass:(const Light &)light
-              shadowmap:(const int32_t)shadowmap;
+              shadowmap:(const int32_t)shadowmap
+              drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches;
 
 - (void)endShadowPass:(const int32_t)shadowmap;
 
