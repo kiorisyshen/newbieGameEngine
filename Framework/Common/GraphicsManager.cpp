@@ -150,6 +150,27 @@ void GraphicsManager::CalculateLights() {
         light.lightDirection = {0.0f, 0.0f, -1.0f, 0.0f};
         Transform(light.lightDirection, *trans_ptr);
 
+        Matrix4X4f view;
+        Matrix4X4f projection;
+        BuildIdentityMatrix(projection);
+        Vector3f position;
+        memcpy(&position, &light.lightPosition, sizeof position);
+        Vector4f tmp = light.lightPosition + light.lightDirection;
+        Vector3f lookAt;
+        memcpy(&lookAt, &tmp, sizeof(lookAt));
+        Vector3f up = {0.0f, 0.0f, 1.0f};
+        BuildViewRHMatrix(view, position, lookAt, up);
+
+        float fieldOfView      = PI / 3.0f;
+        float nearClipDistance = 1.0f;
+        float farClipDistance  = 100.0f;
+        float screenAspect     = 1.0f;
+
+        // Build the perspective projection matrix.
+        BuildPerspectiveFovRHMatrix(projection, fieldOfView, screenAspect, nearClipDistance, farClipDistance);
+
+        light.lightVP = view * projection;
+
         auto pLight = scene.GetLight(pLightNode->GetSceneObjectRef());
         if (pLight) {
             light.lightColor              = pLight->GetColor().Value;
@@ -177,27 +198,6 @@ void GraphicsManager::CalculateLights() {
                     light.lightType = (int32_t)LightType::Omni;
                 }
             }
-
-            Matrix4X4f view;
-            Matrix4X4f projection;
-            BuildIdentityMatrix(projection);
-            Vector3f position;
-            memcpy(&position, &light.lightPosition, sizeof position);
-            Vector4f tmp = light.lightPosition + light.lightDirection;
-            Vector3f lookAt;
-            memcpy(&lookAt, &tmp, sizeof(lookAt));
-            Vector3f up = {0.0f, 0.0f, 1.0f};
-            BuildViewRHMatrix(view, position, lookAt, up);
-
-            float fieldOfView      = PI / 3.0f;
-            float nearClipDistance = 1.0f;
-            float farClipDistance  = 100.0f;
-            float screenAspect     = 1.0f;
-
-            // Build the perspective projection matrix.
-            BuildPerspectiveFovRHMatrix(projection, fieldOfView, screenAspect, nearClipDistance, farClipDistance);
-
-            light.lightVP = projection * view;
             ++frameContext.numLights;
         } else {
             assert(0);

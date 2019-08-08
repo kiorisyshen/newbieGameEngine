@@ -26,9 +26,9 @@ fragment float4 overlay_frag_main(VertOutput in [[stage_in]], depth2d<float> tex
     float color = textureMap.sample(samp0, in.uv);
     color       = clamp(color, 0.0, 1.0);
     if (color < 0.999) {
-        color -= 0.98;
+        color -= 0.9;
         color = clamp(color, 0.0, 1.0);
-        color /= 0.05;
+        color /= 0.1;
         color = clamp(color, 0.0, 1.0);
     }
     // if (color > 0.99999) {
