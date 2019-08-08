@@ -24,8 +24,15 @@ vertex VertOutput overlay_vert_main(uint vertexID [[vertex_id]], constant VertIn
 
 fragment float4 overlay_frag_main(VertOutput in [[stage_in]], depth2d<float> textureMap [[texture(0)]], sampler samp0 [[sampler(0)]]) {
     float color = textureMap.sample(samp0, in.uv);
+    color       = clamp(color, 0.0, 1.0);
     if (color < 0.999) {
-        color /= 5.0;
+        color -= 0.98;
+        color = clamp(color, 0.0, 1.0);
+        color /= 0.05;
+        color = clamp(color, 0.0, 1.0);
     }
+    // if (color > 0.99999) {
+    //     color = 0.0;
+    // }
     return float4(color, color, color, 1.0f);
 }
