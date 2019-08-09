@@ -91,6 +91,62 @@ CameraNode $node3
 	}
 }
 
+GeometryNode $node4
+{
+	Name {string {"Plane"}}
+	ObjectRef {ref {$geometry2}}
+	MaterialRef (index = 0) {ref {$material2}}
+
+	Transform
+	{
+		float[16]
+		{
+			{7.906316757202148, 0.0, 0.0, 0.0,
+			 0.0, 7.906316757202148, 0.0, 0.0,
+			 0.0, 0.0, 7.906316757202148, 0.0,
+			 0.0, 0.0, -0.48713287711143494, 1.0}
+		}
+	}
+}
+
+GeometryObject $geometry2		// Plane
+{
+	Mesh (primitive = "triangles")
+	{
+		VertexArray (attrib = "position")
+		{
+			float[3]		// 4
+			{
+				{-1.0, -1.0, 0.0}, {1.0, -1.0, 0.0}, {1.0, 1.0, 0.0}, {-1.0, 1.0, 0.0}
+			}
+		}
+
+		VertexArray (attrib = "normal")
+		{
+			float[3]		// 4
+			{
+				{0.0, 0.0, 1.0}, {0.0, 0.0, 1.0}, {0.0, 0.0, 1.0}, {0.0, 0.0, 1.0}
+			}
+		}
+
+		VertexArray (attrib = "texcoord")
+		{
+			float[2]		// 4
+			{
+				{0.00010003960051108152, 9.998001041822135e-05}, {0.9999000430107117, 9.998001041822135e-05}, {0.9999000430107117, 0.9999000430107117}, {9.998001041822135e-05, 0.9999000430107117}
+			}
+		}
+
+		IndexArray
+		{
+			unsigned_int32[3]		// 2
+			{
+				{0, 1, 2}, {0, 2, 3}
+			}
+		}
+	}
+}
+
 GeometryObject $geometry1		// Text
 {
 	Mesh (primitive = "triangles")
@@ -2100,7 +2156,21 @@ Material $material1
 {
 	Name {string {"Material"}}
 
-	Color (attrib = "diffuse") {float[3] {{0.6400000190734865, 0.6400000190734865, 0.6400000190734865}}}
+	Color (attrib = "diffuse") {float[3] {{0.4400000190734865, 1.0, 0.4400000190734865}}}
 	Color (attrib = "specular") {float[3] {{0.5, 0.5, 0.5}}}
 	Param (attrib = "specular_power") {float {50}}
+}
+
+Material $material2
+{
+	Name {string {"Material.002"}}
+
+	Color (attrib = "diffuse") {float[3] {{0.640000066757203, 0.640000066757203, 0.640000066757203}}}
+	Color (attrib = "specular") {float[3] {{0.5, 0.5, 0.5}}}
+	Param (attrib = "specular_power") {float {50}}
+
+	Texture (attrib = "diffuse")
+	{
+		string {"Textures/ground01.png"}
+	}
 }
