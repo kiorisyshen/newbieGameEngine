@@ -49,12 +49,16 @@ void MetalGraphicsManager::EndHUDPass() {
     [m_pRenderer endHUDPass];
 }
 
-void MetalGraphicsManager::BeginShadowPass(const int32_t shadowmap) {
-    [m_pRenderer beginShadowPass:shadowmap];
+void MetalGraphicsManager::BeginShadowPass(const int32_t shadowmap, const int32_t layerIndex) {
+    [m_pRenderer beginShadowPass:shadowmap sliceIdx:layerIndex];
 }
 
 void MetalGraphicsManager::EndShadowPass(const int32_t shadowmap) {
     [m_pRenderer endShadowPass:shadowmap];
+}
+
+int32_t MetalGraphicsManager::GenerateShadowMapArray(const uint32_t width, const uint32_t height, const uint32_t count) {
+    return [m_pRenderer createDepthTextureArray:width height:height count:count];
 }
 
 int32_t MetalGraphicsManager::GenerateShadowMap(const uint32_t width, const uint32_t height) {
