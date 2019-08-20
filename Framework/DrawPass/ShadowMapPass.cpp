@@ -34,7 +34,7 @@ void ShadowMapPass::Draw(Frame &frame) {
         g_pGraphicsManager->BeginShadowPass(shadowmap, shadowmap_index);
         g_pGraphicsManager->UseShaderProgram(DefaultShaderIndex::ShadowMapShader);
         g_pGraphicsManager->DrawBatchDepthFromLight(*it, frame.batchContext);
-        g_pGraphicsManager->EndShadowPass(it->lightShadowMapIndex);
+        g_pGraphicsManager->EndShadowPass(shadowmap, shadowmap_index);
 
         ++shadowmap_index;
     }

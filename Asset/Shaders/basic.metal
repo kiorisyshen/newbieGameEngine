@@ -140,6 +140,57 @@ float apply_atten_curve(thread const float &dist, thread const int &atten_curve_
     return atten;
 }
 
+float shadow_test(constant Light &light, float4 v_world, float cosTheta, thread texture2d_array<float> shadowMap) {
+    float4 v_light_space = light.lightVP * v_world;
+    v_light_space        = v_light_space / v_light_space.w;
+
+    // const float4x4 depth_bias = {
+    //     float4(0.5f, 0.0f, 0.0f, 0.0f),
+    //     float4(0.0f, 0.5f, 0.0f, 0.0f),
+    //     float4(0.0f, 0.0f, 0.5f, 0.0f),
+    //     float4(-0.5f, 0.5f, 0.5f, 1.0f)};
+
+    //     const float2 poissonDisk[4] = {
+    //         float2(-0.94201624, -0.39906216),
+    //         float2(0.94558609, -0.76890725),
+    //         float2(-0.094184101, -0.92938870),
+    //         float2(0.34495938, 0.29387760)};
+
+    // v_light_space = depth_bias * v_light_space;
+
+    constexpr sampler linearSampler(mip_filter::linear, mag_filter::linear, min_filter::linear);
+
+    //     // shadow test
+    //     float visibility = 1.0f;
+    //     if (light.lightShadowMapIndex != -1)  // the light cast shadow
+    //     {
+    //         float bias = 5e-4 * tan(acos(cosTheta));  // cosTheta is dot( n,l ), clamped between 0 and 1
+    //         bias       = clamp(bias, 0.0, 0.01);
+    //         for (int i = 0; i < 4; i++) {
+    // //            float near_occ = shadowMap[light.lightShadowMapIndex].sample(linearSampler, float2(v_light_space.xy + poissonDisk[i] / 700.0f)).r;
+    //             float near_occ = shadowMap.sample(linearSampler, float2(v_light_space.xy + poissonDisk[i] / 700.0f), light.lightShadowMapIndex).r;
+    //             if (v_light_space.z - near_occ > bias) {
+    //                 // we are in the shadow
+    //                 visibility -= 0.2f;
+    //             }
+    //         }
+    //     }
+
+    float2 sample_v = v_light_space.xy + float2(1, 1);
+
+    // shadow test
+    float visibility = 1.0;
+    if (light.lightShadowMapIndex != -1) {
+        float near_occ = shadowMap.sample(linearSampler, sample_v, light.lightShadowMapIndex).r;
+        if (v_light_space.z - near_occ > 0.01f) {
+            // we are in the shadow
+            visibility = 0.1f;
+        }
+    }
+
+    return visibility;
+}
+
 bool isAbovePlane(thread const float3 &_point, thread const float3 &center_of_plane, thread const float3 &normal_of_plane) {
     return dot(_point - center_of_plane, normal_of_plane) > 0.0;
 }
@@ -220,7 +271,7 @@ float3 apply_areaLight(constant Light &light, thread const basic_vert_main_out &
     return linearColor;
 }
 
-float3 apply_light(constant Light &light, thread const basic_vert_main_out &in, constant PerFrameConstants &pfc, constant PerBatchConstants &pbc, thread texture2d<float> diffuseMap, thread sampler samp0) {
+float3 apply_light(constant Light &light, thread const basic_vert_main_out &in, constant PerFrameConstants &pfc, constant PerBatchConstants &pbc, thread texture2d<float> diffuseMap, thread texture2d_array<float> shadowMap, thread sampler samp0) {
     float3 linearColor = float3(0.0);
 
     float3 N         = in.normal.xyz;
@@ -231,6 +282,9 @@ float3 apply_light(constant Light &light, thread const basic_vert_main_out &in, 
     L                      = normalize(L);
     float lightToSurfAngle = acos(dot(L, -light_dir));
     float cosTheta         = clamp(dot(N, L), 0.0, 1.0);
+
+    // shadow test
+    float visibility = shadow_test(light, in.v_world, cosTheta, shadowMap);
 
     int param_1 = light.lightAngleAttenCurveType;
     float param_2[6];
@@ -254,7 +308,7 @@ float3 apply_light(constant Light &light, thread const basic_vert_main_out &in, 
         linearColor *= light.lightColor.xyz * (light.lightIntensity * atten);
     }
 
-    return linearColor;
+    return linearColor * visibility;
 }
 
 vertex basic_vert_main_out basic_vert_main(basic_vert_main_in in [[stage_in]], constant PerFrameConstants &pfc [[buffer(10)]], constant PerBatchConstants &pbc [[buffer(11)]]) {
@@ -272,14 +326,14 @@ vertex basic_vert_main_out basic_vert_main(basic_vert_main_in in [[stage_in]], c
     return out;
 }
 
-fragment float4 basic_frag_main(basic_vert_main_out in [[stage_in]], constant PerFrameConstants &pfc [[buffer(10)]], constant PerBatchConstants &pbc [[buffer(11)]], constant LightInfo &pfc_light [[buffer(12)]], texture2d<float> diffuseMap [[texture(0)]], sampler samp0 [[sampler(0)]]) {
+fragment float4 basic_frag_main(basic_vert_main_out in [[stage_in]], constant PerFrameConstants &pfc [[buffer(10)]], constant PerBatchConstants &pbc [[buffer(11)]], constant LightInfo &pfc_light [[buffer(12)]], texture2d<float> diffuseMap [[texture(0)]], texture2d_array<float> shadowMap [[texture(1)]], sampler samp0 [[sampler(0)]]) {
     float3 linearColor = float3(0.0);
 
     for (int i = 0; i < pfc.numLights; i++) {
         if (pfc_light.lights[i].lightType == 3) {
             linearColor += apply_areaLight(pfc_light.lights[i], in, pfc, pbc, diffuseMap, samp0);
         } else {
-            linearColor += apply_light(pfc_light.lights[i], in, pfc, pbc, diffuseMap, samp0);
+            linearColor += apply_light(pfc_light.lights[i], in, pfc, pbc, diffuseMap, shadowMap, samp0);
         }
     }
 

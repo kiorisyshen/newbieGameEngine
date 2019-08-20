@@ -37,7 +37,8 @@ struct MtlDrawBatchContext : public DrawBatchConstant {
 - (void)beginShadowPass:(const int32_t)shadowmap
                sliceIdx:(const int32_t)layerIndex;
 
-- (void)endShadowPass:(const int32_t)shadowmap;
+- (void)endShadowPass:(const int32_t)shadowmap
+             sliceIdx:(const int32_t)layerIndex;
 
 - (void)setShadowMaps:(const Frame &)frame;
 

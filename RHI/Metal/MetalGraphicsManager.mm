@@ -53,8 +53,8 @@ void MetalGraphicsManager::BeginShadowPass(const int32_t shadowmap, const int32_
     [m_pRenderer beginShadowPass:shadowmap sliceIdx:layerIndex];
 }
 
-void MetalGraphicsManager::EndShadowPass(const int32_t shadowmap) {
-    [m_pRenderer endShadowPass:shadowmap];
+void MetalGraphicsManager::EndShadowPass(const int32_t shadowmap, const int32_t layerIndex) {
+    [m_pRenderer endShadowPass:shadowmap sliceIdx:layerIndex];
 }
 
 int32_t MetalGraphicsManager::GenerateShadowMapArray(const uint32_t width, const uint32_t height, const uint32_t count) {

@@ -19,6 +19,7 @@ struct ShaderState {
     id<MTLCommandQueue> _commandQueue;
     id<MTLCommandBuffer> _commandBuffer;
     id<MTLRenderCommandEncoder> _renderEncoder;
+    id<MTLBlitCommandEncoder> _blitEncoder;
 
     id<MTLSamplerState> _sampler0;
     std::vector<id<MTLTexture>> _textures;
@@ -131,14 +132,13 @@ struct ShaderState {
     // --------------
     // Shadow shaders
     {
-        id<MTLFunction> vertexFunction   = [myLibrary newFunctionWithName:@"shadow_vert_main"];
-        id<MTLFunction> fragmentFunction = [myLibrary newFunctionWithName:@"shadow_frag_main"];
+        id<MTLFunction> vertexFunction = [myLibrary newFunctionWithName:@"shadow_vert_main"];
 
         MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
         pipelineStateDescriptor.label                        = @"Shadow Pipeline";
         pipelineStateDescriptor.sampleCount                  = 1;
         pipelineStateDescriptor.vertexFunction               = vertexFunction;
-        pipelineStateDescriptor.fragmentFunction             = fragmentFunction;
+        pipelineStateDescriptor.fragmentFunction             = nil;
         pipelineStateDescriptor.vertexDescriptor             = mtlVertexDescriptor;
         pipelineStateDescriptor.depthAttachmentPixelFormat   = MTLPixelFormatDepth32Float;
 
@@ -292,6 +292,7 @@ struct ShaderState {
     [_renderEncoder setFragmentBuffer:_uniformBuffers offset:0 atIndex:10];
     [_renderEncoder setFragmentBuffer:_lightInfo offset:0 atIndex:12];
     [_renderEncoder setFragmentSamplerState:_sampler0 atIndex:0];
+    [_renderEncoder setFragmentTexture:_lightDepthArray atIndex:1];
 
     for (const auto &pDbc : batches) {
         const MtlDrawBatchContext &dbc = dynamic_cast<const MtlDrawBatchContext &>(*pDbc);
@@ -407,8 +408,25 @@ struct ShaderState {
     _renderEncoder.label = @"ShadowRenderEncoder";
 }
 
-- (void)endShadowPass:(const int32_t)shadowmap {
+- (void)endShadowPass:(const int32_t)shadowmap
+             sliceIdx:(const int32_t)layerIndex {
     [_renderEncoder endEncoding];
+
+    // Copy shadow map to shadow map array's slice
+    _blitEncoder       = [_commandBuffer blitCommandEncoder];
+    _blitEncoder.label = @"ShadowBlitEncoder";
+    [_blitEncoder pushDebugGroup:@"CopyToShadowArray"];
+    [_blitEncoder copyFromTexture:_lightDepthList[layerIndex]
+                      sourceSlice:0
+                      sourceLevel:0
+                     sourceOrigin:MTLOriginMake(0, 0, 0)
+                       sourceSize:MTLSizeMake(_lightDepthList[layerIndex].width, _lightDepthList[layerIndex].height, _lightDepthList[layerIndex].depth)
+                        toTexture:_lightDepthArray
+                 destinationSlice:layerIndex
+                 destinationLevel:0
+                destinationOrigin:MTLOriginMake(0, 0, 0)];
+    [_blitEncoder popDebugGroup];
+    [_blitEncoder endEncoding];
 }
 
 static MTLPixelFormat getMtlPixelFormat(const Image &img) {

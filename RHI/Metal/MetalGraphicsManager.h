@@ -31,7 +31,7 @@ class MetalGraphicsManager : public GraphicsManager {
 
     // Shadow Map
     void BeginShadowPass(const int32_t shadowmap, const int32_t layerIndex) final;
-    void EndShadowPass(const int32_t shadowmap) final;
+    void EndShadowPass(const int32_t shadowmap, const int32_t layerIndex) final;
 
     int32_t GenerateShadowMapArray(const uint32_t width, const uint32_t height, const uint32_t count) final;
     int32_t GenerateShadowMap(const uint32_t width, const uint32_t height) final;
