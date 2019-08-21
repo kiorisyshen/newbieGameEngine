@@ -161,7 +161,7 @@ float shadow_test(constant Light &light, float4 v_world, float cosTheta, thread 
     // shadow test
     float visibility = 1.0;
     if (light.lightShadowMapIndex > -1) {
-        float bias = 5e-4 * tan(acos(cosTheta));  // cosTheta is dot( n,l ), clamped between 0 and 1
+        float bias = 5e-6 * tan(acos(cosTheta));  // cosTheta is dot( n,l ), clamped between 0 and 1
         bias       = clamp(bias, 0.0, 0.01);
         for (int i = 0; i < 4; i++) {
             float shadow_sample = shadowMap.sample_compare(shadowSampler, v_light_space.xy + poissonDisk[i] / 700.0, light.lightShadowMapIndex, v_light_space.z - bias);
@@ -258,9 +258,14 @@ float3 apply_areaLight(constant Light &light, thread const basic_vert_main_out &
 float3 apply_light(constant Light &light, thread const basic_vert_main_out &in, constant PerFrameConstants &pfc, constant PerBatchConstants &pbc, thread texture2d<float> diffuseMap, thread depth2d_array<float> shadowMap, thread sampler samp0) {
     float3 linearColor = float3(0.0);
 
-    float3 N         = in.normal.xyz;
-    float3 L         = (pfc.viewMatrix * pfc.worldMatrix * light.lightPosition).xyz - in.v.xyz;
+    float3 N = in.normal.xyz;
+    float3 L;
     float3 light_dir = normalize((pfc.viewMatrix * pfc.worldMatrix * light.lightDirection).xyz);
+    if (light.lightPosition.w == 0.0f) {
+        L = -light_dir;
+    } else {
+        L = (pfc.viewMatrix * pfc.worldMatrix * light.lightPosition).xyz - in.v.xyz;
+    }
 
     float lightToSurfDist  = length(L);
     L                      = normalize(L);

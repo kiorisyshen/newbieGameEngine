@@ -336,7 +336,8 @@ struct ShaderState {
     [_renderEncoder pushDebugGroup:@"DrawMeshDepth"];
 
     [_renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
-    [_renderEncoder setCullMode:MTLCullModeBack];
+    [_renderEncoder setCullMode:MTLCullModeFront];
+    // [_renderEncoder setCullMode:MTLCullModeBack];
 
     [_renderEncoder setVertexBytes:&(light.lightVP)
                             length:64
