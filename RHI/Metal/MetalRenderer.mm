@@ -337,6 +337,7 @@ struct ShaderState {
 
     [_renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
     [_renderEncoder setCullMode:MTLCullModeFront];
+    // [_renderEncoder setCullMode:MTLCullModeBack];
 
     [_renderEncoder setVertexBytes:&(light.lightVP)
                             length:64
