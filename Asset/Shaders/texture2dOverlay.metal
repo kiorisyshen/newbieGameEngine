@@ -31,8 +31,5 @@ fragment float4 overlay_frag_main(VertOutput in [[stage_in]], depth2d<float> tex
         color /= 0.2;
         color = clamp(color, 0.0, 1.0);
     }
-    // if (color > 0.99999) {
-    //     color = 0.0;
-    // }
     return float4(color, color, color, 1.0f);
 }

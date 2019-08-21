@@ -152,29 +152,23 @@ float shadow_test(constant Light &light, float4 v_world, float cosTheta, thread 
                                     address::clamp_to_edge,
                                     compare_func::less);
 
-    //     // shadow test
-    //     float visibility = 1.0f;
-    //     if (light.lightShadowMapIndex != -1)  // the light cast shadow
-    //     {
-    //         float bias = 5e-4 * tan(acos(cosTheta));  // cosTheta is dot( n,l ), clamped between 0 and 1
-    //         bias       = clamp(bias, 0.0, 0.01);
-    //         for (int i = 0; i < 4; i++) {
-    // //            float near_occ = shadowMap[light.lightShadowMapIndex].sample(linearSampler, float2(v_light_space.xy + poissonDisk[i] / 700.0f)).r;
-    //             float near_occ = shadowMap.sample(linearSampler, float2(v_light_space.xy + poissonDisk[i] / 700.0f), light.lightShadowMapIndex).r;
-    //             if (v_light_space.z - near_occ > bias) {
-    //                 // we are in the shadow
-    //                 visibility -= 0.2f;
-    //             }
-    //         }
-    //     }
+    const float2 poissonDisk[4] = {
+        float2(-0.94201624, -0.39906216),
+        float2(0.94558609, -0.76890725),
+        float2(-0.094184101, -0.92938870),
+        float2(0.34495938, 0.29387760)};
 
     // shadow test
     float visibility = 1.0;
     if (light.lightShadowMapIndex > -1) {
-        float shadow_sample = shadowMap.sample_compare(shadowSampler, v_light_space.xy, light.lightShadowMapIndex, v_light_space.z);
-        if (shadow_sample < 0.5) {
-            // we are in the shadow
-            visibility = 0.1;
+        float bias = 5e-4 * tan(acos(cosTheta));  // cosTheta is dot( n,l ), clamped between 0 and 1
+        bias       = clamp(bias, 0.0, 0.01);
+        for (int i = 0; i < 4; i++) {
+            float shadow_sample = shadowMap.sample_compare(shadowSampler, v_light_space.xy + poissonDisk[i] / 700.0, light.lightShadowMapIndex, v_light_space.z - bias);
+            if (shadow_sample < 0.5) {
+                // we are in the shadow
+                visibility -= 0.2;
+            }
         }
     }
 

@@ -41,7 +41,6 @@ vertex ShadowOutput shadow_vert_main(ShadowInput in [[stage_in]], constant PerFr
     float4x4 transM = pfc.worldMatrix * pbc.objectLocalMatrix;
     float4 v_world  = transM * float4(in.inputPosition, 1.0);
     out.v           = pfc.viewMatrix * v_world;
-    // out.position    = pfc.projectionMatrix * out.v;
 
     out.position = smc.shadowMatrix * v_world;
 
