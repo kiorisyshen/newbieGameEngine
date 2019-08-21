@@ -16,12 +16,6 @@ struct ShadowInput {
     float2 inputUV [[attribute(2)]];
 };
 
-// struct basic_vert_main_in {
-//     float3 inputPosition [[attribute(0)]];
-//     float3 inputNormal [[attribute(1)]];
-//     float2 inputUV [[attribute(2)]];
-// };
-
 struct ShadowMapConstants {
     float4x4 shadowMatrix;
 };
@@ -45,9 +39,8 @@ vertex ShadowOutput shadow_vert_main(ShadowInput in [[stage_in]], constant PerFr
     ShadowOutput out;
 
     float4x4 transM = pfc.worldMatrix * pbc.objectLocalMatrix;
-    float4 v_world  = transM * float4(in.inputPosition, 1.0f);
+    float4 v_world  = transM * float4(in.inputPosition, 1.0);
     out.v           = pfc.viewMatrix * v_world;
-    // out.position    = pfc.projectionMatrix * out.v;
 
     out.position = smc.shadowMatrix * v_world;
 
@@ -55,5 +48,5 @@ vertex ShadowOutput shadow_vert_main(ShadowInput in [[stage_in]], constant PerFr
 }
 
 fragment float4 shadow_frag_main(ShadowOutput in [[stage_in]]) {
-    return float4(in.position.z / 10.0, in.position.z / 10.0, in.position.z / 10.0, 1.0);
+    return float4(in.position.z, in.position.z, in.position.z, 1.0);
 }

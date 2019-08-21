@@ -19,10 +19,12 @@ struct ShaderState {
     id<MTLCommandQueue> _commandQueue;
     id<MTLCommandBuffer> _commandBuffer;
     id<MTLRenderCommandEncoder> _renderEncoder;
+    id<MTLBlitCommandEncoder> _blitEncoder;
 
     id<MTLSamplerState> _sampler0;
     std::vector<id<MTLTexture>> _textures;
-    std::vector<id<MTLTexture>> _shadowMapsDepth;
+    id<MTLTexture> _lightDepthArray;
+    std::vector<id<MTLTexture>> _lightDepthList;
 
     std::vector<id<MTLBuffer>> _vertexBuffers;
     std::vector<id<MTLBuffer>> _indexBuffers;
@@ -130,16 +132,15 @@ struct ShaderState {
     // --------------
     // Shadow shaders
     {
-        id<MTLFunction> vertexFunction   = [myLibrary newFunctionWithName:@"shadow_vert_main"];
-        id<MTLFunction> fragmentFunction = [myLibrary newFunctionWithName:@"shadow_frag_main"];
+        id<MTLFunction> vertexFunction = [myLibrary newFunctionWithName:@"shadow_vert_main"];
 
-        MTLRenderPipelineDescriptor *pipelineStateDescriptor    = [[MTLRenderPipelineDescriptor alloc] init];
-        pipelineStateDescriptor.label                           = @"Shadow Pipeline";
-        pipelineStateDescriptor.sampleCount                     = 1;
-        pipelineStateDescriptor.vertexFunction                  = vertexFunction;
-        pipelineStateDescriptor.fragmentFunction                = fragmentFunction;
-        pipelineStateDescriptor.vertexDescriptor                = mtlVertexDescriptor;
-        pipelineStateDescriptor.depthAttachmentPixelFormat      = MTLPixelFormatDepth32Float;
+        MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+        pipelineStateDescriptor.label                        = @"Shadow Pipeline";
+        pipelineStateDescriptor.sampleCount                  = 1;
+        pipelineStateDescriptor.vertexFunction               = vertexFunction;
+        pipelineStateDescriptor.fragmentFunction             = nil;
+        pipelineStateDescriptor.vertexDescriptor             = mtlVertexDescriptor;
+        pipelineStateDescriptor.depthAttachmentPixelFormat   = MTLPixelFormatDepth32Float;
 
         ShaderState shadowSS;
         shadowSS.pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
@@ -291,6 +292,7 @@ struct ShaderState {
     [_renderEncoder setFragmentBuffer:_uniformBuffers offset:0 atIndex:10];
     [_renderEncoder setFragmentBuffer:_lightInfo offset:0 atIndex:12];
     [_renderEncoder setFragmentSamplerState:_sampler0 atIndex:0];
+    [_renderEncoder setFragmentTexture:_lightDepthArray atIndex:1];
 
     for (const auto &pDbc : batches) {
         const MtlDrawBatchContext &dbc = dynamic_cast<const MtlDrawBatchContext &>(*pDbc);
@@ -397,16 +399,34 @@ struct ShaderState {
     [_renderEncoder endEncoding];
 }
 
-- (void)beginShadowPass:(const int32_t)shadowmap {
+- (void)beginShadowPass:(const int32_t)shadowmap
+               sliceIdx:(const int32_t)layerIndex {
     MTLRenderPassDescriptor *renderPassDescriptor = _renderPassDescriptors[(int32_t)RenderPassIndex::ShadowPass];
-    renderPassDescriptor.depthAttachment.texture  = _shadowMapsDepth[shadowmap];
+    renderPassDescriptor.depthAttachment.texture  = _lightDepthList[layerIndex];
 
     _renderEncoder       = [_commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
     _renderEncoder.label = @"ShadowRenderEncoder";
 }
 
-- (void)endShadowPass:(const int32_t)shadowmap {
+- (void)endShadowPass:(const int32_t)shadowmap
+             sliceIdx:(const int32_t)layerIndex {
     [_renderEncoder endEncoding];
+
+    // Copy shadow map to shadow map array's slice
+    _blitEncoder       = [_commandBuffer blitCommandEncoder];
+    _blitEncoder.label = @"ShadowBlitEncoder";
+    [_blitEncoder pushDebugGroup:@"CopyToShadowArray"];
+    [_blitEncoder copyFromTexture:_lightDepthList[layerIndex]
+                      sourceSlice:0
+                      sourceLevel:0
+                     sourceOrigin:MTLOriginMake(0, 0, 0)
+                       sourceSize:MTLSizeMake(_lightDepthList[layerIndex].width, _lightDepthList[layerIndex].height, _lightDepthList[layerIndex].depth)
+                        toTexture:_lightDepthArray
+                 destinationSlice:layerIndex
+                 destinationLevel:0
+                destinationOrigin:MTLOriginMake(0, 0, 0)];
+    [_blitEncoder popDebugGroup];
+    [_blitEncoder endEncoding];
 }
 
 static MTLPixelFormat getMtlPixelFormat(const Image &img) {
@@ -474,14 +494,36 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
     textureDesc.usage                 = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
     textureDepth                      = [_device newTextureWithDescriptor:textureDesc];
 
-    uint32_t index = _shadowMapsDepth.size();
-    _shadowMapsDepth.push_back(textureDepth);
+    uint32_t index = _lightDepthList.size();
+    _lightDepthList.push_back(textureDepth);
 
     return static_cast<int32_t>(index);
 }
 
+- (int32_t)createDepthTextureArray:(const uint32_t)width
+                            height:(const uint32_t)height
+                             count:(const uint32_t)count {
+    MTLTextureDescriptor *textureDesc = [[MTLTextureDescriptor alloc] init];
+    textureDesc.textureType           = MTLTextureType2DArray;
+    textureDesc.pixelFormat           = MTLPixelFormatDepth32Float;
+    textureDesc.arrayLength           = count;
+    textureDesc.width                 = width;
+    textureDesc.height                = height;
+    textureDesc.sampleCount           = 1;
+    textureDesc.storageMode           = MTLStorageModePrivate;
+    textureDesc.usage                 = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+    _lightDepthArray                  = [_device newTextureWithDescriptor:textureDesc];
+
+    for (uint32_t i = 0; i < count; ++i) {
+        [self createDepthTexture:width height:height];
+    }
+
+    return 0;
+}
+
 - (void)destroyShadowMaps {
-    _shadowMapsDepth.clear();
+    _lightDepthArray = nil;
+    _lightDepthList.clear();
 }
 
 - (void)setShadowMaps:(const Frame &)frame {
@@ -528,7 +570,7 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
     _textures.clear();
     _vertexBuffers.clear();
     _indexBuffers.clear();
-    _shadowMapsDepth.clear();
+    _lightDepthList.clear();
 }
 
 - (void)beginFrame {
@@ -655,7 +697,7 @@ struct OverlayIn_VertUV {
     [_renderEncoder setVertexBytes:&OverlayQuad
                             length:64
                            atIndex:0];
-    [_renderEncoder setFragmentTexture:_shadowMapsDepth[shadowmap] atIndex:0];
+    [_renderEncoder setFragmentTexture:_lightDepthList[shadowmap] atIndex:0];
     [_renderEncoder setFragmentSamplerState:_sampler0 atIndex:0];
     [_renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip
                        vertexStart:0

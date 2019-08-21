@@ -34,16 +34,21 @@ struct MtlDrawBatchContext : public DrawBatchConstant {
 
 - (void)endHUDPass;
 
-- (void)beginShadowPass:(const int32_t)shadowmap;
+- (void)beginShadowPass:(const int32_t)shadowmap
+               sliceIdx:(const int32_t)layerIndex;
 
-- (void)endShadowPass:(const int32_t)shadowmap;
+- (void)endShadowPass:(const int32_t)shadowmap
+             sliceIdx:(const int32_t)layerIndex;
 
 - (void)setShadowMaps:(const Frame &)frame;
 
 - (void)destroyShadowMaps;
 
-- (int32_t)createDepthTexture:(const uint32_t)width
-                       height:(const uint32_t)height;
+- (int32_t)createDepthTextureArray:(const uint32_t)width
+                            height:(const uint32_t)height
+                             count:(const uint32_t)count;
+
+- (int32_t)createDepthTexture:(const uint32_t)width height:(const uint32_t)height;
 
 - (uint32_t)createTexture:(const newbieGE::Image &)image;
 
