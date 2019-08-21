@@ -66,6 +66,10 @@ unistruct LightInfo REGISTER(b12) {
 struct frame_textures {
     int32_t shadowMap;
     std::vector<int32_t> shadowMapLayerIndex;
+    int32_t cubeShadowMap;
+    std::vector<int32_t> cubeShadowMapLayerIndex;
+    int32_t globalShadowMap;
+    std::vector<int32_t> globalShadowMapLayerIndex;
 };
 
 // Align for metal
