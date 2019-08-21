@@ -10,8 +10,8 @@ struct Light {
     float4 lightPosition;                 // 16 bytes
     float4 lightColor;                    // 16 bytes
     float4 lightDirection;                // 16 bytes
-    float lightDistAttenCurveParams[6];   // 24 bytes
-    float lightAngleAttenCurveParams[6];  // 24 bytes
+    float lightDistAttenCurveParams[8];   // 32 bytes
+    float lightAngleAttenCurveParams[8];  // 32 bytes
     float2 lightSize;                     // 8 bytes
     int lightDistAttenCurveType;          // 4 bytes
     int lightAngleAttenCurveType;         // 4 bytes
@@ -19,10 +19,10 @@ struct Light {
     int lightType;                        // 4 bytes
     int lightCastShadow;                  // 4 bytes
     int lightShadowMapIndex;              // 4 bytes
-    // Above is 184 bytes
+    // Above is 208 bytes
 
     // Fill bytes to align to 256 bytes (Metal required)
-    float padding[16];  // 64 bytes
+    float padding[12];  // 48 bytes
 };
 
 struct LightInfo {
@@ -85,7 +85,7 @@ float linear_interpolate(thread const float &t, thread const float &begin, threa
     }
 }
 
-float apply_atten_curve(thread const float &dist, thread const int &atten_curve_type, thread const float (&atten_params)[6]) {
+float apply_atten_curve(thread const float &dist, thread const int &atten_curve_type, thread const float (&atten_params)[8]) {
     float atten = 1.0;
     switch (atten_curve_type) {
         case 1: {
@@ -140,25 +140,17 @@ float apply_atten_curve(thread const float &dist, thread const int &atten_curve_
     return atten;
 }
 
-float shadow_test(constant Light &light, float4 v_world, float cosTheta, thread texture2d_array<float> shadowMap) {
+float shadow_test(constant Light &light, float4 v_world, float cosTheta, thread depth2d_array<float> shadowMap) {
     float4 v_light_space = light.lightVP * v_world;
     v_light_space        = v_light_space / v_light_space.w;
+    v_light_space.xy     = 0.5 * (v_light_space.xy + float2(1.0, 1.0));
+    v_light_space.y      = 1.0 - v_light_space.y;
 
-    // const float4x4 depth_bias = {
-    //     float4(0.5f, 0.0f, 0.0f, 0.0f),
-    //     float4(0.0f, 0.5f, 0.0f, 0.0f),
-    //     float4(0.0f, 0.0f, 0.5f, 0.0f),
-    //     float4(-0.5f, 0.5f, 0.5f, 1.0f)};
-
-    //     const float2 poissonDisk[4] = {
-    //         float2(-0.94201624, -0.39906216),
-    //         float2(0.94558609, -0.76890725),
-    //         float2(-0.094184101, -0.92938870),
-    //         float2(0.34495938, 0.29387760)};
-
-    // v_light_space = depth_bias * v_light_space;
-
-    constexpr sampler linearSampler(mip_filter::linear, mag_filter::linear, min_filter::linear);
+    constexpr sampler shadowSampler(coord::normalized,
+                                    filter::linear,
+                                    mip_filter::none,
+                                    address::clamp_to_edge,
+                                    compare_func::less);
 
     //     // shadow test
     //     float visibility = 1.0f;
@@ -176,15 +168,13 @@ float shadow_test(constant Light &light, float4 v_world, float cosTheta, thread 
     //         }
     //     }
 
-    float2 sample_v = v_light_space.xy + float2(1, 1);
-
     // shadow test
     float visibility = 1.0;
-    if (light.lightShadowMapIndex != -1) {
-        float near_occ = shadowMap.sample(linearSampler, sample_v, light.lightShadowMapIndex).r;
-        if (v_light_space.z - near_occ > 0.01f) {
+    if (light.lightShadowMapIndex > -1) {
+        float shadow_sample = shadowMap.sample_compare(shadowSampler, v_light_space.xy, light.lightShadowMapIndex, v_light_space.z);
+        if (shadow_sample < 0.5) {
             // we are in the shadow
-            visibility = 0.1f;
+            visibility = 0.1;
         }
     }
 
@@ -230,7 +220,7 @@ float3 apply_areaLight(constant Light &light, thread const basic_vert_main_out &
 
     float param_3 = lightToSurfDist;
     int param_4   = light.lightDistAttenCurveType;
-    float param_5[6];
+    float param_5[8];
     spvArrayCopyConstant(param_5, light.lightDistAttenCurveParams);
 
     float atten    = apply_atten_curve(param_3, param_4, param_5);
@@ -271,7 +261,7 @@ float3 apply_areaLight(constant Light &light, thread const basic_vert_main_out &
     return linearColor;
 }
 
-float3 apply_light(constant Light &light, thread const basic_vert_main_out &in, constant PerFrameConstants &pfc, constant PerBatchConstants &pbc, thread texture2d<float> diffuseMap, thread texture2d_array<float> shadowMap, thread sampler samp0) {
+float3 apply_light(constant Light &light, thread const basic_vert_main_out &in, constant PerFrameConstants &pfc, constant PerBatchConstants &pbc, thread texture2d<float> diffuseMap, thread depth2d_array<float> shadowMap, thread sampler samp0) {
     float3 linearColor = float3(0.0);
 
     float3 N         = in.normal.xyz;
@@ -287,12 +277,12 @@ float3 apply_light(constant Light &light, thread const basic_vert_main_out &in, 
     float visibility = shadow_test(light, in.v_world, cosTheta, shadowMap);
 
     int param_1 = light.lightAngleAttenCurveType;
-    float param_2[6];
+    float param_2[8];
     spvArrayCopyConstant(param_2, light.lightAngleAttenCurveParams);
     float atten = apply_atten_curve(lightToSurfAngle, param_1, param_2);
 
     int param_4 = light.lightDistAttenCurveType;
-    float param_5[6];
+    float param_5[8];
     spvArrayCopyConstant(param_5, light.lightDistAttenCurveParams);
     atten *= apply_atten_curve(lightToSurfDist, param_4, param_5);
 
@@ -326,7 +316,7 @@ vertex basic_vert_main_out basic_vert_main(basic_vert_main_in in [[stage_in]], c
     return out;
 }
 
-fragment float4 basic_frag_main(basic_vert_main_out in [[stage_in]], constant PerFrameConstants &pfc [[buffer(10)]], constant PerBatchConstants &pbc [[buffer(11)]], constant LightInfo &pfc_light [[buffer(12)]], texture2d<float> diffuseMap [[texture(0)]], texture2d_array<float> shadowMap [[texture(1)]], sampler samp0 [[sampler(0)]]) {
+fragment float4 basic_frag_main(basic_vert_main_out in [[stage_in]], constant PerFrameConstants &pfc [[buffer(10)]], constant PerBatchConstants &pbc [[buffer(11)]], constant LightInfo &pfc_light [[buffer(12)]], texture2d<float> diffuseMap [[texture(0)]], depth2d_array<float> shadowMap [[texture(1)]], sampler samp0 [[sampler(0)]]) {
     float3 linearColor = float3(0.0);
 
     for (int i = 0; i < pfc.numLights; i++) {

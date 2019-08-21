@@ -44,8 +44,8 @@ struct Light {
     Vector4f lightPosition;               // 16 bytes
     Vector4f lightColor;                  // 16 bytes
     Vector4f lightDirection;              // 16 bytes
-    float lightDistAttenCurveParams[6];   // 32 bytes
-    float lightAngleAttenCurveParams[6];  // 32 bytes
+    float lightDistAttenCurveParams[8];   // 32 bytes
+    float lightAngleAttenCurveParams[8];  // 32 bytes
     Vector2f lightSize;                   // 8 bytes
     int32_t lightDistAttenCurveType;      // 4 bytes
     int32_t lightAngleAttenCurveType;     // 4 bytes
@@ -56,7 +56,7 @@ struct Light {
     // Above is 208 bytes
 
     // Fill bytes to align to 256 bytes (Metal required)
-    float padding[16];  // 48 bytes
+    float padding[12];  // 48 bytes
 };
 
 unistruct LightInfo REGISTER(b12) {
