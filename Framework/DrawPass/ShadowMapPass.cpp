@@ -5,11 +5,9 @@ using namespace std;
 using namespace newbieGE;
 
 void ShadowMapPass::Draw(Frame &frame) {
-    if (frame.frameContext.shadowMapLayerIndex.size() > 0) {
-        g_pGraphicsManager->DestroyShadowMaps();
-        frame.frameContext.shadowMapLayerIndex.clear();
-        frame.frameContext.shadowMap = -1;
-    }
+    g_pGraphicsManager->DestroyShadowMaps();
+    frame.frameContext.shadowMapLayerIndex.clear();
+    frame.frameContext.shadowMap = -1;
 
     // count shadow map
     vector<Light *> lights_cast_shadow;

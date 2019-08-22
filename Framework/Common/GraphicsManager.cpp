@@ -272,7 +272,12 @@ void GraphicsManager::BeginScene(const Scene &scene) {
 }
 
 void GraphicsManager::EndScene() {
-    m_Frames.clear();
+    for (auto frame : m_Frames) {
+        frame.batchContext.clear();
+#ifdef DEBUG
+        frame.DEBUG_Batches.clear();
+#endif
+    }
     m_nFrameIndex = 0;
 }
 

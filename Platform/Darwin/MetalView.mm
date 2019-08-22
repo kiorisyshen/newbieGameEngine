@@ -5,7 +5,9 @@
 
 using namespace newbieGE;
 
-@implementation MetalView
+@implementation MetalView {
+    MetalRenderer *_metalRenderer;
+}
 
 - (instancetype)initWithCoder:(NSCoder *)coder {
     if (self = [super initWithCoder:coder]) {
@@ -41,8 +43,10 @@ using namespace newbieGE;
     self.paused                = YES;
     self.enableSetNeedsDisplay = YES;
 
+    _metalRenderer = [[MetalRenderer new] initWithMetalKitView:self];
+
     dynamic_cast<MetalGraphicsManager *>(g_pGraphicsManager)
-        ->SetRenderer([[MetalRenderer new] initWithMetalKitView:self]);
+        ->SetRenderer(_metalRenderer);
 }
 
 - (void)drawRect:(CGRect)drawRect {

@@ -46,7 +46,8 @@ int CocoaApplication::Initialize() {
 }
 
 void CocoaApplication::Finalize() {
-    [m_pWindow release];
+    //    [m_pWindow release];
+    m_pWindow = nil;
 }
 
 void CocoaApplication::Tick() {
@@ -143,6 +144,6 @@ void CocoaApplication::Tick() {
         }
         [NSApp sendEvent:event];
         [NSApp updateWindows];
-        [event release];
+        //        [event release];
     }
 }

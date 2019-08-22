@@ -9,6 +9,7 @@ add_library(PlatformInterface
             AppDelegate.m
             WindowDelegate.m
             MetalView.mm)
+set_property(TARGET PlatformInterface APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
 
 target_link_libraries(PlatformInterface ${COCOA_LIBRARY} ${OPENGL_LIBRARY}
                       # dl
@@ -22,6 +23,7 @@ target_link_libraries(newbieGameEngine
                       Common
                       PlatformInterface
                       MetalRHI)
+set_property(TARGET newbieGameEngine APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
 
 # # NewbieGEMetalCocoa add_executable(NewbieGEMetalCocoa MACOSX_BUNDLE CocoaApplication.mm CocoaMetalApplication.mm
 # CocoaMetalApplicationConfig.cpp AppDelegate.m WindowDelegate.m MetalView.mm Main.metallib ) set(RESOURCE_FILES

@@ -5,6 +5,10 @@
 #import "MetalGraphicsManager.h"
 #import "MetalRenderer.h"
 
+#if !__has_feature(objc_arc)
+#error "ARC is off"
+#endif
+
 using namespace newbieGE;
 
 struct ShaderState {
@@ -571,6 +575,7 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
     _textures.clear();
     _vertexBuffers.clear();
     _indexBuffers.clear();
+    _lightDepthArray = nil;
     _lightDepthList.clear();
 }
 
