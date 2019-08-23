@@ -27,7 +27,7 @@ struct ShaderState {
 
     id<MTLSamplerState> _sampler0;
     std::vector<id<MTLTexture>> _textures;
-    
+
     std::array<id<MTLTexture>, num_ShadowMapType> _lightDepthArray;
     std::array<std::vector<id<MTLTexture>>, num_ShadowMapType> _lightDepthList;
 
@@ -298,6 +298,7 @@ struct ShaderState {
     [_renderEncoder setFragmentBuffer:_lightInfo offset:0 atIndex:12];
     [_renderEncoder setFragmentSamplerState:_sampler0 atIndex:0];
     [_renderEncoder setFragmentTexture:_lightDepthArray[NormalShadowMapType] atIndex:1];
+    [_renderEncoder setFragmentTexture:_lightDepthArray[CubeShadowMapType] atIndex:2];
     [_renderEncoder setFragmentTexture:_lightDepthArray[GlobalShadowMapType] atIndex:3];
 
     for (const auto &pDbc : batches) {
@@ -424,7 +425,7 @@ struct ShaderState {
 
     textureSrc = _lightDepthList[shadowmap][layerIndex];
     textureDst = _lightDepthArray[shadowmap];
-    
+
     // Copy shadow map to shadow map array's slice
     _blitEncoder       = [_commandBuffer blitCommandEncoder];
     _blitEncoder.label = @"ShadowBlitEncoder";
@@ -497,35 +498,36 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
                              width:(const uint32_t)width
                             height:(const uint32_t)height
                              count:(const uint32_t)count {
-    int32_t ret = (int32_t)type;
+    int32_t ret                            = (int32_t)type;
+    MTLTextureDescriptor *textureArrayDesc = [[MTLTextureDescriptor alloc] init];
+    MTLTextureDescriptor *textureListDesc  = [[MTLTextureDescriptor alloc] init];
 
-    MTLTextureDescriptor *textureDesc = [[MTLTextureDescriptor alloc] init];
-    textureDesc.textureType           = MTLTextureType2DArray;
-    textureDesc.pixelFormat           = MTLPixelFormatDepth32Float;
-    textureDesc.arrayLength           = count;
-    textureDesc.width                 = width;
-    textureDesc.height                = height;
-    textureDesc.sampleCount           = 1;
-    textureDesc.storageMode           = MTLStorageModePrivate;
-    textureDesc.usage                 = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+    textureArrayDesc.textureType = MTLTextureType2DArray;
+    textureArrayDesc.pixelFormat = MTLPixelFormatDepth32Float;
+    textureArrayDesc.arrayLength = count;
+    textureArrayDesc.width       = width;
+    textureArrayDesc.height      = height;
+    textureArrayDesc.sampleCount = 1;
+    textureArrayDesc.storageMode = MTLStorageModePrivate;
+    textureArrayDesc.usage       = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+
+    textureListDesc.textureType = MTLTextureType2D;
+    textureListDesc.pixelFormat = MTLPixelFormatDepth32Float;
+    textureListDesc.width       = width;
+    textureListDesc.height      = height;
+    textureListDesc.sampleCount = 1;
+    textureListDesc.storageMode = MTLStorageModePrivate;
+    textureListDesc.usage       = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
 
     if (type == ShadowMapType::NormalShadowMapType || type == ShadowMapType::GlobalShadowMapType) {
         if (type == ShadowMapType::NormalShadowMapType) {
-            _lightDepthArray[ShadowMapType::NormalShadowMapType] = [_device newTextureWithDescriptor:textureDesc];
+            _lightDepthArray[ShadowMapType::NormalShadowMapType] = [_device newTextureWithDescriptor:textureArrayDesc];
         } else {
-            _lightDepthArray[ShadowMapType::GlobalShadowMapType] = [_device newTextureWithDescriptor:textureDesc];
+            _lightDepthArray[ShadowMapType::GlobalShadowMapType] = [_device newTextureWithDescriptor:textureArrayDesc];
         }
         for (uint32_t i = 0; i < count; ++i) {
             id<MTLTexture> textureDepth;
-            MTLTextureDescriptor *textureDesc = [[MTLTextureDescriptor alloc] init];
-            textureDesc.textureType           = MTLTextureType2D;
-            textureDesc.pixelFormat           = MTLPixelFormatDepth32Float;
-            textureDesc.width                 = width;
-            textureDesc.height                = height;
-            textureDesc.sampleCount           = 1;
-            textureDesc.storageMode           = MTLStorageModePrivate;
-            textureDesc.usage                 = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
-            textureDepth                      = [_device newTextureWithDescriptor:textureDesc];
+            textureDepth = [_device newTextureWithDescriptor:textureListDesc];
             if (type == ShadowMapType::NormalShadowMapType) {
                 _lightDepthList[ShadowMapType::NormalShadowMapType].push_back(textureDepth);
             } else {
@@ -535,17 +537,29 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
     }
 
     if (type == ShadowMapType::CubeShadowMapType) {
-        assert(0);
+        textureArrayDesc.textureType                       = MTLTextureTypeCubeArray;
+        _lightDepthArray[ShadowMapType::CubeShadowMapType] = [_device newTextureWithDescriptor:textureArrayDesc];
+
+        for (uint32_t i = 0; i < count; ++i) {
+            id<MTLTexture> textureDepth;
+            textureListDesc.textureType = MTLTextureTypeCube;
+            textureDepth = [_device newTextureWithDescriptor:textureListDesc];
+            if (type == ShadowMapType::NormalShadowMapType) {
+                _lightDepthList[ShadowMapType::NormalShadowMapType].push_back(textureDepth);
+            } else {
+                _lightDepthList[ShadowMapType::GlobalShadowMapType].push_back(textureDepth);
+            }
+        }
     }
 
     return ret;
 }
 
 - (void)destroyShadowMaps {
-    for (uint32_t i =0; i< _lightDepthArray.size(); ++i) {
+    for (uint32_t i = 0; i < _lightDepthArray.size(); ++i) {
         _lightDepthArray[i] = nil;
     }
-    for (uint32_t i =0; i< _lightDepthList.size(); ++i) {
+    for (uint32_t i = 0; i < _lightDepthList.size(); ++i) {
         _lightDepthList[i].clear();
     }
 }

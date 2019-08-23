@@ -53,7 +53,7 @@ void CocoaApplication::Finalize() {
 void CocoaApplication::Tick() {
     BaseApplication::Tick();
     // Process all pending events or return immidiately if no event
-    while (NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny
+    if (NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny
                                                untilDate:nil
                                                   inMode:NSDefaultRunLoopMode
                                                  dequeue:YES]) {

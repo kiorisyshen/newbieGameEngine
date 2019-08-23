@@ -58,7 +58,7 @@ void ShadowMapPass::Draw(Frame &frame) {
     if (frame.frameContext.cubeShadowMapLight.size() > 0) {
         int32_t shadowmapID              = g_pGraphicsManager->GenerateShadowMapArray(m_kCubeShadowMap.type,
                                                                          m_kCubeShadowMap.width, m_kCubeShadowMap.height,
-                                                                         frame.frameContext.shadowMapLight.size());
+                                                                         frame.frameContext.cubeShadowMapLight.size());
         frame.frameContext.cubeShadowMap = shadowmapID;
     }
 
