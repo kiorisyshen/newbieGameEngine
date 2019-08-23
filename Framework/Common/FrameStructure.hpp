@@ -21,6 +21,7 @@ enum ShadowMapType {
     NormalShadowMapType = 0,
     CubeShadowMapType,
     GlobalShadowMapType,
+    num_ShadowMapType,
 };
 struct ShadowMapDescription {
     uint32_t width;
