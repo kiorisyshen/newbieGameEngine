@@ -35,7 +35,6 @@ class GraphicsManager : implements IRuntimeModule {
     virtual void EndShadowPass(const int32_t shadowmap, const int32_t layerIndex)   = 0;
 
     virtual int32_t GenerateShadowMapArray(const uint32_t width, const uint32_t height, const uint32_t count) = 0;
-    virtual int32_t GenerateShadowMap(const uint32_t width, const uint32_t height)                            = 0;
     virtual void DestroyShadowMaps()                                                                          = 0;
 
     virtual void SetShadowMaps(const Frame &frame) = 0;

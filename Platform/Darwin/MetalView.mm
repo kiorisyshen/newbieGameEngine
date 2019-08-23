@@ -43,10 +43,9 @@ using namespace newbieGE;
     self.paused                = YES;
     self.enableSetNeedsDisplay = YES;
 
-    _metalRenderer = [[MetalRenderer new] initWithMetalKitView:self];
+    _metalRenderer = [[MetalRenderer alloc] initWithMetalKitView:self];
 
-    dynamic_cast<MetalGraphicsManager *>(g_pGraphicsManager)
-        ->SetRenderer(_metalRenderer);
+    dynamic_cast<MetalGraphicsManager *>(g_pGraphicsManager)->SetRenderer(_metalRenderer);
 }
 
 - (void)drawRect:(CGRect)drawRect {

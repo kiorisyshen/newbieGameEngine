@@ -61,10 +61,6 @@ int32_t MetalGraphicsManager::GenerateShadowMapArray(const uint32_t width, const
     return [m_pRenderer createDepthTextureArray:width height:height count:count];
 }
 
-int32_t MetalGraphicsManager::GenerateShadowMap(const uint32_t width, const uint32_t height) {
-    return [m_pRenderer createDepthTexture:width height:height];
-}
-
 void MetalGraphicsManager::DestroyShadowMaps() {
     [m_pRenderer destroyShadowMaps];
 }
