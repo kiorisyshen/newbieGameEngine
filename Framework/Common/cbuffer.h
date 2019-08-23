@@ -64,12 +64,9 @@ unistruct LightInfo REGISTER(b12) {
 };
 
 struct frame_textures {
-    int32_t shadowMap;
-    std::vector<int32_t> shadowMapLayerIndex;
-    int32_t cubeShadowMap;
-    std::vector<int32_t> cubeShadowMapLayerIndex;
-    int32_t globalShadowMap;
-    std::vector<int32_t> globalShadowMapLayerIndex;
+    std::vector<Light *> shadowMapLight;
+    std::vector<Light *> cubeShadowMapLight;
+    std::vector<Light *> globalShadowMapLight;
 };
 
 // Align for metal
@@ -79,6 +76,9 @@ struct PerFrameConstants REGISTER(b10) {
     Matrix4X4f projectionMatrix;  // 64 bytes
     Vector4f ambientColor;        // 16 bytes
     int32_t numLights;            // 4 bytes
+    int32_t shadowMap;            // 4 bytes
+    int32_t cubeShadowMap;        // 4 bytes
+    int32_t globalShadowMap;      // 4 bytes
 };
 
 struct PerBatchConstants REGISTER(b11) {

@@ -57,8 +57,8 @@ void MetalGraphicsManager::EndShadowPass(const int32_t shadowmap, const int32_t 
     [m_pRenderer endShadowPass:shadowmap sliceIdx:layerIndex];
 }
 
-int32_t MetalGraphicsManager::GenerateShadowMapArray(const uint32_t width, const uint32_t height, const uint32_t count) {
-    return [m_pRenderer createDepthTextureArray:width height:height count:count];
+int32_t MetalGraphicsManager::GenerateShadowMapArray(const ShadowMapType type, const uint32_t width, const uint32_t height, const uint32_t count) {
+    return [m_pRenderer createDepthTextureArray:type width:width height:height count:count];
 }
 
 void MetalGraphicsManager::DestroyShadowMaps() {
@@ -251,8 +251,9 @@ void MetalGraphicsManager::DEBUG_DrawDebug() {
 }
 
 void MetalGraphicsManager::DEBUG_DrawOverlay(const int32_t shadowmap,
+                                             const int32_t layerIndex,
                                              float vp_left, float vp_top,
                                              float vp_width, float vp_height) {
-    [m_pRenderer DEBUG_DrawOverlay:shadowmap left:vp_left top:vp_top width:vp_width height:vp_height];
+    [m_pRenderer DEBUG_DrawOverlay:shadowmap layerIndex:layerIndex left:vp_left top:vp_top width:vp_width height:vp_height];
 }
 #endif

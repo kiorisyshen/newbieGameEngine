@@ -26,6 +26,9 @@ struct PerFrameConstants {
     float4x4 projectionMatrix;  // 64 bytes
     float4 ambientColor;        // 16 bytes
     int numLights;              // 4 bytes
+    int32_t shadowMap;          // 4 bytes
+    int32_t cubeShadowMap;      // 4 bytes
+    int32_t globalShadowMap;    // 4 bytes
 };
 
 struct PerBatchConstants {

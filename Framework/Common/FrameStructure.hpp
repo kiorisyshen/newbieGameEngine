@@ -17,6 +17,17 @@ ENUM(RenderPassIndex){
     HUDPass     = "HUDP"_i32,
 };
 
+enum ShadowMapType {
+    NormalShadowMapType = 0,
+    CubeShadowMapType,
+    GlobalShadowMapType,
+};
+struct ShadowMapDescription {
+    uint32_t width;
+    uint32_t height;
+    ShadowMapType type;
+};
+
 struct DrawFrameContext : PerFrameConstants, frame_textures {
 };
 
