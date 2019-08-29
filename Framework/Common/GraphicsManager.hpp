@@ -21,8 +21,8 @@ class GraphicsManager : implements IRuntimeModule {
 
     virtual void RenderBuffers() final;
 
-    virtual void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches)                                   = 0;
-    virtual void DrawBatchDepthFromLight(const Light &light, const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) = 0;
+    virtual void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches)                                                             = 0;
+    virtual void DrawBatchDepthFromLight(const Light &light, const ShadowMapType type, const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) = 0;
 
     virtual void BeginForwardPass() = 0;
     virtual void EndForwardPass()   = 0;

@@ -5,10 +5,11 @@
 
 namespace newbieGE {
 ENUM(DefaultShaderIndex){
-    BasicShader     = "BSIC"_i32,
-    ShadowMapShader = "SHMP"_i32,
-    DebugShader     = "DEBG"_i32,
-    Overlay2dShader = "OVLY"_i32,
+    BasicShader         = "BSIC"_i32,
+    ShadowMap2DShader   = "SM2D"_i32,
+    ShadowMapCubeShader = "SMCB"_i32,
+    DebugShader         = "DEBG"_i32,
+    Overlay2dShader     = "OVLY"_i32,
 };
 
 ENUM(RenderPassIndex){

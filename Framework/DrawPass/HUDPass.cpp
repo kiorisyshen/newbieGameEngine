@@ -12,6 +12,11 @@ void HUDPass::Draw(Frame &frame) {
 
     g_pGraphicsManager->BeginHUDPass();
     g_pGraphicsManager->UseShaderProgram(DefaultShaderIndex::Overlay2dShader);
+    for (auto shadowMapLI : frame.frameContext.shadowMapLight) {
+        g_pGraphicsManager->DEBUG_DrawOverlay(frame.frameContext.shadowMap, shadowMapLI->lightShadowMapIndex, left, top, 0.35f, 0.35f);
+        top -= 0.45f;
+    }
+    left -= 0.5f;
     for (auto shadowMapLI : frame.frameContext.globalShadowMapLight) {
         g_pGraphicsManager->DEBUG_DrawOverlay(frame.frameContext.globalShadowMap, shadowMapLI->lightShadowMapIndex, left, top, 0.35f, 0.35f);
         top -= 0.45f;

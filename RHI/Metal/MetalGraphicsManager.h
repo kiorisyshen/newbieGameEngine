@@ -21,7 +21,7 @@ class MetalGraphicsManager : public GraphicsManager {
     void UseShaderProgram(const DefaultShaderIndex idx) final;
 
     void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) final;
-    void DrawBatchDepthFromLight(const Light &light, const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) final;
+    void DrawBatchDepthFromLight(const Light &light, const ShadowMapType type, const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) final;
 
     void BeginForwardPass() final;
     void EndForwardPass() final;

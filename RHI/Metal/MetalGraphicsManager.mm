@@ -29,8 +29,8 @@ void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatch
     [m_pRenderer drawBatch:batches];
 }
 
-void MetalGraphicsManager::DrawBatchDepthFromLight(const Light &light, const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) {
-    [m_pRenderer drawBatchDepthFromLight:light withBatches:batches];
+void MetalGraphicsManager::DrawBatchDepthFromLight(const Light &light, const ShadowMapType type, const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) {
+    [m_pRenderer drawBatchDepthFromLight:light shadowType:type withBatches:batches];
 }
 
 void MetalGraphicsManager::BeginForwardPass() {

@@ -24,6 +24,7 @@ struct MtlDrawBatchContext : public DrawBatchConstant {
 - (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches;
 
 - (void)drawBatchDepthFromLight:(const Light &)light
+                     shadowType:(const ShadowMapType)type
                     withBatches:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches;
 
 - (void)beginForwardPass;
