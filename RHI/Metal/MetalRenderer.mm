@@ -369,40 +369,36 @@ struct ShaderState {
 - (void)buildCubeVPsFromLight:(const Light &)light
                            to:(Matrix4X4f *)shadowMatrices {
     const Vector3f direction[6] = {
-        { 1.0f, 0.0f, 0.0f },
-        {-1.0f, 0.0f, 0.0f },
-        { 0.0f, 1.0f, 0.0f },
-        { 0.0f,-1.0f, 0.0f },
-        { 0.0f, 0.0f, 1.0f },
-        { 0.0f, 0.0f,-1.0f }
-    };
+        {1.0f, 0.0f, 0.0f},
+        {-1.0f, 0.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {0.0f, -1.0f, 0.0f},
+        {0.0f, 0.0f, 1.0f},
+        {0.0f, 0.0f, -1.0f}};
     const Vector3f up[6] = {
-        { 0.0f,-1.0f, 0.0f },
-        { 0.0f,-1.0f, 0.0f },
-        { 0.0f, 0.0f, 1.0f },
-        { 0.0f, 0.0f,-1.0f },
-        { 0.0f,-1.0f, 0.0f },
-        { 0.0f,-1.0f, 0.0f }
-    };
-    
+        {0.0f, -1.0f, 0.0f},
+        {0.0f, -1.0f, 0.0f},
+        {0.0f, 0.0f, 1.0f},
+        {0.0f, 0.0f, -1.0f},
+        {0.0f, -1.0f, 0.0f},
+        {0.0f, -1.0f, 0.0f}};
+
     float nearClipDistance = 0.1f;
-    float farClipDistance = 10.0f;
-    float fieldOfView = PI / 2.0f; // 90 degree for each cube map face
-    
+    float farClipDistance  = 10.0f;
+    float fieldOfView      = PI / 2.0f;  // 90 degree for each cube map face
+
     float screenAspect = (float)_lightDepthArray[ShadowMapType::CubeShadowMapType].width / (float)_lightDepthArray[ShadowMapType::CubeShadowMapType].height;
     Matrix4X4f projection;
-    
+
     // Build the perspective projection matrix.
     BuildPerspectiveFovRHMatrix(projection, fieldOfView, screenAspect, nearClipDistance, farClipDistance);
-    
+
     Vector3f pos = {light.lightPosition[0], light.lightPosition[1], light.lightPosition[2]};
-    for (int32_t i = 0; i < 6; i++)
-    {
+    for (int32_t i = 0; i < 6; i++) {
         BuildViewRHMatrix(shadowMatrices[i], pos, pos + direction[i], up[i]);
         shadowMatrices[i] = shadowMatrices[i] * projection;
     }
 }
-
 
 - (void)drawBatchDepthFromLight:(const Light &)light
                      shadowType:(const ShadowMapType)type
@@ -517,15 +513,29 @@ struct ShaderState {
     _blitEncoder       = [_commandBuffer blitCommandEncoder];
     _blitEncoder.label = @"ShadowBlitEncoder";
     [_blitEncoder pushDebugGroup:@"CopyToShadowArray"];
-    [_blitEncoder copyFromTexture:textureSrc
-                      sourceSlice:0
-                      sourceLevel:0
-                     sourceOrigin:MTLOriginMake(0, 0, 0)
-                       sourceSize:MTLSizeMake(textureSrc.width, textureSrc.height, textureSrc.depth)
-                        toTexture:textureDst
-                 destinationSlice:layerIndex
-                 destinationLevel:0
-                destinationOrigin:MTLOriginMake(0, 0, 0)];
+    if (shadowmap == ShadowMapType::CubeShadowMapType) {
+        for (int i = 0; i < 6; ++i) {
+            [_blitEncoder copyFromTexture:textureSrc
+                              sourceSlice:i
+                              sourceLevel:0
+                             sourceOrigin:MTLOriginMake(0, 0, 0)
+                               sourceSize:MTLSizeMake(textureSrc.width, textureSrc.height, textureSrc.depth)
+                                toTexture:textureDst
+                         destinationSlice:(layerIndex * 6) + i
+                         destinationLevel:0
+                        destinationOrigin:MTLOriginMake(0, 0, 0)];
+        }
+    } else {
+        [_blitEncoder copyFromTexture:textureSrc
+                          sourceSlice:0
+                          sourceLevel:0
+                         sourceOrigin:MTLOriginMake(0, 0, 0)
+                           sourceSize:MTLSizeMake(textureSrc.width, textureSrc.height, textureSrc.depth)
+                            toTexture:textureDst
+                     destinationSlice:layerIndex
+                     destinationLevel:0
+                    destinationOrigin:MTLOriginMake(0, 0, 0)];
+    }
     [_blitEncoder popDebugGroup];
     [_blitEncoder endEncoding];
 }
