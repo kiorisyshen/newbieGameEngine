@@ -77,8 +77,9 @@ void ShadowMapPass::Draw(Frame &frame) {
     }
 
     for (auto it : frame.frameContext.cubeShadowMapLight) {
-        g_pGraphicsManager->BeginShadowPass(frame.frameContext.cubeShadowMap, it->lightShadowMapIndex);
-        g_pGraphicsManager->UseShaderProgram(DefaultShaderIndex::ShadowMapCubeShader);
+        // g_pGraphicsManager->BeginShadowPass(frame.frameContext.cubeShadowMap, it->lightShadowMapIndex);
+        // g_pGraphicsManager->UseShaderProgram(DefaultShaderIndex::ShadowMapCubeShader);
+        // g_pGraphicsManager->UseShaderProgram(DefaultShaderIndex::ShadowMap2DShader);
         g_pGraphicsManager->DrawBatchDepthFromLight(*it, ShadowMapType::CubeShadowMapType, frame.batchContext);
         g_pGraphicsManager->EndShadowPass(frame.frameContext.cubeShadowMap, it->lightShadowMapIndex);
     }
