@@ -369,12 +369,13 @@ struct ShaderState {
 - (void)buildCubeVPsFromLight:(const Light &)light
                            to:(Matrix4X4f *)shadowMatrices {
     const Vector3f direction[6] = {
-        {1.0f, 0.0f, 0.0f},
-        {-1.0f, 0.0f, 0.0f},
-        {0.0f, 1.0f, 0.0f},
-        {0.0f, -1.0f, 0.0f},
-        {0.0f, 0.0f, 1.0f},
-        {0.0f, 0.0f, -1.0f}};
+        {1.0f, 0.0f, 0.0f},    // +X
+        {-1.0f, 0.0f, 0.0f},   // -X
+        {0.0f, 1.0f, 0.0f},    // +Y
+        {0.0f, -1.0f, 0.0f},   // -Y
+        {0.0f, 0.0f, 1.0f},    // +Z
+        {0.0f, 0.0f, -1.0f}};  // -Z
+
     const Vector3f up[6] = {
         {0.0f, -1.0f, 0.0f},
         {0.0f, -1.0f, 0.0f},
@@ -403,35 +404,35 @@ struct ShaderState {
 - (void)drawBatchDepthFromVP:(const Matrix4X4f &)vpMatrix
                  withBatches:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches {
     [_renderEncoder pushDebugGroup:@"DrawMeshDepth"];
-    
+
     [_renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
-    [_renderEncoder setCullMode:MTLCullModeFront];
-    // [_renderEncoder setCullMode:MTLCullModeBack];
-    
+    // [_renderEncoder setCullMode:MTLCullModeFront];
+    [_renderEncoder setCullMode:MTLCullModeBack];
+
     [_renderEncoder setVertexBytes:&(vpMatrix)
                             length:64
                            atIndex:14];
-    
+
     [_renderEncoder setVertexBuffer:_uniformBuffers offset:0 atIndex:10];
-    
+
     for (const auto &pDbc : batches) {
         const MtlDrawBatchContext &dbc = dynamic_cast<const MtlDrawBatchContext &>(*pDbc);
-        
+
         [_renderEncoder setVertexBuffer:_uniformBuffers
                                  offset:kSizePerFrameConstantBuffer + dbc.batchIndex * kSizePerBatchConstantBuffer
                                 atIndex:11];
-        
+
         // Set mesh's vertex buffers
         for (uint32_t bufferIndex = 0; bufferIndex < dbc.property_count; bufferIndex++) {
             id<MTLBuffer> vertexBuffer = _vertexBuffers[dbc.property_offset + bufferIndex];
             [_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:bufferIndex];
         }
-        
+
         if (dbc.property_count <= 2) {
             id<MTLBuffer> vertexBuffer = _vertexBuffers[dbc.property_offset];
             [_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:2];
         }
-        
+
         [_renderEncoder drawIndexedPrimitives:dbc.index_mode
                                    indexCount:dbc.index_count
                                     indexType:dbc.index_type
@@ -454,11 +455,11 @@ struct ShaderState {
         }
         Matrix4X4f shadowMatrices[6];
         [self buildCubeVPsFromLight:light to:shadowMatrices];
-        
+
         for (uint32_t i = 0; i < 6; ++i) {
             renderPassDescriptor.depthAttachment.texture = _lightDepthList[type][light.lightShadowMapIndex * 6 + i];
-            _renderEncoder       = [_commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-            _renderEncoder.label = @"ShadowRenderEncoder";
+            _renderEncoder                               = [_commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+            _renderEncoder.label                         = @"ShadowRenderEncoder";
             [self useShaderProgram:DefaultShaderIndex::ShadowMap2DShader];
             [self drawBatchDepthFromVP:shadowMatrices[i] withBatches:batches];
             if (i < 5) {

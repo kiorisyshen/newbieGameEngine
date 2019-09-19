@@ -151,7 +151,8 @@ float shadow_test(constant Light &light, float4 v_world, float cosTheta, thread 
         float4 v_light_space = light.lightVP * v_world;
         v_light_space        = v_light_space / v_light_space.w;
         v_light_space.xy     = 0.5 * (v_light_space.xy + float2(1.0, 1.0));
-        v_light_space.y      = 1.0 - v_light_space.y;
+        // The shadow map we drew already flipped
+        // v_light_space.y      = 1.0 - v_light_space.y;
 
         constexpr sampler shadowSampler(coord::normalized,
                                         filter::linear,

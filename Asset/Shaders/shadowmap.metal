@@ -58,7 +58,8 @@ vertex ShadowOutput shadow2D_vert_main(ShadowInput in [[stage_in]],
     float4 v_world  = transM * float4(in.inputPosition, 1.0);
     out.v           = pfc.viewMatrix * v_world;
 
-    out.position = smc.shadowMatrix * v_world;
+    out.position   = smc.shadowMatrix * v_world;
+    out.position.y = -out.position.y;
 
     return out;
 }
