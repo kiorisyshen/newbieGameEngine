@@ -163,32 +163,32 @@ struct ShaderState {
             _renderPassStates[(int32_t)DefaultShaderIndex::ShadowMap2DShader] = shadowSS;
         }
 
-        // {  // shadow cube
-        //     id<MTLFunction> vertexFunction                       = [myLibrary newFunctionWithName:@"shadowCube_vert_main"];
-        //     MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
-        //     pipelineStateDescriptor.label                        = @"ShadowCube Pipeline";
-        //     pipelineStateDescriptor.sampleCount                  = 1;
-        //     pipelineStateDescriptor.vertexFunction               = vertexFunction;
-        //     pipelineStateDescriptor.fragmentFunction             = nil;
-        //     pipelineStateDescriptor.vertexDescriptor             = mtlVertexDescriptor;
-        //     pipelineStateDescriptor.inputPrimitiveTopology       = MTLPrimitiveTopologyClassTriangle;
-        //     pipelineStateDescriptor.depthAttachmentPixelFormat   = MTLPixelFormatDepth32Float;
+        {  // shadow cube
+            id<MTLFunction> vertexFunction                       = [myLibrary newFunctionWithName:@"shadowCube_vert_main"];
+            MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+            pipelineStateDescriptor.label                        = @"ShadowCube Pipeline";
+            pipelineStateDescriptor.sampleCount                  = 1;
+            pipelineStateDescriptor.vertexFunction               = vertexFunction;
+            pipelineStateDescriptor.fragmentFunction             = nil;
+            pipelineStateDescriptor.vertexDescriptor             = mtlVertexDescriptor;
+            pipelineStateDescriptor.inputPrimitiveTopology       = MTLPrimitiveTopologyClassTriangle;
+            pipelineStateDescriptor.depthAttachmentPixelFormat   = MTLPixelFormatDepth32Float;
 
-        //     ShaderState shadowSS;
-        //     shadowSS.pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
-        //     if (!shadowSS.pipelineState) {
-        //         NSLog(@"Failed to created shadowCube pipeline state, error %@", error);
-        //         succ = false;
-        //     }
-        //     MTLDepthStencilDescriptor *depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
-        //     depthStateDesc.depthCompareFunction       = MTLCompareFunctionLessEqual;
-        //     depthStateDesc.depthWriteEnabled          = YES;
-        //     depthStateDesc.frontFaceStencil           = nil;
-        //     depthStateDesc.backFaceStencil            = nil;
-        //     shadowSS.depthStencilState                = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
+            ShaderState shadowSS;
+            shadowSS.pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
+            if (!shadowSS.pipelineState) {
+                NSLog(@"Failed to created shadowCube pipeline state, error %@", error);
+                succ = false;
+            }
+            MTLDepthStencilDescriptor *depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
+            depthStateDesc.depthCompareFunction       = MTLCompareFunctionLessEqual;
+            depthStateDesc.depthWriteEnabled          = YES;
+            depthStateDesc.frontFaceStencil           = nil;
+            depthStateDesc.backFaceStencil            = nil;
+            shadowSS.depthStencilState                = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
 
-        //     _renderPassStates[(int32_t)DefaultShaderIndex::ShadowMapCubeShader] = shadowSS;
-        // }
+            _renderPassStates[(int32_t)DefaultShaderIndex::ShadowMapCubeShader] = shadowSS;
+        }
 
         MTLRenderPassDescriptor *renderPassDescriptor        = [MTLRenderPassDescriptor new];
         renderPassDescriptor.colorAttachments[0].clearColor  = MTLClearColorMake(1.0f, 1.0f, 1.0f, 1.0f);
@@ -448,6 +448,48 @@ struct ShaderState {
     if (type == ShadowMapType::NormalShadowMapType || type == ShadowMapType::GlobalShadowMapType) {
         [self drawBatchDepthFromVP:light.lightVP withBatches:batches];
     } else if (type == ShadowMapType::CubeShadowMapType) {
+#ifdef USE_METALCUBEDEPTH
+        [_renderEncoder pushDebugGroup:@"DrawMeshDepth"];
+        
+        [_renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
+        [_renderEncoder setCullMode:MTLCullModeFront];
+        // [_renderEncoder setCullMode:MTLCullModeBack];
+        
+        Matrix4X4f shadowMatrices[6];
+        [self buildCubeVPsFromLight:light to:shadowMatrices];
+        [_renderEncoder setVertexBytes:shadowMatrices
+                                length:64 * 6
+                               atIndex:15];
+        
+        [_renderEncoder setVertexBuffer:_uniformBuffers offset:0 atIndex:10];
+        
+        for (const auto &pDbc : batches) {
+            const MtlDrawBatchContext &dbc = dynamic_cast<const MtlDrawBatchContext &>(*pDbc);
+            
+            [_renderEncoder setVertexBuffer:_uniformBuffers
+                                     offset:kSizePerFrameConstantBuffer + dbc.batchIndex * kSizePerBatchConstantBuffer
+                                    atIndex:11];
+            
+            // Set mesh's vertex buffers
+            for (uint32_t bufferIndex = 0; bufferIndex < dbc.property_count; bufferIndex++) {
+                id<MTLBuffer> vertexBuffer = _vertexBuffers[dbc.property_offset + bufferIndex];
+                [_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:bufferIndex];
+            }
+            
+            if (dbc.property_count <= 2) {
+                id<MTLBuffer> vertexBuffer = _vertexBuffers[dbc.property_offset];
+                [_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:2];
+            }
+            
+            [_renderEncoder drawIndexedPrimitives:dbc.index_mode
+                                       indexCount:dbc.index_count
+                                        indexType:dbc.index_type
+                                      indexBuffer:_indexBuffers[dbc.index_offset]
+                                indexBufferOffset:0
+                                    instanceCount:6];
+        }
+        [_renderEncoder popDebugGroup];
+#else
         // Render 6 faces into _lightDepthList[ShadowMapType::CubeShadowMapType]
         MTLRenderPassDescriptor *renderPassDescriptor = _renderPassDescriptors[(int32_t)RenderPassIndex::ShadowPass];
         if (light.lightShadowMapIndex < 0) {
@@ -466,6 +508,7 @@ struct ShaderState {
                 [_renderEncoder endEncoding];
             }
         }
+#endif
     }
 }
 
@@ -499,17 +542,22 @@ struct ShaderState {
 
 - (void)beginShadowPass:(const int32_t)shadowmap
                sliceIdx:(const int32_t)layerIndex {
+#ifndef USE_METALCUBEDEPTH
     if (shadowmap != ShadowMapType::CubeShadowMapType) {
+#endif
         MTLRenderPassDescriptor *renderPassDescriptor = _renderPassDescriptors[(int32_t)RenderPassIndex::ShadowPass];
+        renderPassDescriptor.depthAttachment.texture  = _lightDepthList[shadowmap][layerIndex];
 
-        renderPassDescriptor.depthAttachment.texture = _lightDepthList[shadowmap][layerIndex];
-        // if (shadowmap == ShadowMapType::CubeShadowMapType) {
-        //     renderPassDescriptor.renderTargetArrayLength = 6;
-        // }
-
+#ifdef USE_METALCUBEDEPTH
+        if (shadowmap == ShadowMapType::CubeShadowMapType) {
+            renderPassDescriptor.renderTargetArrayLength = 6;
+        }
+#endif
         _renderEncoder       = [_commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
         _renderEncoder.label = @"ShadowRenderEncoder";
+#ifndef USE_METALCUBEDEPTH
     }
+#endif
 }
 
 - (void)endShadowPass:(const int32_t)shadowmap
@@ -527,6 +575,17 @@ struct ShaderState {
 
     if (shadowmap == ShadowMapType::CubeShadowMapType) {
         for (int i = 0; i < 6; ++i) {
+#ifdef USE_METALCUBEDEPTH
+            [_blitEncoder copyFromTexture:textureSrc
+                              sourceSlice:i
+                              sourceLevel:0
+                             sourceOrigin:MTLOriginMake(0, 0, 0)
+                               sourceSize:MTLSizeMake(textureSrc.width, textureSrc.height, textureSrc.depth)
+                                toTexture:textureDst
+                         destinationSlice:(layerIndex * 6) + i
+                         destinationLevel:0
+                        destinationOrigin:MTLOriginMake(0, 0, 0)];
+#else
             textureSrc = _lightDepthList[shadowmap][layerIndex * 6 + i];
             [_blitEncoder copyFromTexture:textureSrc
                               sourceSlice:0
@@ -537,6 +596,7 @@ struct ShaderState {
                          destinationSlice:(layerIndex * 6) + i
                          destinationLevel:0
                         destinationOrigin:MTLOriginMake(0, 0, 0)];
+#endif
         }
     } else {
         [_blitEncoder copyFromTexture:textureSrc
@@ -656,6 +716,12 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
         _lightDepthArray[ShadowMapType::CubeShadowMapType] = [_device newTextureWithDescriptor:textureArrayDesc];
 
         for (uint32_t i = 0; i < count; ++i) {
+#ifdef USE_METALCUBEDEPTH
+            id<MTLTexture> textureDepth;
+            textureListDesc.textureType = MTLTextureTypeCube;
+            textureDepth                = [_device newTextureWithDescriptor:textureListDesc];
+            _lightDepthList[ShadowMapType::CubeShadowMapType].push_back(textureDepth);
+#else
             // Push 6 MTLTextureType2D into depth list to avoid depth cube texture "bug" in Metal
             // Ref: https://stackoverflow.com/questions/57868868/objc-metal-compute-depth-texture-in-cube-form-result-to-strange-depth-map-in-o
             for (uint32_t i = 0; i < 6; ++i) {
@@ -663,6 +729,7 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
                 textureDepth = [_device newTextureWithDescriptor:textureListDesc];
                 _lightDepthList[ShadowMapType::CubeShadowMapType].push_back(textureDepth);
             }
+#endif
         }
     }
 

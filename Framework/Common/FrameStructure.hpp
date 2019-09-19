@@ -3,11 +3,16 @@
 #include "Scene.hpp"
 #include "cbuffer.h"
 
+// #define USE_METALCUBEDEPTH
+#undef USE_METALCUBEDEPTH
+
 namespace newbieGE {
 ENUM(DefaultShaderIndex){
     BasicShader       = "BSIC"_i32,
     ShadowMap2DShader = "SM2D"_i32,
-    // ShadowMapCubeShader = "SMCB"_i32,
+#ifdef USE_METALCUBEDEPTH
+    ShadowMapCubeShader = "SMCB"_i32,
+#endif
     DebugShader     = "DEBG"_i32,
     Overlay2dShader = "OVLY"_i32,
 };
