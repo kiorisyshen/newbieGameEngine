@@ -184,7 +184,8 @@ float shadow_test(constant Light &light, float4 v_world, float cosTheta, thread 
     float visibility = 1.0;
 
     if (light.lightShadowMapIndex > -1) {
-        float4 v_light_space = v_world - light.lightPosition;
+        float3 v_light_space = (v_world - light.lightPosition).xyz;
+        normalize(v_light_space);
 
         constexpr sampler shadowSampler(coord::normalized,
                                         filter::linear,
@@ -194,12 +195,11 @@ float shadow_test(constant Light &light, float4 v_world, float cosTheta, thread 
 
         float bias = 5e-6 * tan(acos(cosTheta));  // cosTheta is dot( n,l ), clamped between 0 and 1
         bias       = clamp(bias, 0.0, 0.01);
-        for (int i = 0; i < 4; i++) {
-            float shadow_sample = shadowMap.sample_compare(shadowSampler, v_light_space.xyz, light.lightShadowMapIndex, v_light_space.z - bias);
-            if (shadow_sample < 0.5) {
-                // we are in the shadow
-                visibility -= 0.2;
-            }
+
+        float shadow_sample = shadowMap.sample_compare(shadowSampler, v_light_space, light.lightShadowMapIndex, (1.0 - bias));
+        if (shadow_sample < 0.5) {
+            // we are in the shadow
+            visibility -= 0.2;
         }
     }
 
