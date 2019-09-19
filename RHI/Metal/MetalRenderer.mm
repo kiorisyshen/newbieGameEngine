@@ -163,6 +163,7 @@ struct ShaderState {
             _renderPassStates[(int32_t)DefaultShaderIndex::ShadowMap2DShader] = shadowSS;
         }
 
+#ifdef USE_METALCUBEDEPTH
         {  // shadow cube
             id<MTLFunction> vertexFunction                       = [myLibrary newFunctionWithName:@"shadowCube_vert_main"];
             MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
@@ -189,6 +190,7 @@ struct ShaderState {
 
             _renderPassStates[(int32_t)DefaultShaderIndex::ShadowMapCubeShader] = shadowSS;
         }
+#endif
 
         MTLRenderPassDescriptor *renderPassDescriptor        = [MTLRenderPassDescriptor new];
         renderPassDescriptor.colorAttachments[0].clearColor  = MTLClearColorMake(1.0f, 1.0f, 1.0f, 1.0f);
