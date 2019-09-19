@@ -3,10 +3,16 @@
 #include "Scene.hpp"
 #include "cbuffer.h"
 
+// #define USE_METALCUBEDEPTH
+#undef USE_METALCUBEDEPTH
+
 namespace newbieGE {
 ENUM(DefaultShaderIndex){
-    BasicShader     = "BSIC"_i32,
-    ShadowMapShader = "SHMP"_i32,
+    BasicShader       = "BSIC"_i32,
+    ShadowMap2DShader = "SM2D"_i32,
+#ifdef USE_METALCUBEDEPTH
+    ShadowMapCubeShader = "SMCB"_i32,
+#endif
     DebugShader     = "DEBG"_i32,
     Overlay2dShader = "OVLY"_i32,
 };
@@ -15,6 +21,18 @@ ENUM(RenderPassIndex){
     ForwardPass = "FWPS"_i32,
     ShadowPass  = "SHPS"_i32,
     HUDPass     = "HUDP"_i32,
+};
+
+enum ShadowMapType {
+    NormalShadowMapType = 0,
+    CubeShadowMapType,
+    GlobalShadowMapType,
+    num_ShadowMapType,
+};
+struct ShadowMapDescription {
+    uint32_t width;
+    uint32_t height;
+    ShadowMapType type;
 };
 
 struct DrawFrameContext : PerFrameConstants, frame_textures {

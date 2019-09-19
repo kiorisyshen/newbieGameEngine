@@ -21,7 +21,7 @@ class MetalGraphicsManager : public GraphicsManager {
     void UseShaderProgram(const DefaultShaderIndex idx) final;
 
     void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) final;
-    void DrawBatchDepthFromLight(const Light &light, const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) final;
+    void DrawBatchDepthFromLight(const Light &light, const ShadowMapType type, const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) final;
 
     void BeginForwardPass() final;
     void EndForwardPass() final;
@@ -33,8 +33,7 @@ class MetalGraphicsManager : public GraphicsManager {
     void BeginShadowPass(const int32_t shadowmap, const int32_t layerIndex) final;
     void EndShadowPass(const int32_t shadowmap, const int32_t layerIndex) final;
 
-    int32_t GenerateShadowMapArray(const uint32_t width, const uint32_t height, const uint32_t count) final;
-    int32_t GenerateShadowMap(const uint32_t width, const uint32_t height) final;
+    int32_t GenerateShadowMapArray(const ShadowMapType type, const uint32_t width, const uint32_t height, const uint32_t count) final;
     void DestroyShadowMaps() final;
     void SetShadowMaps(const Frame &frame) final;
 
@@ -43,6 +42,7 @@ class MetalGraphicsManager : public GraphicsManager {
     void DEBUG_SetBuffer() final;
     void DEBUG_DrawDebug() final;
     void DEBUG_DrawOverlay(const int32_t shadowmap,
+                           const int32_t layerIndex,
                            float vp_left, float vp_top,
                            float vp_width, float vp_height) final;
 #endif

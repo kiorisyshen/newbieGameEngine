@@ -9,8 +9,11 @@ struct PerFrameConstants {
     float4x4 worldMatrix;       // 64 bytes
     float4x4 viewMatrix;        // 64 bytes
     float4x4 projectionMatrix;  // 64 bytes
-    float4   ambientColor;      // 16 bytes
-    int      numLights;         // 4 bytes
+    float4 ambientColor;        // 16 bytes
+    int numLights;              // 4 bytes
+    int32_t shadowMap;          // 4 bytes
+    int32_t cubeShadowMap;      // 4 bytes
+    int32_t globalShadowMap;    // 4 bytes
 };
 
 struct Debug_PerBatchConstants {
@@ -20,7 +23,7 @@ struct Debug_PerBatchConstants {
 struct debug_vert_out {
     float4 position [[position]];
     float4 color;
-    float  size [[point_size]];
+    float size [[point_size]];
 };
 
 struct debug_vert_in {
@@ -28,11 +31,10 @@ struct debug_vert_in {
     float4 color;
 };
 
-vertex debug_vert_out debug_vert_main(uint     vID [[vertex_id]],
-                                      constant debug_vert_in* in [[buffer(7)]],
-                                      constant Debug_PerBatchConstants& pbc [[buffer(8)]],
-                                      constant PerFrameConstants& v_43 [[buffer(10)]])
-{
+vertex debug_vert_out debug_vert_main(uint vID [[vertex_id]],
+                                      constant debug_vert_in *in [[buffer(7)]],
+                                      constant Debug_PerBatchConstants &pbc [[buffer(8)]],
+                                      constant PerFrameConstants &v_43 [[buffer(10)]]) {
     debug_vert_out out;
 
     float4x4 transM = v_43.worldMatrix * pbc.modelMatrix;
@@ -46,7 +48,6 @@ vertex debug_vert_out debug_vert_main(uint     vID [[vertex_id]],
     return out;
 }
 
-fragment float4 debug_frag_main(debug_vert_out in [[stage_in]])
-{
+fragment float4 debug_frag_main(debug_vert_out in [[stage_in]]) {
     return in.color;
 }

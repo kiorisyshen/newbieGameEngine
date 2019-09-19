@@ -5,9 +5,17 @@ using namespace std;
 using namespace newbieGE;
 
 void ShadowMapPass::Draw(Frame &frame) {
-    g_pGraphicsManager->DestroyShadowMaps();
-    frame.frameContext.shadowMapLayerIndex.clear();
-    frame.frameContext.shadowMap = -1;
+    if (frame.frameContext.shadowMapLight.size() > 0 ||
+        frame.frameContext.cubeShadowMapLight.size() > 0 ||
+        frame.frameContext.globalShadowMapLight.size() > 0) {
+        g_pGraphicsManager->DestroyShadowMaps();
+        frame.frameContext.shadowMapLight.clear();
+        frame.frameContext.cubeShadowMapLight.clear();
+        frame.frameContext.globalShadowMapLight.clear();
+        frame.frameContext.shadowMap       = -1;
+        frame.frameContext.cubeShadowMap   = -1;
+        frame.frameContext.globalShadowMap = -1;
+    }
 
     // count shadow map
     vector<Light *> lights_cast_shadow;
@@ -17,23 +25,70 @@ void ShadowMapPass::Draw(Frame &frame) {
         light.lightShadowMapIndex = -1;
 
         if (light.lightCastShadow) {
-            lights_cast_shadow.push_back(&light);
+            switch (light.lightType) {
+                case LightType::Omni:
+                    light.lightShadowMapIndex = frame.frameContext.cubeShadowMapLight.size();
+                    frame.frameContext.cubeShadowMapLight.push_back(&light);
+                    break;
+                case LightType::Spot:
+                    light.lightShadowMapIndex = frame.frameContext.shadowMapLight.size();
+                    frame.frameContext.shadowMapLight.push_back(&light);
+                    break;
+                case LightType::Area:
+                    light.lightShadowMapIndex = frame.frameContext.shadowMapLight.size();
+                    frame.frameContext.shadowMapLight.push_back(&light);
+                    break;
+                case LightType::Infinity:
+                    light.lightShadowMapIndex = frame.frameContext.globalShadowMapLight.size();
+                    frame.frameContext.globalShadowMapLight.push_back(&light);
+                    break;
+                default:
+                    assert(0);
+            }
         }
     }
 
-    int32_t shadowmap            = g_pGraphicsManager->GenerateShadowMapArray(kShadowMapWidth, kShadowMapHeight, lights_cast_shadow.size());
-    frame.frameContext.shadowMap = shadowmap;
+    if (frame.frameContext.shadowMapLight.size() > 0) {
+        int32_t shadowmapID          = g_pGraphicsManager->GenerateShadowMapArray(m_kNormalShadowMap.type,
+                                                                         m_kNormalShadowMap.width, m_kNormalShadowMap.height,
+                                                                         frame.frameContext.shadowMapLight.size());
+        frame.frameContext.shadowMap = shadowmapID;
+    }
 
-    // generate shadow map array
-    int32_t shadowmap_index = 0;
-    for (auto it : lights_cast_shadow) {
-        frame.frameContext.shadowMapLayerIndex.push_back(shadowmap_index);
-        it->lightShadowMapIndex = shadowmap_index;
-        g_pGraphicsManager->BeginShadowPass(shadowmap, shadowmap_index);
-        g_pGraphicsManager->UseShaderProgram(DefaultShaderIndex::ShadowMapShader);
-        g_pGraphicsManager->DrawBatchDepthFromLight(*it, frame.batchContext);
-        g_pGraphicsManager->EndShadowPass(shadowmap, shadowmap_index);
+    if (frame.frameContext.cubeShadowMapLight.size() > 0) {
+        int32_t shadowmapID              = g_pGraphicsManager->GenerateShadowMapArray(m_kCubeShadowMap.type,
+                                                                         m_kCubeShadowMap.width, m_kCubeShadowMap.height,
+                                                                         frame.frameContext.cubeShadowMapLight.size());
+        frame.frameContext.cubeShadowMap = shadowmapID;
+    }
 
-        ++shadowmap_index;
+    if (frame.frameContext.globalShadowMapLight.size() > 0) {
+        int32_t shadowmapID                = g_pGraphicsManager->GenerateShadowMapArray(m_kGlobalShadowMap.type,
+                                                                         m_kGlobalShadowMap.width, m_kGlobalShadowMap.height,
+                                                                         frame.frameContext.globalShadowMapLight.size());
+        frame.frameContext.globalShadowMap = shadowmapID;
+    }
+
+    for (auto it : frame.frameContext.shadowMapLight) {
+        g_pGraphicsManager->BeginShadowPass(frame.frameContext.shadowMap, it->lightShadowMapIndex);
+        g_pGraphicsManager->UseShaderProgram(DefaultShaderIndex::ShadowMap2DShader);
+        g_pGraphicsManager->DrawBatchDepthFromLight(*it, ShadowMapType::NormalShadowMapType, frame.batchContext);
+        g_pGraphicsManager->EndShadowPass(frame.frameContext.shadowMap, it->lightShadowMapIndex);
+    }
+
+    for (auto it : frame.frameContext.cubeShadowMapLight) {
+        g_pGraphicsManager->BeginShadowPass(frame.frameContext.cubeShadowMap, it->lightShadowMapIndex);
+#ifdef USE_METALCUBEDEPTH
+        g_pGraphicsManager->UseShaderProgram(DefaultShaderIndex::ShadowMapCubeShader);
+#endif
+        g_pGraphicsManager->DrawBatchDepthFromLight(*it, ShadowMapType::CubeShadowMapType, frame.batchContext);
+        g_pGraphicsManager->EndShadowPass(frame.frameContext.cubeShadowMap, it->lightShadowMapIndex);
+    }
+
+    for (auto it : frame.frameContext.globalShadowMapLight) {
+        g_pGraphicsManager->BeginShadowPass(frame.frameContext.globalShadowMap, it->lightShadowMapIndex);
+        g_pGraphicsManager->UseShaderProgram(DefaultShaderIndex::ShadowMap2DShader);
+        g_pGraphicsManager->DrawBatchDepthFromLight(*it, ShadowMapType::GlobalShadowMapType, frame.batchContext);
+        g_pGraphicsManager->EndShadowPass(frame.frameContext.globalShadowMap, it->lightShadowMapIndex);
     }
 }

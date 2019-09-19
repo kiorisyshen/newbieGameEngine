@@ -21,8 +21,8 @@ class GraphicsManager : implements IRuntimeModule {
 
     virtual void RenderBuffers() final;
 
-    virtual void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches)                                   = 0;
-    virtual void DrawBatchDepthFromLight(const Light &light, const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) = 0;
+    virtual void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches)                                                             = 0;
+    virtual void DrawBatchDepthFromLight(const Light &light, const ShadowMapType type, const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) = 0;
 
     virtual void BeginForwardPass() = 0;
     virtual void EndForwardPass()   = 0;
@@ -34,9 +34,8 @@ class GraphicsManager : implements IRuntimeModule {
     virtual void BeginShadowPass(const int32_t shadowmap, const int32_t layerIndex) = 0;
     virtual void EndShadowPass(const int32_t shadowmap, const int32_t layerIndex)   = 0;
 
-    virtual int32_t GenerateShadowMapArray(const uint32_t width, const uint32_t height, const uint32_t count) = 0;
-    virtual int32_t GenerateShadowMap(const uint32_t width, const uint32_t height)                            = 0;
-    virtual void DestroyShadowMaps()                                                                          = 0;
+    virtual int32_t GenerateShadowMapArray(const ShadowMapType type, const uint32_t width, const uint32_t height, const uint32_t count) = 0;
+    virtual void DestroyShadowMaps()                                                                                                    = 0;
 
     virtual void SetShadowMaps(const Frame &frame) = 0;
 
@@ -59,6 +58,7 @@ class GraphicsManager : implements IRuntimeModule {
 
     virtual void DEBUG_DrawDebug()                                  = 0;
     virtual void DEBUG_DrawOverlay(const int32_t shadowmap,
+                                   const int32_t layerIndex,
                                    float vp_left, float vp_top,
                                    float vp_width, float vp_height) = 0;
 #endif

@@ -24,6 +24,7 @@ struct MtlDrawBatchContext : public DrawBatchConstant {
 - (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches;
 
 - (void)drawBatchDepthFromLight:(const Light &)light
+                     shadowType:(const ShadowMapType)type
                     withBatches:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches;
 
 - (void)beginForwardPass;
@@ -44,11 +45,10 @@ struct MtlDrawBatchContext : public DrawBatchConstant {
 
 - (void)destroyShadowMaps;
 
-- (int32_t)createDepthTextureArray:(const uint32_t)width
+- (int32_t)createDepthTextureArray:(const ShadowMapType)type
+                             width:(const uint32_t)width
                             height:(const uint32_t)height
                              count:(const uint32_t)count;
-
-- (int32_t)createDepthTexture:(const uint32_t)width height:(const uint32_t)height;
 
 - (uint32_t)createTexture:(const newbieGE::Image &)image;
 
@@ -86,6 +86,7 @@ struct MtlDrawBatchContext : public DrawBatchConstant {
 - (void)DEBUG_DrawDebug:(const std::vector<DEBUG_DrawBatch> &)debugBatches;
 
 - (void)DEBUG_DrawOverlay:(const int32_t)shadowmap
+               layerIndex:(const int32_t)layerIndex
                      left:(float)vp_left
                       top:(float)vp_top
                     width:(float)vp_width

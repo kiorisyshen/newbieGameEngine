@@ -6,10 +6,9 @@ class ShadowMapPass : implements IDrawPass {
    public:
     ~ShadowMapPass() = default;
 
-    const uint32_t kShadowMapWidth        = 2048;  // normal shadow map
-    const uint32_t kShadowMapHeight       = 2048;  // normal shadow map
-    const uint32_t kGlobalShadowMapWidth  = 2048;  // shadow map for sun light
-    const uint32_t kGlobalShadowMapHeight = 2048;  // shadow map for sun light
+    const ShadowMapDescription m_kNormalShadowMap{512, 512, NormalShadowMapType};
+    const ShadowMapDescription m_kCubeShadowMap{512, 512, CubeShadowMapType};
+    const ShadowMapDescription m_kGlobalShadowMap{2048, 2048, GlobalShadowMapType};
 
     void Draw(Frame &frame) final;
 };
