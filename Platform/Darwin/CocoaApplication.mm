@@ -8,6 +8,18 @@
 
 using namespace newbieGE;
 
+NSWindow* CocoaApplication::GetWindowRef() {
+    return (__bridge NSWindow*)m_pWindow;
+}
+
+NSWindow * CocoaApplication::GetWindow() {
+    return (__bridge_transfer NSWindow*)m_pWindow;
+}
+
+void CocoaApplication::SetWindow(NSWindow *wind) {
+    m_pWindow = (__bridge_retained void*)wind;
+}
+
 int CocoaApplication::Initialize() {
     int result = 0;
 
@@ -37,19 +49,21 @@ int CocoaApplication::Initialize() {
                                                          styleMask:style
                                                            backing:NSBackingStoreBuffered
                                                              defer:NO];
-    m_pWindow = m_pWindowTmp;
-
-    [m_pWindow setTitle:appName];
-    [m_pWindow makeKeyAndOrderFront:nil];
+    [m_pWindowTmp setTitle:appName];
+    [m_pWindowTmp makeKeyAndOrderFront:nil];
     id winDelegate = [WindowDelegate new];
-    [m_pWindow setDelegate:winDelegate];
-
+    [m_pWindowTmp setDelegate:winDelegate];
+    
+    SetWindow(m_pWindowTmp);
+    
     return result;
 }
 
 void CocoaApplication::Finalize() {
-    //    [m_pWindow release];
-    m_pWindow = nil;
+    // [m_pWindow release];
+    // m_pWindow = nil;
+    NSWindow *m_pWindowTmp = GetWindow();
+    m_pWindowTmp = nil;
 }
 
 void CocoaApplication::Tick() {

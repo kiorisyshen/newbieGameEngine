@@ -13,10 +13,14 @@ class CocoaApplication : public BaseApplication {
     virtual void Finalize();
     // One cycle of the main loop
     virtual void Tick();
+    
+#ifdef __OBJC__
+    NSWindow *GetWindowRef();
+    NSWindow *GetWindow();
+    void SetWindow(NSWindow *wind);
+#endif
 
    protected:
-#ifdef __OBJC__
-    NSWindow *m_pWindow;
-#endif
+    void *m_pWindow;
 };
 }  // namespace newbieGE
