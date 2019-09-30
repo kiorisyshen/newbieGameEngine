@@ -228,11 +228,12 @@ struct ShaderState {
 
         MTLRenderPipelineDescriptor *pipelineStateDescriptor    = [[MTLRenderPipelineDescriptor alloc] init];
         pipelineStateDescriptor.label                           = @"Skybox Pipeline";
-        pipelineStateDescriptor.sampleCount                     = 1;
+        pipelineStateDescriptor.sampleCount                     = _mtkView.sampleCount;
         pipelineStateDescriptor.vertexFunction                  = vertexFunction;
         pipelineStateDescriptor.fragmentFunction                = fragmentFunction;
         pipelineStateDescriptor.vertexDescriptor                = mtlPosOnlyVertexDescriptor;
         pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
+        pipelineStateDescriptor.depthAttachmentPixelFormat      = _mtkView.depthStencilPixelFormat;
 
         ShaderState skyboxSS;
         skyboxSS.pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
@@ -240,15 +241,13 @@ struct ShaderState {
             NSLog(@"Failed to created pipeline state, error %@", error);
             succ = false;
         }
-        skyboxSS.depthStencilState = nil;
+
+        MTLDepthStencilDescriptor *depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
+        depthStateDesc.depthCompareFunction       = MTLCompareFunctionLessEqual;
+        depthStateDesc.depthWriteEnabled          = NO;
+        skyboxSS.depthStencilState                = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
 
         _renderPassStates[(int32_t)DefaultShaderIndex::SkyBoxShader] = skyboxSS;
-
-        MTLRenderPassDescriptor *skyboxPassDescriptor        = [MTLRenderPassDescriptor new];
-        skyboxPassDescriptor.colorAttachments[0].texture     = _mtkView.currentDrawable.texture;
-        skyboxPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionDontCare;
-
-        _renderPassDescriptors[(int32_t)RenderPassIndex::SkyBoxPass] = skyboxPassDescriptor;
     }
     // --------------
 
@@ -624,12 +623,10 @@ struct ShaderState {
 }
 
 - (void)beginForwardPass {
-    MTLRenderPassDescriptor *forwarRenderPassDescriptor        = _mtkView.currentRenderPassDescriptor;
-    forwarRenderPassDescriptor.colorAttachments[0].loadAction  = MTLLoadActionLoad;
-//    forwarRenderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionDontCare;
-//    if (forwarRenderPassDescriptor != nil) {
-//        forwarRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
-//    }
+    MTLRenderPassDescriptor *forwarRenderPassDescriptor = _mtkView.currentRenderPassDescriptor;
+    if (forwarRenderPassDescriptor != nil) {
+        forwarRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
+    }
     _renderPassDescriptors[(int32_t)RenderPassIndex::ForwardPass] = forwarRenderPassDescriptor;
 
     _renderEncoder       = [_commandBuffer renderCommandEncoderWithDescriptor:_renderPassDescriptors[(int32_t)RenderPassIndex::ForwardPass]];
@@ -650,23 +647,6 @@ struct ShaderState {
 }
 
 - (void)endHUDPass {
-    [_renderEncoder endEncoding];
-}
-
-- (void)beginSkyBoxPass {
-    MTLRenderPassDescriptor *renderPassDescriptor        = _renderPassDescriptors[(int32_t)RenderPassIndex::SkyBoxPass];
-    renderPassDescriptor.colorAttachments[0].texture     = _mtkView.currentDrawable.texture;
-    renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
-    renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
-    if (renderPassDescriptor != nil) {
-        renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
-    }
-
-    _renderEncoder       = [_commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-    _renderEncoder.label = @"SkyBoxRenderEncoder";
-}
-
-- (void)endSkyBoxPass {
     [_renderEncoder endEncoding];
 }
 

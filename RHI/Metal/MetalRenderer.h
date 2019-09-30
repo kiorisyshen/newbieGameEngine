@@ -37,10 +37,6 @@ struct MtlDrawBatchContext : public DrawBatchConstant {
 
 - (void)endHUDPass;
 
-- (void)beginSkyBoxPass;
-
-- (void)endSkyBoxPass;
-
 - (void)beginShadowPass:(const int32_t)shadowmap
                sliceIdx:(const int32_t)layerIndex;
 

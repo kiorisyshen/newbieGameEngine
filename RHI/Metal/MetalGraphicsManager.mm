@@ -53,13 +53,6 @@ void MetalGraphicsManager::EndHUDPass() {
     [m_pRenderer endHUDPass];
 }
 
-void MetalGraphicsManager::BeginSkyBoxPass() {
-    [m_pRenderer beginSkyBoxPass];
-}
-void MetalGraphicsManager::EndSkyBoxPass() {
-    [m_pRenderer endSkyBoxPass];
-}
-
 void MetalGraphicsManager::BeginShadowPass(const int32_t shadowmap, const int32_t layerIndex) {
     [m_pRenderer beginShadowPass:shadowmap sliceIdx:layerIndex];
 }

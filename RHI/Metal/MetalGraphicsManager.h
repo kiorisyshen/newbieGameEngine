@@ -38,8 +38,6 @@ class MetalGraphicsManager : public GraphicsManager {
     void SetShadowMaps(const Frame &frame) final;
 
     // skybox
-    void BeginSkyBoxPass() final;
-    void EndSkyBoxPass() final;
     void SetSkyBox(const DrawFrameContext &context) final;
     void DrawSkyBox() final;
 

@@ -22,7 +22,6 @@ ENUM(RenderPassIndex){
     ForwardPass = "FWPS"_i32,
     ShadowPass  = "SHPS"_i32,
     HUDPass     = "HUDP"_i32,
-    SkyBoxPass  = "SBPS"_i32,
 };
 
 enum ShadowMapType {

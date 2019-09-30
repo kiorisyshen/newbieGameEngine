@@ -40,8 +40,6 @@ class GraphicsManager : implements IRuntimeModule {
     virtual void SetShadowMaps(const Frame &frame) = 0;
 
     // skybox
-    virtual void BeginSkyBoxPass()                          = 0;
-    virtual void EndSkyBoxPass()                            = 0;
     virtual void SetSkyBox(const DrawFrameContext &context) = 0;
     virtual void DrawSkyBox()                               = 0;
 
