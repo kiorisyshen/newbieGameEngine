@@ -39,7 +39,7 @@ struct GfxConfiguration {
     uint32_t msaaSamples;  ///< MSAA samples
     uint32_t screenWidth;
     uint32_t screenHeight;
-    static const uint32_t kMaxInFlightFrameCount = 2;
+    static const uint32_t kMaxInFlightFrameCount = 1;
     static const uint32_t kMaxSceneObjectCount   = 2048;
     static const uint32_t kMaxDebugObjectCount   = kMaxSceneObjectCount * 1024;
     const char *appName;

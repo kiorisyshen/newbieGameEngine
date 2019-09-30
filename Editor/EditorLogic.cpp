@@ -17,7 +17,7 @@ int EditorLogic::Initialize() {
         result = g_pSceneManager->LoadScene(scene_filename);
     } else {
         cout << "[EditorLogic] Loading Splash Scene" << endl;
-        result = g_pSceneManager->LoadScene("Scene/point_light.ogex");
+        result = g_pSceneManager->LoadScene("Scene/mermaid.ogex");
     }
 
     return result;
