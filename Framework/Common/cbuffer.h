@@ -67,6 +67,7 @@ struct frame_textures {
     std::vector<Light *> shadowMapLight;
     std::vector<Light *> cubeShadowMapLight;
     std::vector<Light *> globalShadowMapLight;
+    int32_t skybox = -1;
 };
 
 // Align for metal

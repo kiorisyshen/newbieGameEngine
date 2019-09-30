@@ -37,6 +37,12 @@ class MetalGraphicsManager : public GraphicsManager {
     void DestroyShadowMaps() final;
     void SetShadowMaps(const Frame &frame) final;
 
+    // skybox
+    void BeginSkyBoxPass() final;
+    void EndSkyBoxPass() final;
+    void SetSkyBox(const DrawFrameContext &context) final;
+    void DrawSkyBox() final;
+
 #ifdef DEBUG
     void DEBUG_ClearDebugBuffers() final;
     void DEBUG_SetBuffer() final;
@@ -65,6 +71,7 @@ class MetalGraphicsManager : public GraphicsManager {
 
    private:
     void InitializeBuffers(const Scene &scene);
+    void initializeSkyBox(const Scene &scene);
 
     MetalRenderer *m_pRenderer;
 };

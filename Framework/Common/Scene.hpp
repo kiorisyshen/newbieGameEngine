@@ -27,6 +27,8 @@ class Scene {
 
     std::unordered_map<std::string, std::weak_ptr<SceneGeometryNode>> LUT_Name_GeometryNode;
 
+    std::shared_ptr<SceneObjectSkyBox> SkyBox;
+
    public:
     Scene() {
         m_pDefaultMaterial = std::make_shared<SceneObjectMaterial>("default");

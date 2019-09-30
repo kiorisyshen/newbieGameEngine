@@ -42,6 +42,8 @@ struct ShaderState {
 
     std::unordered_map<int32_t, MTLRenderPassDescriptor *> _renderPassDescriptors;
     std::unordered_map<int32_t, ShaderState> _renderPassStates;
+
+    int32_t _skyboxTexIndex;
 }
 
 - (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view;
@@ -51,6 +53,7 @@ struct ShaderState {
         _device            = view.device;
         _inFlightSemaphore = dispatch_semaphore_create(GfxConfiguration::kMaxInFlightFrameCount);
         _commandQueue      = [_device newCommandQueue];
+        _skyboxTexIndex    = -1;
     }
 
     return self;
@@ -205,6 +208,12 @@ struct ShaderState {
     }
     // --------------
 
+    // --------------
+    // SkyBox shaders
+    {
+    }
+    // --------------
+
 #ifdef DEBUG
     // --------------
     // Debug shaders
@@ -313,6 +322,9 @@ struct ShaderState {
     if (_renderPassStates[(int32_t)idx].depthStencilState) {
         [_renderEncoder setDepthStencilState:_renderPassStates[(int32_t)idx].depthStencilState];
     }
+}
+
+- (void)drawSkyBox {
 }
 
 - (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches {
@@ -452,37 +464,37 @@ struct ShaderState {
     } else if (type == ShadowMapType::CubeShadowMapType) {
 #ifdef USE_METALCUBEDEPTH
         [_renderEncoder pushDebugGroup:@"DrawMeshDepth"];
-        
+
         [_renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
         [_renderEncoder setCullMode:MTLCullModeFront];
         // [_renderEncoder setCullMode:MTLCullModeBack];
-        
+
         Matrix4X4f shadowMatrices[6];
         [self buildCubeVPsFromLight:light to:shadowMatrices];
         [_renderEncoder setVertexBytes:shadowMatrices
                                 length:64 * 6
                                atIndex:15];
-        
+
         [_renderEncoder setVertexBuffer:_uniformBuffers offset:0 atIndex:10];
-        
+
         for (const auto &pDbc : batches) {
             const MtlDrawBatchContext &dbc = dynamic_cast<const MtlDrawBatchContext &>(*pDbc);
-            
+
             [_renderEncoder setVertexBuffer:_uniformBuffers
                                      offset:kSizePerFrameConstantBuffer + dbc.batchIndex * kSizePerBatchConstantBuffer
                                     atIndex:11];
-            
+
             // Set mesh's vertex buffers
             for (uint32_t bufferIndex = 0; bufferIndex < dbc.property_count; bufferIndex++) {
                 id<MTLBuffer> vertexBuffer = _vertexBuffers[dbc.property_offset + bufferIndex];
                 [_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:bufferIndex];
             }
-            
+
             if (dbc.property_count <= 2) {
                 id<MTLBuffer> vertexBuffer = _vertexBuffers[dbc.property_offset];
                 [_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:2];
             }
-            
+
             [_renderEncoder drawIndexedPrimitives:dbc.index_mode
                                        indexCount:dbc.index_count
                                         indexType:dbc.index_type
@@ -540,6 +552,12 @@ struct ShaderState {
 
 - (void)endHUDPass {
     [_renderEncoder endEncoding];
+}
+
+- (void)beginSkyBoxPass {
+}
+
+- (void)endSkyBoxPass {
 }
 
 - (void)beginShadowPass:(const int32_t)shadowmap
@@ -666,6 +684,11 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
     return index;
 }
 
+- (uint32_t)createSkyBox:(const std::vector<const std::shared_ptr<newbieGE::Image>> &)images;
+{
+    return -1;
+}
+
 - (int32_t)createDepthTextureArray:(const ShadowMapType)type
                              width:(const uint32_t)width
                             height:(const uint32_t)height
@@ -768,6 +791,10 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
 
 - (void)setLightInfo:(const LightInfo &)lightInfo {
     std::memcpy(_lightInfo.contents, &(lightInfo), sizeof(LightInfo));
+}
+
+- (void)setSkyBox:(const DrawFrameContext &)context {
+    _skyboxTexIndex = context.skybox;
 }
 
 - (void)setPerFrameConstants:(const DrawFrameContext &)context {

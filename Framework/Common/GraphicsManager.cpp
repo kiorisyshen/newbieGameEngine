@@ -6,6 +6,7 @@
 #include "IPhysicsManager.hpp"
 #include "SceneManager.hpp"
 #include "ShadowMapPass.hpp"
+#include "SkyBoxPass.hpp"
 
 using namespace newbieGE;
 using namespace std;
@@ -28,6 +29,7 @@ int GraphicsManager::Initialize() {
 
     m_DrawPasses.push_back(make_shared<ShadowMapPass>());
     m_DrawPasses.push_back(make_shared<ForwardRenderPass>());
+    m_DrawPasses.push_back(make_shared<SkyBoxPass>());
     m_DrawPasses.push_back(make_shared<HUDPass>());
 
     bool initShaderSucc = InitializeShaders();

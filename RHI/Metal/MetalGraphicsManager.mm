@@ -29,6 +29,10 @@ void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatch
     [m_pRenderer drawBatch:batches];
 }
 
+void MetalGraphicsManager::DrawSkyBox() {
+    [m_pRenderer drawSkyBox];
+}
+
 void MetalGraphicsManager::DrawBatchDepthFromLight(const Light &light, const ShadowMapType type, const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) {
     [m_pRenderer drawBatchDepthFromLight:light shadowType:type withBatches:batches];
 }
@@ -47,6 +51,13 @@ void MetalGraphicsManager::BeginHUDPass() {
 
 void MetalGraphicsManager::EndHUDPass() {
     [m_pRenderer endHUDPass];
+}
+
+void MetalGraphicsManager::BeginSkyBoxPass() {
+    [m_pRenderer beginSkyBoxPass];
+}
+void MetalGraphicsManager::EndSkyBoxPass() {
+    [m_pRenderer endSkyBoxPass];
 }
 
 void MetalGraphicsManager::BeginShadowPass(const int32_t shadowmap, const int32_t layerIndex) {
@@ -71,6 +82,10 @@ void MetalGraphicsManager::SetShadowMaps(const Frame &frame) {
 
 void MetalGraphicsManager::SetLightInfo(const LightInfo &lightInfo) {
     [m_pRenderer setLightInfo:lightInfo];
+}
+
+void MetalGraphicsManager::SetSkyBox(const DrawFrameContext &context) {
+    [m_pRenderer setSkyBox:context];
 }
 
 void MetalGraphicsManager::SetPerFrameConstants(const DrawFrameContext &context) {
@@ -173,7 +188,7 @@ void MetalGraphicsManager::InitializeBuffers(const Scene &scene) {
             if (material) {
                 auto color = material->GetBaseColor();
                 if (color.ValueMap) {
-                    const Image &image = color.ValueMap->GetTextureImage();
+                    const Image &image = *(color.ValueMap->GetTextureImage());
                     texture_id         = [m_pRenderer createTexture:image];
                     dbc->diffuseColor  = {-1.0f, -1.0f, -1.0f, 1.0f};
                 } else {
@@ -202,6 +217,23 @@ void MetalGraphicsManager::InitializeBuffers(const Scene &scene) {
     }
 }
 
+void MetalGraphicsManager::initializeSkyBox(const Scene &scene) {
+    if (scene.SkyBox) {
+        std::vector<const std::shared_ptr<newbieGE::Image>> images;
+        for (uint32_t i = 0; i < 6; i++) {
+            auto &texture      = scene.SkyBox->GetTexture(i);
+            const auto &pImage = texture.GetTextureImage();
+            images.push_back(pImage);
+        }
+
+        int32_t tex_index = [m_pRenderer createSkyBox:images];
+
+        for (uint32_t i = 0; i < GfxConfiguration::kMaxInFlightFrameCount; i++) {
+            m_Frames[i].frameContext.skybox = tex_index;
+        }
+    }
+}
+
 bool MetalGraphicsManager::InitializeShaders() {
     return [m_pRenderer InitializeShaders];
 }
@@ -210,6 +242,7 @@ void MetalGraphicsManager::BeginScene(const Scene &scene) {
     GraphicsManager::BeginScene(scene);
 
     InitializeBuffers(scene);
+    initializeSkyBox(scene);
 
     cout << "[MetalGraphicsManager] BeginScene Done!" << endl;
 }

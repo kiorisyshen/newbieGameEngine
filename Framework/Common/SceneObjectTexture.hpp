@@ -24,7 +24,7 @@ class SceneObjectTexture : public BaseSceneObject {
         : BaseSceneObject(SceneObjectType::kSceneObjectTypeTexture), m_nTexCoordIndex(coord_index), m_pImage(image){};
     SceneObjectTexture(uint32_t coord_index, std::shared_ptr<Image> &&image)
         : BaseSceneObject(SceneObjectType::kSceneObjectTypeTexture), m_nTexCoordIndex(coord_index), m_pImage(std::move(image)){};
-    SceneObjectTexture(SceneObjectTexture &)  = default;
+    // SceneObjectTexture(SceneObjectTexture &)  = default;
     SceneObjectTexture(SceneObjectTexture &&) = default;
     void AddTransform(Matrix4X4f &matrix) {
         m_Transforms.push_back(matrix);
@@ -60,14 +60,14 @@ class SceneObjectTexture : public BaseSceneObject {
         }
     }
 
-    const Image &GetTextureImage() {
+    std::shared_ptr<Image> GetTextureImage() {
         if (!m_pImage) {
             LoadTexture();
         }
 
         AdjustTextureBitcount();
 
-        return *m_pImage;
+        return m_pImage;
     };
 
     void AdjustTextureBitcount() {

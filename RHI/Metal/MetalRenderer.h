@@ -23,6 +23,8 @@ struct MtlDrawBatchContext : public DrawBatchConstant {
 
 - (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches;
 
+- (void)drawSkyBox;
+
 - (void)drawBatchDepthFromLight:(const Light &)light
                      shadowType:(const ShadowMapType)type
                     withBatches:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches;
@@ -34,6 +36,10 @@ struct MtlDrawBatchContext : public DrawBatchConstant {
 - (void)beginHUDPass;
 
 - (void)endHUDPass;
+
+- (void)beginSkyBoxPass;
+
+- (void)endSkyBoxPass;
 
 - (void)beginShadowPass:(const int32_t)shadowmap
                sliceIdx:(const int32_t)layerIndex;
@@ -52,11 +58,15 @@ struct MtlDrawBatchContext : public DrawBatchConstant {
 
 - (uint32_t)createTexture:(const newbieGE::Image &)image;
 
+- (uint32_t)createSkyBox:(const std::vector<const std::shared_ptr<newbieGE::Image>> &)images;
+
 - (void)createVertexBuffer:(const newbieGE::SceneObjectVertexArray &)v_property_array;
 
 - (void)createIndexBuffer:(const newbieGE::SceneObjectIndexArray &)index_array;
 
 - (void)setLightInfo:(const LightInfo &)lightInfo;
+
+- (void)setSkyBox:(const DrawFrameContext &)context;
 
 - (void)setPerFrameConstants:(const DrawFrameContext &)context;
 
