@@ -19,11 +19,11 @@ target_link_libraries(PlatformInterface GeomMath)
 
 # newbieGameEngine Metal
 add_library(newbieGameEngine CocoaMetalApplicationConfig.cpp)
+set_property(TARGET newbieGameEngine APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
 target_link_libraries(newbieGameEngine
                       Common
                       PlatformInterface
                       MetalRHI)
-set_property(TARGET newbieGameEngine APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
 
 # # NewbieGEMetalCocoa add_executable(NewbieGEMetalCocoa MACOSX_BUNDLE CocoaApplication.mm CocoaMetalApplication.mm
 # CocoaMetalApplicationConfig.cpp AppDelegate.m WindowDelegate.m MetalView.mm Main.metallib ) set(RESOURCE_FILES

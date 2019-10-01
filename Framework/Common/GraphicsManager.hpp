@@ -39,6 +39,10 @@ class GraphicsManager : implements IRuntimeModule {
 
     virtual void SetShadowMaps(const Frame &frame) = 0;
 
+    // skybox
+    virtual void SetSkyBox(const DrawFrameContext &context) = 0;
+    virtual void DrawSkyBox()                               = 0;
+
 #ifdef DEBUG
     virtual void DEBUG_ToggleDebugInfo() final;
     virtual bool DEBUG_IsShowDebug() final;

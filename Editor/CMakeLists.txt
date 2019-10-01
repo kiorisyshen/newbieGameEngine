@@ -3,7 +3,8 @@ if(APPLE)
         basic
         debugInfo
         shadowmap
-        texture2dOverlay)
+        texture2dOverlay
+        skybox)
     foreach(SHADER
             IN
             LISTS
