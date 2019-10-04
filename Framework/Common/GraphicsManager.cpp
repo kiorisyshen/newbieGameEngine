@@ -1,5 +1,6 @@
 #include "GraphicsManager.hpp"
 #include <iostream>
+#include "BRDFIntegrator.hpp"
 #include "ForwardRenderPass.hpp"
 #include "HUDPass.hpp"
 #include "IApplication.hpp"
@@ -25,6 +26,8 @@ int GraphicsManager::Initialize() {
         BuildIdentityMatrix(frame.DEBUG_Batches[0].pbc.modelMatrix);
     }
 #endif
+
+    // m_InitPasses.push_back(make_shared<BRDFIntegrator>());
 
     m_DrawPasses.push_back(make_shared<ShadowMapPass>());
     m_DrawPasses.push_back(make_shared<ForwardRenderPass>());
@@ -263,12 +266,11 @@ void GraphicsManager::RenderBuffers() {
 }
 
 void GraphicsManager::BeginScene(const Scene &scene) {
-    //    for (auto pPass : m_InitPasses)
-    //    {
-    //        BeginCompute();
-    //        pPass->Dispatch();
-    //        EndCompute();
-    //    }
+    for (auto pPass : m_InitPasses) {
+        BeginCompute();
+        pPass->Dispatch();
+        EndCompute();
+    }
 }
 
 void GraphicsManager::EndScene() {

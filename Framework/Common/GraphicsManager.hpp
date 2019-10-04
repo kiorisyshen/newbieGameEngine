@@ -1,5 +1,6 @@
 #pragma once
 #include "FrameStructure.hpp"
+#include "IDispatchPass.hpp"
 #include "IDrawPass.hpp"
 #include "IRuntimeModule.hpp"
 #include "Polyhedron.hpp"
@@ -22,6 +23,7 @@ class GraphicsManager : implements IRuntimeModule {
     virtual void RenderBuffers() final;
 
     virtual void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches)                                                             = 0;
+    virtual void DrawBatchPBR(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches)                                                          = 0;
     virtual void DrawBatchDepthFromLight(const Light &light, const ShadowMapType type, const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) = 0;
 
     virtual void BeginForwardPass() = 0;
@@ -42,6 +44,10 @@ class GraphicsManager : implements IRuntimeModule {
     // skybox
     virtual void SetSkyBox(const DrawFrameContext &context) = 0;
     virtual void DrawSkyBox()                               = 0;
+
+    // pbr compute shader
+    virtual void Dispatch(const uint32_t width, const uint32_t height, const uint32_t depth)                                               = 0;
+    virtual int32_t GenerateAndBindTextureForWrite(const char *id, const uint32_t slot_index, const uint32_t width, const uint32_t height) = 0;
 
 #ifdef DEBUG
     virtual void DEBUG_ToggleDebugInfo() final;
@@ -99,6 +105,7 @@ class GraphicsManager : implements IRuntimeModule {
     uint32_t m_nFrameIndex = 0;
     std::vector<Frame> m_Frames;
     std::vector<std::shared_ptr<IDrawPass>> m_DrawPasses;
+    std::vector<std::shared_ptr<IDispatchPass>> m_InitPasses;
 
 #ifdef DEBUG
     bool m_DEBUG_showFlag;

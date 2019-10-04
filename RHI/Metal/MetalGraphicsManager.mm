@@ -29,6 +29,18 @@ void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatch
     [m_pRenderer drawBatch:batches];
 }
 
+void MetalGraphicsManager::DrawBatchPBR(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) {
+    // TODO: call renderer function
+}
+
+void MetalGraphicsManager::Dispatch(const uint32_t width, const uint32_t height, const uint32_t depth) {
+    // TODO: call renderer function
+}
+
+int32_t MetalGraphicsManager::GenerateAndBindTextureForWrite(const char *id, const uint32_t slot_index, const uint32_t width, const uint32_t height) {
+    // TODO: call renderer function
+}
+
 void MetalGraphicsManager::DrawSkyBox() {
     [m_pRenderer drawSkyBox];
 }

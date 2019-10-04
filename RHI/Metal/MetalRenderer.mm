@@ -25,6 +25,10 @@ struct ShaderState {
     id<MTLRenderCommandEncoder> _renderEncoder;
     id<MTLBlitCommandEncoder> _blitEncoder;
 
+    id<MTLCommandBuffer> _computeCommandBuffer;
+    id<MTLComputeCommandEncoder> _computeEncoder;
+    id<MTLComputePipelineState> _computePipelineState;
+
     id<MTLSamplerState> _sampler0;
     std::vector<id<MTLTexture>> _textures;
     std::vector<id<MTLTexture>> _skyboxTextures;
@@ -968,20 +972,20 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
 }
 
 - (void)beginCompute {
-    //    // Create a new command buffer for each render pass to the current drawable
-    //    _computeCommandBuffer = [_commandQueue commandBuffer];
-    //    _computeCommandBuffer.label = @"MyComputeCommand";
-    //
-    //    _computeEncoder = [_computeCommandBuffer computeCommandEncoder];
-    //    _computeEncoder.label = @"MyComputeEncoder";
-    //    [_computeEncoder setComputePipelineState:_computePipelineState];
+    // Create a new command buffer for each render pass to the current drawable
+    _computeCommandBuffer       = [_commandQueue commandBuffer];
+    _computeCommandBuffer.label = @"MyComputeCommand";
+
+    _computeEncoder       = [_computeCommandBuffer computeCommandEncoder];
+    _computeEncoder.label = @"MyComputeEncoder";
+    [_computeEncoder setComputePipelineState:_computePipelineState];
 }
 
 - (void)endCompute {
-    //    [_computeEncoder endEncoding];
-    //
-    //    // Finalize rendering here & push the command buffer to the GPU
-    //    [_computeCommandBuffer commit];
+    [_computeEncoder endEncoding];
+
+    // Finalize rendering here & push the command buffer to the GPU
+    [_computeCommandBuffer commit];
 }
 
 #ifdef DEBUG

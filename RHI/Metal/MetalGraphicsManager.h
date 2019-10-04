@@ -21,6 +21,7 @@ class MetalGraphicsManager : public GraphicsManager {
     void UseShaderProgram(const DefaultShaderIndex idx) final;
 
     void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) final;
+    void DrawBatchPBR(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) final;
     void DrawBatchDepthFromLight(const Light &light, const ShadowMapType type, const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) final;
 
     void BeginForwardPass() final;
@@ -40,6 +41,10 @@ class MetalGraphicsManager : public GraphicsManager {
     // skybox
     void SetSkyBox(const DrawFrameContext &context) final;
     void DrawSkyBox() final;
+
+    // pbr compute shader
+    void Dispatch(const uint32_t width, const uint32_t height, const uint32_t depth) final;
+    int32_t GenerateAndBindTextureForWrite(const char *id, const uint32_t slot_index, const uint32_t width, const uint32_t height) final;
 
 #ifdef DEBUG
     void DEBUG_ClearDebugBuffers() final;

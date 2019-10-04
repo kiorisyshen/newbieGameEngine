@@ -16,6 +16,8 @@ ENUM(DefaultShaderIndex){
     DebugShader     = "DEBG"_i32,
     Overlay2dShader = "OVLY"_i32,
     SkyBoxShader    = "SKYB"_i32,
+    PbrShader       = "PBRS"_i32,
+    PbrBrdfShader   = "BRDF"_i32,
 };
 
 ENUM(RenderPassIndex){
