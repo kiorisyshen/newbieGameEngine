@@ -1,23 +1,23 @@
-#include "CocoaApplication.h"
-#include <string.h>
-
 #import "AppDelegate.h"
 #import "WindowDelegate.h"
 
 #import <Carbon/Carbon.h>
 
+#include <string.h>
+#include "CocoaApplication.h"
+
 using namespace newbieGE;
 
-NSWindow* CocoaApplication::GetWindowRef() {
-    return (__bridge NSWindow*)m_pWindow;
+NSWindow *CocoaApplication::GetWindowRef() {
+    return (__bridge NSWindow *)m_pWindow;
 }
 
-NSWindow * CocoaApplication::GetWindow() {
-    return (__bridge_transfer NSWindow*)m_pWindow;
+NSWindow *CocoaApplication::GetWindow() {
+    return (__bridge_transfer NSWindow *)m_pWindow;
 }
 
 void CocoaApplication::SetWindow(NSWindow *wind) {
-    m_pWindow = (__bridge_retained void*)wind;
+    m_pWindow = (__bridge_retained void *)wind;
 }
 
 int CocoaApplication::Initialize() {
@@ -53,9 +53,9 @@ int CocoaApplication::Initialize() {
     [m_pWindowTmp makeKeyAndOrderFront:nil];
     id winDelegate = [WindowDelegate new];
     [m_pWindowTmp setDelegate:winDelegate];
-    
+
     SetWindow(m_pWindowTmp);
-    
+
     return result;
 }
 
@@ -63,7 +63,7 @@ void CocoaApplication::Finalize() {
     // [m_pWindow release];
     // m_pWindow = nil;
     NSWindow *m_pWindowTmp = GetWindow();
-    m_pWindowTmp = nil;
+    m_pWindowTmp           = nil;
 }
 
 void CocoaApplication::Tick() {

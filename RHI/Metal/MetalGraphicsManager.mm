@@ -30,15 +30,15 @@ void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatch
 }
 
 void MetalGraphicsManager::DrawBatchPBR(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) {
-    // TODO: call renderer function
+    [m_pRenderer drawBatchPBR:batches];
 }
 
 void MetalGraphicsManager::Dispatch(const uint32_t width, const uint32_t height, const uint32_t depth) {
-    // TODO: call renderer function
+    [m_pRenderer dispatch:width height:height depth:depth];
 }
 
 int32_t MetalGraphicsManager::GenerateAndBindTextureForWrite(const char *id, const uint32_t slot_index, const uint32_t width, const uint32_t height) {
-    // TODO: call renderer function
+    return [m_pRenderer generateAndBindTextureForWrite:width height:height atIndex:slot_index];
 }
 
 void MetalGraphicsManager::DrawSkyBox() {
@@ -126,7 +126,7 @@ void MetalGraphicsManager::InitializeBuffers(const Scene &scene) {
         auto vertexPropertiesCount = pMesh->GetVertexPropertiesCount();
 
         // Set the number of vertices in the vertex array.
-        //        auto vertexCount = pMesh->GetVertexCount();
+        // auto vertexCount = pMesh->GetVertexCount();
 
         for (decltype(vertexPropertiesCount) i = 0; i < vertexPropertiesCount; i++) {
             const SceneObjectVertexArray &v_property_array = pMesh->GetVertexPropertyArray(i);
@@ -184,27 +184,54 @@ void MetalGraphicsManager::InitializeBuffers(const Scene &scene) {
                     continue;
             }
 
-            size_t material_index    = index_array.GetMaterialIndex();
-            std::string material_key = pGeometryNode->GetMaterialRef(material_index);
-            auto material            = scene.GetMaterial(material_key);
+            auto material_index = index_array.GetMaterialIndex();
+            auto material_key   = pGeometryNode->GetMaterialRef(material_index);
+            auto material       = scene.GetMaterial(material_key);
 
             auto dbc           = make_shared<MtlDrawBatchContext>();
             int32_t texture_id = -1;
             if (material) {
-                auto color = material->GetBaseColor();
-                if (color.ValueMap) {
-                    const Image &image = *(color.ValueMap->GetTextureImage());
+                if (auto &texture = material->GetBaseColor().ValueMap) {
+                    int32_t texture_id;
+                    const Image &image = *texture->GetTextureImage();
                     texture_id         = [m_pRenderer createTexture:image];
-                    dbc->diffuseColor  = {-1.0f, -1.0f, -1.0f, 1.0f};
-                } else {
-                    dbc->diffuseColor = color.Value;
+
+                    dbc->material.diffuseMap = texture_id;
                 }
-                color              = material->GetSpecularColor();
-                dbc->specularColor = color.Value;
-                Parameter param    = material->GetSpecularPower();
-                dbc->specularPower = param.Value;
+
+                if (auto &texture = material->GetNormal().ValueMap) {
+                    int32_t texture_id;
+                    const Image &image = *texture->GetTextureImage();
+                    texture_id         = [m_pRenderer createTexture:image];
+
+                    dbc->material.normalMap = texture_id;
+                }
+
+                if (auto &texture = material->GetMetallic().ValueMap) {
+                    int32_t texture_id;
+                    const Image &image = *texture->GetTextureImage();
+                    texture_id         = [m_pRenderer createTexture:image];
+
+                    dbc->material.metallicMap = texture_id;
+                }
+
+                if (auto &texture = material->GetRoughness().ValueMap) {
+                    int32_t texture_id;
+                    const Image &image = *texture->GetTextureImage();
+                    texture_id         = [m_pRenderer createTexture:image];
+
+                    dbc->material.roughnessMap = texture_id;
+                }
+
+                if (auto &texture = material->GetAO().ValueMap) {
+                    int32_t texture_id;
+                    const Image &image = *texture->GetTextureImage();
+                    texture_id         = [m_pRenderer createTexture:image];
+
+                    dbc->material.aoMap = texture_id;
+                }
             }
-            dbc->materialIdx       = texture_id;
+
             dbc->index_count       = (uint32_t)index_array.GetIndexCount();
             dbc->index_type        = type;
             dbc->batchIndex        = batch_index++;
@@ -215,7 +242,9 @@ void MetalGraphicsManager::InitializeBuffers(const Scene &scene) {
             dbc->objectLocalMatrix = *(pGeometryNode->GetCalculatedTransform()).get();
             dbc->node              = pGeometryNode;
 
-            m_Frames[m_nFrameIndex].batchContext.push_back(dbc);
+            for (uint32_t i = 0; i < GfxConfiguration::kMaxInFlightFrameCount; i++) {
+                m_Frames[i].batchContext.push_back(dbc);
+            }
         }
 
         v_property_offset += vertexPropertiesCount;

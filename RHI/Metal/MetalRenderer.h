@@ -23,6 +23,8 @@ struct MtlDrawBatchContext : public DrawBatchConstant {
 
 - (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches;
 
+- (void)drawBatchPBR:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches;
+
 - (void)drawSkyBox;
 
 - (void)drawBatchDepthFromLight:(const Light &)light
@@ -83,6 +85,14 @@ struct MtlDrawBatchContext : public DrawBatchConstant {
 - (void)beginCompute;
 
 - (void)endCompute;
+
+- (int32_t)generateAndBindTextureForWrite:(const uint32_t)width
+                                   height:(const uint32_t)height
+                                  atIndex:(const uint32_t)atIndex;
+
+- (void)dispatch:(const uint32_t)width
+          height:(const uint32_t)height
+           depth:(const uint32_t)depth;
 
 #ifdef DEBUG
 - (void)DEBUG_SetBuffer:(const std::vector<DEBUG_DrawBatch> &)debugBatches;

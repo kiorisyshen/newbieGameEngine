@@ -84,9 +84,15 @@ struct PerFrameConstants REGISTER(b10) {
 
 struct PerBatchConstants REGISTER(b11) {
     Matrix4X4f objectLocalMatrix;  // 64 bytes
-    Vector4f diffuseColor;         // 16 bytes
-    Vector4f specularColor;        // 16 bytes
-    float specularPower;           // 4 bytes
+};
+
+struct material_textures {
+    int32_t diffuseMap   = -1;
+    int32_t normalMap    = -1;
+    int32_t metallicMap  = -1;
+    int32_t roughnessMap = -1;
+    int32_t aoMap        = -1;
+    int32_t heightMap    = -1;
 };
 
 #ifdef DEBUG

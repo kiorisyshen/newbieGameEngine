@@ -44,6 +44,7 @@ struct DrawFrameContext : PerFrameConstants, frame_textures {
 struct DrawBatchConstant : PerBatchConstants {
     uint32_t batchIndex;
     std::shared_ptr<SceneGeometryNode> node;
+    material_textures material;
 
     virtual ~DrawBatchConstant() = default;
 };

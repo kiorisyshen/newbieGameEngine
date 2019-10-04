@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/Debug/Editor/Editor.app/Contents/MacOS/Editor",
             "args": [
-                "Scene/point_light.ogex"
+                "Scene/material_balls.ogex"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

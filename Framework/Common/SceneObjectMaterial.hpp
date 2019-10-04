@@ -59,6 +59,15 @@ class SceneObjectMaterial : public BaseSceneObject {
     const Parameter &GetSpecularPower() const {
         return m_SpecularPower;
     };
+    const Parameter &GetMetallic() const {
+        return m_Metallic;
+    };
+    const Parameter &GetRoughness() const {
+        return m_Roughness;
+    };
+    const Parameter &GetAO() const {
+        return m_AmbientOcclusion;
+    };
     const Normal &GetNormal() const {
         return m_Normal;
     };
@@ -73,26 +82,38 @@ class SceneObjectMaterial : public BaseSceneObject {
             m_BaseColor = Color(color);
         }
 
-        if (attrib == "specular") {
+        else if (attrib == "specular") {
             m_Specular = Color(color);
         }
 
-        if (attrib == "emission") {
+        else if (attrib == "emission") {
             m_Emission = Color(color);
         }
 
-        if (attrib == "opacity") {
+        else if (attrib == "opacity") {
             m_Opacity = Color(color);
         }
 
-        if (attrib == "transparency") {
+        else if (attrib == "transparency") {
             m_Transparency = Color(color);
         }
     };
 
     void SetParam(const std::string &attrib, const float param) {
-        if (attrib == "specular_power") {
+        if (attrib == "metallic") {
+            m_Metallic = Parameter(param);
+        }
+
+        else if (attrib == "roughness") {
+            m_Roughness = Parameter(param);
+        }
+
+        else if (attrib == "specular_power") {
             m_SpecularPower = Parameter(param);
+        }
+
+        else if (attrib == "ao") {
+            m_AmbientOcclusion = Parameter(param);
         }
     };
 
@@ -101,28 +122,40 @@ class SceneObjectMaterial : public BaseSceneObject {
             m_BaseColor = std::make_shared<SceneObjectTexture>(textureName);
         }
 
-        if (attrib == "specular") {
+        else if (attrib == "specular") {
             m_Specular = std::make_shared<SceneObjectTexture>(textureName);
         }
 
-        if (attrib == "specular_power") {
+        else if (attrib == "specular_power") {
             m_SpecularPower = std::make_shared<SceneObjectTexture>(textureName);
         }
 
-        if (attrib == "emission") {
+        else if (attrib == "emission") {
             m_Emission = std::make_shared<SceneObjectTexture>(textureName);
         }
 
-        if (attrib == "opacity") {
+        else if (attrib == "opacity") {
             m_Opacity = std::make_shared<SceneObjectTexture>(textureName);
         }
 
-        if (attrib == "transparency") {
+        else if (attrib == "transparency") {
             m_Transparency = std::make_shared<SceneObjectTexture>(textureName);
         }
 
-        if (attrib == "normal") {
+        else if (attrib == "normal") {
             m_Normal = std::make_shared<SceneObjectTexture>(textureName);
+        }
+
+        else if (attrib == "metallic") {
+            m_Metallic = std::make_shared<SceneObjectTexture>(textureName);
+        }
+
+        else if (attrib == "roughness") {
+            m_Roughness = std::make_shared<SceneObjectTexture>(textureName);
+        }
+
+        else if (attrib == "ao") {
+            m_AmbientOcclusion = std::make_shared<SceneObjectTexture>(textureName);
         }
     };
 
@@ -131,28 +164,40 @@ class SceneObjectMaterial : public BaseSceneObject {
             m_BaseColor = texture;
         }
 
-        if (attrib == "specular") {
+        else if (attrib == "specular") {
             m_Specular = texture;
         }
 
-        if (attrib == "specular_power") {
+        else if (attrib == "specular_power") {
             m_SpecularPower = texture;
         }
 
-        if (attrib == "emission") {
+        else if (attrib == "emission") {
             m_Emission = texture;
         }
 
-        if (attrib == "opacity") {
+        else if (attrib == "opacity") {
             m_Opacity = texture;
         }
 
-        if (attrib == "transparency") {
+        else if (attrib == "transparency") {
             m_Transparency = texture;
         }
 
-        if (attrib == "normal") {
+        else if (attrib == "normal") {
             m_Normal = texture;
+        }
+
+        else if (attrib == "metallic") {
+            m_Metallic = texture;
+        }
+
+        else if (attrib == "roughness") {
+            m_Roughness = texture;
+        }
+
+        else if (attrib == "ao") {
+            m_AmbientOcclusion = texture;
         }
     };
 

@@ -2,6 +2,8 @@
 #include "AssetLoader.hpp"
 #include "BMP.hpp"
 #include "BaseSceneObject.hpp"
+#include "DDS.hpp"
+#include "HDR.hpp"
 #include "JPEG.hpp"
 #include "PNG.hpp"
 #include "TGA.hpp"
@@ -56,6 +58,12 @@ class SceneObjectTexture : public BaseSceneObject {
             } else if (ext == ".tga") {
                 TgaParser tga_parser;
                 m_pImage = std::make_shared<Image>(tga_parser.Parse(buf));
+            } else if (ext == ".dds") {
+                DdsParser dds_parser;
+                m_pImage = std::make_shared<Image>(dds_parser.Parse(buf));
+            } else if (ext == ".hdr") {
+                HdrParser hdr_parser;
+                m_pImage = std::make_shared<Image>(hdr_parser.Parse(buf));
             }
         }
     }

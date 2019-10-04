@@ -66,7 +66,7 @@ class TgaParser : implements ImageParser {
         // nothing to skip
 
         // reading the pixel data
-        img.bitcount = 32;
+        img.bitcount = (alpha_depth ? 32 : 24);
         img.pitch    = (img.Width * (img.bitcount >> 3) + 3) & ~3u;  // for GPU address alignment
 
         img.data_size = img.pitch * img.Height;
@@ -77,14 +77,15 @@ class TgaParser : implements ImageParser {
             for (decltype(img.Width) j = 0; j < img.Width; j++) {
                 switch (pixel_depth) {
                     case 15: {
+                        assert(alpha_depth == 0);
                         uint16_t color = *(uint16_t *)pData;
                         pData += 2;
-                        *(pOut + img.pitch * i + j * 4)     = ((color & 0x7C00) >> 10);  // R
-                        *(pOut + img.pitch * i + j * 4 + 1) = ((color & 0x03E0) >> 5);   // G
-                        *(pOut + img.pitch * i + j * 4 + 2) = (color & 0x001F);          // B
-                        *(pOut + img.pitch * i + j * 4 + 3) = 0xFF;                      // A
+                        *(pOut + img.pitch * i + j * 3)     = ((color & 0x7C00) >> 10);  // R
+                        *(pOut + img.pitch * i + j * 3 + 1) = ((color & 0x03E0) >> 5);   // G
+                        *(pOut + img.pitch * i + j * 3 + 2) = (color & 0x001F);          // B
                     } break;
                     case 16: {
+                        assert(alpha_depth == 1);
                         uint16_t color = *(uint16_t *)pData;
                         pData += 2;
                         *(pOut + img.pitch * i + j * 4)     = ((color & 0x7C00) >> 10);          // R
@@ -93,23 +94,17 @@ class TgaParser : implements ImageParser {
                         *(pOut + img.pitch * i + j * 4 + 3) = ((color & 0x8000) ? 0xFF : 0x00);  // A
                     } break;
                     case 24: {
-                        *(pOut + img.pitch * i + j * 4) = *pData;  // R
-                        pData++;
-                        *(pOut + img.pitch * i + j * 4 + 1) = *pData;  // G
-                        pData++;
-                        *(pOut + img.pitch * i + j * 4 + 2) = *pData;  // B
-                        pData++;
-                        *(pOut + img.pitch * i + j * 4 + 3) = 0xFF;  // A
+                        assert(alpha_depth == 0);
+                        *(pOut + img.pitch * i + j * 3 + 2) = *pData++;  // B
+                        *(pOut + img.pitch * i + j * 3 + 1) = *pData++;  // G
+                        *(pOut + img.pitch * i + j * 3)     = *pData++;  // R
                     } break;
                     case 32: {
-                        *(pOut + img.pitch * i + j * 4) = *pData;  // R
-                        pData++;
-                        *(pOut + img.pitch * i + j * 4 + 1) = *pData;  // G
-                        pData++;
-                        *(pOut + img.pitch * i + j * 4 + 2) = *pData;  // B
-                        pData++;
-                        *(pOut + img.pitch * i + j * 4 + 3) = *pData;  // A
-                        pData++;
+                        assert(alpha_depth == 8);
+                        *(pOut + img.pitch * i + j * 4 + 3) = *pData++;  // A
+                        *(pOut + img.pitch * i + j * 4 + 2) = *pData++;  // B
+                        *(pOut + img.pitch * i + j * 4 + 1) = *pData++;  // G
+                        *(pOut + img.pitch * i + j * 4)     = *pData++;  // R
                     } break;
                     default:;
                 }
@@ -117,6 +112,11 @@ class TgaParser : implements ImageParser {
         }
 
         assert(pData <= pDataEnd);
+
+        img.mipmaps[0].Width     = img.Width;
+        img.mipmaps[0].Height    = img.Height;
+        img.mipmaps[0].offset    = 0;
+        img.mipmaps[0].data_size = img.data_size;
 
         return img;
     }

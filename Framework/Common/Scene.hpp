@@ -33,14 +33,14 @@ class Scene {
     Scene() {
         m_pDefaultMaterial = std::make_shared<SceneObjectMaterial>("default");
         SkyBox             = std::make_shared<SceneObjectSkyBox>();
-        SkyBox->SetName("Textures/sor_sea/sea", "jpg");
+        SkyBox->SetName("Textures/hdr/PaperMill", "dds");
     }
 
     Scene(const std::string &scene_name)
         : SceneGraph(new BaseSceneNode(scene_name)) {
         m_pDefaultMaterial = std::make_shared<SceneObjectMaterial>("default");
         SkyBox             = std::make_shared<SceneObjectSkyBox>();
-        SkyBox->SetName("Textures/sor_sea/sea", "jpg");
+        SkyBox->SetName("Textures/hdr/PaperMill", "dds");
     }
 
     ~Scene() = default;

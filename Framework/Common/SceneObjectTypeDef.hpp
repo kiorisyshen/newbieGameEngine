@@ -22,7 +22,8 @@ ENUM(SceneObjectType){
     kSceneObjectTypeRotate        = "ROTA"_i32,
     kSceneObjectTypeScale         = "SCAL"_i32,
     kSceneObjectTypeTrack         = "TRAC"_i32,
-    kSceneObjectTypeSkyBox        = "SKYB"_i32};
+    kSceneObjectTypeSkyBox        = "SKYB"_i32,
+    kSceneObjectTypeTerrain       = "TERN"_i32};
 
 ENUM(SceneObjectCollisionType){
     kSceneObjectCollisionTypeNone        = "CNON"_i32,

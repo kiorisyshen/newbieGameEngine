@@ -1,7 +1,8 @@
-#include "BaseApplication.hpp"
 #ifdef __OBJC__
 #include <Cocoa/Cocoa.h>
 #endif
+
+#include "BaseApplication.hpp"
 
 namespace newbieGE {
 class CocoaApplication : public BaseApplication {
@@ -13,7 +14,7 @@ class CocoaApplication : public BaseApplication {
     virtual void Finalize();
     // One cycle of the main loop
     virtual void Tick();
-    
+
 #ifdef __OBJC__
     NSWindow *GetWindowRef();
     NSWindow *GetWindow();

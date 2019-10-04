@@ -49,6 +49,7 @@ struct ShaderState {
     std::unordered_map<int32_t, ShaderState> _renderPassStates;
 
     int32_t _skyboxTexIndex;
+    int32_t _brdfLutIndex;
 }
 
 - (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view;
@@ -478,6 +479,10 @@ struct ShaderState {
                             indexBufferOffset:0];
     }
     [_renderEncoder popDebugGroup];
+}
+
+- (void)drawBatchPBR:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches {
+    // TODO: implement pbr rendering
 }
 
 - (void)buildCubeVPsFromLight:(const Light &)light
@@ -986,6 +991,46 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
 
     // Finalize rendering here & push the command buffer to the GPU
     [_computeCommandBuffer commit];
+}
+
+- (int32_t)generateAndBindTextureForWrite:(const uint32_t)width
+                                   height:(const uint32_t)height
+                                  atIndex:(const uint32_t)atIndex {
+    id<MTLTexture> texture;
+    MTLTextureDescriptor *textureDesc = [[MTLTextureDescriptor alloc] init];
+
+    textureDesc.pixelFormat = MTLPixelFormatRG32Float;
+    textureDesc.width       = width;
+    textureDesc.height      = height;
+    textureDesc.usage       = MTLTextureUsageShaderRead | MTLTextureUsageShaderWrite;
+
+    // create the texture obj
+    texture = [_device newTextureWithDescriptor:textureDesc];
+
+    _brdfLutIndex = _textures.size();
+    _textures.push_back(texture);
+
+    [_computeEncoder setTexture:texture
+                        atIndex:atIndex];
+
+    return _brdfLutIndex;
+}
+
+- (void)dispatch:(const uint32_t)width
+          height:(const uint32_t)height
+           depth:(const uint32_t)depth {
+    // Set the compute kernel's threadgroup size of 16x16
+    MTLSize threadgroupSize = MTLSizeMake(1, 1, 1);
+    MTLSize threadgroupCount;
+
+    // Calculate the number of rows and columns of threadgroups given the width of the input image
+    // Ensure that you cover the entire image (or more) so you process every pixel
+    threadgroupCount.width  = (width + threadgroupSize.width - 1) / threadgroupSize.width;
+    threadgroupCount.height = (height + threadgroupSize.height - 1) / threadgroupSize.height;
+    threadgroupCount.depth  = (depth + threadgroupSize.depth - 1) / threadgroupSize.depth;
+
+    [_computeEncoder dispatchThreadgroups:threadgroupCount
+                    threadsPerThreadgroup:threadgroupSize];
 }
 
 #ifdef DEBUG

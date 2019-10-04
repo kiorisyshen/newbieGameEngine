@@ -12,52 +12,75 @@ class SceneObjectSkyBox : public BaseSceneObject {
     void SetName(const char *prefix, const char *ext_name) {
         char filename[2048];
         const char fmt[] = "%s_%s.%s";
+        uint32_t index   = 0;
 
-        std::sprintf(filename, fmt, prefix, "rt", ext_name);
-        m_Textures[0].SetName(filename);
+        //////////////////
+        // Sky Box
+        std::sprintf(filename, fmt, prefix, "posx", ext_name);
+        m_Textures[index++].SetName(filename);
 
-        std::sprintf(filename, fmt, prefix, "lf", ext_name);
-        m_Textures[1].SetName(filename);
+        std::sprintf(filename, fmt, prefix, "negx", ext_name);
+        m_Textures[index++].SetName(filename);
 
-        // we need exchange front and back when using cubemap
-        // as skybox
-        std::sprintf(filename, fmt, prefix, "bk", ext_name);
-        m_Textures[2].SetName(filename);
+        std::sprintf(filename, fmt, prefix, "posy", ext_name);
+        m_Textures[index++].SetName(filename);
 
-        std::sprintf(filename, fmt, prefix, "ft", ext_name);
-        m_Textures[3].SetName(filename);
+        std::sprintf(filename, fmt, prefix, "negy", ext_name);
+        m_Textures[index++].SetName(filename);
 
-        std::sprintf(filename, fmt, prefix, "up", ext_name);
-        m_Textures[4].SetName(filename);
+        std::sprintf(filename, fmt, prefix, "posz", ext_name);
+        m_Textures[index++].SetName(filename);
 
-        std::sprintf(filename, fmt, prefix, "dn", ext_name);
-        m_Textures[5].SetName(filename);
+        std::sprintf(filename, fmt, prefix, "negz", ext_name);
+        m_Textures[index++].SetName(filename);
+
+        //////////////////
+        // Irradiance Map
+        std::sprintf(filename, fmt, prefix, "irradiance_posx", ext_name);
+        m_Textures[index++].SetName(filename);
+
+        std::sprintf(filename, fmt, prefix, "irradiance_negx", ext_name);
+        m_Textures[index++].SetName(filename);
+
+        std::sprintf(filename, fmt, prefix, "irradiance_posy", ext_name);
+        m_Textures[index++].SetName(filename);
+
+        std::sprintf(filename, fmt, prefix, "irradiance_negy", ext_name);
+        m_Textures[index++].SetName(filename);
+
+        std::sprintf(filename, fmt, prefix, "irradiance_posz", ext_name);
+        m_Textures[index++].SetName(filename);
+
+        std::sprintf(filename, fmt, prefix, "irradiance_negz", ext_name);
+        m_Textures[index++].SetName(filename);
+
+        //////////////////
+        // Radiance Map
+        std::sprintf(filename, fmt, prefix, "radiance_posx", ext_name);
+        m_Textures[index++].SetName(filename);
+
+        std::sprintf(filename, fmt, prefix, "radiance_negx", ext_name);
+        m_Textures[index++].SetName(filename);
+
+        std::sprintf(filename, fmt, prefix, "radiance_posy", ext_name);
+        m_Textures[index++].SetName(filename);
+
+        std::sprintf(filename, fmt, prefix, "radiance_negy", ext_name);
+        m_Textures[index++].SetName(filename);
+
+        std::sprintf(filename, fmt, prefix, "radiance_posz", ext_name);
+        m_Textures[index++].SetName(filename);
+
+        std::sprintf(filename, fmt, prefix, "radiance_negz", ext_name);
+        m_Textures[index++].SetName(filename);
     }
 
-    inline SceneObjectTexture &GetRightTexture() {
-        return m_Textures[0];
-    }
-    inline SceneObjectTexture &GetLeftTexture() {
-        return m_Textures[1];
-    }
-    inline SceneObjectTexture &GetFrontTexture() {
-        return m_Textures[2];
-    }
-    inline SceneObjectTexture &GetBackTexture() {
-        return m_Textures[3];
-    }
-    inline SceneObjectTexture &GetTopTexture() {
-        return m_Textures[4];
-    }
-    inline SceneObjectTexture &GetBottomTexture() {
-        return m_Textures[5];
-    }
     inline SceneObjectTexture &GetTexture(uint32_t index) {
-        assert(index < 6);
+        assert(index < 18);
         return m_Textures[index];
     }
 
    private:
-    SceneObjectTexture m_Textures[6];
+    SceneObjectTexture m_Textures[18];
 };
 }  // namespace newbieGE

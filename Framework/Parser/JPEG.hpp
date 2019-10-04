@@ -609,6 +609,11 @@ class JfifParser : implements ImageParser {
             std::cout << "File is not a JPEG file!" << std::endl;
         }
 
+        img.mipmaps[0].Width     = img.Width;
+        img.mipmaps[0].Height    = img.Height;
+        img.mipmaps[0].offset    = 0;
+        img.mipmaps[0].data_size = img.data_size;
+
         return img;
     }
 };

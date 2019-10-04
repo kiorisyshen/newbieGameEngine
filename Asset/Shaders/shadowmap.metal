@@ -43,9 +43,6 @@ struct PerFrameConstants {
 
 struct PerBatchConstants {
     float4x4 objectLocalMatrix;  // 64 bytes
-    float4 diffuseColor;         // 16 bytes
-    float4 specularColor;        // 16 bytes
-    float specularPower;         // 4 bytes
 };
 
 vertex ShadowOutput shadow2D_vert_main(ShadowInput in [[stage_in]],
