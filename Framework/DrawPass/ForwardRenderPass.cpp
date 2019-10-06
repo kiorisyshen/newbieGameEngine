@@ -11,8 +11,8 @@ void ForwardRenderPass::Draw(Frame &frame) {
     g_pGraphicsManager->SetSkyBox(frame.frameContext);
     g_pGraphicsManager->DrawSkyBox();
 
-    g_pGraphicsManager->UseShaderProgram(DefaultShaderIndex::BasicShader);
-    g_pGraphicsManager->DrawBatch(frame.batchContext);
+    g_pGraphicsManager->UseShaderProgram(DefaultShaderIndex::PbrShader);
+    g_pGraphicsManager->DrawBatchPBR(frame.batchContext);
 
 #ifdef DEBUG
     if (g_pGraphicsManager->DEBUG_IsShowDebug()) {

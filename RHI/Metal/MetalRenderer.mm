@@ -79,6 +79,7 @@ struct ShaderState {
 
     MTLVertexDescriptor *mtlVertexDescriptor        = [[MTLVertexDescriptor alloc] init];
     MTLVertexDescriptor *mtlPosOnlyVertexDescriptor = [[MTLVertexDescriptor alloc] init];
+    MTLVertexDescriptor *mtlPbrVertexDescriptor     = [[MTLVertexDescriptor alloc] init];
     // --------------
     // Basic shaders
     {
@@ -256,6 +257,101 @@ struct ShaderState {
     }
     // --------------
 
+    // --------------
+    // BRDF LUT shaders
+    {
+        // Create BRDF LUT pipeline state
+        id<MTLFunction> brdfKernelFunction = [myLibrary newFunctionWithName:@"integrateBRDF_comp_main"];
+
+        _computePipelineState = [_device newComputePipelineStateWithFunction:brdfKernelFunction error:&error];
+        if (!_computePipelineState) {
+            NSLog(@"Failed to created BRDF compute pipeline state, error %@", error);
+            assert(0);
+        }
+    }
+    // --------------
+
+    // --------------
+    // PBR shaders
+    {
+        // Create PBR pipeline state
+        id<MTLFunction> vertexFunction   = [myLibrary newFunctionWithName:@"pbr_vert_main"];
+        id<MTLFunction> fragmentFunction = [myLibrary newFunctionWithName:@"pbr_frag_main"];
+
+        // Positions.
+        mtlPbrVertexDescriptor.attributes[VertexAttribute::VertexAttributePosition].format      = MTLVertexFormatFloat3;
+        mtlPbrVertexDescriptor.attributes[VertexAttribute::VertexAttributePosition].offset      = 0;
+        mtlPbrVertexDescriptor.attributes[VertexAttribute::VertexAttributePosition].bufferIndex = VertexAttribute::VertexAttributePosition;
+
+        // Texture coordinates.
+        mtlPbrVertexDescriptor.attributes[VertexAttribute::VertexAttributeTexcoord].format      = MTLVertexFormatFloat2;
+        mtlPbrVertexDescriptor.attributes[VertexAttribute::VertexAttributeTexcoord].offset      = 0;
+        mtlPbrVertexDescriptor.attributes[VertexAttribute::VertexAttributeTexcoord].bufferIndex = VertexAttribute::VertexAttributeTexcoord;
+
+        // Normals.
+        mtlPbrVertexDescriptor.attributes[VertexAttribute::VertexAttributeNormal].format      = MTLVertexFormatFloat3;
+        mtlPbrVertexDescriptor.attributes[VertexAttribute::VertexAttributeNormal].offset      = 0;
+        mtlPbrVertexDescriptor.attributes[VertexAttribute::VertexAttributeNormal].bufferIndex = VertexAttribute::VertexAttributeNormal;
+
+        // Tangents
+        mtlPbrVertexDescriptor.attributes[VertexAttribute::VertexAttributeTangent].format      = MTLVertexFormatFloat3;
+        mtlPbrVertexDescriptor.attributes[VertexAttribute::VertexAttributeTangent].offset      = 0;
+        mtlPbrVertexDescriptor.attributes[VertexAttribute::VertexAttributeTangent].bufferIndex = VertexAttribute::VertexAttributeTangent;
+
+        // Bitangents
+        mtlPbrVertexDescriptor.attributes[VertexAttribute::VertexAttributeBitangent].format      = MTLVertexFormatFloat3;
+        mtlPbrVertexDescriptor.attributes[VertexAttribute::VertexAttributeBitangent].offset      = 0;
+        mtlPbrVertexDescriptor.attributes[VertexAttribute::VertexAttributeBitangent].bufferIndex = VertexAttribute::VertexAttributeBitangent;
+
+        // Position Buffer Layout
+        mtlPbrVertexDescriptor.layouts[VertexAttribute::VertexAttributePosition].stride       = 12;
+        mtlPbrVertexDescriptor.layouts[VertexAttribute::VertexAttributePosition].stepRate     = 1;
+        mtlPbrVertexDescriptor.layouts[VertexAttribute::VertexAttributePosition].stepFunction = MTLVertexStepFunctionPerVertex;
+
+        // UV Buffer Layout
+        mtlPbrVertexDescriptor.layouts[VertexAttribute::VertexAttributeTexcoord].stride       = 8;
+        mtlPbrVertexDescriptor.layouts[VertexAttribute::VertexAttributeTexcoord].stepRate     = 1;
+        mtlPbrVertexDescriptor.layouts[VertexAttribute::VertexAttributeTexcoord].stepFunction = MTLVertexStepFunctionPerVertex;
+
+        // Normal Buffer Layout
+        mtlPbrVertexDescriptor.layouts[VertexAttribute::VertexAttributeNormal].stride       = 12;
+        mtlPbrVertexDescriptor.layouts[VertexAttribute::VertexAttributeNormal].stepRate     = 1;
+        mtlPbrVertexDescriptor.layouts[VertexAttribute::VertexAttributeNormal].stepFunction = MTLVertexStepFunctionPerVertex;
+
+        // Tangent Buffer Layout
+        // mtlPbrVertexDescriptor.layouts[VertexAttribute::VertexAttributeTangent].stride = 12;
+        // mtlPbrVertexDescriptor.layouts[VertexAttribute::VertexAttributeTangent].stepRate = 1;
+        // mtlPbrVertexDescriptor.layouts[VertexAttribute::VertexAttributeTangent].stepFunction = MTLVertexStepFunctionPerVertex;
+
+        // // Bitangent Buffer Layout
+        // mtlPbrVertexDescriptor.layouts[VertexAttribute::VertexAttributeBitangent].stride = 12;
+        // mtlPbrVertexDescriptor.layouts[VertexAttribute::VertexAttributeBitangent].stepRate = 1;
+        // mtlPbrVertexDescriptor.layouts[VertexAttribute::VertexAttributeBitangent].stepFunction = MTLVertexStepFunctionPerVertex;
+
+        MTLRenderPipelineDescriptor *pipelineStateDescriptor    = [[MTLRenderPipelineDescriptor alloc] init];
+        pipelineStateDescriptor.label                           = @"PBR Pipeline";
+        pipelineStateDescriptor.sampleCount                     = _mtkView.sampleCount;
+        pipelineStateDescriptor.vertexFunction                  = vertexFunction;
+        pipelineStateDescriptor.fragmentFunction                = fragmentFunction;
+        pipelineStateDescriptor.vertexDescriptor                = mtlPbrVertexDescriptor;
+        pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
+        pipelineStateDescriptor.depthAttachmentPixelFormat      = _mtkView.depthStencilPixelFormat;
+
+        ShaderState pbrSS;
+        pbrSS.pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
+        if (!pbrSS.pipelineState) {
+            NSLog(@"Failed to created pipeline state, error %@", error);
+            assert(0);
+        }
+
+        MTLDepthStencilDescriptor *pbrDepthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
+        pbrDepthStateDesc.depthCompareFunction       = MTLCompareFunctionLess;
+        pbrDepthStateDesc.depthWriteEnabled          = YES;
+        pbrSS.depthStencilState                      = [_device newDepthStencilStateWithDescriptor:pbrDepthStateDesc];
+
+        _renderPassStates[(int32_t)DefaultShaderIndex::PbrShader] = pbrSS;
+    }
+    // --------------
 #ifdef DEBUG
     // --------------
     // Debug shaders

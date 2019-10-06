@@ -188,8 +188,7 @@ void MetalGraphicsManager::InitializeBuffers(const Scene &scene) {
             auto material_key   = pGeometryNode->GetMaterialRef(material_index);
             auto material       = scene.GetMaterial(material_key);
 
-            auto dbc           = make_shared<MtlDrawBatchContext>();
-            int32_t texture_id = -1;
+            auto dbc = make_shared<MtlDrawBatchContext>();
             if (material) {
                 if (auto &texture = material->GetBaseColor().ValueMap) {
                     int32_t texture_id;

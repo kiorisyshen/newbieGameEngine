@@ -4,7 +4,10 @@ if(APPLE)
         debugInfo
         shadowmap
         texture2dOverlay
-        skybox)
+        skybox
+        integrateBRDF.comp
+        pbr.vert
+        pbr.frag)
     foreach(SHADER
             IN
             LISTS
