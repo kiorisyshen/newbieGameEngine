@@ -14,9 +14,13 @@ class MetalGraphicsManager : public GraphicsManager {
     int Initialize() final;
     void Finalize() final;
 
-    void SetRenderer(MetalRenderer *renderer) {
-        m_pRenderer = renderer;
-    }
+    MetalRenderer *GetRendererRef();
+
+    MetalRenderer *GetRenderer();
+
+    void SetRenderer(MetalRenderer *renderer);
+
+    void SetRenderer(void *renderer);
 
     void UseShaderProgram(const DefaultShaderIndex idx) final;
 
@@ -76,7 +80,8 @@ class MetalGraphicsManager : public GraphicsManager {
     void InitializeBuffers(const Scene &scene);
     void initializeSkyBox(const Scene &scene);
 
-    MetalRenderer *m_pRenderer;
+    // MetalRenderer *m_pRenderer;
+    void *m_pRenderer;
 };
 
 }  // namespace newbieGE
