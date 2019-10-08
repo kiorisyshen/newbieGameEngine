@@ -35,9 +35,6 @@ struct PerFrameConstants {
     float4x4 projectionMatrix;  // 64 bytes
     float4 ambientColor;        // 16 bytes
     int numLights;              // 4 bytes
-    int32_t shadowMap;          // 4 bytes
-    int32_t cubeShadowMap;      // 4 bytes
-    int32_t globalShadowMap;    // 4 bytes
 };
 
 struct PerBatchConstants {
@@ -306,14 +303,23 @@ float3 apply_light(constant Light &light, thread const basic_vert_main_out &in, 
 
     // shadow test
     float visibility = 1.0;
-    if (pfc.shadowMap > -1) {
-        visibility *= shadow_test(light, in.v_world, cosTheta, shadowMap);
-    }
-    if (pfc.globalShadowMap > -1) {
-        visibility *= shadow_test(light, in.v_world, cosTheta, globalShadowMap);
-    }
-    if (pfc.cubeShadowMap > -1) {
-        visibility *= shadow_test(light, in.v_world, cosTheta, cubeShadowMap);
+    switch (light.lightType) {
+        case 0: {
+            visibility *= shadow_test(light, in.v_world, cosTheta, cubeShadowMap);
+            break;
+        }
+        case 1: {
+            visibility *= shadow_test(light, in.v_world, cosTheta, shadowMap);
+            break;
+        }
+        case 2: {
+            visibility *= shadow_test(light, in.v_world, cosTheta, shadowMap);
+            break;
+        }
+        case 3: {
+            visibility *= shadow_test(light, in.v_world, cosTheta, globalShadowMap);
+            break;
+        }
     }
 
     int param_1 = light.lightAngleAttenCurveType;

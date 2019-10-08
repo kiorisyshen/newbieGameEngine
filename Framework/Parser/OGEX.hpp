@@ -48,6 +48,8 @@ class OgexParser : implements SceneParser {
                 _node->SetIfCastShadow(_structure.GetShadowFlag());
                 _node->SetIfMotionBlur(_structure.GetMotionBlurFlag());
 
+                scene.GeometryNodes.emplace(_key, _node);
+
                 // ref scene objects
                 _key = _structure.GetObjectStructure()->GetStructureName();
                 _node->AddSceneObjectRef(_key);
@@ -63,7 +65,6 @@ class OgexParser : implements SceneParser {
 
                 std::string name = _structure.GetNodeName();
                 scene.LUT_Name_GeometryNode.emplace(name, _node);
-                scene.GeometryNodes.emplace(_key, _node);
 
                 node = _node;
             } break;

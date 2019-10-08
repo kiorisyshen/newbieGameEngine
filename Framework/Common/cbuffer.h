@@ -68,6 +68,9 @@ struct frame_textures {
     std::vector<Light *> cubeShadowMapLight;
     std::vector<Light *> globalShadowMapLight;
     int32_t skybox = -1;
+    int32_t shadowMap;        // 4 bytes
+    int32_t cubeShadowMap;    // 4 bytes
+    int32_t globalShadowMap;  // 4 bytes
 };
 
 // Align for metal
@@ -77,9 +80,6 @@ struct PerFrameConstants REGISTER(b10) {
     Matrix4X4f projectionMatrix;  // 64 bytes
     Vector4f ambientColor;        // 16 bytes
     int32_t numLights;            // 4 bytes
-    int32_t shadowMap;            // 4 bytes
-    int32_t cubeShadowMap;        // 4 bytes
-    int32_t globalShadowMap;      // 4 bytes
 };
 
 struct PerBatchConstants REGISTER(b11) {

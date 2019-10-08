@@ -7,6 +7,8 @@ enum VertexAttribute : unsigned long {
     VertexAttributePosition = 0,
     VertexAttributeNormal,
     VertexAttributeTexcoord,
+    // VertexAttributeTangent,
+    // VertexAttributeBitangent,
 };
 
 class SceneObjectVertexArray {

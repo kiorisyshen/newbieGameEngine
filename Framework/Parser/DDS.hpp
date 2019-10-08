@@ -214,11 +214,13 @@ class DdsParser : implements ImageParser {
                     case MY_D3DFMT::D3DFMT_A16B16G16R16F:
                         std::cerr << "D3DFMT_A16B16G16R16F" << std::endl;
                         img.compressed = false;
+                        img.is_float   = true;
                         assert(img.bitcount == 64);
                         break;
                     case MY_D3DFMT::D3DFMT_A32B32G32R32F:
                         std::cerr << "D3DFMT_A32B32G32R32F" << std::endl;
                         img.compressed = false;
+                        img.is_float   = true;
                         assert(img.bitcount == 128);
                         break;
                     default:
@@ -266,6 +268,7 @@ class DdsParser : implements ImageParser {
 
             img.mipmaps[0].Width     = img.Width;
             img.mipmaps[0].Height    = img.Height;
+            img.mipmaps[0].pitch     = img.pitch;
             img.mipmaps[0].offset    = 0;
             img.mipmaps[0].data_size = img.data_size;
 
@@ -278,6 +281,7 @@ class DdsParser : implements ImageParser {
                         auto pitch               = std::max(1u, (ALIGN(width, 4)) >> 2) * img.bitcount * 2;  //  img.bitcount / 8 * 16
                         img.mipmaps[i].Width     = width;
                         img.mipmaps[i].Height    = height;
+                        img.mipmaps[i].pitch     = pitch;
                         img.mipmaps[i].data_size = pitch * (ALIGN(height, 4) >> 2);
                         img.mipmaps[i].offset    = img.data_size;
                         img.data_size += img.mipmaps[i].data_size;
@@ -295,6 +299,7 @@ class DdsParser : implements ImageParser {
 
             img.mipmaps[0].Width     = img.Width;
             img.mipmaps[0].Height    = img.Height;
+            img.mipmaps[0].pitch     = img.pitch;
             img.mipmaps[0].offset    = 0;
             img.mipmaps[0].data_size = img.data_size;
 
@@ -307,6 +312,7 @@ class DdsParser : implements ImageParser {
                         auto pitch               = ALIGN(width * img.bitcount, 8) / 8;
                         img.mipmaps[i].Width     = width;
                         img.mipmaps[i].Height    = height;
+                        img.mipmaps[i].pitch     = pitch;
                         img.mipmaps[i].data_size = pitch * height;
                         img.mipmaps[i].offset    = img.data_size;
                         img.data_size += img.mipmaps[i].data_size;
