@@ -1,13 +1,12 @@
 if(APPLE)
     set(SHADER_SOURCES
-        basic
+        # basic
         debugInfo
         shadowmap
         texture2dOverlay
         skybox
         integrateBRDF.comp
-        pbr.vert
-        pbr.frag)
+        pbr)
     foreach(SHADER
             IN
             LISTS

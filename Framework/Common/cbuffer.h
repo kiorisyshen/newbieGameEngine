@@ -78,7 +78,7 @@ struct PerFrameConstants REGISTER(b10) {
     Matrix4X4f worldMatrix;       // 64 bytes
     Matrix4X4f viewMatrix;        // 64 bytes
     Matrix4X4f projectionMatrix;  // 64 bytes
-    Vector4f ambientColor;        // 16 bytes
+    Vector4f m_camPos;            // 16 bytes
     int32_t numLights;            // 4 bytes
 };
 

@@ -27,7 +27,7 @@ int GraphicsManager::Initialize() {
     }
 #endif
 
-    // m_InitPasses.push_back(make_shared<BRDFIntegrator>());
+    m_InitPasses.push_back(make_shared<BRDFIntegrator>());
 
     m_DrawPasses.push_back(make_shared<ShadowMapPass>());
     m_DrawPasses.push_back(make_shared<ForwardRenderPass>());
@@ -103,7 +103,9 @@ void GraphicsManager::CalculateCameraMatrix() {
     DrawFrameContext &frameContext = m_Frames[m_nFrameIndex].frameContext;
 
     if (pCameraNode) {
-        frameContext.viewMatrix = *pCameraNode->GetCalculatedTransform();
+        auto transform          = *pCameraNode->GetCalculatedTransform();
+        frameContext.m_camPos   = Vector4f({transform[3][0], transform[3][1], transform[3][2], 1.0f});
+        frameContext.viewMatrix = transform;
         InverseMatrix4X4f(frameContext.viewMatrix);
     } else {
         // use default build-in camera
@@ -136,7 +138,7 @@ void GraphicsManager::CalculateLights() {
     DrawFrameContext &frameContext = m_Frames[m_nFrameIndex].frameContext;
     LightInfo &light_info          = m_Frames[m_nFrameIndex].lightInfo;
 
-    frameContext.ambientColor = {0.01f, 0.01f, 0.01f, 1.0f};
+    // frameContext.ambientColor = {0.01f, 0.01f, 0.01f, 1.0f};
     frameContext.numLights    = 0;
 
     auto &scene = g_pSceneManager->GetSceneForRendering();

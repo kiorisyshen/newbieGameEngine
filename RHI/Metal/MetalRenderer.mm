@@ -137,37 +137,37 @@ struct ShaderState {
     // --------------
     // Basic shaders
     {
-        id<MTLFunction> vertexFunction   = [myLibrary newFunctionWithName:@"basic_vert_main"];
-        id<MTLFunction> fragmentFunction = [myLibrary newFunctionWithName:@"basic_frag_main"];
-
-        MTLRenderPipelineDescriptor *pipelineStateDescriptor    = [[MTLRenderPipelineDescriptor alloc] init];
-        pipelineStateDescriptor.label                           = @"Basic Pipeline";
-        pipelineStateDescriptor.sampleCount                     = _mtkView.sampleCount;
-        pipelineStateDescriptor.vertexFunction                  = vertexFunction;
-        pipelineStateDescriptor.fragmentFunction                = fragmentFunction;
-        pipelineStateDescriptor.vertexDescriptor                = mtlVertexDescriptor;
-        pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
-        pipelineStateDescriptor.depthAttachmentPixelFormat      = _mtkView.depthStencilPixelFormat;
-
-        ShaderState basicSS;
-        basicSS.pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
-        if (!basicSS.pipelineState) {
-            NSLog(@"Failed to created basic pipeline state, error %@", error);
-            succ = false;
-        }
-        MTLDepthStencilDescriptor *depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
-        depthStateDesc.depthCompareFunction       = MTLCompareFunctionLess;
-        depthStateDesc.depthWriteEnabled          = YES;
-        basicSS.depthStencilState                 = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
-
-        _renderPassStates[(int32_t)DefaultShaderIndex::BasicShader] = basicSS;
-
-        MTLRenderPassDescriptor *forwarRenderPassDescriptor = _mtkView.currentRenderPassDescriptor;
-        if (forwarRenderPassDescriptor != nil) {
-            forwarRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
-        }
-
-        _renderPassDescriptors[(int32_t)RenderPassIndex::ForwardPass] = forwarRenderPassDescriptor;
+//        id<MTLFunction> vertexFunction   = [myLibrary newFunctionWithName:@"basic_vert_main"];
+//        id<MTLFunction> fragmentFunction = [myLibrary newFunctionWithName:@"basic_frag_main"];
+//
+//        MTLRenderPipelineDescriptor *pipelineStateDescriptor    = [[MTLRenderPipelineDescriptor alloc] init];
+//        pipelineStateDescriptor.label                           = @"Basic Pipeline";
+//        pipelineStateDescriptor.sampleCount                     = _mtkView.sampleCount;
+//        pipelineStateDescriptor.vertexFunction                  = vertexFunction;
+//        pipelineStateDescriptor.fragmentFunction                = fragmentFunction;
+//        pipelineStateDescriptor.vertexDescriptor                = mtlVertexDescriptor;
+//        pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
+//        pipelineStateDescriptor.depthAttachmentPixelFormat      = _mtkView.depthStencilPixelFormat;
+//
+//        ShaderState basicSS;
+//        basicSS.pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
+//        if (!basicSS.pipelineState) {
+//            NSLog(@"Failed to created basic pipeline state, error %@", error);
+//            succ = false;
+//        }
+//        MTLDepthStencilDescriptor *depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
+//        depthStateDesc.depthCompareFunction       = MTLCompareFunctionLess;
+//        depthStateDesc.depthWriteEnabled          = YES;
+//        basicSS.depthStencilState                 = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
+//
+//        _renderPassStates[(int32_t)DefaultShaderIndex::BasicShader] = basicSS;
+//
+//        MTLRenderPassDescriptor *forwarRenderPassDescriptor = _mtkView.currentRenderPassDescriptor;
+//        if (forwarRenderPassDescriptor != nil) {
+//            forwarRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
+//        }
+//
+//        _renderPassDescriptors[(int32_t)RenderPassIndex::ForwardPass] = forwarRenderPassDescriptor;
     }
     // --------------
 

@@ -27,97 +27,146 @@ void MetalGraphicsManager::SetRenderer(void *renderer) {
 }
 
 int MetalGraphicsManager::Initialize() {
-    int result = GraphicsManager::Initialize();
-    [GetRendererRef() Initialize];
+    int result                 = GraphicsManager::Initialize();
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer Initialize];
+    SetRenderer(tmpRenderer);
+
     return result;
 }
 
 void MetalGraphicsManager::Finalize() {
     GraphicsManager::Finalize();
-    [GetRendererRef() Finalize];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer Finalize];
+    m_pRenderer = nullptr;
 }
 
 void MetalGraphicsManager::UseShaderProgram(const DefaultShaderIndex idx) {
-    [GetRendererRef() useShaderProgram:idx];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer useShaderProgram:idx];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) {
-    [GetRendererRef() drawBatch:batches];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer drawBatch:batches];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::DrawBatchPBR(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) {
-    [GetRendererRef() drawBatchPBR:batches];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer drawBatchPBR:batches];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::Dispatch(const uint32_t width, const uint32_t height, const uint32_t depth) {
-    [GetRendererRef() dispatch:width height:height depth:depth];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer dispatch:width height:height depth:depth];
+    SetRenderer(tmpRenderer);
 }
 
 int32_t MetalGraphicsManager::GenerateAndBindTextureForWrite(const char *id, const uint32_t slot_index, const uint32_t width, const uint32_t height) {
-    return [GetRendererRef() generateAndBindTextureForWrite:width height:height atIndex:slot_index];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    int32_t ret = [tmpRenderer generateAndBindTextureForWrite:width height:height atIndex:slot_index];
+    SetRenderer(tmpRenderer);
+    return ret;
 }
 
 void MetalGraphicsManager::DrawSkyBox() {
-    [GetRendererRef() drawSkyBox];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer drawSkyBox];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::DrawBatchDepthFromLight(const Light &light, const ShadowMapType type, const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) {
-    [GetRendererRef() drawBatchDepthFromLight:light shadowType:type withBatches:batches];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer drawBatchDepthFromLight:light shadowType:type withBatches:batches];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::BeginForwardPass() {
-    [GetRendererRef() beginForwardPass];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer beginForwardPass];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::EndForwardPass() {
-    [GetRendererRef() endForwardPass];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer endForwardPass];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::BeginHUDPass() {
-    [GetRendererRef() beginHUDPass];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer beginHUDPass];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::EndHUDPass() {
-    [GetRendererRef() endHUDPass];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer endHUDPass];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::BeginShadowPass(const int32_t shadowmap, const int32_t layerIndex) {
-    [GetRendererRef() beginShadowPass:shadowmap sliceIdx:layerIndex];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer beginShadowPass:shadowmap sliceIdx:layerIndex];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::EndShadowPass(const int32_t shadowmap, const int32_t layerIndex) {
-    [GetRendererRef() endShadowPass:shadowmap sliceIdx:layerIndex];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer endShadowPass:shadowmap sliceIdx:layerIndex];
+    SetRenderer(tmpRenderer);
 }
 
 int32_t MetalGraphicsManager::GenerateShadowMapArray(const ShadowMapType type, const uint32_t width, const uint32_t height, const uint32_t count) {
-    return [GetRendererRef() createDepthTextureArray:type width:width height:height count:count];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    int32_t ret = [tmpRenderer createDepthTextureArray:type width:width height:height count:count];
+    SetRenderer(tmpRenderer);
+    return ret;
 }
 
 void MetalGraphicsManager::DestroyShadowMaps() {
-    [GetRendererRef() destroyShadowMaps];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer destroyShadowMaps];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::SetShadowMaps(const Frame &frame) {
-    [GetRendererRef() setShadowMaps:frame];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer setShadowMaps:frame];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::SetLightInfo(const LightInfo &lightInfo) {
-    [GetRendererRef() setLightInfo:lightInfo];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer setLightInfo:lightInfo];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::SetSkyBox(const DrawFrameContext &context) {
-    [GetRendererRef() setSkyBox:context];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer setSkyBox:context];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::SetPerFrameConstants(const DrawFrameContext &context) {
-    [GetRendererRef() setPerFrameConstants:context];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer setPerFrameConstants:context];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::SetPerBatchConstants(const std::vector<std::shared_ptr<DrawBatchConstant>> &context) {
-    [GetRendererRef() setPerBatchConstants:context];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer setPerBatchConstants:context];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::InitializeBuffers(const Scene &scene) {
+    MetalRenderer *tmpRenderer = GetRenderer();
+    
     for (auto &frame : m_Frames) {
         frame.batchContext.clear();
     }
@@ -147,7 +196,7 @@ void MetalGraphicsManager::InitializeBuffers(const Scene &scene) {
         for (decltype(vertexPropertiesCount) i = 0; i < vertexPropertiesCount; i++) {
             const SceneObjectVertexArray &v_property_array = pMesh->GetVertexPropertyArray(i);
 
-            [GetRendererRef() createVertexBuffer:v_property_array];
+            [tmpRenderer createVertexBuffer:v_property_array];
         }
 
         // -- For index --
@@ -178,7 +227,7 @@ void MetalGraphicsManager::InitializeBuffers(const Scene &scene) {
         auto indexGroupCount = pMesh->GetIndexGroupCount();
         for (decltype(indexGroupCount) i = 0; i < indexGroupCount; i++) {
             const SceneObjectIndexArray &index_array = pMesh->GetIndexArray(i);
-            [GetRendererRef() createIndexBuffer:index_array];
+            [tmpRenderer createIndexBuffer:index_array];
 
             MTLIndexType type;
             switch (index_array.GetIndexType()) {
@@ -209,7 +258,7 @@ void MetalGraphicsManager::InitializeBuffers(const Scene &scene) {
                 if (auto &texture = material->GetBaseColor().ValueMap) {
                     int32_t texture_id;
                     const Image &image = *texture->GetTextureImage();
-                    texture_id         = [GetRendererRef() createTexture:image];
+                    texture_id         = [tmpRenderer createTexture:image];
 
                     dbc->material.diffuseMap = texture_id;
                 }
@@ -217,7 +266,7 @@ void MetalGraphicsManager::InitializeBuffers(const Scene &scene) {
                 if (auto &texture = material->GetNormal().ValueMap) {
                     int32_t texture_id;
                     const Image &image = *texture->GetTextureImage();
-                    texture_id         = [GetRendererRef() createTexture:image];
+                    texture_id         = [tmpRenderer createTexture:image];
 
                     dbc->material.normalMap = texture_id;
                 }
@@ -225,7 +274,7 @@ void MetalGraphicsManager::InitializeBuffers(const Scene &scene) {
                 if (auto &texture = material->GetMetallic().ValueMap) {
                     int32_t texture_id;
                     const Image &image = *texture->GetTextureImage();
-                    texture_id         = [GetRendererRef() createTexture:image];
+                    texture_id         = [tmpRenderer createTexture:image];
 
                     dbc->material.metallicMap = texture_id;
                 }
@@ -233,7 +282,7 @@ void MetalGraphicsManager::InitializeBuffers(const Scene &scene) {
                 if (auto &texture = material->GetRoughness().ValueMap) {
                     int32_t texture_id;
                     const Image &image = *texture->GetTextureImage();
-                    texture_id         = [GetRendererRef() createTexture:image];
+                    texture_id         = [tmpRenderer createTexture:image];
 
                     dbc->material.roughnessMap = texture_id;
                 }
@@ -241,7 +290,7 @@ void MetalGraphicsManager::InitializeBuffers(const Scene &scene) {
                 if (auto &texture = material->GetAO().ValueMap) {
                     int32_t texture_id;
                     const Image &image = *texture->GetTextureImage();
-                    texture_id         = [GetRendererRef() createTexture:image];
+                    texture_id         = [tmpRenderer createTexture:image];
 
                     dbc->material.aoMap = texture_id;
                 }
@@ -264,9 +313,12 @@ void MetalGraphicsManager::InitializeBuffers(const Scene &scene) {
 
         v_property_offset += vertexPropertiesCount;
     }
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::initializeSkyBox(const Scene &scene) {
+    MetalRenderer *tmpRenderer = GetRenderer();
+    
     if (scene.SkyBox) {
         std::vector<const std::shared_ptr<newbieGE::Image>> images;
         for (uint32_t i = 0; i < 18; i++) {
@@ -275,16 +327,20 @@ void MetalGraphicsManager::initializeSkyBox(const Scene &scene) {
             images.push_back(pImage);
         }
 
-        int32_t tex_index = [GetRendererRef() createSkyBox:images];
+        int32_t tex_index = [tmpRenderer createSkyBox:images];
 
         for (uint32_t i = 0; i < GfxConfiguration::kMaxInFlightFrameCount; i++) {
             m_Frames[i].frameContext.skybox = tex_index;
         }
     }
+    SetRenderer(tmpRenderer);
 }
 
 bool MetalGraphicsManager::InitializeShaders() {
-    return [GetRendererRef() InitializeShaders];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    bool ret = [tmpRenderer InitializeShaders];
+    SetRenderer(tmpRenderer);
+    return ret;
 }
 
 void MetalGraphicsManager::BeginScene(const Scene &scene) {
@@ -297,45 +353,63 @@ void MetalGraphicsManager::BeginScene(const Scene &scene) {
 }
 
 void MetalGraphicsManager::EndScene() {
+    MetalRenderer *tmpRenderer = GetRenderer();
     GraphicsManager::EndScene();
-    [GetRendererRef() endScene];
+    [tmpRenderer endScene];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::BeginFrame() {
-    [GetRendererRef() beginFrame];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer beginFrame];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::EndFrame() {
-    [GetRendererRef() endFrame];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer endFrame];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::BeginCompute() {
-    [GetRendererRef() beginCompute];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer beginCompute];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::EndCompute() {
-    [GetRendererRef() endCompute];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer endCompute];
+    SetRenderer(tmpRenderer);
 }
 
 #ifdef DEBUG
 void MetalGraphicsManager::DEBUG_SetBuffer() {
-    [GetRendererRef() DEBUG_SetBuffer:m_Frames[m_nFrameIndex].DEBUG_Batches];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer DEBUG_SetBuffer:m_Frames[m_nFrameIndex].DEBUG_Batches];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::DEBUG_ClearDebugBuffers() {
+    MetalRenderer *tmpRenderer = GetRenderer();
     GraphicsManager::DEBUG_ClearDebugBuffers();
 
-    [GetRendererRef() DEBUG_ClearDebugBuffers];
+    [tmpRenderer DEBUG_ClearDebugBuffers];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::DEBUG_DrawDebug() {
-    [GetRendererRef() DEBUG_DrawDebug:m_Frames[m_nFrameIndex].DEBUG_Batches];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer DEBUG_DrawDebug:m_Frames[m_nFrameIndex].DEBUG_Batches];
+    SetRenderer(tmpRenderer);
 }
 
 void MetalGraphicsManager::DEBUG_DrawOverlay(const int32_t shadowmap,
                                              const int32_t layerIndex,
                                              float vp_left, float vp_top,
                                              float vp_width, float vp_height) {
-    [GetRendererRef() DEBUG_DrawOverlay:shadowmap layerIndex:layerIndex left:vp_left top:vp_top width:vp_width height:vp_height];
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer DEBUG_DrawOverlay:shadowmap layerIndex:layerIndex left:vp_left top:vp_top width:vp_width height:vp_height];
+    SetRenderer(tmpRenderer);
 }
 #endif
