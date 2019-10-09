@@ -22,6 +22,14 @@ struct skybox_vert_in {
     float3 position [[attribute(0)]];
 };
 
+float3 exposure_tone_mapping(thread const float3 &color) {
+    return float3(1.0) - exp((-color) * 1.0);
+}
+
+float3 gamma_correction(thread const float3 &color) {
+    return pow(max(color, float3(0.0)), float3(0.4545454680919647216796875));
+}
+
 vertex skybox_vert_out skybox_vert_main(skybox_vert_in in [[stage_in]],
                                         constant PerFrameConstants &pfc [[buffer(10)]]) {
     skybox_vert_out out;
@@ -40,8 +48,9 @@ vertex skybox_vert_out skybox_vert_main(skybox_vert_in in [[stage_in]],
 }
 
 fragment float4 skybox_frag_main(skybox_vert_out in [[stage_in]],
-                                 texturecube<float> skyboxMap [[texture(10)]],
+                                 texturecube_array<float> skyboxMap [[texture(10)]],
                                  sampler samp0 [[sampler(0)]]) {
-    float4 outputColor = skyboxMap.sample(samp0, in.direction);
-    return outputColor;
+    float4 outputColor = skyboxMap.sample(samp0, in.direction, 0, level(0.0));
+    float3 procColor   = exposure_tone_mapping(outputColor.xyz);
+    return float4(gamma_correction(procColor.xyz), outputColor.w);
 }

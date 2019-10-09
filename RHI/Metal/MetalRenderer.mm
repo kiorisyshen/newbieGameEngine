@@ -892,14 +892,11 @@ struct ShaderState {
 //    return format;
 //}
 
-static MTLPixelFormat getMtlPixelFormat(const Image& img)
-{
+static MTLPixelFormat getMtlPixelFormat(const Image &img) {
     MTLPixelFormat format;
 
-    if (img.compressed)
-    {
-        switch (img.compress_format)
-        {
+    if (img.compressed) {
+        switch (img.compress_format) {
             case "DXT1"_u32:
                 format = MTLPixelFormatBC1_RGBA;
                 break;
@@ -912,42 +909,33 @@ static MTLPixelFormat getMtlPixelFormat(const Image& img)
             default:
                 assert(0);
         }
-    }
-    else
-    {
-        switch (img.bitcount)
-        {
-        case 8:
-            format = MTLPixelFormatR8Unorm;
-            break;
-        case 16:
-            format = MTLPixelFormatRG8Unorm;
-            break;
-        case 32:
-            format = MTLPixelFormatRGBA8Unorm;
-            break;
-        case 64:
-            if (img.is_float)
-            {
-                format = MTLPixelFormatRGBA16Float;
-            }
-            else
-            {
-                format = MTLPixelFormatRGBA16Unorm;
-            }
-            break;
-        case 128:
-            if (img.is_float)
-            {
-                format = MTLPixelFormatRGBA32Float;
-            }
-            else
-            {
-                format = MTLPixelFormatRGBA32Uint;
-            }
-            break;
-        default:
-            assert(0);
+    } else {
+        switch (img.bitcount) {
+            case 8:
+                format = MTLPixelFormatR8Unorm;
+                break;
+            case 16:
+                format = MTLPixelFormatRG8Unorm;
+                break;
+            case 32:
+                format = MTLPixelFormatRGBA8Unorm;
+                break;
+            case 64:
+                if (img.is_float) {
+                    format = MTLPixelFormatRGBA16Float;
+                } else {
+                    format = MTLPixelFormatRGBA16Unorm;
+                }
+                break;
+            case 128:
+                if (img.is_float) {
+                    format = MTLPixelFormatRGBA32Float;
+                } else {
+                    format = MTLPixelFormatRGBA32Uint;
+                }
+                break;
+            default:
+                assert(0);
         }
     }
 
@@ -983,20 +971,23 @@ static MTLPixelFormat getMtlPixelFormat(const Image& img)
 {
     id<MTLTexture> texture;
 
-    assert(images.size() == 6);  // 6 sky-cube
+    assert(images.size() == 18);  // 6 sky-cube + 6 irrandiance + 6 radiance
 
     MTLTextureDescriptor *textureDesc = [[MTLTextureDescriptor alloc] init];
 
-    textureDesc.textureType = MTLTextureTypeCube;
-    textureDesc.pixelFormat = getMtlPixelFormat(*images[0]);
-    textureDesc.width       = images[0]->Width;
-    textureDesc.height      = images[0]->Height;
+    textureDesc.textureType      = MTLTextureTypeCubeArray;
+    textureDesc.arrayLength      = 2;
+    textureDesc.pixelFormat      = getMtlPixelFormat(*images[0]);
+    textureDesc.width            = images[0]->Width;
+    textureDesc.height           = images[0]->Height;
+    textureDesc.mipmapLevelCount = std::max(images[16]->mipmap_count, 2U);
 
     // create the texture obj
     texture = [_device newTextureWithDescriptor:textureDesc];
 
     // now upload the skybox
     for (int32_t slice = 0; slice < 6; slice++) {
+        assert(images[slice]->mipmap_count == 1);
         MTLRegion region = {
             {0, 0, 0},                                        // MTLOrigin
             {images[slice]->Width, images[slice]->Height, 1}  // MTLSize
@@ -1008,6 +999,39 @@ static MTLPixelFormat getMtlPixelFormat(const Image& img)
                      withBytes:images[slice]->data
                    bytesPerRow:images[slice]->pitch
                  bytesPerImage:images[slice]->data_size];
+    }
+
+    // now upload the irradiance map as 2nd mip of skybox
+    for (int32_t slice = 6; slice < 12; slice++) {
+        assert(images[slice]->mipmap_count == 1);
+        MTLRegion region = {
+            {0, 0, 0},                                        // MTLOrigin
+            {images[slice]->Width, images[slice]->Height, 1}  // MTLSize
+        };
+
+        [texture replaceRegion:region
+                   mipmapLevel:1
+                         slice:slice - 6
+                     withBytes:images[slice]->data
+                   bytesPerRow:images[slice]->pitch
+                 bytesPerImage:images[slice]->data_size];
+    }
+
+    // now upload the radiance map 2nd cubemap
+    for (int32_t slice = 12; slice < 18; slice++) {
+        for (int32_t mip = 0; mip < images[slice]->mipmap_count; mip++) {
+            MTLRegion region = {
+                {0, 0, 0},                                                                  // MTLOrigin
+                {images[slice]->mipmaps[mip].Width, images[slice]->mipmaps[mip].Height, 1}  // MTLSize
+            };
+
+            [texture replaceRegion:region
+                       mipmapLevel:mip
+                             slice:slice - 6
+                         withBytes:images[slice]->data + images[slice]->mipmaps[mip].offset
+                       bytesPerRow:images[slice]->mipmaps[mip].pitch
+                     bytesPerImage:images[slice]->mipmaps[mip].data_size];
+        }
     }
 
     uint32_t index = _skyboxTextures.size();

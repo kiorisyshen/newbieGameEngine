@@ -269,7 +269,7 @@ void MetalGraphicsManager::InitializeBuffers(const Scene &scene) {
 void MetalGraphicsManager::initializeSkyBox(const Scene &scene) {
     if (scene.SkyBox) {
         std::vector<const std::shared_ptr<newbieGE::Image>> images;
-        for (uint32_t i = 0; i < 6; i++) {
+        for (uint32_t i = 0; i < 18; i++) {
             auto &texture      = scene.SkyBox->GetTexture(i);
             const auto &pImage = texture.GetTextureImage();
             images.push_back(pImage);
