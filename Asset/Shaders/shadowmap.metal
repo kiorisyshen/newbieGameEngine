@@ -20,6 +20,7 @@ struct ShadowInput {
     float3 inputPosition [[attribute(0)]];
     float3 inputNormal [[attribute(1)]];
     float2 inputUV [[attribute(2)]];
+    float3 inputTangent [[attribute(3)]];
 };
 
 struct CameraVP {

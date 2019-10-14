@@ -51,6 +51,11 @@ struct pbr_vert_main_out {
     float4 v [[user(locn2)]];
     float4 v_world [[user(locn3)]];
     float2 uv [[user(locn4)]];
+    float3 TBN_0 [[user(locn5)]];
+    float3 TBN_1 [[user(locn6)]];
+    float3 TBN_2 [[user(locn7)]];
+    // float3 v_tangent [[user(locn8)]];
+    // float3 camPos_tangent [[user(locn9)]];
     float4 gl_Position [[position]];
 };
 
@@ -58,6 +63,7 @@ struct pbr_vert_main_in {
     float3 inputPosition [[attribute(0)]];
     float3 inputNormal [[attribute(1)]];
     float2 inputUV [[attribute(2)]];
+    float3 inputTangent [[attribute(3)]];
 };
 
 // Implementation of an array copy function to cover GLSL's ability to copy an array via assignment.
@@ -261,8 +267,21 @@ vertex pbr_vert_main_out pbr_vert_main(pbr_vert_main_in in [[stage_in]], constan
 
     out.normal_world = normalize(transM * float4(in.inputNormal, 0.0f));
     out.normal       = normalize(pfc.viewMatrix * out.normal_world);
-    out.uv.x         = in.inputUV.x;
-    out.uv.y         = 1.0 - in.inputUV.y;
+
+    float3 tangent = normalize((transM * float4(in.inputTangent, 0.0)).xyz);
+    tangent        = normalize(tangent - (out.normal_world.xyz * dot(tangent, out.normal_world.xyz)));  // re-orthogonalize using Gram-Schmidt process
+
+    out.TBN_0 = tangent;
+    out.TBN_1 = cross(out.normal_world.xyz, tangent);
+    out.TBN_2 = out.normal_world.xyz;
+
+    // float3x3 TBN = float3x3(float3(tangent), float3(bitangent), float3(out.normal_world.xyz));
+    // float3x3 TBN_trans = transpose(TBN);
+    // out.v_tangent      = TBN_trans * out.v_world.xyz;
+    // out.camPos_tangent = TBN_trans * pfc.camPos.xyz;
+
+    out.uv.x = in.inputUV.x;
+    out.uv.y = 1.0 - in.inputUV.y;
     return out;
 }
 
@@ -283,14 +302,21 @@ fragment float4 pbr_frag_main(pbr_vert_main_out in [[stage_in]],
     // pbr_frag_main_out out = {};
     float3 outColor = float3(0.0f);
 
-    float3 param  = diffuseMap.sample(samp0, in.uv).xyz;
-    float3 albedo = inverse_gamma_correction(param);
-    float meta    = metallicMap.sample(samp0, in.uv).x;
-    float rough   = roughnessMap.sample(samp0, in.uv).x;
-    float3 F0     = float3(0.04);
-    F0            = mix(F0, albedo, meta);
+    float3 param          = diffuseMap.sample(samp0, in.uv).xyz;
+    float3 albedo         = inverse_gamma_correction(param);
+    float meta            = metallicMap.sample(samp0, in.uv).x;
+    float rough           = roughnessMap.sample(samp0, in.uv).x;
+    float3 tangent_normal = normalMap.sample(samp0, in.uv).xyz;
+    tangent_normal        = (tangent_normal * 2.0) - float3(1.0);
+    float3 F0             = float3(0.04);
+    F0                    = mix(F0, albedo, meta);
 
-    float3 N    = normalize(in.normal_world.xyz);
+    float3x3 TBN = {};
+    TBN[0]       = in.TBN_0;
+    TBN[1]       = in.TBN_1;
+    TBN[2]       = in.TBN_2;
+    // float3 N     = normalize(in.normal_world.xyz);
+    float3 N    = normalize(TBN * tangent_normal);
     float3 V    = normalize(pfc.camPos.xyz - in.v_world.xyz);
     float3 R    = reflect(-V, N);
     float NdotV = max(dot(N, V), 0.0);
