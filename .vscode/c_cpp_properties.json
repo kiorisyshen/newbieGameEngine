@@ -3,9 +3,9 @@
         {
             "name": "Mac",
             "includePath": [
+                "${workspaceFolder}",
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/Framework/Common",
-                "${workspaceFolder}/Framework/Interface"
+                "${workspaceFolder}/build/Debug/Framework/GeomMath"
             ],
             "defines": [
                 "DEBUG"
