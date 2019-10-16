@@ -22,3 +22,5 @@
 #include "SceneObjectAnimation.hpp"
 
 #include "SceneObjectSkyBox.hpp"
+
+#include "SceneObjectTerrain.hpp"
