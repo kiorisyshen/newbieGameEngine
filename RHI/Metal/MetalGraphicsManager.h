@@ -78,7 +78,8 @@ class MetalGraphicsManager : public GraphicsManager {
 
    private:
     void InitializeBuffers(const Scene &scene);
-    void initializeSkyBox(const Scene &scene);
+    void InitializeSkyBox(const Scene &scene);
+    void InitializeTerrain(const Scene &scene);
 
     // MetalRenderer *m_pRenderer;
     void *m_pRenderer;

@@ -105,10 +105,10 @@ struct ShaderState {
     mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTexcoord].format      = MTLVertexFormatFloat2;
     mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTexcoord].offset      = 0;
     mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTexcoord].bufferIndex = VertexAttribute::VertexAttributeTexcoord;
-     // Tangents
-     mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTangent].format      = MTLVertexFormatFloat3;
-     mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTangent].offset      = 0;
-     mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTangent].bufferIndex = VertexAttribute::VertexAttributeTangent;
+    // Tangents
+    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTangent].format      = MTLVertexFormatFloat3;
+    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTangent].offset      = 0;
+    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTangent].bufferIndex = VertexAttribute::VertexAttributeTangent;
     // // Bitangents
     // _mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeBitangent].format      = MTLVertexFormatFloat3;
     // _mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeBitangent].offset      = 0;

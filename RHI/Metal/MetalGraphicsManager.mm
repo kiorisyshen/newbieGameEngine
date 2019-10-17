@@ -68,7 +68,7 @@ void MetalGraphicsManager::Dispatch(const uint32_t width, const uint32_t height,
 
 int32_t MetalGraphicsManager::GenerateAndBindTextureForWrite(const char *id, const uint32_t slot_index, const uint32_t width, const uint32_t height) {
     MetalRenderer *tmpRenderer = GetRenderer();
-    int32_t ret = [tmpRenderer generateAndBindTextureForWrite:width height:height atIndex:slot_index];
+    int32_t ret                = [tmpRenderer generateAndBindTextureForWrite:width height:height atIndex:slot_index];
     SetRenderer(tmpRenderer);
     return ret;
 }
@@ -123,7 +123,7 @@ void MetalGraphicsManager::EndShadowPass(const int32_t shadowmap, const int32_t 
 
 int32_t MetalGraphicsManager::GenerateShadowMapArray(const ShadowMapType type, const uint32_t width, const uint32_t height, const uint32_t count) {
     MetalRenderer *tmpRenderer = GetRenderer();
-    int32_t ret = [tmpRenderer createDepthTextureArray:type width:width height:height count:count];
+    int32_t ret                = [tmpRenderer createDepthTextureArray:type width:width height:height count:count];
     SetRenderer(tmpRenderer);
     return ret;
 }
@@ -166,7 +166,7 @@ void MetalGraphicsManager::SetPerBatchConstants(const std::vector<std::shared_pt
 
 void MetalGraphicsManager::InitializeBuffers(const Scene &scene) {
     MetalRenderer *tmpRenderer = GetRenderer();
-    
+
     for (auto &frame : m_Frames) {
         frame.batchContext.clear();
     }
@@ -316,9 +316,9 @@ void MetalGraphicsManager::InitializeBuffers(const Scene &scene) {
     SetRenderer(tmpRenderer);
 }
 
-void MetalGraphicsManager::initializeSkyBox(const Scene &scene) {
+void MetalGraphicsManager::InitializeSkyBox(const Scene &scene) {
     MetalRenderer *tmpRenderer = GetRenderer();
-    
+
     if (scene.SkyBox) {
         std::vector<const std::shared_ptr<newbieGE::Image>> images;
         for (uint32_t i = 0; i < 18; i++) {
@@ -336,9 +336,17 @@ void MetalGraphicsManager::initializeSkyBox(const Scene &scene) {
     SetRenderer(tmpRenderer);
 }
 
+void MetalGraphicsManager::InitializeTerrain(const Scene &scene) {
+    MetalRenderer *tmpRenderer = GetRenderer();
+
+    if (scene.Terrain) {
+    }
+    SetRenderer(tmpRenderer);
+}
+
 bool MetalGraphicsManager::InitializeShaders() {
     MetalRenderer *tmpRenderer = GetRenderer();
-    bool ret = [tmpRenderer InitializeShaders];
+    bool ret                   = [tmpRenderer InitializeShaders];
     SetRenderer(tmpRenderer);
     return ret;
 }
@@ -347,7 +355,8 @@ void MetalGraphicsManager::BeginScene(const Scene &scene) {
     GraphicsManager::BeginScene(scene);
 
     InitializeBuffers(scene);
-    initializeSkyBox(scene);
+    InitializeTerrain(scene);
+    InitializeSkyBox(scene);
 
     cout << "[MetalGraphicsManager] BeginScene Done!" << endl;
 }
