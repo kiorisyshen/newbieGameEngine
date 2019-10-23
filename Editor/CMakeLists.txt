@@ -5,6 +5,7 @@ if(APPLE)
         shadowmap
         texture2dOverlay
         skybox
+        terrain
         integrateBRDF.comp
         pbr)
     foreach(SHADER

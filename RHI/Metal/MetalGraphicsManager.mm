@@ -79,6 +79,12 @@ void MetalGraphicsManager::DrawSkyBox() {
     SetRenderer(tmpRenderer);
 }
 
+void MetalGraphicsManager::DrawTerrain() {
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer drawTerrain];
+    SetRenderer(tmpRenderer);
+}
+
 void MetalGraphicsManager::DrawBatchDepthFromLight(const Light &light, const ShadowMapType type, const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) {
     MetalRenderer *tmpRenderer = GetRenderer();
     [tmpRenderer drawBatchDepthFromLight:light shadowType:type withBatches:batches];
@@ -149,6 +155,12 @@ void MetalGraphicsManager::SetLightInfo(const LightInfo &lightInfo) {
 void MetalGraphicsManager::SetSkyBox(const DrawFrameContext &context) {
     MetalRenderer *tmpRenderer = GetRenderer();
     [tmpRenderer setSkyBox:context];
+    SetRenderer(tmpRenderer);
+}
+
+void MetalGraphicsManager::SetTerrain(const DrawFrameContext &context) {
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer setTerrain:context];
     SetRenderer(tmpRenderer);
 }
 
@@ -340,6 +352,17 @@ void MetalGraphicsManager::InitializeTerrain(const Scene &scene) {
     MetalRenderer *tmpRenderer = GetRenderer();
 
     if (scene.Terrain) {
+        std::vector<const std::shared_ptr<newbieGE::Image>> images;
+
+        // Current we use only the first height map
+        auto &texture      = scene.Terrain->GetTexture(0);
+        const auto &pImage = texture.GetTextureImage();
+        images.push_back(pImage);
+
+        int32_t tex_index = [tmpRenderer createTerrain:images];
+        for (uint32_t i = 0; i < GfxConfiguration::kMaxInFlightFrameCount; i++) {
+            m_Frames[i].frameContext.terrainHeightMap = tex_index;
+        }
     }
     SetRenderer(tmpRenderer);
 }

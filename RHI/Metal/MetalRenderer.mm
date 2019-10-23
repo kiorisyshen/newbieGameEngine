@@ -31,7 +31,6 @@ struct ShaderState {
 
     id<MTLSamplerState> _sampler0;
     std::vector<id<MTLTexture>> _textures;
-    std::vector<id<MTLTexture>> _skyboxTextures;
 
     std::array<id<MTLTexture>, num_ShadowMapType> _lightDepthArray;
     std::array<std::vector<id<MTLTexture>>, num_ShadowMapType> _lightDepthList;
@@ -48,6 +47,7 @@ struct ShaderState {
     std::unordered_map<int32_t, MTLRenderPassDescriptor *> _renderPassDescriptors;
     std::unordered_map<int32_t, ShaderState> _renderPassStates;
 
+    int32_t _terrainTexIndex;
     int32_t _skyboxTexIndex;
     int32_t _brdfLutIndex;
 }
@@ -60,6 +60,7 @@ struct ShaderState {
         _inFlightSemaphore = dispatch_semaphore_create(GfxConfiguration::kMaxInFlightFrameCount);
         _commandQueue      = [_device newCommandQueue];
         _skyboxTexIndex    = -1;
+        _terrainTexIndex   = -1;
     }
 
     return self;
@@ -274,6 +275,18 @@ struct ShaderState {
     // --------------
 
     // --------------
+    // Terrain shaders
+    {
+        {  // Terrain compute shader
+
+        }
+        {  // Terrain vertex shader
+            
+        }
+    }
+    // --------------
+
+    // --------------
     // BRDF LUT shaders
     {
         // Create BRDF LUT pipeline state
@@ -317,7 +330,7 @@ struct ShaderState {
 
         _renderPassStates[(int32_t)DefaultShaderIndex::PbrShader] = pbrSS;
     }
-    // --------------
+// --------------
 #ifdef DEBUG
     // --------------
     // Debug shaders
@@ -377,7 +390,7 @@ struct ShaderState {
 
         _renderPassDescriptors[(int32_t)RenderPassIndex::HUDPass] = overlayPassDescriptor;
     }
-    // --------------
+// --------------
 #endif
 
     return succ;
@@ -433,7 +446,7 @@ struct ShaderState {
     [_renderEncoder setFragmentSamplerState:_sampler0 atIndex:0];
 
     if (_skyboxTexIndex >= 0) {
-        [_renderEncoder setFragmentTexture:_skyboxTextures[_skyboxTexIndex]
+        [_renderEncoder setFragmentTexture:_textures[_skyboxTexIndex]
                                    atIndex:10];
     }
 
@@ -488,6 +501,9 @@ struct ShaderState {
                         indexBufferOffset:0];
 
     [_renderEncoder popDebugGroup];
+}
+
+- (void)drawTerrain {
 }
 
 - (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches {
@@ -557,7 +573,7 @@ struct ShaderState {
     [_renderEncoder setFragmentSamplerState:_sampler0 atIndex:0];
 
     if (_skyboxTexIndex >= 0) {
-        [_renderEncoder setFragmentTexture:_skyboxTextures[_skyboxTexIndex]
+        [_renderEncoder setFragmentTexture:_textures[_skyboxTexIndex]
                                    atIndex:10];
     }
 
@@ -967,8 +983,7 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
     return index;
 }
 
-- (uint32_t)createSkyBox:(const std::vector<const std::shared_ptr<newbieGE::Image>> &)images;
-{
+- (uint32_t)createSkyBox:(const std::vector<const std::shared_ptr<newbieGE::Image>> &)images {
     id<MTLTexture> texture;
 
     assert(images.size() == 18);  // 6 sky-cube + 6 irrandiance + 6 radiance
@@ -1034,8 +1049,36 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
         }
     }
 
-    uint32_t index = _skyboxTextures.size();
-    _skyboxTextures.push_back(texture);
+    uint32_t index = _textures.size();
+    _textures.push_back(texture);
+
+    return index;
+}
+
+- (uint32_t)createTerrain:(const std::vector<const std::shared_ptr<newbieGE::Image>> &)images {
+    id<MTLTexture> texture;
+    assert(images.size() == 0);  // Currently only 1 height map
+
+    MTLTextureDescriptor *textureDesc = [[MTLTextureDescriptor alloc] init];
+
+    textureDesc.textureType = MTLTextureType2D;
+    textureDesc.pixelFormat = getMtlPixelFormat(*images[0]);
+    textureDesc.width       = images[0]->Width;
+    textureDesc.height      = images[0]->Height;
+
+    // create the texture obj
+    texture = [_device newTextureWithDescriptor:textureDesc];
+
+    // now upload the data
+    MTLRegion region = {
+        {0, 0, 0},                                // MTLOrigin
+        {images[0]->Width, images[0]->Height, 1}  // MTLSize
+    };
+
+    [texture replaceRegion:region mipmapLevel:0 withBytes:images[0]->data bytesPerRow:images[0]->pitch];
+
+    uint32_t index = _textures.size();
+    _textures.push_back(texture);
 
     return index;
 }
@@ -1146,6 +1189,10 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
 
 - (void)setSkyBox:(const DrawFrameContext &)context {
     _skyboxTexIndex = context.skybox;
+}
+
+- (void)setTerrain:(const DrawFrameContext &)context {
+    _terrainTexIndex = context.terrainHeightMap;
 }
 
 - (void)setPerFrameConstants:(const DrawFrameContext &)context {
