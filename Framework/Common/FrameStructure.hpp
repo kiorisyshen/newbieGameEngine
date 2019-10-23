@@ -3,6 +3,8 @@
 #include "Scene.hpp"
 #include "cbuffer.h"
 
+// Use 6 MTLTextureType2D depth map to avoid depth cube texture "bug" in Metal
+// Ref: https://stackoverflow.com/questions/57868868/objc-metal-compute-depth-texture-in-cube-form-result-to-strange-depth-map-in-o
 // #define USE_METALCUBEDEPTH
 #undef USE_METALCUBEDEPTH
 

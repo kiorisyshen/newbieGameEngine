@@ -27,7 +27,8 @@ struct ShaderState {
 
     id<MTLCommandBuffer> _computeCommandBuffer;
     id<MTLComputeCommandEncoder> _computeEncoder;
-    id<MTLComputePipelineState> _computePipelineState;
+    id<MTLComputePipelineState> _brdfCompPipelineState;
+    id<MTLComputePipelineState> _terrainCompPipelineState;
 
     id<MTLSamplerState> _sampler0;
     std::vector<id<MTLTexture>> _textures;
@@ -277,12 +278,41 @@ struct ShaderState {
     // --------------
     // Terrain shaders
     {
-        {  // Terrain compute shader
+        // Terrain compute shader -- TESC
+        id<MTLFunction> terrainFillFactorsKernelFunction = [myLibrary newFunctionWithName:@"terrainFillFactors_comp_main"];
 
+        _terrainCompPipelineState = [_device newComputePipelineStateWithFunction:terrainFillFactorsKernelFunction error:&error];
+        if (!_terrainCompPipelineState) {
+            NSLog(@"Failed to created BRDF compute pipeline state, error %@", error);
+            assert(0);
         }
-        {  // Terrain vertex shader
-            
+
+        // Terrain vertex shader -- TESE
+        id<MTLFunction> vertexFunction   = [myLibrary newFunctionWithName:@"terrain_vert_main"];
+        id<MTLFunction> fragmentFunction = [myLibrary newFunctionWithName:@"terrain_frag_main"];
+
+        MTLRenderPipelineDescriptor *pipelineStateDescriptor    = [[MTLRenderPipelineDescriptor alloc] init];
+        pipelineStateDescriptor.label                           = @"Terrain Pipeline";
+        pipelineStateDescriptor.sampleCount                     = _mtkView.sampleCount;
+        pipelineStateDescriptor.vertexFunction                  = vertexFunction;
+        pipelineStateDescriptor.fragmentFunction                = fragmentFunction;
+        pipelineStateDescriptor.vertexDescriptor                = mtlPosOnlyVertexDescriptor;
+        pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
+        pipelineStateDescriptor.depthAttachmentPixelFormat      = _mtkView.depthStencilPixelFormat;
+
+        ShaderState terrainSS;
+        terrainSS.pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
+        if (!terrainSS.pipelineState) {
+            NSLog(@"Failed to created pipeline state, error %@", error);
+            succ = false;
         }
+
+        MTLDepthStencilDescriptor *depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
+        depthStateDesc.depthCompareFunction       = MTLCompareFunctionLessEqual;
+        depthStateDesc.depthWriteEnabled          = NO;
+        terrainSS.depthStencilState               = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
+
+        _renderPassStates[(int32_t)DefaultShaderIndex::TerrainShader] = terrainSS;
     }
     // --------------
 
@@ -292,8 +322,8 @@ struct ShaderState {
         // Create BRDF LUT pipeline state
         id<MTLFunction> brdfKernelFunction = [myLibrary newFunctionWithName:@"integrateBRDF_comp_main"];
 
-        _computePipelineState = [_device newComputePipelineStateWithFunction:brdfKernelFunction error:&error];
-        if (!_computePipelineState) {
+        _brdfCompPipelineState = [_device newComputePipelineStateWithFunction:brdfKernelFunction error:&error];
+        if (!_brdfCompPipelineState) {
             NSLog(@"Failed to created BRDF compute pipeline state, error %@", error);
             assert(0);
         }
@@ -504,6 +534,23 @@ struct ShaderState {
 }
 
 - (void)drawTerrain {
+    { // control point compute
+        _computeEncoder       = [_commandBuffer computeCommandEncoder];
+        _computeEncoder.label = @"TerrainComputeEncoder";
+        [_computeEncoder setComputePipelineState:_terrainCompPipelineState];
+        
+        // set buffers
+        
+        // dispatch
+        MTLSize threadsPerThreadgroup = { 16, 16, 1 };
+        [_computeEncoder dispatchThreadgroups:MTLSizeMake(2, 2, 1) threadsPerThreadgroup:threadsPerThreadgroup];
+        
+        [_computeEncoder endEncoding];
+    }
+    
+    {  // draw terrain
+        
+    }
 }
 
 - (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches {
@@ -1250,7 +1297,7 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
 
     _computeEncoder       = [_computeCommandBuffer computeCommandEncoder];
     _computeEncoder.label = @"MyComputeEncoder";
-    [_computeEncoder setComputePipelineState:_computePipelineState];
+    [_computeEncoder setComputePipelineState:_brdfCompPipelineState];
 }
 
 - (void)endCompute {
