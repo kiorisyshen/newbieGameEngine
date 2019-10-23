@@ -24,22 +24,5 @@ Original reference repo: https://github.com/netwarm007/GameEngineFromScratch
     ./build_opengex.sh
     ```
 
-# Build
-```shell
-mkdir build
-cd build
-cmake ..
-cmake --build . --config Release --clean-first
-```
-
-For runing test:
-```shell
-cmake --build . --config Debug --target test
-```
-
-## Generate xcode project
-```shell
-mkdir build
-cd build
-cmake -G Xcode ..
-```
+# Build & Generate xcode project
+You may refer build script write here: .vscode/tasks.json
