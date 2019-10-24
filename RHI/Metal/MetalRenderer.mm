@@ -40,6 +40,8 @@ struct ShaderState {
     std::vector<id<MTLBuffer>> _indexBuffers;
     id<MTLBuffer> _uniformBuffers;
     id<MTLBuffer> _lightInfo;
+    id<MTLBuffer> _tessellationFactorsBuffer;
+    id<MTLBuffer> _controlPointsBufferQuad;
 
 #ifdef DEBUG
     id<MTLBuffer> _DEBUG_Buffer;
@@ -290,13 +292,21 @@ struct ShaderState {
         // Terrain vertex shader -- TESE
         id<MTLFunction> vertexFunction   = [myLibrary newFunctionWithName:@"terrain_vert_main"];
         id<MTLFunction> fragmentFunction = [myLibrary newFunctionWithName:@"terrain_frag_main"];
+        
+        MTLVertexDescriptor* vertexDescriptor = [MTLVertexDescriptor vertexDescriptor];
+        vertexDescriptor.attributes[0].format = MTLVertexFormatFloat4;
+        vertexDescriptor.attributes[0].offset = 0;
+        vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerPatchControlPoint;
+        vertexDescriptor.layouts[0].stepRate = 1;
+        vertexDescriptor.layouts[0].stride = 4.0*sizeof(float);
 
         MTLRenderPipelineDescriptor *pipelineStateDescriptor    = [[MTLRenderPipelineDescriptor alloc] init];
         pipelineStateDescriptor.label                           = @"Terrain Pipeline";
         pipelineStateDescriptor.sampleCount                     = _mtkView.sampleCount;
         pipelineStateDescriptor.vertexFunction                  = vertexFunction;
         pipelineStateDescriptor.fragmentFunction                = fragmentFunction;
-        pipelineStateDescriptor.vertexDescriptor                = mtlPosOnlyVertexDescriptor;
+        pipelineStateDescriptor.vertexDescriptor                = vertexDescriptor;
         pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
         pipelineStateDescriptor.depthAttachmentPixelFormat      = _mtkView.depthStencilPixelFormat;
 
@@ -313,6 +323,28 @@ struct ShaderState {
         terrainSS.depthStencilState               = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
 
         _renderPassStates[(int32_t)DefaultShaderIndex::TerrainShader] = terrainSS;
+
+        // Create Terrain buffers
+        // Allocate memory for the tessellation factors buffer
+        // This is a private buffer whose contents are later populated by the GPU (compute kernel)
+        _tessellationFactorsBuffer       = [_device newBufferWithLength:256
+                                                          options:MTLResourceStorageModePrivate];
+        _tessellationFactorsBuffer.label = @"Tessellation Factors";
+
+        static const float half_patch_size = 25.0f;
+        static const float _vertices[]     = {
+            -half_patch_size, half_patch_size, 0.0f, 1.0f,
+            -half_patch_size, -half_patch_size, 0.0f, 1.0f,
+            half_patch_size, -half_patch_size, 0.0f, 1.0f,
+            half_patch_size, half_patch_size, 0.0f, 1.0f,
+        };
+
+        // In OS X, the storage mode can be shared or managed, but managed may yield better performance
+        // In iOS, the storage mode can only be shared
+        _controlPointsBufferQuad       = [_device newBufferWithBytes:_vertices
+                                                        length:sizeof(_vertices)
+                                                       options:MTLResourceStorageModeShared];
+        _controlPointsBufferQuad.label = @"Control Points Quad";
     }
     // --------------
 
@@ -534,23 +566,23 @@ struct ShaderState {
 }
 
 - (void)drawTerrain {
-    { // control point compute
-        _computeEncoder       = [_commandBuffer computeCommandEncoder];
-        _computeEncoder.label = @"TerrainComputeEncoder";
-        [_computeEncoder setComputePipelineState:_terrainCompPipelineState];
-        
-        // set buffers
-        
-        // dispatch
-        MTLSize threadsPerThreadgroup = { 16, 16, 1 };
-        [_computeEncoder dispatchThreadgroups:MTLSizeMake(2, 2, 1) threadsPerThreadgroup:threadsPerThreadgroup];
-        
-        [_computeEncoder endEncoding];
-    }
+    [_renderEncoder setRenderPipelineState:_renderPassStates[(int32_t)DefaultShaderIndex::TerrainShader].pipelineState];
+    [_renderEncoder setDepthStencilState:_renderPassStates[(int32_t)DefaultShaderIndex::TerrainShader].depthStencilState];
     
-    {  // draw terrain
-        
-    }
+    // Begin encoding render commands, including commands for the tessellator
+    [_renderEncoder pushDebugGroup:@"Tessellate and Render"];
+
+    [_renderEncoder setVertexBuffer:_controlPointsBufferQuad offset:0 atIndex:0];
+    [_renderEncoder setVertexBuffer:_uniformBuffers offset:0 atIndex:10];
+    // Enable wireframe mode
+    [_renderEncoder setTriangleFillMode:MTLTriangleFillModeLines];
+
+    // Encode tessellation-specific commands
+    [_renderEncoder setTessellationFactorBuffer:_tessellationFactorsBuffer offset:0 instanceStride:0];
+    [_renderEncoder drawPatches:4 patchStart:0 patchCount:1 patchIndexBuffer:NULL patchIndexBufferOffset:0 instanceCount:1 baseInstance:0];
+
+    // All render commands have been encoded
+    [_renderEncoder popDebugGroup];
 }
 
 - (void)drawBatch:(const std::vector<std::shared_ptr<DrawBatchConstant>> &)batches {
@@ -829,6 +861,25 @@ struct ShaderState {
 }
 
 - (void)beginForwardPass {
+    {  // control point compute
+        id <MTLComputeCommandEncoder> computeCommandEncoder       = [_commandBuffer computeCommandEncoder];
+        computeCommandEncoder.label = @"TerrainComputeEncoder";
+        [computeCommandEncoder pushDebugGroup:@"Compute Tessellation Factors"];
+
+        [computeCommandEncoder setComputePipelineState:_terrainCompPipelineState];
+
+        // Bind the tessellation factors buffer to the compute kernel
+        [computeCommandEncoder setBuffer:_tessellationFactorsBuffer offset:0 atIndex:0];
+        [computeCommandEncoder setBuffer:_controlPointsBufferQuad offset:0 atIndex:1];
+        [computeCommandEncoder setBuffer:_uniformBuffers offset:0 atIndex:10];
+
+        // Dispatch threadgroups
+        [computeCommandEncoder dispatchThreadgroups:MTLSizeMake(1, 1, 1) threadsPerThreadgroup:MTLSizeMake(1, 1, 1)];
+
+        [computeCommandEncoder popDebugGroup];
+        [computeCommandEncoder endEncoding];
+    }
+    
     MTLRenderPassDescriptor *forwarRenderPassDescriptor = _mtkView.currentRenderPassDescriptor;
     if (forwarRenderPassDescriptor != nil) {
         forwarRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
@@ -1104,7 +1155,7 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
 
 - (uint32_t)createTerrain:(const std::vector<const std::shared_ptr<newbieGE::Image>> &)images {
     id<MTLTexture> texture;
-    assert(images.size() == 0);  // Currently only 1 height map
+    assert(images.size() == 1);  // Currently only 1 height map
 
     MTLTextureDescriptor *textureDesc = [[MTLTextureDescriptor alloc] init];
 
