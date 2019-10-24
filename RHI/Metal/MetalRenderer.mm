@@ -574,6 +574,8 @@ struct ShaderState {
 
     [_renderEncoder setVertexBuffer:_controlPointsBufferQuad offset:0 atIndex:0];
     [_renderEncoder setVertexBuffer:_uniformBuffers offset:0 atIndex:10];
+    [_renderEncoder setVertexTexture:_textures[_terrainTexIndex] atIndex:11];
+    
     // Enable wireframe mode
     [_renderEncoder setTriangleFillMode:MTLTriangleFillModeLines];
 

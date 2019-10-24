@@ -115,7 +115,14 @@ kernel void terrainFillFactors_comp_main(device MTLQuadTessellationFactorsHalf *
 
 [[patch(quad, 4)]] vertex Terrain_vert_out terrain_vert_main(PatchIn patchIn [[stage_in]],
                                                              float2 patch_coord [[position_in_patch]],
-                                                             constant PerFrameConstants &pfc [[buffer(10)]]) {
+                                                             constant PerFrameConstants &pfc [[buffer(10)]],
+                                                             texture2d<float> terrainHeightMap [[texture(11)]]) {
+    constexpr sampler linearSampler(coord::normalized,
+                                    filter::linear,
+                                    mip_filter::none,
+                                    address::clamp_to_edge,
+                                    compare_func::less);
+
     Terrain_vert_out out;
 
     // Parameter coordinates
@@ -125,8 +132,11 @@ kernel void terrainFillFactors_comp_main(device MTLQuadTessellationFactorsHalf *
     float4 a = mix(patchIn.control_points[0].position, patchIn.control_points[1].position, u);
     float4 b = mix(patchIn.control_points[3].position, patchIn.control_points[2].position, u);
 
-    out.uv           = patch_coord.xy;
-    out.v_world      = mix(a, b, v);
+    out.uv       = patch_coord.xy;
+    out.v_world  = mix(a, b, v);
+    float height = terrainHeightMap.sample(linearSampler, out.uv, level(0.0)).x;
+    out.v_world  = float4(out.v_world.xy, (height - 0.15) * 120.0, 1.0);
+
     out.normal_world = float4(0.0, 0.0, 1.0, 0.0);
     out.gl_Position  = pfc.projectionMatrix * pfc.viewMatrix * out.v_world;
 
