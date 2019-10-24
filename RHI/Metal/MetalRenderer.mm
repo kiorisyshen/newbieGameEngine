@@ -27,11 +27,11 @@ struct ShaderState {
 
     id<MTLCommandBuffer> _computeCommandBuffer;
     id<MTLComputeCommandEncoder> _computeEncoder;
-    id<MTLComputePipelineState> _computePipelineState;
+    id<MTLComputePipelineState> _brdfCompPipelineState;
+    id<MTLComputePipelineState> _terrainCompPipelineState;
 
     id<MTLSamplerState> _sampler0;
     std::vector<id<MTLTexture>> _textures;
-    std::vector<id<MTLTexture>> _skyboxTextures;
 
     std::array<id<MTLTexture>, num_ShadowMapType> _lightDepthArray;
     std::array<std::vector<id<MTLTexture>>, num_ShadowMapType> _lightDepthList;
@@ -40,6 +40,8 @@ struct ShaderState {
     std::vector<id<MTLBuffer>> _indexBuffers;
     id<MTLBuffer> _uniformBuffers;
     id<MTLBuffer> _lightInfo;
+    id<MTLBuffer> _tessellationFactorsBuffer;
+    id<MTLBuffer> _controlPointsBufferQuad;
 
 #ifdef DEBUG
     id<MTLBuffer> _DEBUG_Buffer;
@@ -48,6 +50,7 @@ struct ShaderState {
     std::unordered_map<int32_t, MTLRenderPassDescriptor *> _renderPassDescriptors;
     std::unordered_map<int32_t, ShaderState> _renderPassStates;
 
+    int32_t _terrainTexIndex;
     int32_t _skyboxTexIndex;
     int32_t _brdfLutIndex;
 }
@@ -60,6 +63,7 @@ struct ShaderState {
         _inFlightSemaphore = dispatch_semaphore_create(GfxConfiguration::kMaxInFlightFrameCount);
         _commandQueue      = [_device newCommandQueue];
         _skyboxTexIndex    = -1;
+        _terrainTexIndex   = -1;
     }
 
     return self;
@@ -105,10 +109,10 @@ struct ShaderState {
     mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTexcoord].format      = MTLVertexFormatFloat2;
     mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTexcoord].offset      = 0;
     mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTexcoord].bufferIndex = VertexAttribute::VertexAttributeTexcoord;
-     // Tangents
-     mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTangent].format      = MTLVertexFormatFloat3;
-     mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTangent].offset      = 0;
-     mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTangent].bufferIndex = VertexAttribute::VertexAttributeTangent;
+    // Tangents
+    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTangent].format      = MTLVertexFormatFloat3;
+    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTangent].offset      = 0;
+    mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeTangent].bufferIndex = VertexAttribute::VertexAttributeTangent;
     // // Bitangents
     // _mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeBitangent].format      = MTLVertexFormatFloat3;
     // _mtlVertexDescriptor.attributes[VertexAttribute::VertexAttributeBitangent].offset      = 0;
@@ -274,13 +278,85 @@ struct ShaderState {
     // --------------
 
     // --------------
+    // Terrain shaders
+    {
+        // Terrain compute shader -- TESC
+        id<MTLFunction> terrainFillFactorsKernelFunction = [myLibrary newFunctionWithName:@"terrainFillFactors_comp_main"];
+
+        _terrainCompPipelineState = [_device newComputePipelineStateWithFunction:terrainFillFactorsKernelFunction error:&error];
+        if (!_terrainCompPipelineState) {
+            NSLog(@"Failed to created BRDF compute pipeline state, error %@", error);
+            assert(0);
+        }
+
+        // Terrain vertex shader -- TESE
+        id<MTLFunction> vertexFunction   = [myLibrary newFunctionWithName:@"terrain_vert_main"];
+        id<MTLFunction> fragmentFunction = [myLibrary newFunctionWithName:@"terrain_frag_main"];
+
+        MTLVertexDescriptor *vertexDescriptor      = [MTLVertexDescriptor vertexDescriptor];
+        vertexDescriptor.attributes[0].format      = MTLVertexFormatFloat4;
+        vertexDescriptor.attributes[0].offset      = 0;
+        vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.layouts[0].stepFunction   = MTLVertexStepFunctionPerPatchControlPoint;
+        vertexDescriptor.layouts[0].stepRate       = 1;
+        vertexDescriptor.layouts[0].stride         = 4.0 * sizeof(float);
+
+        MTLRenderPipelineDescriptor *pipelineStateDescriptor    = [[MTLRenderPipelineDescriptor alloc] init];
+        pipelineStateDescriptor.label                           = @"Terrain Pipeline";
+        pipelineStateDescriptor.sampleCount                     = _mtkView.sampleCount;
+        pipelineStateDescriptor.vertexFunction                  = vertexFunction;
+        pipelineStateDescriptor.fragmentFunction                = fragmentFunction;
+        pipelineStateDescriptor.vertexDescriptor                = vertexDescriptor;
+        pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
+        pipelineStateDescriptor.depthAttachmentPixelFormat      = _mtkView.depthStencilPixelFormat;
+        pipelineStateDescriptor.maxTessellationFactor           = 64;
+
+        ShaderState terrainSS;
+        terrainSS.pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
+        if (!terrainSS.pipelineState) {
+            NSLog(@"Failed to created pipeline state, error %@", error);
+            succ = false;
+        }
+
+        MTLDepthStencilDescriptor *depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
+        depthStateDesc.depthCompareFunction       = MTLCompareFunctionLessEqual;
+        depthStateDesc.depthWriteEnabled          = NO;
+        terrainSS.depthStencilState               = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
+
+        _renderPassStates[(int32_t)DefaultShaderIndex::TerrainShader] = terrainSS;
+
+        // Create Terrain buffers
+        // Allocate memory for the tessellation factors buffer
+        // This is a private buffer whose contents are later populated by the GPU (compute kernel)
+        _tessellationFactorsBuffer       = [_device newBufferWithLength:256
+                                                          options:MTLResourceStorageModePrivate];
+        _tessellationFactorsBuffer.label = @"Tessellation Factors";
+
+        static const float half_patch_size = 25.0f;
+        static const float _vertices[]     = {
+            -half_patch_size, half_patch_size, 0.0f, 1.0f,
+            -half_patch_size, -half_patch_size, 0.0f, 1.0f,
+            half_patch_size, -half_patch_size, 0.0f, 1.0f,
+            half_patch_size, half_patch_size, 0.0f, 1.0f,
+        };
+
+        // In OS X, the storage mode can be shared or managed, but managed may yield better performance
+        // In iOS, the storage mode can only be shared
+        _controlPointsBufferQuad       = [_device newBufferWithBytes:_vertices
+                                                        length:sizeof(_vertices)
+                                                       options:MTLResourceStorageModeShared];
+        _controlPointsBufferQuad.label = @"Control Points Quad";
+    }
+    // --------------
+
+    // --------------
     // BRDF LUT shaders
     {
         // Create BRDF LUT pipeline state
         id<MTLFunction> brdfKernelFunction = [myLibrary newFunctionWithName:@"integrateBRDF_comp_main"];
 
-        _computePipelineState = [_device newComputePipelineStateWithFunction:brdfKernelFunction error:&error];
-        if (!_computePipelineState) {
+        _brdfCompPipelineState = [_device newComputePipelineStateWithFunction:brdfKernelFunction error:&error];
+        if (!_brdfCompPipelineState) {
             NSLog(@"Failed to created BRDF compute pipeline state, error %@", error);
             assert(0);
         }
@@ -317,7 +393,7 @@ struct ShaderState {
 
         _renderPassStates[(int32_t)DefaultShaderIndex::PbrShader] = pbrSS;
     }
-    // --------------
+// --------------
 #ifdef DEBUG
     // --------------
     // Debug shaders
@@ -377,7 +453,7 @@ struct ShaderState {
 
         _renderPassDescriptors[(int32_t)RenderPassIndex::HUDPass] = overlayPassDescriptor;
     }
-    // --------------
+// --------------
 #endif
 
     return succ;
@@ -433,7 +509,7 @@ struct ShaderState {
     [_renderEncoder setFragmentSamplerState:_sampler0 atIndex:0];
 
     if (_skyboxTexIndex >= 0) {
-        [_renderEncoder setFragmentTexture:_skyboxTextures[_skyboxTexIndex]
+        [_renderEncoder setFragmentTexture:_textures[_skyboxTexIndex]
                                    atIndex:10];
     }
 
@@ -487,6 +563,28 @@ struct ShaderState {
                               indexBuffer:indexBuffer
                         indexBufferOffset:0];
 
+    [_renderEncoder popDebugGroup];
+}
+
+- (void)drawTerrain {
+    [_renderEncoder setRenderPipelineState:_renderPassStates[(int32_t)DefaultShaderIndex::TerrainShader].pipelineState];
+    [_renderEncoder setDepthStencilState:_renderPassStates[(int32_t)DefaultShaderIndex::TerrainShader].depthStencilState];
+
+    // Begin encoding render commands, including commands for the tessellator
+    [_renderEncoder pushDebugGroup:@"Tessellate and Render"];
+
+    [_renderEncoder setVertexBuffer:_controlPointsBufferQuad offset:0 atIndex:0];
+    [_renderEncoder setVertexBuffer:_uniformBuffers offset:0 atIndex:10];
+    [_renderEncoder setVertexTexture:_textures[_terrainTexIndex] atIndex:11];
+
+    // Enable wireframe mode
+    [_renderEncoder setTriangleFillMode:MTLTriangleFillModeLines];
+
+    // Encode tessellation-specific commands
+    [_renderEncoder setTessellationFactorBuffer:_tessellationFactorsBuffer offset:0 instanceStride:0];
+    [_renderEncoder drawPatches:4 patchStart:0 patchCount:1 patchIndexBuffer:NULL patchIndexBufferOffset:0 instanceCount:1 baseInstance:0];
+
+    // All render commands have been encoded
     [_renderEncoder popDebugGroup];
 }
 
@@ -557,7 +655,7 @@ struct ShaderState {
     [_renderEncoder setFragmentSamplerState:_sampler0 atIndex:0];
 
     if (_skyboxTexIndex >= 0) {
-        [_renderEncoder setFragmentTexture:_skyboxTextures[_skyboxTexIndex]
+        [_renderEncoder setFragmentTexture:_textures[_skyboxTexIndex]
                                    atIndex:10];
     }
 
@@ -766,6 +864,25 @@ struct ShaderState {
 }
 
 - (void)beginForwardPass {
+    {  // control point compute
+        id<MTLComputeCommandEncoder> computeCommandEncoder = [_commandBuffer computeCommandEncoder];
+        computeCommandEncoder.label                        = @"TerrainComputeEncoder";
+        [computeCommandEncoder pushDebugGroup:@"Compute Tessellation Factors"];
+
+        [computeCommandEncoder setComputePipelineState:_terrainCompPipelineState];
+
+        // Bind the tessellation factors buffer to the compute kernel
+        [computeCommandEncoder setBuffer:_tessellationFactorsBuffer offset:0 atIndex:0];
+        [computeCommandEncoder setBuffer:_controlPointsBufferQuad offset:0 atIndex:1];
+        [computeCommandEncoder setBuffer:_uniformBuffers offset:0 atIndex:10];
+
+        // Dispatch threadgroups
+        [computeCommandEncoder dispatchThreadgroups:MTLSizeMake(1, 1, 1) threadsPerThreadgroup:MTLSizeMake(1, 1, 1)];
+
+        [computeCommandEncoder popDebugGroup];
+        [computeCommandEncoder endEncoding];
+    }
+
     MTLRenderPassDescriptor *forwarRenderPassDescriptor = _mtkView.currentRenderPassDescriptor;
     if (forwarRenderPassDescriptor != nil) {
         forwarRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
@@ -866,32 +983,6 @@ struct ShaderState {
     [_blitEncoder endEncoding];
 }
 
-//static MTLPixelFormat getMtlPixelFormat(const Image &img) {
-//    MTLPixelFormat format = MTLPixelFormatRGBA8Unorm;
-//
-//    switch (img.bitcount) {
-//        case 8:
-//            format = MTLPixelFormatR8Unorm;
-//            break;
-//        case 16:
-//            format = MTLPixelFormatRG8Unorm;
-//            break;
-//        case 32:
-//            format = MTLPixelFormatRGBA8Unorm;
-//            break;
-//        case 64:
-//            // Unimplemented
-//            break;
-//        case 128:
-//            // Unimplemented
-//            break;
-//        default:
-//            assert(0);
-//    }
-//
-//    return format;
-//}
-
 static MTLPixelFormat getMtlPixelFormat(const Image &img) {
     MTLPixelFormat format;
 
@@ -915,7 +1006,8 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
                 format = MTLPixelFormatR8Unorm;
                 break;
             case 16:
-                format = MTLPixelFormatRG8Unorm;
+                format = MTLPixelFormatR16Unorm;
+                // format = MTLPixelFormatRG8Unorm;
                 break;
             case 32:
                 format = MTLPixelFormatRGBA8Unorm;
@@ -967,8 +1059,7 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
     return index;
 }
 
-- (uint32_t)createSkyBox:(const std::vector<const std::shared_ptr<newbieGE::Image>> &)images;
-{
+- (uint32_t)createSkyBox:(const std::vector<const std::shared_ptr<newbieGE::Image>> &)images {
     id<MTLTexture> texture;
 
     assert(images.size() == 18);  // 6 sky-cube + 6 irrandiance + 6 radiance
@@ -1034,8 +1125,36 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
         }
     }
 
-    uint32_t index = _skyboxTextures.size();
-    _skyboxTextures.push_back(texture);
+    uint32_t index = _textures.size();
+    _textures.push_back(texture);
+
+    return index;
+}
+
+- (uint32_t)createTerrain:(const std::vector<const std::shared_ptr<newbieGE::Image>> &)images {
+    id<MTLTexture> texture;
+    assert(images.size() == 1);  // Currently only 1 height map
+
+    MTLTextureDescriptor *textureDesc = [[MTLTextureDescriptor alloc] init];
+
+    textureDesc.textureType = MTLTextureType2D;
+    textureDesc.pixelFormat = getMtlPixelFormat(*images[0]);
+    textureDesc.width       = images[0]->Width;
+    textureDesc.height      = images[0]->Height;
+
+    // create the texture obj
+    texture = [_device newTextureWithDescriptor:textureDesc];
+
+    // now upload the data
+    MTLRegion region = {
+        {0, 0, 0},                                // MTLOrigin
+        {images[0]->Width, images[0]->Height, 1}  // MTLSize
+    };
+
+    [texture replaceRegion:region mipmapLevel:0 withBytes:images[0]->data bytesPerRow:images[0]->pitch];
+
+    uint32_t index = _textures.size();
+    _textures.push_back(texture);
 
     return index;
 }
@@ -1148,6 +1267,10 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
     _skyboxTexIndex = context.skybox;
 }
 
+- (void)setTerrain:(const DrawFrameContext &)context {
+    _terrainTexIndex = context.terrainHeightMap;
+}
+
 - (void)setPerFrameConstants:(const DrawFrameContext &)context {
     std::memcpy(_uniformBuffers.contents, &(context), sizeof(DrawFrameContext));
 }
@@ -1203,7 +1326,7 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
 
     _computeEncoder       = [_computeCommandBuffer computeCommandEncoder];
     _computeEncoder.label = @"MyComputeEncoder";
-    [_computeEncoder setComputePipelineState:_computePipelineState];
+    [_computeEncoder setComputePipelineState:_brdfCompPipelineState];
 }
 
 - (void)endCompute {

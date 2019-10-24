@@ -11,6 +11,11 @@ void ForwardRenderPass::Draw(Frame &frame) {
     g_pGraphicsManager->SetSkyBox(frame.frameContext);
     g_pGraphicsManager->DrawSkyBox();
 
+    // Draw terrain
+    g_pGraphicsManager->UseShaderProgram(DefaultShaderIndex::TerrainShader);
+    g_pGraphicsManager->SetTerrain(frame.frameContext);
+    g_pGraphicsManager->DrawTerrain();
+
     g_pGraphicsManager->UseShaderProgram(DefaultShaderIndex::PbrShader);
     g_pGraphicsManager->DrawBatchPBR(frame.batchContext);
 

@@ -68,7 +68,7 @@ void MetalGraphicsManager::Dispatch(const uint32_t width, const uint32_t height,
 
 int32_t MetalGraphicsManager::GenerateAndBindTextureForWrite(const char *id, const uint32_t slot_index, const uint32_t width, const uint32_t height) {
     MetalRenderer *tmpRenderer = GetRenderer();
-    int32_t ret = [tmpRenderer generateAndBindTextureForWrite:width height:height atIndex:slot_index];
+    int32_t ret                = [tmpRenderer generateAndBindTextureForWrite:width height:height atIndex:slot_index];
     SetRenderer(tmpRenderer);
     return ret;
 }
@@ -76,6 +76,12 @@ int32_t MetalGraphicsManager::GenerateAndBindTextureForWrite(const char *id, con
 void MetalGraphicsManager::DrawSkyBox() {
     MetalRenderer *tmpRenderer = GetRenderer();
     [tmpRenderer drawSkyBox];
+    SetRenderer(tmpRenderer);
+}
+
+void MetalGraphicsManager::DrawTerrain() {
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer drawTerrain];
     SetRenderer(tmpRenderer);
 }
 
@@ -123,7 +129,7 @@ void MetalGraphicsManager::EndShadowPass(const int32_t shadowmap, const int32_t 
 
 int32_t MetalGraphicsManager::GenerateShadowMapArray(const ShadowMapType type, const uint32_t width, const uint32_t height, const uint32_t count) {
     MetalRenderer *tmpRenderer = GetRenderer();
-    int32_t ret = [tmpRenderer createDepthTextureArray:type width:width height:height count:count];
+    int32_t ret                = [tmpRenderer createDepthTextureArray:type width:width height:height count:count];
     SetRenderer(tmpRenderer);
     return ret;
 }
@@ -152,6 +158,12 @@ void MetalGraphicsManager::SetSkyBox(const DrawFrameContext &context) {
     SetRenderer(tmpRenderer);
 }
 
+void MetalGraphicsManager::SetTerrain(const DrawFrameContext &context) {
+    MetalRenderer *tmpRenderer = GetRenderer();
+    [tmpRenderer setTerrain:context];
+    SetRenderer(tmpRenderer);
+}
+
 void MetalGraphicsManager::SetPerFrameConstants(const DrawFrameContext &context) {
     MetalRenderer *tmpRenderer = GetRenderer();
     [tmpRenderer setPerFrameConstants:context];
@@ -166,7 +178,7 @@ void MetalGraphicsManager::SetPerBatchConstants(const std::vector<std::shared_pt
 
 void MetalGraphicsManager::InitializeBuffers(const Scene &scene) {
     MetalRenderer *tmpRenderer = GetRenderer();
-    
+
     for (auto &frame : m_Frames) {
         frame.batchContext.clear();
     }
@@ -316,9 +328,9 @@ void MetalGraphicsManager::InitializeBuffers(const Scene &scene) {
     SetRenderer(tmpRenderer);
 }
 
-void MetalGraphicsManager::initializeSkyBox(const Scene &scene) {
+void MetalGraphicsManager::InitializeSkyBox(const Scene &scene) {
     MetalRenderer *tmpRenderer = GetRenderer();
-    
+
     if (scene.SkyBox) {
         std::vector<const std::shared_ptr<newbieGE::Image>> images;
         for (uint32_t i = 0; i < 18; i++) {
@@ -336,9 +348,28 @@ void MetalGraphicsManager::initializeSkyBox(const Scene &scene) {
     SetRenderer(tmpRenderer);
 }
 
+void MetalGraphicsManager::InitializeTerrain(const Scene &scene) {
+    MetalRenderer *tmpRenderer = GetRenderer();
+
+    if (scene.Terrain) {
+        std::vector<const std::shared_ptr<newbieGE::Image>> images;
+
+        // Current we use only the first height map
+        auto &texture      = scene.Terrain->GetTexture(0);
+        const auto &pImage = texture.GetTextureImage();
+        images.push_back(pImage);
+
+        int32_t tex_index = [tmpRenderer createTerrain:images];
+        for (uint32_t i = 0; i < GfxConfiguration::kMaxInFlightFrameCount; i++) {
+            m_Frames[i].frameContext.terrainHeightMap = tex_index;
+        }
+    }
+    SetRenderer(tmpRenderer);
+}
+
 bool MetalGraphicsManager::InitializeShaders() {
     MetalRenderer *tmpRenderer = GetRenderer();
-    bool ret = [tmpRenderer InitializeShaders];
+    bool ret                   = [tmpRenderer InitializeShaders];
     SetRenderer(tmpRenderer);
     return ret;
 }
@@ -347,7 +378,8 @@ void MetalGraphicsManager::BeginScene(const Scene &scene) {
     GraphicsManager::BeginScene(scene);
 
     InitializeBuffers(scene);
-    initializeSkyBox(scene);
+    InitializeTerrain(scene);
+    InitializeSkyBox(scene);
 
     cout << "[MetalGraphicsManager] BeginScene Done!" << endl;
 }

@@ -46,6 +46,10 @@ class MetalGraphicsManager : public GraphicsManager {
     void SetSkyBox(const DrawFrameContext &context) final;
     void DrawSkyBox() final;
 
+    // terrain
+    void SetTerrain(const DrawFrameContext &context) final;
+    void DrawTerrain() final;
+
     // pbr compute shader
     void Dispatch(const uint32_t width, const uint32_t height, const uint32_t depth) final;
     int32_t GenerateAndBindTextureForWrite(const char *id, const uint32_t slot_index, const uint32_t width, const uint32_t height) final;
@@ -78,7 +82,8 @@ class MetalGraphicsManager : public GraphicsManager {
 
    private:
     void InitializeBuffers(const Scene &scene);
-    void initializeSkyBox(const Scene &scene);
+    void InitializeSkyBox(const Scene &scene);
+    void InitializeTerrain(const Scene &scene);
 
     // MetalRenderer *m_pRenderer;
     void *m_pRenderer;

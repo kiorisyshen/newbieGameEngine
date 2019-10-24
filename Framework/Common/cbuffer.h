@@ -67,7 +67,8 @@ struct frame_textures {
     std::vector<Light *> shadowMapLight;
     std::vector<Light *> cubeShadowMapLight;
     std::vector<Light *> globalShadowMapLight;
-    int32_t skybox = -1;
+    int32_t skybox;
+    int32_t terrainHeightMap;
     int32_t shadowMap;        // 4 bytes
     int32_t cubeShadowMap;    // 4 bytes
     int32_t globalShadowMap;  // 4 bytes

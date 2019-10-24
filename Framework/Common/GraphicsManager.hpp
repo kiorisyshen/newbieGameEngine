@@ -45,6 +45,10 @@ class GraphicsManager : implements IRuntimeModule {
     virtual void SetSkyBox(const DrawFrameContext &context) = 0;
     virtual void DrawSkyBox()                               = 0;
 
+    // terrain
+    virtual void SetTerrain(const DrawFrameContext &context) = 0;
+    virtual void DrawTerrain()                               = 0;
+
     // pbr compute shader
     virtual void Dispatch(const uint32_t width, const uint32_t height, const uint32_t depth)                                               = 0;
     virtual int32_t GenerateAndBindTextureForWrite(const char *id, const uint32_t slot_index, const uint32_t width, const uint32_t height) = 0;
