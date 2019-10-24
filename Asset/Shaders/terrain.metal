@@ -71,7 +71,7 @@ float4 project(thread const float4 &vertex0, constant PerFrameConstants &v_43) {
 }
 
 float tesselLevel(thread const float2 &v0, thread const float2 &v1) {
-    return clamp(distance(v0, v1) / 2.0, 1.0, 64.0);
+    return clamp(distance(v0, v1) / 2.0 / 10.0, 1.0, 64.0);
 }
 
 kernel void terrainFillFactors_comp_main(device MTLQuadTessellationFactorsHalf *factors [[buffer(0)]],
@@ -86,31 +86,22 @@ kernel void terrainFillFactors_comp_main(device MTLQuadTessellationFactorsHalf *
     float4 v2     = project(param2, pfc);
     float4 param3 = pts.control_points[3].position;
     float4 v3     = project(param3, pfc);
+    
+    float2 ss0 = screen_space(v0);
+    float2 ss1 = screen_space(v1);
+    float2 ss2 = screen_space(v2);
+    float2 ss3 = screen_space(v3);
+    float e0   = tesselLevel(ss1, ss2);
+    float e1   = tesselLevel(ss0, ss1);
+    float e2   = tesselLevel(ss3, ss0);
+    float e3   = tesselLevel(ss2, ss3);
 
-    if (all(bool4(offscreen(v0), offscreen(v1), offscreen(v2), offscreen(v3)))) {
-        factors[pid].edgeTessellationFactor[0]   = 0.0;
-        factors[pid].edgeTessellationFactor[1]   = 0.0;
-        factors[pid].edgeTessellationFactor[2]   = 0.0;
-        factors[pid].edgeTessellationFactor[3]   = 0.0;
-        factors[pid].insideTessellationFactor[0] = 0.0;
-        factors[pid].insideTessellationFactor[1] = 0.0;
-    } else {
-        float2 ss0 = screen_space(v0);
-        float2 ss1 = screen_space(v1);
-        float2 ss2 = screen_space(v2);
-        float2 ss3 = screen_space(v3);
-        float e0   = tesselLevel(ss1, ss2);
-        float e1   = tesselLevel(ss0, ss1);
-        float e2   = tesselLevel(ss3, ss0);
-        float e3   = tesselLevel(ss2, ss3);
-
-        factors[pid].edgeTessellationFactor[0]   = e0;
-        factors[pid].edgeTessellationFactor[1]   = e1;
-        factors[pid].edgeTessellationFactor[2]   = e2;
-        factors[pid].edgeTessellationFactor[3]   = e3;
-        factors[pid].insideTessellationFactor[0] = mix(e1, e2, 0.5);
-        factors[pid].insideTessellationFactor[1] = mix(e0, e3, 0.5);
-    }
+    factors[pid].edgeTessellationFactor[0]   = e0;
+    factors[pid].edgeTessellationFactor[1]   = e1;
+    factors[pid].edgeTessellationFactor[2]   = e2;
+    factors[pid].edgeTessellationFactor[3]   = e3;
+    factors[pid].insideTessellationFactor[0] = mix(e1, e2, 0.5);
+    factors[pid].insideTessellationFactor[1] = mix(e0, e3, 0.5);
 }
 
 [[patch(quad, 4)]] vertex Terrain_vert_out terrain_vert_main(PatchIn patchIn [[stage_in]],
@@ -135,7 +126,8 @@ kernel void terrainFillFactors_comp_main(device MTLQuadTessellationFactorsHalf *
     out.uv       = patch_coord.xy;
     out.v_world  = mix(a, b, v);
     float height = terrainHeightMap.sample(linearSampler, out.uv, level(0.0)).x;
-    out.v_world  = float4(out.v_world.xy, (height - 0.15) * 120.0, 1.0);
+    height       = height * 2.0;
+    out.v_world  = float4(out.v_world.xy, height, 1.0);
 
     out.normal_world = float4(0.0, 0.0, 1.0, 0.0);
     out.gl_Position  = pfc.projectionMatrix * pfc.viewMatrix * out.v_world;

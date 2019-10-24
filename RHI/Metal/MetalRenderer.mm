@@ -292,14 +292,14 @@ struct ShaderState {
         // Terrain vertex shader -- TESE
         id<MTLFunction> vertexFunction   = [myLibrary newFunctionWithName:@"terrain_vert_main"];
         id<MTLFunction> fragmentFunction = [myLibrary newFunctionWithName:@"terrain_frag_main"];
-        
-        MTLVertexDescriptor* vertexDescriptor = [MTLVertexDescriptor vertexDescriptor];
-        vertexDescriptor.attributes[0].format = MTLVertexFormatFloat4;
-        vertexDescriptor.attributes[0].offset = 0;
+
+        MTLVertexDescriptor *vertexDescriptor      = [MTLVertexDescriptor vertexDescriptor];
+        vertexDescriptor.attributes[0].format      = MTLVertexFormatFloat4;
+        vertexDescriptor.attributes[0].offset      = 0;
         vertexDescriptor.attributes[0].bufferIndex = 0;
-        vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerPatchControlPoint;
-        vertexDescriptor.layouts[0].stepRate = 1;
-        vertexDescriptor.layouts[0].stride = 4.0*sizeof(float);
+        vertexDescriptor.layouts[0].stepFunction   = MTLVertexStepFunctionPerPatchControlPoint;
+        vertexDescriptor.layouts[0].stepRate       = 1;
+        vertexDescriptor.layouts[0].stride         = 4.0 * sizeof(float);
 
         MTLRenderPipelineDescriptor *pipelineStateDescriptor    = [[MTLRenderPipelineDescriptor alloc] init];
         pipelineStateDescriptor.label                           = @"Terrain Pipeline";
@@ -309,6 +309,7 @@ struct ShaderState {
         pipelineStateDescriptor.vertexDescriptor                = vertexDescriptor;
         pipelineStateDescriptor.colorAttachments[0].pixelFormat = _mtkView.colorPixelFormat;
         pipelineStateDescriptor.depthAttachmentPixelFormat      = _mtkView.depthStencilPixelFormat;
+        pipelineStateDescriptor.maxTessellationFactor           = 64;
 
         ShaderState terrainSS;
         terrainSS.pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
@@ -568,14 +569,14 @@ struct ShaderState {
 - (void)drawTerrain {
     [_renderEncoder setRenderPipelineState:_renderPassStates[(int32_t)DefaultShaderIndex::TerrainShader].pipelineState];
     [_renderEncoder setDepthStencilState:_renderPassStates[(int32_t)DefaultShaderIndex::TerrainShader].depthStencilState];
-    
+
     // Begin encoding render commands, including commands for the tessellator
     [_renderEncoder pushDebugGroup:@"Tessellate and Render"];
 
     [_renderEncoder setVertexBuffer:_controlPointsBufferQuad offset:0 atIndex:0];
     [_renderEncoder setVertexBuffer:_uniformBuffers offset:0 atIndex:10];
     [_renderEncoder setVertexTexture:_textures[_terrainTexIndex] atIndex:11];
-    
+
     // Enable wireframe mode
     [_renderEncoder setTriangleFillMode:MTLTriangleFillModeLines];
 
@@ -864,8 +865,8 @@ struct ShaderState {
 
 - (void)beginForwardPass {
     {  // control point compute
-        id <MTLComputeCommandEncoder> computeCommandEncoder       = [_commandBuffer computeCommandEncoder];
-        computeCommandEncoder.label = @"TerrainComputeEncoder";
+        id<MTLComputeCommandEncoder> computeCommandEncoder = [_commandBuffer computeCommandEncoder];
+        computeCommandEncoder.label                        = @"TerrainComputeEncoder";
         [computeCommandEncoder pushDebugGroup:@"Compute Tessellation Factors"];
 
         [computeCommandEncoder setComputePipelineState:_terrainCompPipelineState];
@@ -881,7 +882,7 @@ struct ShaderState {
         [computeCommandEncoder popDebugGroup];
         [computeCommandEncoder endEncoding];
     }
-    
+
     MTLRenderPassDescriptor *forwarRenderPassDescriptor = _mtkView.currentRenderPassDescriptor;
     if (forwarRenderPassDescriptor != nil) {
         forwarRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.2f, 0.3f, 0.4f, 1.0f);
@@ -982,32 +983,6 @@ struct ShaderState {
     [_blitEncoder endEncoding];
 }
 
-//static MTLPixelFormat getMtlPixelFormat(const Image &img) {
-//    MTLPixelFormat format = MTLPixelFormatRGBA8Unorm;
-//
-//    switch (img.bitcount) {
-//        case 8:
-//            format = MTLPixelFormatR8Unorm;
-//            break;
-//        case 16:
-//            format = MTLPixelFormatRG8Unorm;
-//            break;
-//        case 32:
-//            format = MTLPixelFormatRGBA8Unorm;
-//            break;
-//        case 64:
-//            // Unimplemented
-//            break;
-//        case 128:
-//            // Unimplemented
-//            break;
-//        default:
-//            assert(0);
-//    }
-//
-//    return format;
-//}
-
 static MTLPixelFormat getMtlPixelFormat(const Image &img) {
     MTLPixelFormat format;
 
@@ -1031,7 +1006,8 @@ static MTLPixelFormat getMtlPixelFormat(const Image &img) {
                 format = MTLPixelFormatR8Unorm;
                 break;
             case 16:
-                format = MTLPixelFormatRG8Unorm;
+                format = MTLPixelFormatR16Unorm;
+                // format = MTLPixelFormatRG8Unorm;
                 break;
             case 32:
                 format = MTLPixelFormatRGBA8Unorm;
