@@ -591,32 +591,6 @@ inline void MatrixRotationYawPitchRoll(Matrix4X4f &matrix, const float yaw, cons
     return;
 }
 
-inline void MatrixRotationVectorAngle(Matrix3X3f &matrix, const Vector3f axis, const float angle) {
-    // Rodrigues rotation fomula
-    Matrix3X3f W = {{{0.0, -axis.data[2], axis.data[1]},
-                     {axis.data[2], 0.0, -axis.data[0]},
-                     {-axis.data[1], axis.data[0], 0}}};
-
-    Matrix3X3f W2 = {{{0.0, axis.data[2] * axis.data[2], axis.data[1] * axis.data[1]},
-                      {axis.data[2] * axis.data[2], 0.0, axis.data[0] * axis.data[0]},
-                      {axis.data[1] * axis.data[1], axis.data[0] * axis.data[0], 0}}};
-
-    matrix = {{{1.0, 0.0, 0.0},
-               {0.0, 1.0, 0.0},
-               {0.0, 0.0, 1.0}}};
-    matrix = matrix + std::sin(angle) * W + (1.0 - std::cos(angle)) * W2;
-
-    return;
-}
-
-inline void MatrixRotation2Euler(Matrix3X3f &matrix, float &angleX, float &angleY, float &angleZ) {
-    angleX = -std::asin(matrix[2].data[0]);
-    angleY = std::atan2(matrix[2].data[1] / std::cos(angleX), matrix[3].data[2] / std::cos(angleX));
-    angleZ = std::atan2(matrix[2].data[0] / std::cos(angleX), matrix[1].data[0] / std::cos(angleX));
-
-    return;
-}
-
 inline void TransformCoord(Vector3f &vector, const Matrix4X4f &matrix) {
     Vector4f tmp({vector[0], vector[1], vector[2], 1.0f});
     ispc::Transform(tmp, matrix);

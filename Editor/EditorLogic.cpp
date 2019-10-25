@@ -118,12 +118,12 @@ void EditorLogic::OnAnalogStick(int id, float deltaX, float deltaY) {
             auto screen_width  = g_pApp->GetConfiguration().screenWidth;
             auto screen_height = g_pApp->GetConfiguration().screenHeight;
 
-            pCameraNode->RotateBy(0.0, 0.0, deltaX / screen_width * PI);
+            Vector3f local_axis = pCameraNode->GetLocalAxis()[2];
+            Vector2f direction  = {local_axis.data[0], local_axis.data[1]};
+            Normalize(direction);
+            float delta = deltaY / screen_height * PI;
 
-            Vector3f axis = pCameraNode->GetLocalAxis()[0];
-            Normalize(axis);
-
-            pCameraNode->RotateBy(axis, deltaY / screen_height * PI);
+            pCameraNode->RotateBy(delta * direction.data[0], -delta * direction.data[1], deltaX / screen_width * PI);
         }
     }
 }

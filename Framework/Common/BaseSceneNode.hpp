@@ -81,22 +81,6 @@ class BaseSceneNode : public TreeNode {
         m_RuntimeTransform = m_RuntimeTransform * rotate;
     }
 
-    void RotateBy(const Vector3f &axis, const float angle) {
-        Matrix3X3f pitch3;
-        MatrixRotationVectorAngle(pitch3, axis, angle);
-
-        Matrix4X4f pitch4 = {{{pitch3[0].data[0], pitch3[0].data[1], pitch3[0].data[2], 0.0},
-                              {pitch3[1].data[0], pitch3[1].data[1], pitch3[1].data[2], 0.0},
-                              {pitch3[2].data[0], pitch3[2].data[1], pitch3[2].data[2], 0.0},
-                              {0.0, 0.0, 0.0, 1.0}}};
-
-        Vector3f up = GetLocalAxis()[1];
-        TransformCoord(up, m_RuntimeTransform * pitch4);
-        if (up.data[2] > 0.01) {  // forbid over rotation
-            m_RuntimeTransform = m_RuntimeTransform * pitch4;
-        }
-    }
-
     void MoveBy(float distance_x, float distance_y, float distance_z) {
         Matrix4X4f translation;
         MatrixTranslation(translation, distance_x, distance_y, distance_z);
