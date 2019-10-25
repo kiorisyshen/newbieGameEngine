@@ -108,10 +108,8 @@ void InputManager::AsciiKeyDown(char keycode) {
         case 'r':
             g_pSceneManager->ResetScene();
             break;
-        case 'u':
-            g_pGameLogic->OnButton1Down();
-            break;
         default:
+            g_pGameLogic->OnButton1Down(keycode);
             cerr << "[InputManager] unhandled key." << endl;
     }
 }
@@ -125,10 +123,8 @@ void InputManager::AsciiKeyUp(char keycode) {
             break;
         case 'r':
             break;
-        case 'u':
-            g_pGameLogic->OnButton1Up();
-            break;
         default:
+            g_pGameLogic->OnButton1Up(keycode);
             cerr << "[InputManager] unhandled key." << endl;
     }
 }

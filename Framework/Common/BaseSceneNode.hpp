@@ -81,6 +81,10 @@ class BaseSceneNode : public TreeNode {
         m_RuntimeTransform = m_RuntimeTransform * rotate;
     }
 
+    void RotateBy(Matrix4X4f rotate) {
+        m_RuntimeTransform = m_RuntimeTransform * rotate;
+    }
+
     void MoveBy(float distance_x, float distance_y, float distance_z) {
         Matrix4X4f translation;
         MatrixTranslation(translation, distance_x, distance_y, distance_z);

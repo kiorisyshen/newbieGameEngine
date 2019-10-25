@@ -75,7 +75,7 @@ float4 project(thread const float4 &vertex0, constant PerFrameConstants &v_43) {
 }
 
 float tesselLevel(thread const float2 &v0, thread const float2 &v1) {
-    return clamp(distance(v0, v1) / 2.0 / 5.0, 1.0, 64.0);
+    return clamp(distance(v0, v1) * 64.0 / 1.5, 1.0, 64.0);
 }
 
 kernel void terrainFillFactors_comp_main(device MTLQuadTessellationFactorsHalf *factors [[buffer(0)]],
@@ -92,14 +92,14 @@ kernel void terrainFillFactors_comp_main(device MTLQuadTessellationFactorsHalf *
     float4 param3 = ptpc.objectLocalMatrix * pts.control_points[3].position;
     float4 v3     = project(param3, pfc);
 
-    float2 ss0 = screen_space(v0);
-    float2 ss1 = screen_space(v1);
-    float2 ss2 = screen_space(v2);
-    float2 ss3 = screen_space(v3);
-    float e0   = tesselLevel(ss1, ss2);
-    float e1   = tesselLevel(ss0, ss1);
-    float e2   = tesselLevel(ss3, ss0);
-    float e3   = tesselLevel(ss2, ss3);
+    // float2 ss0 = screen_space(v0);
+    // float2 ss1 = screen_space(v1);
+    // float2 ss2 = screen_space(v2);
+    // float2 ss3 = screen_space(v3);
+    float e0 = tesselLevel(v1.xy, v2.xy);
+    float e1 = tesselLevel(v0.xy, v1.xy);
+    float e2 = tesselLevel(v3.xy, v0.xy);
+    float e3 = tesselLevel(v2.xy, v3.xy);
 
     factors[pid].edgeTessellationFactor[0]   = e0;
     factors[pid].edgeTessellationFactor[1]   = e1;

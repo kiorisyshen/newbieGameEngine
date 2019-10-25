@@ -39,12 +39,7 @@ void EditorLogic::OnLeftKeyDown() {
     auto &scene      = g_pSceneManager->GetSceneForRendering();
     auto pCameraNode = scene.GetFirstCameraNode();
     if (pCameraNode) {
-        auto local_axis = pCameraNode->GetLocalAxis();
-        Vector3f camera_x_axis;
-        memcpy(camera_x_axis.data, local_axis[0], sizeof(camera_x_axis));
-
-        // move camera along its local axis x direction
-        pCameraNode->MoveBy(camera_x_axis);
+        pCameraNode->RotateBy(0.0f, 0.0f, PI / 90.0);
     }
 }
 
@@ -52,12 +47,7 @@ void EditorLogic::OnRightKeyDown() {
     auto &scene      = g_pSceneManager->GetSceneForRendering();
     auto pCameraNode = scene.GetFirstCameraNode();
     if (pCameraNode) {
-        auto local_axis = pCameraNode->GetLocalAxis();
-        Vector3f camera_x_axis;
-        memcpy(camera_x_axis.data, local_axis[0], sizeof(camera_x_axis));
-
-        // move along camera local axis -x direction
-        pCameraNode->MoveBy(camera_x_axis * -1.0f);
+        pCameraNode->RotateBy(0.0f, 0.0f, -PI / 90.0);
     }
 }
 
@@ -65,12 +55,7 @@ void EditorLogic::OnUpKeyDown() {
     auto &scene      = g_pSceneManager->GetSceneForRendering();
     auto pCameraNode = scene.GetFirstCameraNode();
     if (pCameraNode) {
-        auto local_axis = pCameraNode->GetLocalAxis();
-        Vector3f camera_y_axis;
-        memcpy(camera_y_axis.data, local_axis[1], sizeof(camera_y_axis));
-
-        // move camera along its local axis y direction
-        pCameraNode->MoveBy(camera_y_axis);
+        pCameraNode->MoveBy({0.0, 0.0, 1.0});
     }
 }
 
@@ -78,12 +63,50 @@ void EditorLogic::OnDownKeyDown() {
     auto &scene      = g_pSceneManager->GetSceneForRendering();
     auto pCameraNode = scene.GetFirstCameraNode();
     if (pCameraNode) {
-        auto local_axis = pCameraNode->GetLocalAxis();
-        Vector3f camera_y_axis;
-        memcpy(camera_y_axis.data, local_axis[1], sizeof(camera_y_axis));
+        pCameraNode->MoveBy({0.0, 0.0, -1.0});
+    }
+}
 
-        // move camera along its local axis -y direction
-        pCameraNode->MoveBy(camera_y_axis * -1.0f);
+void EditorLogic::OnButton1Down(char keycode) {
+#ifdef DEBUG
+    cerr << "[EditorLogic] ASCII Key Down! (" << keycode << ")" << endl;
+#endif
+    auto &scene      = g_pSceneManager->GetSceneForRendering();
+    auto pCameraNode = scene.GetFirstCameraNode();
+
+    switch (keycode) {
+        case 'w':
+            if (pCameraNode) {
+                Matrix3X3f local_axis = pCameraNode->GetLocalAxis();
+                Vector2f direction    = {-local_axis[2].data[0], -local_axis[2].data[1]};
+                Normalize(direction);
+                pCameraNode->MoveBy(direction.data[0], direction.data[1], 0.0);
+            }
+            break;
+        case 's':
+            if (pCameraNode) {
+                Matrix3X3f local_axis = pCameraNode->GetLocalAxis();
+                Vector2f direction    = {local_axis[2].data[0], local_axis[2].data[1]};
+                Normalize(direction);
+                pCameraNode->MoveBy(direction.data[0], direction.data[1], 0.0);
+            }
+            break;
+        default:
+            cerr << "[EditorLogic] unhandled key." << endl;
+    }
+}
+
+void EditorLogic::OnButton1Up(char keycode) {
+#ifdef DEBUG
+    cerr << "[EditorLogic] ASCII Key up! (" << keycode << ")" << endl;
+#endif
+    switch (keycode) {
+        case 'w':
+            break;
+        case 's':
+            break;
+        default:
+            cerr << "[EditorLogic] unhandled key." << endl;
     }
 }
 
@@ -94,8 +117,19 @@ void EditorLogic::OnAnalogStick(int id, float deltaX, float deltaY) {
         if (pCameraNode) {
             auto screen_width  = g_pApp->GetConfiguration().screenWidth;
             auto screen_height = g_pApp->GetConfiguration().screenHeight;
-            // move camera along its local axis -y direction
-            pCameraNode->RotateBy(deltaX / screen_width * PI, deltaY / screen_height * PI, 0.0f);
+
+            pCameraNode->RotateBy(0.0, 0.0, deltaX / screen_width * PI);
+
+            Matrix3X3f pitch3;
+            Vector3f axis = pCameraNode->GetLocalAxis()[0];
+            Normalize(axis);
+            MatrixRotationVectorAngle(pitch3, axis, deltaY / screen_height * PI);
+
+            Matrix4X4f pitch4 = {{{pitch3[0].data[0], pitch3[0].data[1], pitch3[0].data[2], 0.0},
+                                  {pitch3[1].data[0], pitch3[1].data[1], pitch3[1].data[2], 0.0},
+                                  {pitch3[2].data[0], pitch3[2].data[1], pitch3[2].data[2], 0.0},
+                                  {0.0, 0.0, 0.0, 1.0}}};
+            pCameraNode->RotateBy(pitch4);
         }
     }
 }
