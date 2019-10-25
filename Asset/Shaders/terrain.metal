@@ -46,6 +46,10 @@ struct PerFrameConstants {
     int numLights;
 };
 
+struct PerTerrainPatchConstants {
+    float4x4 objectLocalMatrix;
+};
+
 bool offscreen(thread const float4 &vertex0) {
     if (vertex0.z < (-0.5)) {
         return true;
@@ -71,30 +75,31 @@ float4 project(thread const float4 &vertex0, constant PerFrameConstants &v_43) {
 }
 
 float tesselLevel(thread const float2 &v0, thread const float2 &v1) {
-    return clamp(distance(v0, v1) / 2.0 / 10.0, 1.0, 64.0);
+    return clamp(distance(v0, v1) * 64.0 / 1.5, 1.0, 64.0);
 }
 
 kernel void terrainFillFactors_comp_main(device MTLQuadTessellationFactorsHalf *factors [[buffer(0)]],
                                          constant AllControlPts &pts [[buffer(1)]],
+                                         constant PerTerrainPatchConstants &ptpc [[buffer(9)]],
                                          constant PerFrameConstants &pfc [[buffer(10)]],
                                          uint pid [[thread_position_in_grid]]) {
-    float4 param  = pts.control_points[0].position;
+    float4 param  = ptpc.objectLocalMatrix * pts.control_points[0].position;
     float4 v0     = project(param, pfc);
-    float4 param1 = pts.control_points[1].position;
+    float4 param1 = ptpc.objectLocalMatrix * pts.control_points[1].position;
     float4 v1     = project(param1, pfc);
-    float4 param2 = pts.control_points[2].position;
+    float4 param2 = ptpc.objectLocalMatrix * pts.control_points[2].position;
     float4 v2     = project(param2, pfc);
-    float4 param3 = pts.control_points[3].position;
+    float4 param3 = ptpc.objectLocalMatrix * pts.control_points[3].position;
     float4 v3     = project(param3, pfc);
-    
-    float2 ss0 = screen_space(v0);
-    float2 ss1 = screen_space(v1);
-    float2 ss2 = screen_space(v2);
-    float2 ss3 = screen_space(v3);
-    float e0   = tesselLevel(ss1, ss2);
-    float e1   = tesselLevel(ss0, ss1);
-    float e2   = tesselLevel(ss3, ss0);
-    float e3   = tesselLevel(ss2, ss3);
+
+    // float2 ss0 = screen_space(v0);
+    // float2 ss1 = screen_space(v1);
+    // float2 ss2 = screen_space(v2);
+    // float2 ss3 = screen_space(v3);
+    float e0 = tesselLevel(v1.xy, v2.xy);
+    float e1 = tesselLevel(v0.xy, v1.xy);
+    float e2 = tesselLevel(v3.xy, v0.xy);
+    float e3 = tesselLevel(v2.xy, v3.xy);
 
     factors[pid].edgeTessellationFactor[0]   = e0;
     factors[pid].edgeTessellationFactor[1]   = e1;
@@ -106,6 +111,7 @@ kernel void terrainFillFactors_comp_main(device MTLQuadTessellationFactorsHalf *
 
 [[patch(quad, 4)]] vertex Terrain_vert_out terrain_vert_main(PatchIn patchIn [[stage_in]],
                                                              float2 patch_coord [[position_in_patch]],
+                                                             constant PerTerrainPatchConstants &ptpc [[buffer(9)]],
                                                              constant PerFrameConstants &pfc [[buffer(10)]],
                                                              texture2d<float> terrainHeightMap [[texture(11)]]) {
     constexpr sampler linearSampler(coord::normalized,
@@ -125,8 +131,9 @@ kernel void terrainFillFactors_comp_main(device MTLQuadTessellationFactorsHalf *
 
     out.uv       = patch_coord.xy;
     out.v_world  = mix(a, b, v);
-    float height = terrainHeightMap.sample(linearSampler, out.uv, level(0.0)).x;
-    height       = height * 2.0;
+    out.v_world  = ptpc.objectLocalMatrix * out.v_world;
+    float height = terrainHeightMap.sample(linearSampler, out.v_world.xy / 10000.0 + 0.5, level(0.0)).x;
+    height       = (height - 0.15) * 5.0;
     out.v_world  = float4(out.v_world.xy, height, 1.0);
 
     out.normal_world = float4(0.0, 0.0, 1.0, 0.0);

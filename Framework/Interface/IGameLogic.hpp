@@ -24,8 +24,8 @@ class IGameLogic : implements IRuntimeModule {
     virtual void OnRightKeyUp(){};
     virtual void OnRightKey(){};
 
-    virtual void OnButton1Down(){};
-    virtual void OnButton1Up(){};
+    virtual void OnButton1Down(char keycode){};
+    virtual void OnButton1Up(char keycode){};
 
     virtual void OnAnalogStick(int id, float deltaX, float deltaY){};
 };

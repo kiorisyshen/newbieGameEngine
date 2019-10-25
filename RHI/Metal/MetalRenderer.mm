@@ -40,8 +40,9 @@ struct ShaderState {
     std::vector<id<MTLBuffer>> _indexBuffers;
     id<MTLBuffer> _uniformBuffers;
     id<MTLBuffer> _lightInfo;
-    id<MTLBuffer> _tessellationFactorsBuffer;
     id<MTLBuffer> _controlPointsBufferQuad;
+    std::vector<id<MTLBuffer>> _tessellationFactorsBuffers;
+    std::vector<id<MTLBuffer>> _terrainTransBuffers;
 
 #ifdef DEBUG
     id<MTLBuffer> _DEBUG_Buffer;
@@ -54,6 +55,10 @@ struct ShaderState {
     int32_t _skyboxTexIndex;
     int32_t _brdfLutIndex;
 }
+
+static const float TERRAIN_PATCH_SIZE  = 32.0;
+static const int32_t TERRAIN_PATCH_ROW = 10; // must be even number
+static const int32_t TERRAIN_PATCH_COL = 10; // must be even number
 
 - (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view;
 {
@@ -328,17 +333,29 @@ struct ShaderState {
         // Create Terrain buffers
         // Allocate memory for the tessellation factors buffer
         // This is a private buffer whose contents are later populated by the GPU (compute kernel)
-        _tessellationFactorsBuffer       = [_device newBufferWithLength:256
-                                                          options:MTLResourceStorageModePrivate];
-        _tessellationFactorsBuffer.label = @"Tessellation Factors";
+        _tessellationFactorsBuffers.resize(TERRAIN_PATCH_COL * TERRAIN_PATCH_ROW);
+        _terrainTransBuffers.resize(TERRAIN_PATCH_COL * TERRAIN_PATCH_ROW);
+        int32_t tmpCount = 0;
+        Matrix4X4f tmpTrans;
+        for (int32_t i = -TERRAIN_PATCH_ROW / 2; i < TERRAIN_PATCH_ROW / 2; i++) {
+            for (int32_t j = -TERRAIN_PATCH_COL / 2; j < TERRAIN_PATCH_COL / 2; j++) {
+                _tessellationFactorsBuffers[tmpCount]       = [_device newBufferWithLength:256
+                                                                      options:MTLResourceStorageModePrivate];
+                _tessellationFactorsBuffers[tmpCount].label = [NSString stringWithFormat:@"Tessellation Factors %d", tmpCount];
+                
+                MatrixTranslation(tmpTrans, TERRAIN_PATCH_SIZE * i, TERRAIN_PATCH_SIZE * j, 0.0f);
+                _terrainTransBuffers[tmpCount] = [_device newBufferWithBytes:tmpTrans
+                                                                      length:sizeof(tmpTrans)
+                                                                     options:MTLResourceStorageModeShared];
+                ++ tmpCount;
+            }
+        }
 
-        static const float half_patch_size = 25.0f;
-        static const float _vertices[]     = {
-            -half_patch_size, half_patch_size, 0.0f, 1.0f,
-            -half_patch_size, -half_patch_size, 0.0f, 1.0f,
-            half_patch_size, -half_patch_size, 0.0f, 1.0f,
-            half_patch_size, half_patch_size, 0.0f, 1.0f,
-        };
+        static const float _vertices[] = {
+            0.0, TERRAIN_PATCH_SIZE, 0.0, 1.0,
+            0.0, 0.0, 0.0, 1.0,
+            TERRAIN_PATCH_SIZE, 0.0, 0.0, 1.0,
+            TERRAIN_PATCH_SIZE, TERRAIN_PATCH_SIZE, 0.0, 1.0};
 
         // In OS X, the storage mode can be shared or managed, but managed may yield better performance
         // In iOS, the storage mode can only be shared
@@ -393,7 +410,8 @@ struct ShaderState {
 
         _renderPassStates[(int32_t)DefaultShaderIndex::PbrShader] = pbrSS;
     }
-// --------------
+    // --------------
+
 #ifdef DEBUG
     // --------------
     // Debug shaders
@@ -573,16 +591,19 @@ struct ShaderState {
     // Begin encoding render commands, including commands for the tessellator
     [_renderEncoder pushDebugGroup:@"Tessellate and Render"];
 
+    // Enable wireframe mode
+    [_renderEncoder setTriangleFillMode:MTLTriangleFillModeLines];
+
     [_renderEncoder setVertexBuffer:_controlPointsBufferQuad offset:0 atIndex:0];
     [_renderEncoder setVertexBuffer:_uniformBuffers offset:0 atIndex:10];
     [_renderEncoder setVertexTexture:_textures[_terrainTexIndex] atIndex:11];
 
-    // Enable wireframe mode
-    [_renderEncoder setTriangleFillMode:MTLTriangleFillModeLines];
-
-    // Encode tessellation-specific commands
-    [_renderEncoder setTessellationFactorBuffer:_tessellationFactorsBuffer offset:0 instanceStride:0];
-    [_renderEncoder drawPatches:4 patchStart:0 patchCount:1 patchIndexBuffer:NULL patchIndexBufferOffset:0 instanceCount:1 baseInstance:0];
+    for (int32_t k = 0; k < _tessellationFactorsBuffers.size(); k++) {
+        // Encode tessellation-specific commands
+        [_renderEncoder setTessellationFactorBuffer:_tessellationFactorsBuffers[k] offset:0 instanceStride:0];
+        [_renderEncoder setVertexBuffer:_terrainTransBuffers[k] offset:0 atIndex:9];
+        [_renderEncoder drawPatches:4 patchStart:0 patchCount:1 patchIndexBuffer:NULL patchIndexBufferOffset:0 instanceCount:1 baseInstance:0];
+    }
 
     // All render commands have been encoded
     [_renderEncoder popDebugGroup];
@@ -872,12 +893,15 @@ struct ShaderState {
         [computeCommandEncoder setComputePipelineState:_terrainCompPipelineState];
 
         // Bind the tessellation factors buffer to the compute kernel
-        [computeCommandEncoder setBuffer:_tessellationFactorsBuffer offset:0 atIndex:0];
         [computeCommandEncoder setBuffer:_controlPointsBufferQuad offset:0 atIndex:1];
         [computeCommandEncoder setBuffer:_uniformBuffers offset:0 atIndex:10];
 
-        // Dispatch threadgroups
-        [computeCommandEncoder dispatchThreadgroups:MTLSizeMake(1, 1, 1) threadsPerThreadgroup:MTLSizeMake(1, 1, 1)];
+        for (int32_t k =0; k<_tessellationFactorsBuffers.size(); ++k) {
+            [computeCommandEncoder setBuffer:_tessellationFactorsBuffers[k] offset:0 atIndex:0];
+            [computeCommandEncoder setBuffer:_terrainTransBuffers[k] offset:0 atIndex:9];
+            // Dispatch threadgroups
+            [computeCommandEncoder dispatchThreadgroups:MTLSizeMake(1, 1, 1) threadsPerThreadgroup:MTLSizeMake(1, 1, 1)];
+        }
 
         [computeCommandEncoder popDebugGroup];
         [computeCommandEncoder endEncoding];

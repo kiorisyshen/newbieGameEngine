@@ -14,6 +14,9 @@ class EditorLogic : implements IGameLogic {
     void OnUpKeyDown() final;
     void OnDownKeyDown() final;
 
+    void OnButton1Down(char keycode) final;
+    void OnButton1Up(char keycode) final;
+
     void OnAnalogStick(int id, float deltaX, float deltaY) final;
 #ifdef DEBUG
     void DrawDebugInfo() final;

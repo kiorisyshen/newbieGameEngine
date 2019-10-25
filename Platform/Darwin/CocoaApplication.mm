@@ -110,6 +110,12 @@ void CocoaApplication::Tick() {
                         case kVK_ANSI_U:  // u key
                             g_pInputManager->AsciiKeyUp('u');
                             break;
+                        case kVK_ANSI_W:  // w key
+                            g_pInputManager->AsciiKeyUp('w');
+                            break;
+                        case kVK_ANSI_S:  // s key
+                            g_pInputManager->AsciiKeyUp('s');
+                            break;
                     }
                 }
                 break;
@@ -148,6 +154,12 @@ void CocoaApplication::Tick() {
                             break;
                         case kVK_ANSI_U:  // u key
                             g_pInputManager->AsciiKeyDown('u');
+                            break;
+                        case kVK_ANSI_W:  // w key
+                            g_pInputManager->AsciiKeyDown('w');
+                            break;
+                        case kVK_ANSI_S:  // s key
+                            g_pInputManager->AsciiKeyDown('s');
                             break;
                         case kVK_ANSI_Q:
                             m_bQuit = true;
