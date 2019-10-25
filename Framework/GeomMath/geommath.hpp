@@ -601,12 +601,18 @@ inline void MatrixRotationVectorAngle(Matrix3X3f &matrix, const Vector3f axis, c
                       {axis.data[2] * axis.data[2], 0.0, axis.data[0] * axis.data[0]},
                       {axis.data[1] * axis.data[1], axis.data[0] * axis.data[0], 0}}};
 
-    float sinAngleOver2 = std::sin(angle / 2.0);
-
     matrix = {{{1.0, 0.0, 0.0},
                {0.0, 1.0, 0.0},
                {0.0, 0.0, 1.0}}};
-    matrix = matrix + std::sin(angle) * W + (2 * sinAngleOver2 * sinAngleOver2) * W2;
+    matrix = matrix + std::sin(angle) * W + (1.0 - std::cos(angle)) * W2;
+
+    return;
+}
+
+inline void MatrixRotation2Euler(Matrix3X3f &matrix, float &angleX, float &angleY, float &angleZ) {
+    angleX = -std::asin(matrix[2].data[0]);
+    angleY = std::atan2(matrix[2].data[1] / std::cos(angleX), matrix[3].data[2] / std::cos(angleX));
+    angleZ = std::atan2(matrix[2].data[0] / std::cos(angleX), matrix[1].data[0] / std::cos(angleX));
 
     return;
 }

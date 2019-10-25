@@ -120,16 +120,10 @@ void EditorLogic::OnAnalogStick(int id, float deltaX, float deltaY) {
 
             pCameraNode->RotateBy(0.0, 0.0, deltaX / screen_width * PI);
 
-            Matrix3X3f pitch3;
             Vector3f axis = pCameraNode->GetLocalAxis()[0];
             Normalize(axis);
-            MatrixRotationVectorAngle(pitch3, axis, deltaY / screen_height * PI);
 
-            Matrix4X4f pitch4 = {{{pitch3[0].data[0], pitch3[0].data[1], pitch3[0].data[2], 0.0},
-                                  {pitch3[1].data[0], pitch3[1].data[1], pitch3[1].data[2], 0.0},
-                                  {pitch3[2].data[0], pitch3[2].data[1], pitch3[2].data[2], 0.0},
-                                  {0.0, 0.0, 0.0, 1.0}}};
-            pCameraNode->RotateBy(pitch4);
+            pCameraNode->RotateBy(axis, deltaY / screen_height * PI);
         }
     }
 }
