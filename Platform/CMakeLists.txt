@@ -1,17 +1,19 @@
-if(${WIN32})
+IF(WIN32)
     # Windows specific code
     add_subdirectory(Windows)
-elseif(${UNIX})
-    if(${APPLE})
+ELSEIF(UNIX)
+    IF(APPLE)
         # Apple specific code
         add_subdirectory(Darwin)
-    elseif(${ANDROID})
+    ELSEIF(ANDROID)
         add_subdirectory(Android)
-    else(${APPLE})
+    ELSEIF(WA)
+        add_subdirectory(Empty)
+    ELSE(APPLE)
         # Linux specific code
         add_subdirectory(Linux)
-    endif(${APPLE})
-else()
+    ENDIF(APPLE)
+ELSE()
     # Empty
     add_subdirectory(Empty)
-endif(${WIN32})
+ENDIF(WIN32)
