@@ -78,9 +78,9 @@ include_directories("${PROJECT_SOURCE_DIR}/RHI")
 include_directories("${PROJECT_SOURCE_DIR}/Platform/Empty")
 include_directories("${PROJECT_SOURCE_DIR}/Platform/${NBGE_TARGET_PLATFORM}")
 
-find_library(XG_LIBRARY xg PATHS ${NBGE_EXTERNAL_LIBRARY_PATH} NO_CMAKE_FIND_ROOT_PATH)
-find_library(OPENDDL_LIBRARY OpenDDL PATHS ${NBGE_EXTERNAL_LIBRARY_PATH} NO_CMAKE_FIND_ROOT_PATH)
-find_library(OPENGEX_LIBRARY OpenGEX PATHS ${NBGE_EXTERNAL_LIBRARY_PATH} NO_CMAKE_FIND_ROOT_PATH)
+find_library(XG_LIBRARY xg PATHS ${NBGE_EXTERNAL_LIBRARY_PATH} NO_CMAKE_FIND_ROOT_PATH NO_SYSTEM_ENVIRONMENT_PATH)
+find_library(OPENDDL_LIBRARY OpenDDL PATHS ${NBGE_EXTERNAL_LIBRARY_PATH} NO_CMAKE_FIND_ROOT_PATH NO_SYSTEM_ENVIRONMENT_PATH)
+find_library(OPENGEX_LIBRARY OpenGEX PATHS ${NBGE_EXTERNAL_LIBRARY_PATH} NO_CMAKE_FIND_ROOT_PATH NO_SYSTEM_ENVIRONMENT_PATH)
 find_library(ZLIB_LIBRARY NAMES z zlib PATHS ${NBGE_EXTERNAL_LIBRARY_PATH} NO_CMAKE_FIND_ROOT_PATH
                                                                            NO_SYSTEM_ENVIRONMENT_PATH)
 include(CTest)
@@ -110,10 +110,10 @@ add_subdirectory(Platform)
 add_subdirectory(Physics)
 add_subdirectory(RHI) # Rendering Hardware Interface
 add_subdirectory(Test)
+IF(NOT ANDROID AND NOT WA)
 add_subdirectory(Game)
-if(NOT ANDROID)
-    add_subdirectory(Editor)
-endif(NOT ANDROID)
+add_subdirectory(Editor)
+ENDIF(NOT ANDROID AND NOT WA)
 
 # ------------------------- Begin Generic CMake Variable Logging
 # ------------------
@@ -287,6 +287,8 @@ message(STATUS "CMAKE_RANLIB: " ${CMAKE_RANLIB})
 message(STATUS "CMAKE_CROSSCOMPILING: " ${CMAKE_CROSSCOMPILING})
 
 message(STATUS "TARGET_ARCH: " ${TARGET_ARCH})
+
+message(STATUS "NBGE_EXTERNAL_LIBRARY_PATH: " ${NBGE_EXTERNAL_LIBRARY_PATH})
 
 message(STATUS "XG_LIBRARY: " ${XG_LIBRARY})
 message(STATUS "OPENDDL_LIBRARY: " ${OPENDDL_LIBRARY})

@@ -44,9 +44,6 @@ endif()
 
 set(ISPC_OPTIONS ${ISPC_OPTIONS} -O2)
 
-set(GEOMMATH_LIB_HEADER_FOLDER ${CMAKE_CURRENT_BINARY_DIR})
-message(status "GEOMMATH_LIB_HEADER_FOLDER " ${GEOMMATH_LIB_HEADER_FOLDER})
-
 add_subdirectory(cpp)
 add_subdirectory(ispc)
 

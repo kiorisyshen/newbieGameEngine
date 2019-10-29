@@ -20,7 +20,7 @@ const Matrix<float, 4, 4> YCbCr2RGB = {{
 
 inline YCbCrf ConvertRGB2YCbCr(const RGBf &rgb) {
     Vector4f result({rgb[0], rgb[1], rgb[2], 1.0f});
-    ispc::Transform(result, RGB2YCbCr);
+    Transform(result, RGB2YCbCr);
     return YCbCrf({std::clamp<float>(result[0] + 0.5f, 0.0f, 255.0f),
                    std::clamp<float>(result[1] + 0.5f, 0.0f, 255.0f),
                    std::clamp<float>(result[2] + 0.5f, 0.0f, 255.0f)});
@@ -28,7 +28,7 @@ inline YCbCrf ConvertRGB2YCbCr(const RGBf &rgb) {
 
 inline RGBf ConvertYCbCr2RGB(const YCbCrf &ycbcr) {
     Vector4f result({ycbcr[0], ycbcr[1], ycbcr[2], 1.0f});
-    ispc::Transform(result, YCbCr2RGB);
+    Transform(result, YCbCr2RGB);
     return RGBf({std::clamp<float>(result[0] + 0.5f, 0.0f, 255.0f),
                  std::clamp<float>(result[1] + 0.5f, 0.0f, 255.0f),
                  std::clamp<float>(result[2] + 0.5f, 0.0f, 255.0f)});

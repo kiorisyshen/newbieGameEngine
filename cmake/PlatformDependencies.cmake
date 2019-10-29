@@ -12,10 +12,13 @@ macro(__add_xg_platform_dependencies target)
         # nothing here
     elseif(PSP2)
         # nothing here
+    elseif(WA)
+        # nothing here
     else()
         find_package(Libuuid REQUIRED)
-        if(NOT LIBUUID_FOUND)
-            message(FATAL_ERROR "You might need to run 'sudo apt-get install uuid-dev' or similar")
+        if (NOT LIBUUID_FOUND)
+            message(FATAL_ERROR
+                "You might need to run 'sudo apt-get install uuid-dev' or similar")
         endif()
         include_directories(${LIBUUID_INCLUDE_DIR})
         target_link_libraries(${target} ${LIBUUID_LIBRARY})
@@ -23,3 +26,4 @@ macro(__add_xg_platform_dependencies target)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic")
     endif()
 endmacro()
+
