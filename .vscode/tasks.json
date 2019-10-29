@@ -35,20 +35,20 @@
             "label": "Cmake Test Debug",
             "type": "shell",
             "command": "mkdir -p build/Debug  && cd build && rm -rf Debug && mkdir -p Debug && cd Debug && cmake -DCMAKE_BUILD_TYPE=Debug ../.. && cmake --build . -- -j 4 && cmake --build . --config Debug --target test && cd ../.."
-        },
-        {
-            "label": "Build WebAssembly Debug",
-            "type": "shell",
-            "command": [
-                "source /Users/shen/Learning/emsdk/emsdk_env.sh",
-                "&& export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/External/$(uname -s)/lib",
-                "&& mkdir -p build/WA/Debug",
-                "&& cd build/WA && rm -rf Debug",
-                "&& mkdir -p Debug && cd Debug",
-                "&& cmake -DEMSCRIPTEN_ROOT_PATH=/Users/shen/Learning/emsdk/upstream/emscripten -DCMAKE_TOOLCHAIN_FILE=../../../cmake/Emscripten.cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ../../.. ",
-                "&& cmake --build . -- -j 4",
-                "&& cd ../../.."
-            ]
         }
+        // {
+        //     "label": "Build WebAssembly Debug",
+        //     "type": "shell",
+        //     "command": [
+        //         "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/External/$(uname -s)/lib",
+        //         "&& mkdir -p build/WA/Debug",
+        //         "&& cd build/WA",
+        //         "&& mkdir -p Debug",
+        //         "&& cd Debug",
+        //         "&& cmake -DCMAKE_TOOLCHAIN_FILE=../../../cmake/Emscripten.cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ../../..",
+        //         "&& cmake --build . -- -j8",
+        //         "&& cd ../../.."
+        //     ]
+        // }
     ]
 }
