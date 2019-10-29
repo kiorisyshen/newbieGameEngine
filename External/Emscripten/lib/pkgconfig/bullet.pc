@@ -1,0 +1,6 @@
+Name: bullet
+Description: Bullet Continuous Collision Detection and Physics Library
+Requires:
+Version: 2.88
+Libs: -L/Users/shen/Home/Learning/Game/newbieGameEngine/External/Emscripten/lib -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath
+Cflags: -DBT_USE_DOUBLE_PRECISION -I/Users/shen/Home/Learning/Game/newbieGameEngine/External/Emscripten/include/bullet -I/Users/shen/Home/Learning/Game/newbieGameEngine/External/Emscripten/include

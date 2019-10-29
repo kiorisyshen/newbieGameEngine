@@ -1,7 +1,8 @@
 set(TEST_CASES AssetLoaderTest GeomMathTest ColorSpaceConversionTest
                JpegParserTest DdsParserTest HdrParserTest TgaParserTest
                NumericalMethodsTest BezierCubic1DTest QuickhullTest GjkTest LinearInterpolateTest QRDecomposeTest PolarDecomposeTest
-               #RasterizationTest SceneObjectTest BulletTest OgexParserTest SceneLoadingTest PngParserTest AnimationTest
+               BulletTest OgexParserTest SceneLoadingTest PngParserTest AnimationTest
+               #RasterizationTest SceneObjectTest
         )
 
 foreach(TEST_CASE IN LISTS TEST_CASES)
@@ -10,7 +11,13 @@ foreach(TEST_CASE IN LISTS TEST_CASES)
     add_test(NAME TEST_${TEST_CASE} COMMAND ${TEST_CASE})
 endforeach(TEST_CASE)
 
-# target_link_libraries(BulletTest BulletPhysics)
+target_link_libraries(BulletTest BulletPhysics)
+
+IF(WA)
+set_target_properties(${TEST_CASES}
+        PROPERTIES LINK_FLAGS "--shell-file ${CMAKE_CURRENT_SOURCE_DIR}/Test.html"
+        )
+ENDIF(WA)
 
 IF(WA)
 add_custom_target(PackageAsset ALL

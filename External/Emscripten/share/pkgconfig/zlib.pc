@@ -1,0 +1,13 @@
+prefix=/Users/shen/Home/Learning/Game/newbieGameEngine/External
+exec_prefix=/Users/shen/Home/Learning/Game/newbieGameEngine/External
+libdir=/Users/shen/Home/Learning/Game/newbieGameEngine/External/Emscripten/lib
+sharedlibdir=/Users/shen/Home/Learning/Game/newbieGameEngine/External/Emscripten/lib
+includedir=/Users/shen/Home/Learning/Game/newbieGameEngine/External/Emscripten/include
+
+Name: zlib
+Description: zlib compression library
+Version: 1.2.11
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -lz
+Cflags: -I${includedir}
