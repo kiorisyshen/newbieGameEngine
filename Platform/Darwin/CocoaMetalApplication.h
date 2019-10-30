@@ -7,8 +7,8 @@ class CocoaMetalApplication : public CocoaApplication {
     CocoaMetalApplication(GfxConfiguration &config)
         : CocoaApplication(config){};
 
-    virtual int Initialize();
-    virtual void Finalize();
-    virtual void Tick();
+    void Tick() override;
+    void Finalize() override;
+    void CreateMainWindow() override;
 };
 }  // namespace newbieGE

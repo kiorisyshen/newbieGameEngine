@@ -56,14 +56,20 @@ if(APPLE)
 else(APPLE)
     add_executable(Editor EditorLogic.cpp EditorConfig.cpp)
 endif(APPLE)
+
 if(WIN32)
-    target_link_libraries(Editor MyPhysics newbieGameEngine)
-    add_custom_command(TARGET Editor POST_BUILD
-                       COMMAND ${CMAKE_COMMAND}
-                               -E
-                               copy_if_different
-                               "${PROJECT_SOURCE_DIR}/External/Windows/bin/zlib.dll"
-                               $<TARGET_FILE_DIR:Editor>)
+    # target_link_libraries(Editor MyPhysics newbieGameEngine)
+    # add_custom_command(TARGET Editor POST_BUILD
+    #                    COMMAND ${CMAKE_COMMAND}
+    #                            -E
+    #                            copy_if_different
+    #                            "${PROJECT_SOURCE_DIR}/External/Windows/bin/zlib.dll"
+    #                            $<TARGET_FILE_DIR:Editor>)
 else(WIN32)
-    target_link_libraries(Editor MyPhysics newbieGameEngine)
+    target_link_libraries(Editor
+                            MyPhysics
+                            Common
+                            PlatformInterface
+                            MetalRHI)
+    
 endif(WIN32)

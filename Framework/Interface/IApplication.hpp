@@ -1,5 +1,5 @@
 #pragma once
-#include "GfxConfiguration.h"
+#include "GfxConfiguration.hpp"
 #include "IRuntimeModule.hpp"
 
 namespace newbieGE {
@@ -15,6 +15,10 @@ Interface IApplication : implements IRuntimeModule {
     virtual const char *GetCommandLineArgument(int index) const  = 0;
 
     virtual bool IsQuit() const = 0;
+    virtual void RequestQuit()  = 0;
+
+    virtual void CreateMainWindow()      = 0;
+    virtual void *GetMainWindowHandler() = 0;
 
     virtual const GfxConfiguration &GetConfiguration() const = 0;
 };

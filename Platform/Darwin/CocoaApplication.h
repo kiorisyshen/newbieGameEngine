@@ -10,10 +10,12 @@ class CocoaApplication : public BaseApplication {
     CocoaApplication(GfxConfiguration &config)
         : BaseApplication(config){};
 
-    virtual int Initialize();
-    virtual void Finalize();
+    void Finalize() override;
     // One cycle of the main loop
-    virtual void Tick();
+    void Tick() override;
+
+    void *GetMainWindowHandler() override;
+    void CreateMainWindow() override;
 
 #ifdef __OBJC__
     NSWindow *GetWindowRef();
