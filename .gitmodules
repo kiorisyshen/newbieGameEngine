@@ -16,3 +16,6 @@
 [submodule "External/src/bullet3"]
 	path = External/src/bullet3
 	url = https://github.com/kiorisyshen/bullet3.git
+[submodule "External/src/SDL"]
+	path = External/src/SDL
+	url = https://github.com/kiorisyshen/SDL.git
