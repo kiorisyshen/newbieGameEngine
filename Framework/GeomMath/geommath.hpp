@@ -372,12 +372,12 @@ Vector<T, N> pow(const Vector<T, N> &vec, const Scalar exponent) {
 }
 
 template <typename T>
-inline T abs(const T data) {
-    return std::abs(data);
+inline T fabs(const T data) {
+    return std::fabs(data);
 }
 
 template <typename T, int N>
-Vector<T, N> abs(const Vector<T, N> &vec) {
+Vector<T, N> fabs(const Vector<T, N> &vec) {
     Vector<T, N> result;
 #ifdef USE_ISPC
     ispc::Absolute(result, vec, N);
@@ -395,22 +395,22 @@ inline T Length(const Vector<T, N> &vec) {
 }
 
 template <typename T, int N>
-inline bool operator>=(Vector<T, N> &vec, Scalar scalar) {
+inline bool operator>=(Vector<T, N> &&vec, Scalar scalar) {
     return Length(vec) >= scalar;
 }
 
 template <typename T, int N>
-inline bool operator>(Vector<T, N> &vec, Scalar scalar) {
+inline bool operator>(Vector<T, N> &&vec, Scalar scalar) {
     return Length(vec) > scalar;
 }
 
 template <typename T, int N>
-inline bool operator<=(Vector<T, N> &vec, Scalar scalar) {
+inline bool operator<=(Vector<T, N> &&vec, Scalar scalar) {
     return Length(vec) <= scalar;
 }
 
 template <typename T, int N>
-inline bool operator<(Vector<T, N> &vec, Scalar scalar) {
+inline bool operator<(Vector<T, N> &&vec, Scalar scalar) {
     return Length(vec) < scalar;
 }
 
