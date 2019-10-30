@@ -12,6 +12,15 @@
 
 #include "CocoaMetalApplication.h"
 #include "Metal/MetalConfig.hpp"
+
+#if defined(OS_ANDROID) || defined(OS_WEBASSEMBLY)
+#include "OpenGL/OpenGLESConfig.hpp"
+#elif defined(OS_MACOS)
+#include "Metal/MetalConfig.hpp"
+#else
+#include "Metal/MetalConfig.hpp"
+// #include "OpenGL/OpenGLConfig.hpp"
+#endif
 // #include "RHI/Empty/EmptyConfig.hpp"
 
 namespace newbieGE {

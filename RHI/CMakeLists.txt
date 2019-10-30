@@ -12,5 +12,7 @@ else()
         # Darwin specific code
         add_subdirectory(Metal)
     endif(${APPLE})
-    # add_subdirectory(OpenGL)
+    if(WA)
+        add_subdirectory(OpenGL)
+    endif()
 endif()

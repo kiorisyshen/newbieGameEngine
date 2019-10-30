@@ -29,10 +29,14 @@ int GraphicsManager::Initialize() {
 
 #ifndef OS_WEBASSEMBLY
     m_InitPasses.push_back(make_shared<BRDFIntegrator>());
-#endif
     m_DrawPasses.push_back(make_shared<ShadowMapPass>());
+#endif
+
     m_DrawPasses.push_back(make_shared<ForwardRenderPass>());
+
+#ifndef OS_WEBASSEMBLY
     m_DrawPasses.push_back(make_shared<HUDPass>());
+#endif
 
     bool initShaderSucc = InitializeShaders();
     if (!initShaderSucc) result = -1;
