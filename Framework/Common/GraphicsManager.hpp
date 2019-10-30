@@ -18,40 +18,61 @@ class GraphicsManager : implements IRuntimeModule {
 
     void Tick() override;
 
-    virtual void UseShaderProgram(const DefaultShaderIndex idx) = 0;
+    virtual void UseShaderProgram(const DefaultShaderIndex idx) {
+    }
 
     virtual void RenderBuffers() final;
 
-    virtual void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches)                                                             = 0;
-    virtual void DrawBatchPBR(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches)                                                          = 0;
-    virtual void DrawBatchDepthFromLight(const Light &light, const ShadowMapType type, const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) = 0;
+    virtual void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) {
+    }
+    virtual void DrawBatchPBR(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) {
+    }
+    virtual void DrawBatchDepthFromLight(const Light &light, const ShadowMapType type, const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) {
+    }
 
-    virtual void BeginForwardPass() = 0;
-    virtual void EndForwardPass()   = 0;
+    virtual void BeginForwardPass() {
+    }
+    virtual void EndForwardPass() {
+    }
 
-    virtual void BeginHUDPass() = 0;
-    virtual void EndHUDPass()   = 0;
+    virtual void BeginHUDPass() {
+    }
+    virtual void EndHUDPass() {
+    }
 
     // Shadow Map
-    virtual void BeginShadowPass(const int32_t shadowmap, const int32_t layerIndex) = 0;
-    virtual void EndShadowPass(const int32_t shadowmap, const int32_t layerIndex)   = 0;
+    virtual void BeginShadowPass(const int32_t shadowmap, const int32_t layerIndex) {
+    }
+    virtual void EndShadowPass(const int32_t shadowmap, const int32_t layerIndex) {
+    }
 
-    virtual int32_t GenerateShadowMapArray(const ShadowMapType type, const uint32_t width, const uint32_t height, const uint32_t count) = 0;
-    virtual void DestroyShadowMaps()                                                                                                    = 0;
+    virtual int32_t GenerateShadowMapArray(const ShadowMapType type, const uint32_t width, const uint32_t height, const uint32_t count) {
+        return -1;
+    }
+    virtual void DestroyShadowMaps() {
+    }
 
-    virtual void SetShadowMaps(const Frame &frame) = 0;
+    virtual void SetShadowMaps(const Frame &frame) {
+    }
 
     // skybox
-    virtual void SetSkyBox(const DrawFrameContext &context) = 0;
-    virtual void DrawSkyBox()                               = 0;
+    virtual void SetSkyBox(const DrawFrameContext &context) {
+    }
+    virtual void DrawSkyBox() {
+    }
 
     // terrain
-    virtual void SetTerrain(const DrawFrameContext &context) = 0;
-    virtual void DrawTerrain()                               = 0;
+    virtual void SetTerrain(const DrawFrameContext &context) {
+    }
+    virtual void DrawTerrain() {
+    }
 
     // pbr compute shader
-    virtual void Dispatch(const uint32_t width, const uint32_t height, const uint32_t depth)                                               = 0;
-    virtual int32_t GenerateAndBindTextureForWrite(const char *id, const uint32_t slot_index, const uint32_t width, const uint32_t height) = 0;
+    virtual void Dispatch(const uint32_t width, const uint32_t height, const uint32_t depth) {
+    }
+    virtual int32_t GenerateAndBindTextureForWrite(const char *id, const uint32_t slot_index, const uint32_t width, const uint32_t height) {
+        return -1;
+    }
 
 #ifdef DEBUG
     virtual void DEBUG_ToggleDebugInfo() final;
@@ -67,31 +88,43 @@ class GraphicsManager : implements IRuntimeModule {
     virtual void DEBUG_SetDrawPolyhydronParam(const Polyhedron &polyhedron, const Matrix4X4f &trans, const Vector3f &color) final;
     virtual void DEBUG_SetDrawBoxParam(const Vector3f &bbMin, const Vector3f &bbMax, const Vector3f &color) final;
 
-    virtual void DEBUG_SetBuffer() = 0;
+    virtual void DEBUG_SetBuffer() {
+    }
     virtual void DEBUG_ClearDebugBuffers();
 
-    virtual void DEBUG_DrawDebug()                                  = 0;
+    virtual void DEBUG_DrawDebug() {
+    }
     virtual void DEBUG_DrawOverlay(const int32_t shadowmap,
                                    const int32_t layerIndex,
                                    float vp_left, float vp_top,
-                                   float vp_width, float vp_height) = 0;
+                                   float vp_width, float vp_height) {
+    }
 #endif
 
    protected:
-    virtual bool InitializeShaders() = 0;  // Need to initialize all shaders in DefaultShaderIndex
+    virtual bool InitializeShaders() {
+        return true;
+    }  // Need to initialize all shaders in DefaultShaderIndex
 
     virtual void BeginScene(const Scene &scene);
     virtual void EndScene();
 
-    virtual void BeginFrame() = 0;
-    virtual void EndFrame()   = 0;
+    virtual void BeginFrame() {
+    }
+    virtual void EndFrame() {
+    }
 
-    virtual void BeginCompute() = 0;
-    virtual void EndCompute()   = 0;
+    virtual void BeginCompute() {
+    }
+    virtual void EndCompute() {
+    }
 
-    virtual void SetLightInfo(const LightInfo &lightInfo)                                             = 0;
-    virtual void SetPerFrameConstants(const DrawFrameContext &context)                                = 0;
-    virtual void SetPerBatchConstants(const std::vector<std::shared_ptr<DrawBatchConstant>> &context) = 0;
+    virtual void SetLightInfo(const LightInfo &lightInfo) {
+    }
+    virtual void SetPerFrameConstants(const DrawFrameContext &context) {
+    }
+    virtual void SetPerBatchConstants(const std::vector<std::shared_ptr<DrawBatchConstant>> &context) {
+    }
 
     virtual void CalculateCameraMatrix() final;
     virtual void CalculateLights() final;

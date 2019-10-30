@@ -18,7 +18,7 @@ int main(int, char **) {
 #ifdef __ORBIS__
     g_pAssetLoader->AddSearchPath("/app0");
 #endif
-    string shader_pgm = g_pAssetLoader->SyncOpenAndReadTextFileToString("Shaders/copy.vs");
+    string shader_pgm = g_pAssetLoader->SyncOpenAndReadTextFileToString("Shaders/basic.metal");
 
     cout << shader_pgm;
 
