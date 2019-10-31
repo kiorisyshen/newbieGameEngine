@@ -10,8 +10,13 @@
 #include "InputManager.hpp"
 #include "MemoryManager.hpp"
 
+#if defined(OS_WEBASSEMBLY)
+#include "Platform/Sdl/OpenGLApplication.hpp"
+#elif defined(OS_MACOS)
 #include "CocoaMetalApplication.h"
-#include "Metal/MetalConfig.hpp"
+#else
+#include "CocoaMetalApplication.hpp"
+#endif
 
 #if defined(OS_ANDROID) || defined(OS_WEBASSEMBLY)
 #include "OpenGL/OpenGLESConfig.hpp"
@@ -25,7 +30,11 @@
 
 namespace newbieGE {
 GfxConfiguration config(8, 8, 8, 8, 24, 8, 0, 960, 540, "NewbieGameEngine Editor");
-IApplication *g_pApp                  = static_cast<IApplication *>(new CocoaMetalApplication(config));
+#if defined(OS_MACOS)
+IApplication *g_pApp = static_cast<IApplication *>(new CocoaMetalApplication(config));
+#else
+IApplication *g_pApp = static_cast<IApplication *>(new OpenGLApplication(config));
+#endif
 IGameLogic *g_pGameLogic              = static_cast<IGameLogic *>(new EditorLogic);
 IPhysicsManager *g_pPhysicsManager    = static_cast<IPhysicsManager *>(new MyPhysicsManager);
 IMemoryManager *g_pMemoryManager      = static_cast<IMemoryManager *>(new MemoryManager);

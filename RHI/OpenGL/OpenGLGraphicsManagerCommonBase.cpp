@@ -500,11 +500,60 @@ void OpenGLGraphicsManagerCommonBase::BeginScene(const Scene &scene) {
     cout << "[OpenGLGraphicsManagerCommonBase] BeginScene Done!" << endl;
 }
 
-void EndScene() {
-    // TODO: unimplemented
+void OpenGLGraphicsManagerCommonBase::EndScene() {
+    for (int i = 0; i < GfxConfiguration::kMaxInFlightFrameCount; i++) {
+        auto &batchContext = m_Frames[i].batchContext;
+
+        for (auto &dbc : batchContext) {
+            glDeleteVertexArrays(1, &dynamic_pointer_cast<OpenGLDrawBatchContext>(dbc)->vao);
+        }
+
+        batchContext.clear();
+
+        if (m_uboDrawFrameConstant[i]) {
+            glDeleteBuffers(1, &m_uboDrawFrameConstant[i]);
+        }
+
+        if (m_uboDrawBatchConstant[i]) {
+            glDeleteBuffers(1, &m_uboDrawBatchConstant[i]);
+        }
+
+        if (m_uboLightInfo[i]) {
+            glDeleteBuffers(1, &m_uboLightInfo[i]);
+        }
+
+        // if (m_uboShadowMatricesConstant[i]) {
+        //     glDeleteBuffers(1, &m_uboShadowMatricesConstant[i]);
+        // }
+
+        // if (m_uboDebugConstant[i]) {
+        //     glDeleteBuffers(1, &m_uboDebugConstant[i]);
+        // }
+    }
+
+    // if (m_TerrainDrawBatchContext.vao) {
+    //     glDeleteVertexArrays(1, &m_TerrainDrawBatchContext.vao);
+    // }
+
+    // if (m_SkyBoxDrawBatchContext.vao) {
+    //     glDeleteVertexArrays(1, &m_SkyBoxDrawBatchContext.vao);
+    // }
+
+    for (auto &buf : m_Buffers) {
+        glDeleteBuffers(1, &buf);
+    }
+
+    for (auto &it : m_Textures) {
+        glDeleteTextures(1, &it.second);
+    }
+
+    m_Buffers.clear();
+    m_Textures.clear();
+
+    GraphicsManager::EndScene();
 }
 
-void BeginFrame() {
+void OpenGLGraphicsManagerCommonBase::BeginFrame() {
     // reset gl error
     glGetError();
 
@@ -514,7 +563,7 @@ void BeginFrame() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void EndFrame() {
+void OpenGLGraphicsManagerCommonBase::EndFrame() {
     glFlush();
 }
 

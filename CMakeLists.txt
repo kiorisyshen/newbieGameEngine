@@ -122,9 +122,9 @@ add_subdirectory(Platform)
 add_subdirectory(Physics)
 add_subdirectory(RHI) # Rendering Hardware Interface
 add_subdirectory(Test)
+add_subdirectory(Editor)
 IF(NOT ANDROID AND NOT WA)
 # add_subdirectory(Game)
-add_subdirectory(Editor)
 ENDIF(NOT ANDROID AND NOT WA)
 
 # ------------------------- Begin Generic CMake Variable Logging

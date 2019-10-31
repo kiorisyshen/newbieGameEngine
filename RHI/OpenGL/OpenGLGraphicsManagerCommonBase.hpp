@@ -19,7 +19,6 @@ struct OpenGLDrawBatchContext : public DrawBatchConstant {
 class OpenGLGraphicsManagerCommonBase : public GraphicsManager {
    public:
     int Initialize() = 0;
-    void Finalize()  = 0;
 
     void ResizeCanvas(int32_t width, int32_t height) final;
 

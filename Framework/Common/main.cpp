@@ -22,6 +22,7 @@
 #include "DebugManager.hpp"
 
 #include "AnimationManager.hpp"
+
 #if defined(OS_WEBASSEMBLY)
 #include <functional>
 
