@@ -26,6 +26,9 @@
 using namespace std;
 using namespace newbieGE;
 
+// --------------------------------------------------------------
+// Shader management
+// --------------------------------------------------------------
 #define VS_BASIC_SOURCE_FILE SHADER_ROOT "basic.vert.glsl"
 #define PS_BASIC_SOURCE_FILE SHADER_ROOT "basic.frag.glsl"
 #define VS_SHADOWMAP_SOURCE_FILE SHADER_ROOT "shadowmap.vert.glsl"
@@ -196,6 +199,9 @@ static bool LoadShaderProgram(const ShaderSourceList &source, GLuint &shaderProg
     return true;
 }
 
+// --------------------------------------------------------------
+// OpenGLGraphicsManagerCommonBase implementation
+// --------------------------------------------------------------
 void OpenGLGraphicsManagerCommonBase::ResizeCanvas(int32_t width, int32_t height) {
     //Reset View
     glViewport(0, 0, (GLint)width, (GLint)height);
