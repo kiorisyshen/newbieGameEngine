@@ -208,7 +208,7 @@ void OpenGLGraphicsManagerCommonBase::ResizeCanvas(int32_t width, int32_t height
 }
 
 void OpenGLGraphicsManagerCommonBase::UseShaderProgram(const DefaultShaderIndex idx) {
-    m_CurrentShader = m_ShaderList[idx];
+    m_CurrentShader = m_ShaderList[(int32_t)idx];
 
     glUseProgram(m_CurrentShader);
 }
@@ -227,7 +227,7 @@ bool OpenGLGraphicsManagerCommonBase::InitializeShaders() {
         return result;
     }
 
-    m_ShaderList[DefaultShaderIndex::BasicShader] = shaderProgram;
+    m_ShaderList[(int32_t)DefaultShaderIndex::BasicShader] = shaderProgram;
 
     return result;
 }

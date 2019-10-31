@@ -111,7 +111,7 @@ class OpenGLGraphicsManagerCommonBase : public GraphicsManager {
     // Private Variables
     // --------------------
     uint32_t m_CurrentShader;
-    std::unordered_map<DefaultShaderIndex, uint32_t> m_ShaderList;
+    std::unordered_map<int32_t, uint32_t> m_ShaderList;
 
     // Uniform buffers
     uint32_t m_uboDrawFrameConstant[GfxConfiguration::kMaxInFlightFrameCount] = {0};
