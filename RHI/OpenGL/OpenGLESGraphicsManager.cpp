@@ -5,8 +5,9 @@
 #include <iostream>
 #include <sstream>
 
-#include <GLES2/gl2ext.h>
 #include <GLES3/gl32.h>
+
+#include <GLES2/gl2ext.h>
 
 #if defined(OS_WEBASSEMBLY)
 // disable compute shader

@@ -515,7 +515,7 @@ void BeginFrame() {
 }
 
 void EndFrame() {
-    // Empty
+    glFlush();
 }
 
 void OpenGLGraphicsManagerCommonBase::SetPerFrameConstants(const DrawFrameContext &context) {

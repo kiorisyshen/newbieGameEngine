@@ -77,6 +77,8 @@ void GraphicsManager::Tick() {
     SetLightInfo(frame.lightInfo);
 
     m_bFinishInit = true;
+
+    RenderBuffers();
 }
 
 void GraphicsManager::UpdateConstants() {
