@@ -1,6 +1,6 @@
 add_library(Sdl
     SdlApplication.cpp
-    OpenGLApplication.cpp
+    # OpenGLApplication.cpp
 )
 
 IF(WA)

@@ -12,23 +12,20 @@ struct basic_vert_output {
 };
 
 struct Light {
-    highp mat4 lightVP;                   // 64 bytes
-    highp vec4 lightPosition;             // 16 bytes
-    highp vec4 lightColor;                // 16 bytes
-    highp vec4 lightDirection;            // 16 bytes
-    float lightDistAttenCurveParams[8];   // 32 bytes
-    float lightAngleAttenCurveParams[8];  // 32 bytes
-    highp vec2 lightSize;                 // 8 bytes
-    int lightDistAttenCurveType;          // 4 bytes
-    int lightAngleAttenCurveType;         // 4 bytes
-    highp float lightIntensity;           // 4 bytes
-    int lightType;                        // 4 bytes
-    int lightCastShadow;                  // 4 bytes
-    int lightShadowMapIndex;              // 4 bytes
-    // Above is 208 bytes
-
-    // Fill bytes to align to 256 bytes (Metal required)
-    float padding[12];  // 48 bytes
+    highp mat4 lightVP;
+    highp vec4 lightPosition;
+    highp vec4 lightColor;
+    highp vec4 lightDirection;
+    float lightDistAttenCurveParams[8];
+    float lightAngleAttenCurveParams[8];
+    highp vec2 lightSize;
+    int lightDistAttenCurveType;
+    int lightAngleAttenCurveType;
+    float lightIntensity;
+    int lightType;
+    int lightCastShadow;
+    int lightShadowMapIndex;
+    float padding[12];
 };
 
 layout(std140) uniform PerFrameConstants {
@@ -56,20 +53,12 @@ in highp vec2 _entryPointOutput_uv;
 layout(location = 0) out highp vec4 _entryPointOutput;
 
 void main() {
-    basic_vert_output _entryPointOutput_1;
-    _entryPointOutput_1.pos          = gl_FragCoord;
-    _entryPointOutput_1.normal       = _entryPointOutput_normal;
-    _entryPointOutput_1.normal_world = _entryPointOutput_normal_world;
-    _entryPointOutput_1.v            = _entryPointOutput_v;
-    _entryPointOutput_1.v_world      = _entryPointOutput_v_world;
-    _entryPointOutput_1.uv           = _entryPointOutput_uv;
-    basic_vert_output param          = _entryPointOutput_1;
-    _entryPointOutput                = _basic_frag_main(param);
-
-    vec3 N        = normalize(_entryPointOutput_normal.xyz);
-    vec3 L        = normalize((viewMatrix * vec4(_677[0].lightPosition, 1.0f)).xyz - _entryPointOutput_v.xyz);
-    vec3 R        = normalize(2 * dot(L, N) * N - L);
-    vec3 V        = normalize(_entryPointOutput_v.xyz);
-    float diffuse = dot(N, L);
-    outputColor   = vec4(_677[0].lightColor.rgb * clamp(diffuse + 0.01 * dot(R, V), 0.0f, 1.0f), 1.0f);
+    // vec3 N            = normalize(_entryPointOutput_normal.xyz);
+    // vec3 L            = normalize((_280.viewMatrix * vec4(_677.lights[0].lightPosition.xyz, 1.0f)).xyz - _entryPointOutput_v.xyz);
+    // float NdotL       = dot(N, L);
+    // vec3 R            = normalize((NdotL * 2.0f) * N - L);
+    // vec3 V            = normalize(_entryPointOutput_v.xyz);
+    // float diffuse     = NdotL;
+    // _entryPointOutput = vec4(_677.lights[0].lightColor.rgb * clamp(diffuse + 0.01 * dot(R, V), 0.0f, 1.0f), 1.0f);
+    _entryPointOutput = vec4(0.4, 0.8, 0.2, 1.0);
 }

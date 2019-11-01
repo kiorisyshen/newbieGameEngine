@@ -24,6 +24,7 @@ class SdlApplication : public BaseApplication {
 
    protected:
     SDL_Window *m_pWindow;
+    SDL_GLContext m_hContext;
 
     bool m_bInDrag = false;
 };

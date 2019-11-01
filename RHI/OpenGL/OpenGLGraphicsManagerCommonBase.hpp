@@ -18,7 +18,7 @@ struct OpenGLDrawBatchContext : public DrawBatchConstant {
 
 class OpenGLGraphicsManagerCommonBase : public GraphicsManager {
    public:
-    int Initialize() = 0;
+    int Initialize() final;
 
     void ResizeCanvas(int32_t width, int32_t height) final;
 
@@ -99,7 +99,7 @@ class OpenGLGraphicsManagerCommonBase : public GraphicsManager {
     bool setShaderParameter(const char *paramName, const bool param);
     int32_t GetTexture(const char *id);
 
-    virtual void getOpenGLTextureFormat(const Image &img, uint32_t &format, uint32_t &internal_format, uint32_t &type) = 0;
+    virtual void getOpenGLTextureFormat(const Image &img, uint32_t &format, uint32_t &internal_format, uint32_t &type) final;
 
    private:
     void InitializeBuffers(const Scene &scene);

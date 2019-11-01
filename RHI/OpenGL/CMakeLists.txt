@@ -1,6 +1,6 @@
 IF(ANDROID OR WA)
 add_library(OpenGLRHI
-        OpenGLESGraphicsManager.cpp
+        # OpenGLESGraphicsManager.cpp
         OpenGLGraphicsManagerCommonBase.cpp
 )
 ELSE(ANDROID OR WA)

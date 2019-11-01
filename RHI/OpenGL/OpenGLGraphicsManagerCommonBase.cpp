@@ -10,6 +10,9 @@
 
 #if defined(OS_ANDROID) || defined(OS_WEBASSEMBLY)
 #include <GLES3/gl32.h>
+
+#include <GLES2/gl2ext.h>
+
 #define GLAD_GL_ARB_compute_shader 0
 #else
 #include "glad/glad.h"
@@ -213,6 +216,101 @@ void OpenGLGraphicsManagerCommonBase::UseShaderProgram(const DefaultShaderIndex 
     glUseProgram(m_CurrentShader);
 }
 
+int OpenGLGraphicsManagerCommonBase::Initialize() {
+    int result;
+
+    result = GraphicsManager::Initialize();
+
+    if (result) {
+        return result;
+    }
+
+#if 0
+    auto opengl_info = {GL_VENDOR, GL_RENDERER, GL_VERSION, GL_EXTENSIONS};
+    for (auto name : opengl_info) {
+        auto info = glGetString(name);
+        printf("OpenGL Info: %s", info);
+    }
+#endif
+
+    // Set the depth buffer to be entirely cleared to 1.0 values.
+    glClearDepthf(1.0f);
+
+    // Enable depth testing.
+    glEnable(GL_DEPTH_TEST);
+
+    // Set the polygon winding to front facing for the right handed system.
+    glFrontFace(GL_CCW);
+
+    // Enable back face culling.
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
+    auto config = g_pApp->GetConfiguration();
+    glViewport(0, 0, config.screenWidth, config.screenHeight);
+
+    return result;
+}
+
+void OpenGLGraphicsManagerCommonBase::getOpenGLTextureFormat(const Image &img, uint32_t &format, uint32_t &internal_format, uint32_t &type) {
+    if (img.compressed) {
+        switch (img.compress_format) {
+            case "DXT1"_u32:
+                format          = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+                internal_format = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+                break;
+            case "DXT3"_u32:
+                format          = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+                internal_format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+                break;
+            case "DXT5"_u32:
+                format          = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+                internal_format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+                break;
+            default:
+                assert(0);
+        }
+
+        type = GL_UNSIGNED_BYTE;
+    } else {
+        if (img.bitcount == 8) {
+            format          = GL_RED;
+            internal_format = GL_R8;
+            type            = GL_UNSIGNED_BYTE;
+        } else if (img.bitcount == 16) {
+            format          = GL_RED;
+            internal_format = GL_R16I;
+            type            = GL_UNSIGNED_SHORT;
+        } else if (img.bitcount == 24) {
+            format          = GL_RGB;
+            internal_format = GL_RGB8;
+            type            = GL_UNSIGNED_BYTE;
+        } else if (img.bitcount == 64) {
+            format = GL_RGBA;
+            if (img.is_float) {
+                internal_format = GL_RGBA16F;
+                type            = GL_HALF_FLOAT;
+            } else {
+                internal_format = GL_RGBA16I;
+                type            = GL_UNSIGNED_SHORT;
+            }
+        } else if (img.bitcount == 128) {
+            format = GL_RGBA;
+            if (img.is_float) {
+                internal_format = GL_RGBA32F;
+                type            = GL_FLOAT;
+            } else {
+                internal_format = GL_RGBA;
+                type            = GL_UNSIGNED_INT;
+            }
+        } else {
+            format          = GL_RGBA;
+            internal_format = GL_RGBA8;
+            type            = GL_UNSIGNED_BYTE;
+        }
+    }
+}
+
 bool OpenGLGraphicsManagerCommonBase::InitializeShaders() {
     std::cout << "[OpenGL] " << glGetString(GL_VERSION) << std::endl;
     std::cout << "[Vendor] " << glGetString(GL_VENDOR) << std::endl;
@@ -380,97 +478,6 @@ void OpenGLGraphicsManagerCommonBase::InitializeBuffers(const Scene &scene) {
             m_Buffers.push_back(buffer_id);
 
             auto dbc = make_shared<OpenGLDrawBatchContext>();
-
-            const auto material_index = index_array.GetMaterialIndex();
-            const auto &material_key  = pGeometryNode->GetMaterialRef(material_index);
-            const auto material       = scene.GetMaterial(material_key);
-            if (material) {
-                function<uint32_t(const string, const shared_ptr<Image> &)> upload_texture = [this](const string texture_key, const shared_ptr<Image> &texture) {
-                    uint32_t texture_id;
-                    auto it = m_Textures.find(texture_key);
-                    if (it == m_Textures.end()) {
-                        glGenTextures(1, &texture_id);
-                        glBindTexture(GL_TEXTURE_2D, texture_id);
-                        uint32_t format, internal_format, type;
-                        getOpenGLTextureFormat(*texture, format, internal_format, type);
-                        if (texture->compressed) {
-                            glCompressedTexImage2D(GL_TEXTURE_2D, 0, internal_format, texture->Width, texture->Height,
-                                                   0, static_cast<int32_t>(texture->data_size), texture->data);
-                        } else {
-                            glTexImage2D(GL_TEXTURE_2D, 0, internal_format, texture->Width, texture->Height,
-                                         0, format, type, texture->data);
-                        }
-
-                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-                        glGenerateMipmap(GL_TEXTURE_2D);
-
-                        glBindTexture(GL_TEXTURE_2D, 0);
-
-                        m_Textures[texture_key] = texture_id;
-                    } else {
-                        texture_id = it->second;
-                    }
-
-                    return texture_id;
-                };
-
-                // base color / albedo
-                const auto &color = material->GetBaseColor();
-                if (color.ValueMap) {
-                    const auto &texture_key  = color.ValueMap->GetName();
-                    const auto &texture      = color.ValueMap->GetTextureImage();
-                    uint32_t texture_id      = upload_texture(texture_key, texture);
-                    dbc->material.diffuseMap = static_cast<int32_t>(texture_id);
-                }
-
-                // normal
-                const auto &normal = material->GetNormal();
-                if (normal.ValueMap) {
-                    const auto &texture_key = normal.ValueMap->GetName();
-                    const auto &texture     = normal.ValueMap->GetTextureImage();
-                    uint32_t texture_id     = upload_texture(texture_key, texture);
-                    dbc->material.normalMap = static_cast<int32_t>(texture_id);
-                }
-
-                // metallic
-                const auto &metallic = material->GetMetallic();
-                if (metallic.ValueMap) {
-                    const auto &texture_key   = metallic.ValueMap->GetName();
-                    const auto &texture       = metallic.ValueMap->GetTextureImage();
-                    uint32_t texture_id       = upload_texture(texture_key, texture);
-                    dbc->material.metallicMap = static_cast<int32_t>(texture_id);
-                }
-
-                // roughness
-                const auto &roughness = material->GetRoughness();
-                if (roughness.ValueMap) {
-                    const auto &texture_key    = roughness.ValueMap->GetName();
-                    const auto &texture        = roughness.ValueMap->GetTextureImage();
-                    uint32_t texture_id        = upload_texture(texture_key, texture);
-                    dbc->material.roughnessMap = static_cast<int32_t>(texture_id);
-                }
-
-                // ao
-                const auto &ao = material->GetAO();
-                if (ao.ValueMap) {
-                    const auto &texture_key = ao.ValueMap->GetName();
-                    const auto &texture     = ao.ValueMap->GetTextureImage();
-                    uint32_t texture_id     = upload_texture(texture_key, texture);
-                    dbc->material.aoMap     = static_cast<int32_t>(texture_id);
-                }
-
-                // // height map
-                // const auto &heightmap = material->GetHeight();
-                // if (heightmap.ValueMap) {
-                //     const auto &texture_key = heightmap.ValueMap->GetName();
-                //     const auto &texture     = heightmap.ValueMap->GetTextureImage();
-                //     uint32_t texture_id     = upload_texture(texture_key, texture);
-                //     dbc->material.heightMap = static_cast<int32_t>(texture_id);
-                // }
-            }
 
             glBindVertexArray(0);  // reset vertex array to 0
 

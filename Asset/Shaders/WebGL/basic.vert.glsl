@@ -17,23 +17,20 @@ struct basic_vert_output {
 };
 
 struct Light {
-    mat4 lightVP;                         // 64 bytes
-    vec4 lightPosition;                   // 16 bytes
-    vec4 lightColor;                      // 16 bytes
-    vec4 lightDirection;                  // 16 bytes
-    float lightDistAttenCurveParams[8];   // 32 bytes
-    float lightAngleAttenCurveParams[8];  // 32 bytes
-    vec2 lightSize;                       // 8 bytes
-    int lightDistAttenCurveType;          // 4 bytes
-    int lightAngleAttenCurveType;         // 4 bytes
-    float lightIntensity;                 // 4 bytes
-    int lightType;                        // 4 bytes
-    int lightCastShadow;                  // 4 bytes
-    int lightShadowMapIndex;              // 4 bytes
-    // Above is 208 bytes
-
-    // Fill bytes to align to 256 bytes (Metal required)
-    float padding[12];  // 48 bytes
+    mat4 lightVP;
+    vec4 lightPosition;
+    vec4 lightColor;
+    vec4 lightDirection;
+    float lightDistAttenCurveParams[8];
+    float lightAngleAttenCurveParams[8];
+    vec2 lightSize;
+    int lightDistAttenCurveType;
+    int lightAngleAttenCurveType;
+    float lightIntensity;
+    int lightType;
+    int lightCastShadow;
+    int lightShadowMapIndex;
+    float padding[12];
 };
 
 layout(std140) uniform PerBatchConstants {
