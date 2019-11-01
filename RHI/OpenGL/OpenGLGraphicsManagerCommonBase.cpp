@@ -214,6 +214,12 @@ void OpenGLGraphicsManagerCommonBase::UseShaderProgram(const DefaultShaderIndex 
 }
 
 bool OpenGLGraphicsManagerCommonBase::InitializeShaders() {
+    std::cout << "[OpenGL] " << glGetString(GL_VERSION) << std::endl;
+    std::cout << "[Vendor] " << glGetString(GL_VENDOR) << std::endl;
+    std::cout << "[Renderer] " << glGetString(GL_RENDERER) << std::endl;
+    std::cout << "[GLSL] " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+    // std::cout << "[Extensions] " << glGetString(GL_EXTENSIONS) << std::endl;
+
     GLuint shaderProgram;
     bool result = true;
 
