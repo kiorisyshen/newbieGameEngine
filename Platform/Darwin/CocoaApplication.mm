@@ -1,13 +1,17 @@
+#ifdef __OBJC__
 #import "AppDelegate.h"
 #import "WindowDelegate.h"
 
 #import <Carbon/Carbon.h>
+#endif
 
 #include <string.h>
 #include "CocoaApplication.h"
+#include "InputManager.hpp"
 
 using namespace newbieGE;
 
+#ifdef __OBJC__
 NSWindow *CocoaApplication::GetWindowRef() {
     return (__bridge NSWindow *)m_pWindow;
 }
@@ -19,10 +23,14 @@ NSWindow *CocoaApplication::GetWindow() {
 void CocoaApplication::SetWindow(NSWindow *wind) {
     m_pWindow = (__bridge_retained void *)wind;
 }
+#endif
 
-int CocoaApplication::Initialize() {
-    int result = 0;
+void *CocoaApplication::GetMainWindowHandler() {
+    return m_pWindow;
+}
 
+void CocoaApplication::CreateMainWindow() {
+#ifdef __OBJC__
     [NSApplication sharedApplication];
 
     // Menu
@@ -55,19 +63,21 @@ int CocoaApplication::Initialize() {
     [m_pWindowTmp setDelegate:winDelegate];
 
     SetWindow(m_pWindowTmp);
-
-    return result;
+#endif
 }
 
 void CocoaApplication::Finalize() {
+#ifdef __OBJC__
     // [m_pWindow release];
     // m_pWindow = nil;
     NSWindow *m_pWindowTmp = GetWindow();
     m_pWindowTmp           = nil;
+#endif
+    BaseApplication::Finalize();
 }
 
 void CocoaApplication::Tick() {
-    BaseApplication::Tick();
+#ifdef __OBJC__
     // Process all pending events or return immidiately if no event
     if (NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny
                                             untilDate:nil
@@ -162,7 +172,7 @@ void CocoaApplication::Tick() {
                             g_pInputManager->AsciiKeyDown('s');
                             break;
                         case kVK_ANSI_Q:
-                            m_bQuit = true;
+                            RequestQuit();
                             break;
                     }
                 }
@@ -174,4 +184,5 @@ void CocoaApplication::Tick() {
         [NSApp updateWindows];
         //        [event release];
     }
+#endif
 }

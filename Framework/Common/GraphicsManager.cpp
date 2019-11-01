@@ -27,11 +27,16 @@ int GraphicsManager::Initialize() {
     }
 #endif
 
+#ifndef OS_WEBASSEMBLY
     m_InitPasses.push_back(make_shared<BRDFIntegrator>());
-
     m_DrawPasses.push_back(make_shared<ShadowMapPass>());
+#endif
+
     m_DrawPasses.push_back(make_shared<ForwardRenderPass>());
+
+#ifndef OS_WEBASSEMBLY
     m_DrawPasses.push_back(make_shared<HUDPass>());
+#endif
 
     bool initShaderSucc = InitializeShaders();
     if (!initShaderSucc) result = -1;
@@ -44,6 +49,10 @@ void GraphicsManager::Finalize() {
     DEBUG_ClearDebugBuffers();
 #endif
     EndScene();
+}
+
+void GraphicsManager::ResizeCanvas(int32_t width, int32_t height) {
+    cerr << "[GraphicsManager] Resize Canvas to " << width << "x" << height << endl;
 }
 
 void GraphicsManager::Tick() {
@@ -68,6 +77,8 @@ void GraphicsManager::Tick() {
     SetLightInfo(frame.lightInfo);
 
     m_bFinishInit = true;
+
+    RenderBuffers();
 }
 
 void GraphicsManager::UpdateConstants() {
@@ -139,7 +150,7 @@ void GraphicsManager::CalculateLights() {
     LightInfo &light_info          = m_Frames[m_nFrameIndex].lightInfo;
 
     // frameContext.ambientColor = {0.01f, 0.01f, 0.01f, 1.0f};
-    frameContext.numLights    = 0;
+    frameContext.numLights = 0;
 
     auto &scene = g_pSceneManager->GetSceneForRendering();
     for (auto LightNode : scene.LightNodes) {

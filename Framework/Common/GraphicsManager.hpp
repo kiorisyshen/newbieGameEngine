@@ -21,6 +21,8 @@ class GraphicsManager : implements IRuntimeModule {
     virtual void UseShaderProgram(const DefaultShaderIndex idx) {
     }
 
+    virtual void ResizeCanvas(int32_t width, int32_t height);
+
     virtual void RenderBuffers() final;
 
     virtual void DrawBatch(const std::vector<std::shared_ptr<DrawBatchConstant>> &batches) {
