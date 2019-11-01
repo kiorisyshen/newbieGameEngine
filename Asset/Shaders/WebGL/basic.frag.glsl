@@ -11,22 +11,22 @@ struct basic_vert_output {
     highp vec2 uv;
 };
 
-struct Light {
-    highp mat4 lightVP;
-    highp vec4 lightPosition;
-    highp vec4 lightColor;
-    highp vec4 lightDirection;
-    float lightDistAttenCurveParams[8];
-    float lightAngleAttenCurveParams[8];
-    highp vec2 lightSize;
-    int lightDistAttenCurveType;
-    int lightAngleAttenCurveType;
-    float lightIntensity;
-    int lightType;
-    int lightCastShadow;
-    int lightShadowMapIndex;
-    float padding[12];
-};
+// struct Light {
+//     highp mat4 lightVP;
+//     highp vec4 lightPosition;
+//     highp vec4 lightColor;
+//     highp vec4 lightDirection;
+//     float lightDistAttenCurveParams[8];
+//     float lightAngleAttenCurveParams[8];
+//     highp vec2 lightSize;
+//     int lightDistAttenCurveType;
+//     int lightAngleAttenCurveType;
+//     float lightIntensity;
+//     int lightType;
+//     int lightCastShadow;
+//     int lightShadowMapIndex;
+//     float padding[12];
+// };
 
 layout(std140) uniform PerFrameConstants {
     highp mat4 worldMatrix;
@@ -37,10 +37,10 @@ layout(std140) uniform PerFrameConstants {
 }
 _280;
 
-layout(std140) uniform LightInfo {
-    Light lights[100];
-}
-_677;
+// layout(std140) uniform LightInfo {
+//     Light lights[100];
+// }
+// _677;
 
 uniform highp sampler2D SPIRV_Cross_CombineddiffuseMapsamp0;
 uniform highp sampler2DArray SPIRV_Cross_Combinedskyboxsamp0;

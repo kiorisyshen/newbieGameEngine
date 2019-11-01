@@ -16,23 +16,6 @@ struct basic_vert_output {
     vec2 uv;
 };
 
-struct Light {
-    mat4 lightVP;
-    vec4 lightPosition;
-    vec4 lightColor;
-    vec4 lightDirection;
-    float lightDistAttenCurveParams[8];
-    float lightAngleAttenCurveParams[8];
-    vec2 lightSize;
-    int lightDistAttenCurveType;
-    int lightAngleAttenCurveType;
-    float lightIntensity;
-    int lightType;
-    int lightCastShadow;
-    int lightShadowMapIndex;
-    float padding[12];
-};
-
 layout(std140) uniform PerBatchConstants {
     mat4 modelMatrix;
 }

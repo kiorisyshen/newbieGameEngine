@@ -622,9 +622,9 @@ void OpenGLGraphicsManagerCommonBase::EndScene() {
             glDeleteBuffers(1, &m_uboDrawBatchConstant[i]);
         }
 
-        if (m_uboLightInfo[i]) {
-            glDeleteBuffers(1, &m_uboLightInfo[i]);
-        }
+        // if (m_uboLightInfo[i]) {
+        //     glDeleteBuffers(1, &m_uboLightInfo[i]);
+        // }
 
         // if (m_uboShadowMatricesConstant[i]) {
         //     glDeleteBuffers(1, &m_uboShadowMatricesConstant[i]);
@@ -707,15 +707,15 @@ void OpenGLGraphicsManagerCommonBase::SetPerBatchConstants(const std::vector<std
 }
 
 void OpenGLGraphicsManagerCommonBase::SetLightInfo(const LightInfo &lightInfo) {
-    if (!m_uboLightInfo[m_nFrameIndex]) {
-        glGenBuffers(1, &m_uboLightInfo[m_nFrameIndex]);
-    }
+    // if (!m_uboLightInfo[m_nFrameIndex]) {
+    //     glGenBuffers(1, &m_uboLightInfo[m_nFrameIndex]);
+    // }
 
-    glBindBuffer(GL_UNIFORM_BUFFER, m_uboLightInfo[m_nFrameIndex]);
+    // glBindBuffer(GL_UNIFORM_BUFFER, m_uboLightInfo[m_nFrameIndex]);
 
-    glBufferData(GL_UNIFORM_BUFFER, kSizeLightInfo, &lightInfo, GL_DYNAMIC_DRAW);
+    // glBufferData(GL_UNIFORM_BUFFER, kSizeLightInfo, &lightInfo, GL_DYNAMIC_DRAW);
 
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    // glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 int32_t OpenGLGraphicsManagerCommonBase::GetTexture(const char *id) {
@@ -739,13 +739,13 @@ void OpenGLGraphicsManagerCommonBase::DrawBatch(const std::vector<std::shared_pt
         glBindBufferBase(GL_UNIFORM_BUFFER, 10, m_uboDrawFrameConstant[m_nFrameIndex]);
     }
 
-    // Prepare & Bind light info
-    blockIndex = glGetUniformBlockIndex(m_CurrentShader, "LightInfo");
+    // // Prepare & Bind light info
+    // blockIndex = glGetUniformBlockIndex(m_CurrentShader, "LightInfo");
 
-    if (blockIndex != GL_INVALID_INDEX) {
-        glUniformBlockBinding(m_CurrentShader, blockIndex, 12);
-        glBindBufferBase(GL_UNIFORM_BUFFER, 12, m_uboLightInfo[m_nFrameIndex]);
-    }
+    // if (blockIndex != GL_INVALID_INDEX) {
+    //     glUniformBlockBinding(m_CurrentShader, blockIndex, 12);
+    //     glBindBufferBase(GL_UNIFORM_BUFFER, 12, m_uboLightInfo[m_nFrameIndex]);
+    // }
 
     // Prepare per batch constant buffer binding point
     blockIndex = glGetUniformBlockIndex(m_CurrentShader, "PerBatchConstants");
