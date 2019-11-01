@@ -479,6 +479,97 @@ void OpenGLGraphicsManagerCommonBase::InitializeBuffers(const Scene &scene) {
 
             auto dbc = make_shared<OpenGLDrawBatchContext>();
 
+            const auto material_index = index_array.GetMaterialIndex();
+            const auto &material_key  = pGeometryNode->GetMaterialRef(material_index);
+            const auto material       = scene.GetMaterial(material_key);
+            if (material) {
+                function<uint32_t(const string, const shared_ptr<Image> &)> upload_texture = [this](const string texture_key, const shared_ptr<Image> &texture) {
+                    uint32_t texture_id;
+                    auto it = m_Textures.find(texture_key);
+                    if (it == m_Textures.end()) {
+                        glGenTextures(1, &texture_id);
+                        glBindTexture(GL_TEXTURE_2D, texture_id);
+                        uint32_t format, internal_format, type;
+                        getOpenGLTextureFormat(*texture, format, internal_format, type);
+                        if (texture->compressed) {
+                            glCompressedTexImage2D(GL_TEXTURE_2D, 0, internal_format, texture->Width, texture->Height,
+                                                   0, static_cast<int32_t>(texture->data_size), texture->data);
+                        } else {
+                            glTexImage2D(GL_TEXTURE_2D, 0, internal_format, texture->Width, texture->Height,
+                                         0, format, type, texture->data);
+                        }
+
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                        glGenerateMipmap(GL_TEXTURE_2D);
+
+                        glBindTexture(GL_TEXTURE_2D, 0);
+
+                        m_Textures[texture_key] = texture_id;
+                    } else {
+                        texture_id = it->second;
+                    }
+
+                    return texture_id;
+                };
+
+                // base color / albedo
+                const auto &color = material->GetBaseColor();
+                if (color.ValueMap) {
+                    const auto &texture_key  = color.ValueMap->GetName();
+                    const auto &texture      = color.ValueMap->GetTextureImage();
+                    uint32_t texture_id      = upload_texture(texture_key, texture);
+                    dbc->material.diffuseMap = static_cast<int32_t>(texture_id);
+                }
+
+                // normal
+                const auto &normal = material->GetNormal();
+                if (normal.ValueMap) {
+                    const auto &texture_key = normal.ValueMap->GetName();
+                    const auto &texture     = normal.ValueMap->GetTextureImage();
+                    uint32_t texture_id     = upload_texture(texture_key, texture);
+                    dbc->material.normalMap = static_cast<int32_t>(texture_id);
+                }
+
+                // metallic
+                const auto &metallic = material->GetMetallic();
+                if (metallic.ValueMap) {
+                    const auto &texture_key   = metallic.ValueMap->GetName();
+                    const auto &texture       = metallic.ValueMap->GetTextureImage();
+                    uint32_t texture_id       = upload_texture(texture_key, texture);
+                    dbc->material.metallicMap = static_cast<int32_t>(texture_id);
+                }
+
+                // roughness
+                const auto &roughness = material->GetRoughness();
+                if (roughness.ValueMap) {
+                    const auto &texture_key    = roughness.ValueMap->GetName();
+                    const auto &texture        = roughness.ValueMap->GetTextureImage();
+                    uint32_t texture_id        = upload_texture(texture_key, texture);
+                    dbc->material.roughnessMap = static_cast<int32_t>(texture_id);
+                }
+
+                // ao
+                const auto &ao = material->GetAO();
+                if (ao.ValueMap) {
+                    const auto &texture_key = ao.ValueMap->GetName();
+                    const auto &texture     = ao.ValueMap->GetTextureImage();
+                    uint32_t texture_id     = upload_texture(texture_key, texture);
+                    dbc->material.aoMap     = static_cast<int32_t>(texture_id);
+                }
+
+                // // height map
+                // const auto &heightmap = material->GetHeight();
+                // if (heightmap.ValueMap) {
+                //     const auto &texture_key = heightmap.ValueMap->GetName();
+                //     const auto &texture     = heightmap.ValueMap->GetTextureImage();
+                //     uint32_t texture_id     = upload_texture(texture_key, texture);
+                //     dbc->material.heightMap = static_cast<int32_t>(texture_id);
+                // }
+            }
+
             glBindVertexArray(0);  // reset vertex array to 0
 
             dbc->batchIndex = batch_index++;
