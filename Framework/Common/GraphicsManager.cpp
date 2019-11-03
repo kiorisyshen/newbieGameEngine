@@ -78,7 +78,9 @@ void GraphicsManager::Tick() {
 
     m_bFinishInit = true;
 
+#ifdef OS_WEBASSEMBLY
     RenderBuffers();
+#endif
 }
 
 void GraphicsManager::UpdateConstants() {
