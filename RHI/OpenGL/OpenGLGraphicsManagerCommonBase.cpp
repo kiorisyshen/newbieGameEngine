@@ -333,6 +333,18 @@ bool OpenGLGraphicsManagerCommonBase::InitializeShaders() {
 
     m_ShaderList[(int32_t)DefaultShaderIndex::BasicShader] = shaderProgram;
 
+    // Terrain shader
+    list = {
+        {GL_VERTEX_SHADER, VS_TERRAIN_SOURCE_FILE},
+        {GL_FRAGMENT_SHADER, PS_TERRAIN_SOURCE_FILE}};
+
+    result = LoadShaderProgram(list, shaderProgram);
+    if (!result) {
+        return result;
+    }
+
+    m_ShaderList[(int32_t)DefaultShaderIndex::TerrainShader] = shaderProgram;
+
     return result;
 }
 
