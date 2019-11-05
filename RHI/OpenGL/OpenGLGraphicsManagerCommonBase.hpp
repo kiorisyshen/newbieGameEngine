@@ -16,6 +16,13 @@ struct OpenGLDrawBatchContext : public DrawBatchConstant {
     int32_t count;
 };
 
+struct OpenGLDrawTerrainPatchContext : public PerTerrainPatchConstants {
+    uint32_t vao;
+    uint32_t mode;
+    uint32_t type;
+    int32_t count;
+}
+
 class OpenGLGraphicsManagerCommonBase : public GraphicsManager {
    public:
     int Initialize() final;
@@ -106,6 +113,8 @@ class OpenGLGraphicsManagerCommonBase : public GraphicsManager {
     void InitializeSkyBox(const Scene &scene);
     void InitializeTerrain(const Scene &scene);
 
+    std::vector<Point4> cpuTerrainQuadTessellation(const std::array<Point4, 4> &controlPts, const Matrix4X4f &toScreenTransM);
+
     // --------------------
     // Private Variables
     // --------------------
@@ -113,11 +122,14 @@ class OpenGLGraphicsManagerCommonBase : public GraphicsManager {
     std::unordered_map<int32_t, uint32_t> m_ShaderList;
 
     // Uniform buffers
-    uint32_t m_uboDrawFrameConstant[GfxConfiguration::kMaxInFlightFrameCount] = {0};
-    uint32_t m_uboDrawBatchConstant[GfxConfiguration::kMaxInFlightFrameCount] = {0};
-    uint32_t m_uboLightInfo[GfxConfiguration::kMaxInFlightFrameCount]         = {0};
+    uint32_t m_uboDrawFrameConstant[GfxConfiguration::kMaxInFlightFrameCount]        = {0};
+    uint32_t m_uboDrawBatchConstant[GfxConfiguration::kMaxInFlightFrameCount]        = {0};
+    uint32_t m_uboLightInfo[GfxConfiguration::kMaxInFlightFrameCount]                = {0};
+    uint32_t m_uboDrawTerrainPatchConstant[GfxConfiguration::kMaxInFlightFrameCount] = {0};
 
     std::vector<uint32_t> m_Buffers;                       // Vertex & index buffer
     std::unordered_map<std::string, uint32_t> m_Textures;  // Textures
+
+    std::vector<OpenGLDrawTerrainPatchContext> m_TerrainPPC;
 };
 }  // namespace newbieGE

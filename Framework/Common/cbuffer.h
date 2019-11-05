@@ -87,6 +87,10 @@ struct PerBatchConstants REGISTER(b11) {
     Matrix4X4f objectLocalMatrix;  // 64 bytes
 };
 
+struct PerTerrainPatchConstants REGISTER(b13) {
+    Matrix4X4f patchLocalMatrix;  // 64 bytes
+};
+
 struct material_textures {
     int32_t diffuseMap   = -1;
     int32_t normalMap    = -1;
@@ -126,6 +130,7 @@ const size_t kSizeDebugMaxAtomBuffer = ALIGN(sizeof(DEBUG_TriangleParam), 256); 
 const size_t kSizePerFrameConstantBuffer = ALIGN(sizeof(PerFrameConstants), 256);  // CB size is required to be 256-byte aligned.
 const size_t kSizePerBatchConstantBuffer = ALIGN(sizeof(PerBatchConstants), 256);  // CB size is required to be 256-byte aligned.
 const size_t kSizeLightInfo              = ALIGN(sizeof(LightInfo), 256);          // CB size is required to be 256-byte aligned.
+const size_t kSizePerTerrainConstant     = ALIGN(sizeof(PerTerrainPatchConstants), 256);
 #endif
 
 #ifdef __cplusplus

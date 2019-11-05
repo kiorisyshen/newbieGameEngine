@@ -602,8 +602,80 @@ void OpenGLGraphicsManagerCommonBase::InitializeSkyBox(const Scene &scene) {
     // TODO: unimplemented
 }
 
+// Using GL_LINE_STRIP way to draw
+std::vector<Point4> OpenGLGraphicsManagerCommonBase::cpuTerrainQuadTessellation(const std::array<Point4, 4> &controlPts, const Matrix4X4f &toScreenTransM) {
+    std::vector<Point4> outPts;
+    outPts.push_back(controlPts[0]);
+    outPts.push_back(controlPts[1]);
+    outPts.push_back(controlPts[2]);
+    outPts.push_back(controlPts[0]);
+    outPts.push_back(controlPts[3]);
+    outPts.push_back(controlPts[2]);
+    return outPts;
+}
+
+static const float TERRAIN_PATCH_SIZE  = 32.0;
+static const int32_t TERRAIN_PATCH_ROW = 10;  // must be even number
+static const int32_t TERRAIN_PATCH_COL = 10;  // must be even number
+
 void OpenGLGraphicsManagerCommonBase::InitializeTerrain(const Scene &scene) {
-    // TODO: unimplemented
+    m_TerrainPPC.resize(TERRAIN_PATCH_ROW * TERRAIN_PATCH_COL);
+
+    // Generate vertex array buffer
+    int32_t tmpCount = 0;
+    for (int32_t i = -TERRAIN_PATCH_ROW / 2; i < TERRAIN_PATCH_ROW / 2; i++) {
+        for (int32_t j = -TERRAIN_PATCH_COL / 2; j < TERRAIN_PATCH_COL / 2; j++) {
+            // Fill PerTerrainPatchConstants
+            MatrixTranslation(m_TerrainPPC[tmpCount].patchLocalMatrix, TERRAIN_PATCH_SIZE * i, TERRAIN_PATCH_SIZE * j, 0.0f);
+
+            // Create vao
+            uint32_t vao;
+            glGenVertexArrays(1, &vao);
+            glBindVertexArray(vao);
+
+            uint32_t buffer_id;
+            glGenBuffers(1, &buffer_id);
+            // GLfloat vertices[] = {0.0f, 0.5f, 0.5f, -0.5f, -0.5f, -0.5f};
+            std::array<Point4, 4> controlPts = {{0.0, TERRAIN_PATCH_SIZE, 0.0, 1.0},
+                                                {0.0, 0.0, 0.0, 1.0},
+                                                {TERRAIN_PATCH_SIZE, 0.0, 0.0, 1.0},
+                                                {TERRAIN_PATCH_SIZE, TERRAIN_PATCH_SIZE, 0.0, 1.0}};
+            std::vector<Point4> vertices     = cpuTerrainQuadTessellation(controlPts, m_TerrainPPC[tmpCount].patchLocalMatrix);
+            glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(Point4) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(0, 4, GL_FLOAT, false, 0, 0);
+
+            m_Buffers.push_back(buffer_id);
+
+            glBindVertexArray(0);  // reset vertex array to 0
+
+            m_TerrainPPC[tmpCount].vao   = vao;
+            m_TerrainPPC[tmpCount].mode  = GL_LINE_STRIP;
+            m_TerrainPPC[tmpCount].count = vertices.size();
+
+            ++tmpCount;
+        }
+    }
+
+    // Generate per-Terrain Patch Constant
+    if (!m_uboDrawTerrainPatchConstant[m_nFrameIndex]) {
+        glGenBuffers(1, &m_uboDrawTerrainPatchConstant[m_nFrameIndex]);
+    }
+
+    uint8_t *pBuff_trans = new uint8_t[kSizePerTerrainConstant * TERRAIN_PATCH_ROW * TERRAIN_PATCH_COL];
+    glBindBuffer(GL_UNIFORM_BUFFER, m_uboDrawTerrainPatchConstant[m_nFrameIndex]);
+    tmpCount = 0;
+    for (int32_t i = -TERRAIN_PATCH_ROW / 2; i < TERRAIN_PATCH_ROW / 2; i++) {
+        for (int32_t j = -TERRAIN_PATCH_COL / 2; j < TERRAIN_PATCH_COL / 2; j++) {
+            const PerTerrainPatchConstants &constants = static_cast<PerTerrainPatchConstants &>(m_TerrainPPC[tmpCount]);
+            memcpy(pBuff_trans + tmpCount * kSizePerTerrainConstant, &constants, kSizePerTerrainConstant);
+            ++tmpCount;
+        }
+    }
+    glBufferData(GL_UNIFORM_BUFFER, kSizePerTerrainConstant * TERRAIN_PATCH_ROW * TERRAIN_PATCH_COL, pBuff_trans, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    delete[] pBuff_trans;
 }
 
 void OpenGLGraphicsManagerCommonBase::BeginScene(const Scene &scene) {
@@ -636,6 +708,10 @@ void OpenGLGraphicsManagerCommonBase::EndScene() {
 
         if (m_uboLightInfo[i]) {
             glDeleteBuffers(1, &m_uboLightInfo[i]);
+        }
+
+        if (m_uboTerrainTransConstant[i]) {
+            glDeleteBuffers(1, &m_uboTerrainTransConstant[i]);
         }
 
         // if (m_uboShadowMatricesConstant[i]) {
@@ -883,7 +959,31 @@ void OpenGLGraphicsManagerCommonBase::SetTerrain(const DrawFrameContext &context
     // TODO: unimplemented
 }
 void OpenGLGraphicsManagerCommonBase::DrawTerrain() {
-    // TODO: unimplemented
+    // Prepare & Bind per frame constant buffer
+    uint32_t blockIndex = glGetUniformBlockIndex(m_CurrentShader, "PerFrameConstants");
+
+    if (blockIndex != GL_INVALID_INDEX) {
+        glUniformBlockBinding(m_CurrentShader, blockIndex, 10);
+
+        glBindBufferBase(GL_UNIFORM_BUFFER, 10, m_uboDrawFrameConstant[m_nFrameIndex]);
+    }
+
+    // Prepare per batch constant buffer binding point
+    blockIndex = glGetUniformBlockIndex(m_CurrentShader, "TerrainPerPatchConstants");
+
+    if (blockIndex != GL_INVALID_INDEX) {
+        glUniformBlockBinding(m_CurrentShader, blockIndex, 13);
+    }
+
+    glEnable(GL_CULL_FACE);
+
+    tmpCount = 0;
+    for (int32_t i = -TERRAIN_PATCH_ROW / 2; i < TERRAIN_PATCH_ROW / 2; i++) {
+        for (int32_t j = -TERRAIN_PATCH_COL / 2; j < TERRAIN_PATCH_COL / 2; j++) {
+            // TODO: draw terrain patchs
+            ++tmpCount;
+        }
+    }
 }
 
 // pbr compute shader
