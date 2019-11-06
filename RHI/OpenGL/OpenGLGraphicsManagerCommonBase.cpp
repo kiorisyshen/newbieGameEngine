@@ -253,6 +253,7 @@ int OpenGLGraphicsManagerCommonBase::Initialize() {
 }
 
 void OpenGLGraphicsManagerCommonBase::getOpenGLTextureFormat(const Image &img, uint32_t &format, uint32_t &internal_format, uint32_t &type) {
+    std::cout << "Test: Image bitcount: " << img.bitcount << std::endl;
     if (img.compressed) {
         switch (img.compress_format) {
             case "DXT1"_u32:
@@ -635,10 +636,10 @@ void evenQuadTessellation(const std::array<Vector4f, 4> &controlPts, const uint3
         }
 
         if (i != row) {
+            for (uint32_t k = col - 1; k > 0; k = k - 1) {
+                outPts.push_back(rowStart + rowStep + colStep * k);
+            }
             outPts.push_back(rowStart + rowStep);
-            // for (uint32_t k = col - 1; k > -1; --k) {
-            //     outPts.push_back(rowStart + rowStep + colStep * k);
-            // }
         }
     }
 }
