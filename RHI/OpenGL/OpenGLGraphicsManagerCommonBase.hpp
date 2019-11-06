@@ -131,5 +131,7 @@ class OpenGLGraphicsManagerCommonBase : public GraphicsManager {
     std::unordered_map<std::string, uint32_t> m_Textures;  // Textures
 
     std::vector<OpenGLDrawTerrainPatchContext> m_TerrainPPC;
+    std::vector<uint32_t> m_TerrainBuffers;  // Terrain Vertex buffer
+    uint32_t m_TerrainHeightMap;             // Currently only 1 height map
 };
 }  // namespace newbieGE

@@ -640,14 +640,10 @@ std::vector<Vector4f> OpenGLGraphicsManagerCommonBase::cpuTerrainQuadTessellatio
 
     float distanceTerrain = Length(centerPt - m_Frames[m_nFrameIndex].frameContext.m_camPos);
 
-    std::cout << "Dist: " << distanceTerrain << std::endl;
-
     int32_t distLevel = int32_t(250.0 / distanceTerrain);
     if (distLevel > 6) {
         distLevel = 6;
     }
-
-    std::cout << "Level: " << distLevel << std::endl;
 
     uint32_t distRate = 1 << distLevel;
 
@@ -693,7 +689,7 @@ void OpenGLGraphicsManagerCommonBase::InitializeTerrain(const Scene &scene) {
             glEnableVertexAttribArray(0);
             glVertexAttribPointer(0, 4, GL_FLOAT, false, 0, 0);
 
-            m_Buffers.push_back(buffer_id);
+            m_TerrainBuffers.push_back(buffer_id);
 
             glBindVertexArray(0);  // reset vertex array to 0
 
@@ -723,6 +719,37 @@ void OpenGLGraphicsManagerCommonBase::InitializeTerrain(const Scene &scene) {
     glBufferData(GL_UNIFORM_BUFFER, kSizePerTerrainConstant * TERRAIN_PATCH_ROW * TERRAIN_PATCH_COL, pBuff_trans, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     delete[] pBuff_trans;
+
+    if (scene.Terrain) {
+        // Current we use only the first height map
+        auto &texture      = scene.Terrain->GetTexture(0);
+        const auto &pImage = texture.GetTextureImage();
+
+        // Create terrain height image
+        glGenTextures(1, &m_TerrainHeightMap);
+        glBindTexture(GL_TEXTURE_2D, m_TerrainHeightMap);
+        uint32_t format, internal_format, type;
+        getOpenGLTextureFormat(*pImage, format, internal_format, type);
+        if (pImage->compressed) {
+            glCompressedTexImage2D(GL_TEXTURE_2D, 0, internal_format, pImage->Width, pImage->Height,
+                                   0, static_cast<int32_t>(pImage->data_size), pImage->data);
+        } else {
+            glTexImage2D(GL_TEXTURE_2D, 0, internal_format, pImage->Width, pImage->Height,
+                         0, format, type, pImage->data);
+        }
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        // glGenerateMipmap(GL_TEXTURE_2D);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        for (uint32_t i = 0; i < GfxConfiguration::kMaxInFlightFrameCount; i++) {
+            m_Frames[i].frameContext.terrainHeightMap = m_TerrainHeightMap;
+        }
+    }
 }
 
 void OpenGLGraphicsManagerCommonBase::BeginScene(const Scene &scene) {
@@ -1023,6 +1050,14 @@ void OpenGLGraphicsManagerCommonBase::DrawTerrain() {
     }
 
     glEnable(GL_CULL_FACE);
+
+    setShaderParameter("TerrainHeightMapsamp0", 7);
+    glActiveTexture(GL_TEXTURE7);
+    if (m_TerrainHeightMap > 0) {
+        glBindTexture(GL_TEXTURE_2D, m_TerrainHeightMap);
+    } else {
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
 
     int32_t tmpCount = 0;
     for (int32_t i = -TERRAIN_PATCH_ROW / 2; i < TERRAIN_PATCH_ROW / 2; i++) {
