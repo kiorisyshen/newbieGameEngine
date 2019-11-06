@@ -20,8 +20,15 @@ layout(location = 0) in vec4 a_inputPosition;
 
 void main() {
     vec4 v_world = pfc.worldMatrix * tppc.patchLocalMatrix * a_inputPosition;
-    float height = texture(TerrainHeightMapsamp0, v_world.xy / 10000.0 + 0.5).x;
-    height       = (height - 0.15) * 5.0;
-    v_world.z    = height;
-    gl_Position  = pfc.projectionMatrix * pfc.viewMatrix * v_world;
+    vec2 uv      = v_world.xy / 80.0;
+    uv += (0.5, 0.5);
+    float height = texture(TerrainHeightMapsamp0, uv).x;
+    height       = height * 10.0;
+
+    v_world.z = 0.0;
+    if (v_world.x > 0.0) {
+        v_world.z = height;
+    }
+
+    gl_Position = pfc.projectionMatrix * pfc.viewMatrix * v_world;
 }

@@ -37,7 +37,11 @@ class Scene {
         SkyBox             = std::make_shared<SceneObjectSkyBox>();
         SkyBox->SetName("Textures/hdr/PaperMill", "dds");
         Terrain = std::make_shared<SceneObjectTerrain>();
+#ifdef OS_WEBASSEMBLY
+        Terrain->SetName("Textures/terrain/area_1", "bmp");
+#else
         Terrain->SetName("Textures/terrain/area_1", "png");
+#endif
     }
 
     Scene(const std::string &scene_name)
@@ -46,7 +50,11 @@ class Scene {
         SkyBox             = std::make_shared<SceneObjectSkyBox>();
         SkyBox->SetName("Textures/hdr/PaperMill", "dds");
         Terrain = std::make_shared<SceneObjectTerrain>();
+#ifdef OS_WEBASSEMBLY
+        Terrain->SetName("Textures/terrain/area_1", "bmp");
+#else
         Terrain->SetName("Textures/terrain/area_1", "png");
+#endif
     }
 
     ~Scene() = default;

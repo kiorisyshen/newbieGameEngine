@@ -603,14 +603,26 @@ void OpenGLGraphicsManagerCommonBase::InitializeSkyBox(const Scene &scene) {
 }
 
 void evenQuadTessellation(const std::array<Vector4f, 4> &controlPts, const uint32_t row, const uint32_t col, std::vector<Vector4f> &outPts) {
-    outPts.push_back(controlPts[0]);
-    outPts.push_back(controlPts[1]);
-    outPts.push_back(controlPts[2]);
-    outPts.push_back(controlPts[3]);
-    outPts.push_back(controlPts[0]);
-
     Vector4f colStep = (controlPts[1] - controlPts[0]) / float(col);
     Vector4f rowStep = (controlPts[2] - controlPts[1]) / float(row);
+
+    outPts.push_back(controlPts[0]);
+
+    for (uint32_t k = 1; k <= col; ++k) {
+        outPts.push_back(controlPts[0] + colStep * k);
+    }
+
+    for (uint32_t k = 1; k <= row; ++k) {
+        outPts.push_back(controlPts[1] + rowStep * k);
+    }
+
+    for (uint32_t k = 1; k <= col; ++k) {
+        outPts.push_back(controlPts[2] - colStep * k);
+    }
+
+    for (uint32_t k = 1; k <= row; ++k) {
+        outPts.push_back(controlPts[3] - rowStep * k);
+    }
 
     // Draw small triangles
     for (uint32_t i = 1; i <= row; ++i) {
@@ -621,7 +633,13 @@ void evenQuadTessellation(const std::array<Vector4f, 4> &controlPts, const uint3
                 outPts.push_back(rowStart + colStep * j);
             }
         }
-        outPts.push_back(rowStart + rowStep);
+
+        if (i != row) {
+            outPts.push_back(rowStart + rowStep);
+            // for (uint32_t k = col - 1; k > -1; --k) {
+            //     outPts.push_back(rowStart + rowStep + colStep * k);
+            // }
+        }
     }
 }
 
@@ -742,7 +760,7 @@ void OpenGLGraphicsManagerCommonBase::InitializeTerrain(const Scene &scene) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        // glGenerateMipmap(GL_TEXTURE_2D);
+        glGenerateMipmap(GL_TEXTURE_2D);
 
         glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -812,6 +830,12 @@ void OpenGLGraphicsManagerCommonBase::EndScene() {
     for (auto &it : m_Textures) {
         glDeleteTextures(1, &it.second);
     }
+
+    for (auto &buf : m_TerrainBuffers) {
+        glDeleteBuffers(1, &buf);
+    }
+
+    glDeleteTextures(1, &m_TerrainHeightMap);
 
     m_Buffers.clear();
     m_Textures.clear();
