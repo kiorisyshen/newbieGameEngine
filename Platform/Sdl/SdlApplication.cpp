@@ -96,11 +96,27 @@ void SdlApplication::Tick() {
             case SDL_QUIT:
                 RequestQuit();
                 break;
-            case SDL_KEYDOWN:
-                break;
-            case SDL_KEYUP: {
-                g_pInputManager->AsciiKeyDown(static_cast<char>(e.key.keysym.sym));
+            case SDL_KEYDOWN: {
+                switch (e.key.keysym.sym) {
+                    case SDLK_LEFT:
+                        g_pInputManager->LeftArrowKeyDown();
+                        break;
+                    case SDLK_RIGHT:
+                        g_pInputManager->RightArrowKeyDown();
+                        break;
+                    case SDLK_UP:
+                        g_pInputManager->UpArrowKeyDown();
+                        break;
+                    case SDLK_DOWN:
+                        g_pInputManager->DownArrowKeyDown();
+                        break;
+                    default:
+                        g_pInputManager->AsciiKeyDown(static_cast<char>(e.key.keysym.sym));
+                        break;
+                }
             } break;
+            case SDL_KEYUP:
+                break;
             case SDL_MOUSEBUTTONDOWN: {
                 if (e.button.button == SDL_BUTTON_LEFT) {
                     g_pInputManager->LeftMouseButtonDown();

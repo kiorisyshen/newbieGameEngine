@@ -23,7 +23,7 @@ void main() {
     vec2 uv      = v_world.xy / 160.0;
     uv += (0.5, 0.5);
     float height = texture(TerrainHeightMapsamp0, uv).x;
-    height       = (height - 0.15) * 5.0;
+    height       = (height - 0.5) * 18.0;
 
     v_world.z = height;
 
