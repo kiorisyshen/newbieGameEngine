@@ -953,7 +953,6 @@ typedef Vector<float, 2> Point2D;
 typedef std::shared_ptr<Point2D> Point2DPtr;
 typedef std::vector<Point2DPtr> Point2DList;
 typedef Vector<float, 3> Point3;
-typedef Vector<float, 4> Point4;
 typedef std::shared_ptr<Point3> PointPtr;
 typedef std::unordered_set<PointPtr> PointSet;
 typedef std::vector<PointPtr> PointList;

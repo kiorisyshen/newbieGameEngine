@@ -602,15 +602,57 @@ void OpenGLGraphicsManagerCommonBase::InitializeSkyBox(const Scene &scene) {
     // TODO: unimplemented
 }
 
-// Using GL_LINE_STRIP way to draw
-std::vector<Point4> OpenGLGraphicsManagerCommonBase::cpuTerrainQuadTessellation(const std::array<Point4, 4> &controlPts, const Matrix4X4f &toScreenTransM) {
-    std::vector<Point4> outPts;
+void evenQuadTessellation(const std::array<Vector4f, 4> &controlPts, const uint32_t row, const uint32_t col, std::vector<Vector4f> &outPts) {
     outPts.push_back(controlPts[0]);
     outPts.push_back(controlPts[1]);
     outPts.push_back(controlPts[2]);
-    outPts.push_back(controlPts[0]);
     outPts.push_back(controlPts[3]);
-    outPts.push_back(controlPts[2]);
+    outPts.push_back(controlPts[0]);
+
+    Vector4f colStep = (controlPts[1] - controlPts[0]) / float(col);
+    Vector4f rowStep = (controlPts[2] - controlPts[1]) / float(row);
+
+    // Draw small triangles
+    for (uint32_t i = 1; i <= row; ++i) {
+        Vector4f rowStart = controlPts[0] + (i - 1) * rowStep;
+        for (uint32_t j = 1; j <= col; ++j) {
+            outPts.push_back(rowStart + rowStep + colStep * j);
+            if (j != col) {
+                outPts.push_back(rowStart + colStep * j);
+            }
+        }
+        outPts.push_back(rowStart + rowStep);
+    }
+}
+
+// Using GL_LINE_STRIP way to draw
+std::vector<Vector4f> OpenGLGraphicsManagerCommonBase::cpuTerrainQuadTessellation(const std::array<Vector4f, 4> &controlPts, const Matrix4X4f &patchTransM) {
+    std::vector<Vector4f> outPts;
+
+    Vector4f centerPt = {0.0, 0.0, 0.0, 0.0};
+    for (int i = 0; i < controlPts.size(); ++i) {
+        centerPt = centerPt + controlPts[i];
+    }
+    centerPt = centerPt / 4.0;
+
+    Transform(centerPt, patchTransM);
+    Transform(centerPt, m_Frames[m_nFrameIndex].frameContext.worldMatrix);
+
+    float distanceTerrain = Length(centerPt - m_Frames[m_nFrameIndex].frameContext.m_camPos);
+
+    std::cout << "Dist: " << distanceTerrain << std::endl;
+
+    int32_t distLevel = int32_t(250.0 / distanceTerrain);
+    if (distLevel > 6) {
+        distLevel = 6;
+    }
+
+    std::cout << "Level: " << distLevel << std::endl;
+
+    uint32_t distRate = 1 << distLevel;
+
+    evenQuadTessellation(controlPts, distRate, distRate, outPts);
+
     return outPts;
 }
 
@@ -622,6 +664,8 @@ void OpenGLGraphicsManagerCommonBase::InitializeTerrain(const Scene &scene) {
     m_TerrainPPC.resize(TERRAIN_PATCH_ROW * TERRAIN_PATCH_COL);
 
     // Generate vertex array buffer
+    CalculateCameraMatrix();
+    Matrix4X4f toCameraMatrix;
     int32_t tmpCount = 0;
     for (int32_t i = -TERRAIN_PATCH_ROW / 2; i < TERRAIN_PATCH_ROW / 2; i++) {
         for (int32_t j = -TERRAIN_PATCH_COL / 2; j < TERRAIN_PATCH_COL / 2; j++) {
@@ -635,15 +679,17 @@ void OpenGLGraphicsManagerCommonBase::InitializeTerrain(const Scene &scene) {
 
             uint32_t buffer_id;
             glGenBuffers(1, &buffer_id);
-            // GLfloat vertices[] = {0.0f, 0.5f, 0.5f, -0.5f, -0.5f, -0.5f};
-            Point4 a                         = {0.0, TERRAIN_PATCH_SIZE, 0.0, 1.0};
-            Point4 b                         = {0.0, 0.0, 0.0, 1.0};
-            Point4 c                         = {TERRAIN_PATCH_SIZE, 0.0, 0.0, 1.0};
-            Point4 d                         = {TERRAIN_PATCH_SIZE, TERRAIN_PATCH_SIZE, 0.0, 1.0};
-            std::array<Point4, 4> controlPts = {a, b, c, d};
-            std::vector<Point4> vertices     = cpuTerrainQuadTessellation(controlPts, m_TerrainPPC[tmpCount].patchLocalMatrix);
+
+            Vector4f a                         = {0.0, TERRAIN_PATCH_SIZE, 0.0, 1.0};
+            Vector4f b                         = {0.0, 0.0, 0.0, 1.0};
+            Vector4f c                         = {TERRAIN_PATCH_SIZE, 0.0, 0.0, 1.0};
+            Vector4f d                         = {TERRAIN_PATCH_SIZE, TERRAIN_PATCH_SIZE, 0.0, 1.0};
+            std::array<Vector4f, 4> controlPts = {a, b, c, d};
+
+            toCameraMatrix                 = m_TerrainPPC[tmpCount].patchLocalMatrix;
+            std::vector<Vector4f> vertices = cpuTerrainQuadTessellation(controlPts, toCameraMatrix);
             glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(Point4) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(Vector4f) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
             glEnableVertexAttribArray(0);
             glVertexAttribPointer(0, 4, GL_FLOAT, false, 0, 0);
 

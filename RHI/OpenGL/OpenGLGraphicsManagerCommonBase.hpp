@@ -113,7 +113,7 @@ class OpenGLGraphicsManagerCommonBase : public GraphicsManager {
     void InitializeSkyBox(const Scene &scene);
     void InitializeTerrain(const Scene &scene);
 
-    std::vector<Point4> cpuTerrainQuadTessellation(const std::array<Point4, 4> &controlPts, const Matrix4X4f &toScreenTransM);
+    std::vector<Vector4f> cpuTerrainQuadTessellation(const std::array<Vector4f, 4> &controlPts, const Matrix4X4f &patchTransM);
 
     // --------------------
     // Private Variables
