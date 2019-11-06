@@ -980,10 +980,18 @@ void OpenGLGraphicsManagerCommonBase::DrawTerrain() {
     tmpCount = 0;
     for (int32_t i = -TERRAIN_PATCH_ROW / 2; i < TERRAIN_PATCH_ROW / 2; i++) {
         for (int32_t j = -TERRAIN_PATCH_COL / 2; j < TERRAIN_PATCH_COL / 2; j++) {
-            // TODO: draw terrain patchs
+            // Bind per batch constant buffer
+            glBindBufferRange(GL_UNIFORM_BUFFER, 13, m_uboDrawTerrainPatchConstant[m_nFrameIndex],
+                              tmpCount * kSizePerTerrainConstant, kSizePerTerrainConstant);
+
+            glBindVertexArray(m_TerrainPPC[tmpCount].vao);
+            glDrawArrays(m_TerrainPPC[tmpCount].mode, 0, m_TerrainPPC[tmpCount].count);
+
             ++tmpCount;
         }
     }
+
+    glBindVertexArray(0);
 }
 
 // pbr compute shader

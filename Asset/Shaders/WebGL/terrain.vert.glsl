@@ -3,7 +3,7 @@
 layout(std140) uniform TerrainPerPatchConstants {
     mat4 patchLocalMatrix;
 }
-_24;
+tppc;
 
 layout(std140) uniform PerFrameConstants {
     mat4 worldMatrix;
@@ -12,4 +12,10 @@ layout(std140) uniform PerFrameConstants {
     vec4 camPos;
     int numLights;
 }
-_43;
+pfc;
+
+layout(location = 0) in vec4 a_inputPosition;
+
+void main() {
+    gl_Position = pfc.projectionMatrix * pfc.viewMatrix * pfc.worldMatrix * tppc.patchLocalMatrix * a_inputPosition;
+}
