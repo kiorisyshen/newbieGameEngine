@@ -21,7 +21,7 @@ struct OpenGLDrawTerrainPatchContext : public PerTerrainPatchConstants {
     uint32_t mode;
     uint32_t type;
     int32_t count;
-}
+};
 
 class OpenGLGraphicsManagerCommonBase : public GraphicsManager {
    public:

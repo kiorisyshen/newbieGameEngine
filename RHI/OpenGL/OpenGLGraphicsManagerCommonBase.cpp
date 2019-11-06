@@ -636,10 +636,11 @@ void OpenGLGraphicsManagerCommonBase::InitializeTerrain(const Scene &scene) {
             uint32_t buffer_id;
             glGenBuffers(1, &buffer_id);
             // GLfloat vertices[] = {0.0f, 0.5f, 0.5f, -0.5f, -0.5f, -0.5f};
-            std::array<Point4, 4> controlPts = {{0.0, TERRAIN_PATCH_SIZE, 0.0, 1.0},
-                                                {0.0, 0.0, 0.0, 1.0},
-                                                {TERRAIN_PATCH_SIZE, 0.0, 0.0, 1.0},
-                                                {TERRAIN_PATCH_SIZE, TERRAIN_PATCH_SIZE, 0.0, 1.0}};
+            Point4 a                         = {0.0, TERRAIN_PATCH_SIZE, 0.0, 1.0};
+            Point4 b                         = {0.0, 0.0, 0.0, 1.0};
+            Point4 c                         = {TERRAIN_PATCH_SIZE, 0.0, 0.0, 1.0};
+            Point4 d                         = {TERRAIN_PATCH_SIZE, TERRAIN_PATCH_SIZE, 0.0, 1.0};
+            std::array<Point4, 4> controlPts = {a, b, c, d};
             std::vector<Point4> vertices     = cpuTerrainQuadTessellation(controlPts, m_TerrainPPC[tmpCount].patchLocalMatrix);
             glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
             glBufferData(GL_ARRAY_BUFFER, sizeof(Point4) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
@@ -710,8 +711,8 @@ void OpenGLGraphicsManagerCommonBase::EndScene() {
             glDeleteBuffers(1, &m_uboLightInfo[i]);
         }
 
-        if (m_uboTerrainTransConstant[i]) {
-            glDeleteBuffers(1, &m_uboTerrainTransConstant[i]);
+        if (m_uboDrawTerrainPatchConstant[i]) {
+            glDeleteBuffers(1, &m_uboDrawTerrainPatchConstant[i]);
         }
 
         // if (m_uboShadowMatricesConstant[i]) {
@@ -977,7 +978,7 @@ void OpenGLGraphicsManagerCommonBase::DrawTerrain() {
 
     glEnable(GL_CULL_FACE);
 
-    tmpCount = 0;
+    int32_t tmpCount = 0;
     for (int32_t i = -TERRAIN_PATCH_ROW / 2; i < TERRAIN_PATCH_ROW / 2; i++) {
         for (int32_t j = -TERRAIN_PATCH_COL / 2; j < TERRAIN_PATCH_COL / 2; j++) {
             // Bind per batch constant buffer
