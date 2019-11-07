@@ -697,7 +697,6 @@ void OpenGLGraphicsManagerCommonBase::InitializeTerrain(const Scene &scene) {
     // Create per-patch constants
     m_TerrainPPC.resize(TERRAIN_PATCH_ROW * TERRAIN_PATCH_COL);
 
-    CalculateCameraMatrix();
     Matrix4X4f toCameraMatrix;
     int32_t tmpCount = 0;
     for (int32_t i = -TERRAIN_PATCH_ROW / 2; i < TERRAIN_PATCH_ROW / 2; i++) {
@@ -707,7 +706,7 @@ void OpenGLGraphicsManagerCommonBase::InitializeTerrain(const Scene &scene) {
 
             toCameraMatrix = m_TerrainPPC[tmpCount].patchLocalMatrix;
 
-            m_TerrainPPC[tmpCount].level = getTerrainPatchLevel(controlPts, toCameraMatrix);
+            m_TerrainPPC[tmpCount].level = 4;  //getTerrainPatchLevel(controlPts, toCameraMatrix);
 
             ++tmpCount;
         }
