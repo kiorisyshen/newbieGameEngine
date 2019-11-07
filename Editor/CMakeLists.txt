@@ -79,6 +79,7 @@ elseif(WA)
             --js-output=${CMAKE_CURRENT_BINARY_DIR}/Asset.preload.js 
             --preload Asset/Scene/test.ogex
                     Asset/Shaders/WebGL
+                    Asset/Textures/terrain
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         VERBATIM
             )

@@ -9,10 +9,25 @@
 #include "geommath.hpp"
 
 namespace newbieGE {
+static const float TERRAIN_PATCH_SIZE   = 32.0;
+static const int32_t TERRAIN_PATCH_ROW  = 10;  // must be even number
+static const int32_t TERRAIN_PATCH_COL  = 10;  // must be even number
+static const uint32_t TERRAIN_MAX_LEVEL = 7;   // how many col/row tessellation could create, MAX_NUM = 2^(TERRAIN_MAX_LEVEL-1)
+
 struct OpenGLDrawBatchContext : public DrawBatchConstant {
     uint32_t vao;
     uint32_t mode;
     uint32_t type;
+    int32_t count;
+};
+
+struct OpenGLDrawTerrainPatchContext : public PerTerrainPatchConstants {
+    uint32_t level;
+};
+
+struct OpenGLSimpleVAO {
+    uint32_t vao;
+    uint32_t mode;
     int32_t count;
 };
 
@@ -106,6 +121,8 @@ class OpenGLGraphicsManagerCommonBase : public GraphicsManager {
     void InitializeSkyBox(const Scene &scene);
     void InitializeTerrain(const Scene &scene);
 
+    uint32_t getTerrainPatchLevel(const std::array<Vector4f, 4> &controlPts, const Matrix4X4f &patchTransM);
+
     // --------------------
     // Private Variables
     // --------------------
@@ -113,11 +130,20 @@ class OpenGLGraphicsManagerCommonBase : public GraphicsManager {
     std::unordered_map<int32_t, uint32_t> m_ShaderList;
 
     // Uniform buffers
-    uint32_t m_uboDrawFrameConstant[GfxConfiguration::kMaxInFlightFrameCount] = {0};
-    uint32_t m_uboDrawBatchConstant[GfxConfiguration::kMaxInFlightFrameCount] = {0};
-    uint32_t m_uboLightInfo[GfxConfiguration::kMaxInFlightFrameCount]         = {0};
+    uint32_t m_uboDrawFrameConstant[GfxConfiguration::kMaxInFlightFrameCount]        = {0};
+    uint32_t m_uboDrawBatchConstant[GfxConfiguration::kMaxInFlightFrameCount]        = {0};
+    uint32_t m_uboLightInfo[GfxConfiguration::kMaxInFlightFrameCount]                = {0};
+    uint32_t m_uboDrawTerrainPatchConstant[GfxConfiguration::kMaxInFlightFrameCount] = {0};
 
     std::vector<uint32_t> m_Buffers;                       // Vertex & index buffer
     std::unordered_map<std::string, uint32_t> m_Textures;  // Textures
+
+    std::vector<OpenGLDrawTerrainPatchContext> m_TerrainPPC;
+    std::array<OpenGLSimpleVAO, TERRAIN_MAX_LEVEL> m_TerrainVertex;  // Terrain Vertex struct
+    std::vector<uint32_t> m_TerrainBuffers;
+    uint32_t m_TerrainHeightMap;  // Currently only 1 height map
+
+    std::vector<OpenGLSimpleVAO> m_DebugVertex;
+    std::vector<uint32_t> m_DebugBuffers;
 };
 }  // namespace newbieGE

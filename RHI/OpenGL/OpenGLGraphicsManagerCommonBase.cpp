@@ -34,28 +34,10 @@ using namespace newbieGE;
 // --------------------------------------------------------------
 #define VS_BASIC_SOURCE_FILE SHADER_ROOT "basic.vert.glsl"
 #define PS_BASIC_SOURCE_FILE SHADER_ROOT "basic.frag.glsl"
-#define VS_SHADOWMAP_SOURCE_FILE SHADER_ROOT "shadowmap.vert.glsl"
-#define PS_SHADOWMAP_SOURCE_FILE SHADER_ROOT "shadowmap.frag.glsl"
-#define VS_OMNI_SHADOWMAP_SOURCE_FILE SHADER_ROOT "shadowmap_omni.vert.glsl"
-#define PS_OMNI_SHADOWMAP_SOURCE_FILE SHADER_ROOT "shadowmap_omni.frag.glsl"
-#define GS_OMNI_SHADOWMAP_SOURCE_FILE SHADER_ROOT "shadowmap_omni.geom.glsl"
 #define DEBUG_VS_SHADER_SOURCE_FILE SHADER_ROOT "debug.vert.glsl"
 #define DEBUG_PS_SHADER_SOURCE_FILE SHADER_ROOT "debug.frag.glsl"
-#define VS_PASSTHROUGH_SOURCE_FILE SHADER_ROOT "passthrough.vert.glsl"
-#define PS_TEXTURE_SOURCE_FILE SHADER_ROOT "texture.frag.glsl"
-#define PS_TEXTURE_ARRAY_SOURCE_FILE SHADER_ROOT "texturearray.frag.glsl"
-#define VS_PASSTHROUGH_CUBEMAP_SOURCE_FILE SHADER_ROOT "passthrough_cube.vert.glsl"
-#define PS_CUBEMAP_SOURCE_FILE SHADER_ROOT "cubemap.frag.glsl"
-#define PS_CUBEMAP_ARRAY_SOURCE_FILE SHADER_ROOT "cubemaparray.frag.glsl"
-#define VS_SKYBOX_SOURCE_FILE SHADER_ROOT "skybox.vert.glsl"
-#define PS_SKYBOX_SOURCE_FILE SHADER_ROOT "skybox.frag.glsl"
-#define VS_PBR_SOURCE_FILE SHADER_ROOT "pbr.vert.glsl"
-#define PS_PBR_SOURCE_FILE SHADER_ROOT "pbr.frag.glsl"
-#define CS_PBR_BRDF_SOURCE_FILE SHADER_ROOT "integrateBRDF.comp.glsl"
 #define VS_TERRAIN_SOURCE_FILE SHADER_ROOT "terrain.vert.glsl"
 #define PS_TERRAIN_SOURCE_FILE SHADER_ROOT "terrain.frag.glsl"
-#define TESC_TERRAIN_SOURCE_FILE SHADER_ROOT "terrain.tesc.glsl"
-#define TESE_TERRAIN_SOURCE_FILE SHADER_ROOT "terrain.tese.glsl"
 
 typedef vector<pair<GLenum, string>> ShaderSourceList;
 
@@ -253,6 +235,7 @@ int OpenGLGraphicsManagerCommonBase::Initialize() {
 }
 
 void OpenGLGraphicsManagerCommonBase::getOpenGLTextureFormat(const Image &img, uint32_t &format, uint32_t &internal_format, uint32_t &type) {
+    std::cout << "Test: Image bitcount: " << img.bitcount << std::endl;
     if (img.compressed) {
         switch (img.compress_format) {
             case "DXT1"_u32:
@@ -332,6 +315,30 @@ bool OpenGLGraphicsManagerCommonBase::InitializeShaders() {
     }
 
     m_ShaderList[(int32_t)DefaultShaderIndex::BasicShader] = shaderProgram;
+
+    // Terrain shader
+    list = {
+        {GL_VERTEX_SHADER, VS_TERRAIN_SOURCE_FILE},
+        {GL_FRAGMENT_SHADER, PS_TERRAIN_SOURCE_FILE}};
+
+    result = LoadShaderProgram(list, shaderProgram);
+    if (!result) {
+        return result;
+    }
+
+    m_ShaderList[(int32_t)DefaultShaderIndex::TerrainShader] = shaderProgram;
+
+    // Debug shader
+    list = {
+        {GL_VERTEX_SHADER, DEBUG_VS_SHADER_SOURCE_FILE},
+        {GL_FRAGMENT_SHADER, DEBUG_PS_SHADER_SOURCE_FILE}};
+
+    result = LoadShaderProgram(list, shaderProgram);
+    if (!result) {
+        return result;
+    }
+
+    m_ShaderList[(int32_t)DefaultShaderIndex::DebugShader] = shaderProgram;
 
     return result;
 }
@@ -590,8 +597,170 @@ void OpenGLGraphicsManagerCommonBase::InitializeSkyBox(const Scene &scene) {
     // TODO: unimplemented
 }
 
+// Using GL_LINE_STRIP way to draw
+void evenQuadTessellation(const std::array<Vector4f, 4> &controlPts, const uint32_t row, const uint32_t col, std::vector<Vector4f> &outPts) {
+    Vector4f colStep = (controlPts[1] - controlPts[0]) / float(col);
+    Vector4f rowStep = (controlPts[2] - controlPts[1]) / float(row);
+
+    outPts.push_back(controlPts[0]);
+
+    for (uint32_t k = 1; k <= col; ++k) {
+        outPts.push_back(controlPts[0] + colStep * k);
+    }
+
+    for (uint32_t k = 1; k <= row; ++k) {
+        outPts.push_back(controlPts[1] + rowStep * k);
+    }
+
+    for (uint32_t k = 1; k <= col; ++k) {
+        outPts.push_back(controlPts[2] - colStep * k);
+    }
+
+    for (uint32_t k = 1; k <= row; ++k) {
+        outPts.push_back(controlPts[3] - rowStep * k);
+    }
+
+    // Draw small triangles
+    for (uint32_t i = 1; i <= row; ++i) {
+        Vector4f rowStart = controlPts[0] + (i - 1) * rowStep;
+        for (uint32_t j = 1; j <= col; ++j) {
+            outPts.push_back(rowStart + rowStep + colStep * j);
+            if (j != col) {
+                outPts.push_back(rowStart + colStep * j);
+            }
+        }
+
+        if (i != row) {
+            for (uint32_t k = col - 1; k > 0; k = k - 1) {
+                outPts.push_back(rowStart + rowStep + colStep * k);
+            }
+            outPts.push_back(rowStart + rowStep);
+        }
+    }
+}
+
+uint32_t OpenGLGraphicsManagerCommonBase::getTerrainPatchLevel(const std::array<Vector4f, 4> &controlPts, const Matrix4X4f &patchTransM) {
+    Vector4f centerPt = {0.0, 0.0, 0.0, 0.0};
+    for (int i = 0; i < controlPts.size(); ++i) {
+        centerPt = centerPt + controlPts[i];
+    }
+    centerPt = centerPt / 4.0;
+
+    Transform(centerPt, patchTransM);
+    Transform(centerPt, m_Frames[m_nFrameIndex].frameContext.worldMatrix);
+
+    float distanceTerrain = Length(centerPt - m_Frames[m_nFrameIndex].frameContext.m_camPos);
+
+    int32_t distLevel = int32_t(350.0 / distanceTerrain);
+    if (distLevel > 6) {
+        distLevel = 6;
+    }
+
+    return distLevel;
+}
+
+static const Vector4f a_                        = {0.0, TERRAIN_PATCH_SIZE, 0.0, 1.0};
+static const Vector4f b_                        = {0.0, 0.0, 0.0, 1.0};
+static const Vector4f c_                        = {TERRAIN_PATCH_SIZE, 0.0, 0.0, 1.0};
+static const Vector4f d_                        = {TERRAIN_PATCH_SIZE, TERRAIN_PATCH_SIZE, 0.0, 1.0};
+static const std::array<Vector4f, 4> controlPts = {a_, b_, c_, d_};
+
 void OpenGLGraphicsManagerCommonBase::InitializeTerrain(const Scene &scene) {
-    // TODO: unimplemented
+    // Create VAO for each terrain level
+    for (uint32_t i = 0; i < TERRAIN_MAX_LEVEL; ++i) {
+        uint32_t vao;
+        glGenVertexArrays(1, &vao);
+        glBindVertexArray(vao);
+
+        uint32_t buffer_id;
+        glGenBuffers(1, &buffer_id);
+
+        uint32_t distRate = 1 << i;
+
+        std::vector<Vector4f> vertices;
+        vertices.clear();
+        evenQuadTessellation(controlPts, distRate, distRate, vertices);
+
+        glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(Vector4f) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 4, GL_FLOAT, false, 0, 0);
+        m_TerrainBuffers.push_back(buffer_id);
+
+        m_TerrainVertex[i].vao   = vao;
+        m_TerrainVertex[i].count = vertices.size();
+        m_TerrainVertex[i].mode  = GL_LINE_STRIP;
+
+        glBindVertexArray(0);  // reset vertex array to 0
+    }
+
+    // Create per-patch constants
+    m_TerrainPPC.resize(TERRAIN_PATCH_ROW * TERRAIN_PATCH_COL);
+
+    Matrix4X4f toCameraMatrix;
+    int32_t tmpCount = 0;
+    for (int32_t i = -TERRAIN_PATCH_ROW / 2; i < TERRAIN_PATCH_ROW / 2; i++) {
+        for (int32_t j = -TERRAIN_PATCH_COL / 2; j < TERRAIN_PATCH_COL / 2; j++) {
+            // Fill PerTerrainPatchConstants
+            MatrixTranslation(m_TerrainPPC[tmpCount].patchLocalMatrix, TERRAIN_PATCH_SIZE * i, TERRAIN_PATCH_SIZE * j, 0.0f);
+
+            toCameraMatrix = m_TerrainPPC[tmpCount].patchLocalMatrix;
+
+            m_TerrainPPC[tmpCount].level = 4;  //getTerrainPatchLevel(controlPts, toCameraMatrix);
+
+            ++tmpCount;
+        }
+    }
+
+    // Generate per-Terrain Patch Constant
+    if (!m_uboDrawTerrainPatchConstant[m_nFrameIndex]) {
+        glGenBuffers(1, &m_uboDrawTerrainPatchConstant[m_nFrameIndex]);
+    }
+
+    uint8_t *pBuff_trans = new uint8_t[kSizePerTerrainConstant * TERRAIN_PATCH_ROW * TERRAIN_PATCH_COL];
+    glBindBuffer(GL_UNIFORM_BUFFER, m_uboDrawTerrainPatchConstant[m_nFrameIndex]);
+    tmpCount = 0;
+    for (int32_t i = -TERRAIN_PATCH_ROW / 2; i < TERRAIN_PATCH_ROW / 2; i++) {
+        for (int32_t j = -TERRAIN_PATCH_COL / 2; j < TERRAIN_PATCH_COL / 2; j++) {
+            const PerTerrainPatchConstants &constants = static_cast<PerTerrainPatchConstants &>(m_TerrainPPC[tmpCount]);
+            memcpy(pBuff_trans + tmpCount * kSizePerTerrainConstant, &constants, kSizePerTerrainConstant);
+            ++tmpCount;
+        }
+    }
+    glBufferData(GL_UNIFORM_BUFFER, kSizePerTerrainConstant * TERRAIN_PATCH_ROW * TERRAIN_PATCH_COL, pBuff_trans, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    delete[] pBuff_trans;
+
+    if (scene.Terrain) {
+        // Current we use only the first height map
+        auto &texture      = scene.Terrain->GetTexture(0);
+        const auto &pImage = texture.GetTextureImage();
+
+        // Create terrain height image
+        glGenTextures(1, &m_TerrainHeightMap);
+        glBindTexture(GL_TEXTURE_2D, m_TerrainHeightMap);
+        uint32_t format, internal_format, type;
+        getOpenGLTextureFormat(*pImage, format, internal_format, type);
+        if (pImage->compressed) {
+            glCompressedTexImage2D(GL_TEXTURE_2D, 0, internal_format, pImage->Width, pImage->Height,
+                                   0, static_cast<int32_t>(pImage->data_size), pImage->data);
+        } else {
+            glTexImage2D(GL_TEXTURE_2D, 0, internal_format, pImage->Width, pImage->Height,
+                         0, format, type, pImage->data);
+        }
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        for (uint32_t i = 0; i < GfxConfiguration::kMaxInFlightFrameCount; i++) {
+            m_Frames[i].frameContext.terrainHeightMap = m_TerrainHeightMap;
+        }
+    }
 }
 
 void OpenGLGraphicsManagerCommonBase::BeginScene(const Scene &scene) {
@@ -626,6 +795,10 @@ void OpenGLGraphicsManagerCommonBase::EndScene() {
             glDeleteBuffers(1, &m_uboLightInfo[i]);
         }
 
+        if (m_uboDrawTerrainPatchConstant[i]) {
+            glDeleteBuffers(1, &m_uboDrawTerrainPatchConstant[i]);
+        }
+
         // if (m_uboShadowMatricesConstant[i]) {
         //     glDeleteBuffers(1, &m_uboShadowMatricesConstant[i]);
         // }
@@ -651,8 +824,16 @@ void OpenGLGraphicsManagerCommonBase::EndScene() {
         glDeleteTextures(1, &it.second);
     }
 
+    for (auto &buf : m_TerrainBuffers) {
+        glDeleteBuffers(1, &buf);
+    }
+
+    glDeleteTextures(1, &m_TerrainHeightMap);
+
     m_Buffers.clear();
     m_Textures.clear();
+    m_TerrainPPC.clear();
+    m_TerrainBuffers.clear();
 
     GraphicsManager::EndScene();
 }
@@ -871,7 +1052,49 @@ void OpenGLGraphicsManagerCommonBase::SetTerrain(const DrawFrameContext &context
     // TODO: unimplemented
 }
 void OpenGLGraphicsManagerCommonBase::DrawTerrain() {
-    // TODO: unimplemented
+    // Prepare & Bind per frame constant buffer
+    uint32_t blockIndex = glGetUniformBlockIndex(m_CurrentShader, "PerFrameConstants");
+
+    if (blockIndex != GL_INVALID_INDEX) {
+        glUniformBlockBinding(m_CurrentShader, blockIndex, 10);
+
+        glBindBufferBase(GL_UNIFORM_BUFFER, 10, m_uboDrawFrameConstant[m_nFrameIndex]);
+    }
+
+    // Prepare per batch constant buffer binding point
+    blockIndex = glGetUniformBlockIndex(m_CurrentShader, "TerrainPerPatchConstants");
+
+    if (blockIndex != GL_INVALID_INDEX) {
+        glUniformBlockBinding(m_CurrentShader, blockIndex, 13);
+    }
+
+    glEnable(GL_CULL_FACE);
+
+    setShaderParameter("TerrainHeightMapsamp0", 7);
+    glActiveTexture(GL_TEXTURE7);
+    if (m_TerrainHeightMap > 0) {
+        glBindTexture(GL_TEXTURE_2D, m_TerrainHeightMap);
+    } else {
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    int32_t tmpCount = 0;
+    for (int32_t i = -TERRAIN_PATCH_ROW / 2; i < TERRAIN_PATCH_ROW / 2; i++) {
+        for (int32_t j = -TERRAIN_PATCH_COL / 2; j < TERRAIN_PATCH_COL / 2; j++) {
+            // Bind per batch constant buffer
+            glBindBufferRange(GL_UNIFORM_BUFFER, 13, m_uboDrawTerrainPatchConstant[m_nFrameIndex],
+                              tmpCount * kSizePerTerrainConstant, kSizePerTerrainConstant);
+
+            m_TerrainPPC[tmpCount].level = getTerrainPatchLevel(controlPts, m_TerrainPPC[tmpCount].patchLocalMatrix);
+            uint32_t level               = m_TerrainPPC[tmpCount].level;
+            glBindVertexArray(m_TerrainVertex[level].vao);
+            glDrawArrays(m_TerrainVertex[level].mode, 0, m_TerrainVertex[level].count);
+
+            ++tmpCount;
+        }
+    }
+
+    glBindVertexArray(0);
 }
 
 // pbr compute shader
@@ -885,13 +1108,70 @@ int32_t OpenGLGraphicsManagerCommonBase::GenerateAndBindTextureForWrite(const ch
 
 #ifdef DEBUG
 void OpenGLGraphicsManagerCommonBase::DEBUG_ClearDebugBuffers() {
-    // TODO: unimplemented
+    for (auto &buf : m_DebugBuffers) {
+        glDeleteBuffers(1, &buf);
+    }
+    m_DebugBuffers.clear();
+    m_DebugVertex.clear();
 }
 void OpenGLGraphicsManagerCommonBase::DEBUG_SetBuffer() {
-    // TODO: unimplemented
+    // Only lines
+    OpenGLSimpleVAO lineStruct;
+
+    uint32_t vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    uint32_t buffer_id;
+
+    std::vector<Vector4f> vertices;
+    std::vector<Vector4f> vertColor;
+    for (auto &batch : m_Frames[m_nFrameIndex].DEBUG_Batches) {
+        for (auto &line : batch.lineParams) {
+            vertices.push_back(line.from.pos);
+            vertices.push_back(line.to.pos);
+
+            vertColor.push_back(line.from.color);
+            vertColor.push_back(line.to.color);
+        }
+    }
+
+    glGenBuffers(1, &buffer_id);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vector4f) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, false, 0, 0);
+    m_DebugBuffers.push_back(buffer_id);
+
+    glGenBuffers(1, &buffer_id);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vector4f) * vertColor.size(), &vertColor[0], GL_STATIC_DRAW);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 4, GL_FLOAT, false, 0, 0);
+    m_DebugBuffers.push_back(buffer_id);
+
+    lineStruct.vao   = vao;
+    lineStruct.count = vertices.size();
+    lineStruct.mode  = GL_LINES;
+
+    m_DebugVertex.push_back(lineStruct);
+
+    glBindVertexArray(0);  // reset vertex array to 0
 }
 void OpenGLGraphicsManagerCommonBase::DEBUG_DrawDebug() {
-    // TODO: unimplemented
+    // Prepare & Bind per frame constant buffer
+    uint32_t blockIndex = glGetUniformBlockIndex(m_CurrentShader, "PerFrameConstants");
+
+    if (blockIndex != GL_INVALID_INDEX) {
+        glUniformBlockBinding(m_CurrentShader, blockIndex, 10);
+
+        glBindBufferBase(GL_UNIFORM_BUFFER, 10, m_uboDrawFrameConstant[m_nFrameIndex]);
+    }
+
+    for (auto &vertStruct : m_DebugVertex) {
+        glBindVertexArray(vertStruct.vao);
+        glDrawArrays(vertStruct.mode, 0, vertStruct.count);
+    }
 }
 void OpenGLGraphicsManagerCommonBase::DEBUG_DrawOverlay(const int32_t shadowmap,
                                                         const int32_t layerIndex,

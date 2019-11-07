@@ -14,6 +14,8 @@ class BaseSceneNode : public TreeNode {
     std::map<int, std::shared_ptr<SceneObjectAnimationClip>> m_AnimationClips;
     std::map<std::string, std::shared_ptr<SceneObjectTransform>> m_LUTtransform;
     Matrix4X4f m_RuntimeTransform;
+    Matrix4X4f m_RuntimeRotation;
+    Matrix4X4f m_RuntimeTranslation;
 
    public:
     typedef std::map<int, std::shared_ptr<SceneObjectAnimationClip>>::const_iterator animation_clip_iterator;
@@ -21,10 +23,14 @@ class BaseSceneNode : public TreeNode {
    public:
     BaseSceneNode() {
         BuildIdentityMatrix(m_RuntimeTransform);
+        BuildIdentityMatrix(m_RuntimeRotation);
+        BuildIdentityMatrix(m_RuntimeTranslation);
     };
     BaseSceneNode(const std::string &name) {
         m_strName = name;
         BuildIdentityMatrix(m_RuntimeTransform);
+        BuildIdentityMatrix(m_RuntimeRotation);
+        BuildIdentityMatrix(m_RuntimeTranslation);
     };
     virtual ~BaseSceneNode(){};
 
@@ -78,13 +84,15 @@ class BaseSceneNode : public TreeNode {
     void RotateBy(float rotation_angle_x, float rotation_angle_y, float rotation_angle_z) {
         Matrix4X4f rotate;
         MatrixRotationYawPitchRoll(rotate, rotation_angle_x, rotation_angle_y, rotation_angle_z);
-        m_RuntimeTransform = m_RuntimeTransform * rotate;
+        m_RuntimeRotation  = m_RuntimeRotation * rotate;
+        m_RuntimeTransform = m_RuntimeRotation * m_RuntimeTranslation;
     }
 
     void MoveBy(float distance_x, float distance_y, float distance_z) {
         Matrix4X4f translation;
         MatrixTranslation(translation, distance_x, distance_y, distance_z);
-        m_RuntimeTransform = m_RuntimeTransform * translation;
+        m_RuntimeTranslation = m_RuntimeTranslation * translation;
+        m_RuntimeTransform   = m_RuntimeRotation * m_RuntimeTranslation;
     }
 
     void MoveBy(const Vector3f &distance) {

@@ -26,8 +26,19 @@ void ForwardRenderPass::Draw(Frame &frame) {
 #endif
 
 #else
+    // Draw terrain
+    g_pGraphicsManager->UseShaderProgram(DefaultShaderIndex::TerrainShader);
+    g_pGraphicsManager->SetTerrain(frame.frameContext);
+    g_pGraphicsManager->DrawTerrain();
+
     g_pGraphicsManager->UseShaderProgram(DefaultShaderIndex::BasicShader);
     g_pGraphicsManager->DrawBatch(frame.batchContext);
+#ifdef DEBUG
+    if (g_pGraphicsManager->DEBUG_IsShowDebug()) {
+        g_pGraphicsManager->UseShaderProgram(DefaultShaderIndex::DebugShader);
+        g_pGraphicsManager->DEBUG_DrawDebug();
+    }
+#endif
 #endif
 
     g_pGraphicsManager->EndForwardPass();

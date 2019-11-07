@@ -126,7 +126,6 @@ void EditorLogic::OnAnalogStick(int id, float deltaX, float deltaY) {
             Vector2f direction  = {local_axis.data[0], local_axis.data[1]};
             Normalize(direction);
             float delta = deltaY / screen_height * PI;
-
             pCameraNode->RotateBy(delta * direction.data[0], -delta * direction.data[1], deltaX / screen_width * PI);
         }
     }
