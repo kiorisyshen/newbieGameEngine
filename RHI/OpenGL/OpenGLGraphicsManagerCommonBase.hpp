@@ -25,10 +25,9 @@ struct OpenGLDrawTerrainPatchContext : public PerTerrainPatchConstants {
     uint32_t level;
 };
 
-struct OpenGLTerrainLevelBind {
+struct OpenGLSimpleVAO {
     uint32_t vao;
     uint32_t mode;
-    uint32_t bufferID;
     int32_t count;
 };
 
@@ -140,7 +139,11 @@ class OpenGLGraphicsManagerCommonBase : public GraphicsManager {
     std::unordered_map<std::string, uint32_t> m_Textures;  // Textures
 
     std::vector<OpenGLDrawTerrainPatchContext> m_TerrainPPC;
-    std::array<OpenGLTerrainLevelBind, TERRAIN_MAX_LEVEL> m_TerrainVertex;  // Terrain Vertex struct
-    uint32_t m_TerrainHeightMap;                                            // Currently only 1 height map
+    std::array<OpenGLSimpleVAO, TERRAIN_MAX_LEVEL> m_TerrainVertex;  // Terrain Vertex struct
+    std::vector<uint32_t> m_TerrainBuffers;
+    uint32_t m_TerrainHeightMap;  // Currently only 1 height map
+
+    std::vector<OpenGLSimpleVAO> m_DebugVertex;
+    std::vector<uint32_t> m_DebugBuffers;
 };
 }  // namespace newbieGE

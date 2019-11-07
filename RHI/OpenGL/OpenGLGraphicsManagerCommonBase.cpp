@@ -34,28 +34,10 @@ using namespace newbieGE;
 // --------------------------------------------------------------
 #define VS_BASIC_SOURCE_FILE SHADER_ROOT "basic.vert.glsl"
 #define PS_BASIC_SOURCE_FILE SHADER_ROOT "basic.frag.glsl"
-#define VS_SHADOWMAP_SOURCE_FILE SHADER_ROOT "shadowmap.vert.glsl"
-#define PS_SHADOWMAP_SOURCE_FILE SHADER_ROOT "shadowmap.frag.glsl"
-#define VS_OMNI_SHADOWMAP_SOURCE_FILE SHADER_ROOT "shadowmap_omni.vert.glsl"
-#define PS_OMNI_SHADOWMAP_SOURCE_FILE SHADER_ROOT "shadowmap_omni.frag.glsl"
-#define GS_OMNI_SHADOWMAP_SOURCE_FILE SHADER_ROOT "shadowmap_omni.geom.glsl"
 #define DEBUG_VS_SHADER_SOURCE_FILE SHADER_ROOT "debug.vert.glsl"
 #define DEBUG_PS_SHADER_SOURCE_FILE SHADER_ROOT "debug.frag.glsl"
-#define VS_PASSTHROUGH_SOURCE_FILE SHADER_ROOT "passthrough.vert.glsl"
-#define PS_TEXTURE_SOURCE_FILE SHADER_ROOT "texture.frag.glsl"
-#define PS_TEXTURE_ARRAY_SOURCE_FILE SHADER_ROOT "texturearray.frag.glsl"
-#define VS_PASSTHROUGH_CUBEMAP_SOURCE_FILE SHADER_ROOT "passthrough_cube.vert.glsl"
-#define PS_CUBEMAP_SOURCE_FILE SHADER_ROOT "cubemap.frag.glsl"
-#define PS_CUBEMAP_ARRAY_SOURCE_FILE SHADER_ROOT "cubemaparray.frag.glsl"
-#define VS_SKYBOX_SOURCE_FILE SHADER_ROOT "skybox.vert.glsl"
-#define PS_SKYBOX_SOURCE_FILE SHADER_ROOT "skybox.frag.glsl"
-#define VS_PBR_SOURCE_FILE SHADER_ROOT "pbr.vert.glsl"
-#define PS_PBR_SOURCE_FILE SHADER_ROOT "pbr.frag.glsl"
-#define CS_PBR_BRDF_SOURCE_FILE SHADER_ROOT "integrateBRDF.comp.glsl"
 #define VS_TERRAIN_SOURCE_FILE SHADER_ROOT "terrain.vert.glsl"
 #define PS_TERRAIN_SOURCE_FILE SHADER_ROOT "terrain.frag.glsl"
-#define TESC_TERRAIN_SOURCE_FILE SHADER_ROOT "terrain.tesc.glsl"
-#define TESE_TERRAIN_SOURCE_FILE SHADER_ROOT "terrain.tese.glsl"
 
 typedef vector<pair<GLenum, string>> ShaderSourceList;
 
@@ -345,6 +327,18 @@ bool OpenGLGraphicsManagerCommonBase::InitializeShaders() {
     }
 
     m_ShaderList[(int32_t)DefaultShaderIndex::TerrainShader] = shaderProgram;
+
+    // Debug shader
+    list = {
+        {GL_VERTEX_SHADER, DEBUG_VS_SHADER_SOURCE_FILE},
+        {GL_FRAGMENT_SHADER, DEBUG_PS_SHADER_SOURCE_FILE}};
+
+    result = LoadShaderProgram(list, shaderProgram);
+    if (!result) {
+        return result;
+    }
+
+    m_ShaderList[(int32_t)DefaultShaderIndex::DebugShader] = shaderProgram;
 
     return result;
 }
@@ -691,11 +685,11 @@ void OpenGLGraphicsManagerCommonBase::InitializeTerrain(const Scene &scene) {
         glBufferData(GL_ARRAY_BUFFER, sizeof(Vector4f) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 4, GL_FLOAT, false, 0, 0);
+        m_TerrainBuffers.push_back(buffer_id);
 
-        m_TerrainVertex[i].vao      = vao;
-        m_TerrainVertex[i].bufferID = buffer_id;
-        m_TerrainVertex[i].count    = vertices.size();
-        m_TerrainVertex[i].mode     = GL_LINE_STRIP;
+        m_TerrainVertex[i].vao   = vao;
+        m_TerrainVertex[i].count = vertices.size();
+        m_TerrainVertex[i].mode  = GL_LINE_STRIP;
 
         glBindVertexArray(0);  // reset vertex array to 0
     }
@@ -831,8 +825,8 @@ void OpenGLGraphicsManagerCommonBase::EndScene() {
         glDeleteTextures(1, &it.second);
     }
 
-    for (auto &sVert : m_TerrainVertex) {
-        glDeleteBuffers(1, &sVert.bufferID);
+    for (auto &buf : m_TerrainBuffers) {
+        glDeleteBuffers(1, &buf);
     }
 
     glDeleteTextures(1, &m_TerrainHeightMap);
@@ -840,6 +834,7 @@ void OpenGLGraphicsManagerCommonBase::EndScene() {
     m_Buffers.clear();
     m_Textures.clear();
     m_TerrainPPC.clear();
+    m_TerrainBuffers.clear();
 
     GraphicsManager::EndScene();
 }
@@ -1114,13 +1109,70 @@ int32_t OpenGLGraphicsManagerCommonBase::GenerateAndBindTextureForWrite(const ch
 
 #ifdef DEBUG
 void OpenGLGraphicsManagerCommonBase::DEBUG_ClearDebugBuffers() {
-    // TODO: unimplemented
+    for (auto &buf : m_DebugBuffers) {
+        glDeleteBuffers(1, &buf);
+    }
+    m_DebugBuffers.clear();
+    m_DebugVertex.clear();
 }
 void OpenGLGraphicsManagerCommonBase::DEBUG_SetBuffer() {
-    // TODO: unimplemented
+    // Only lines
+    OpenGLSimpleVAO lineStruct;
+
+    uint32_t vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    uint32_t buffer_id;
+
+    std::vector<Vector4f> vertices;
+    std::vector<Vector4f> vertColor;
+    for (auto &batch : m_Frames[m_nFrameIndex].DEBUG_Batches) {
+        for (auto &line : batch.lineParams) {
+            vertices.push_back(line.from.pos);
+            vertices.push_back(line.to.pos);
+
+            vertColor.push_back(line.from.color);
+            vertColor.push_back(line.to.color);
+        }
+    }
+
+    glGenBuffers(1, &buffer_id);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vector4f) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, false, 0, 0);
+    m_DebugBuffers.push_back(buffer_id);
+
+    glGenBuffers(1, &buffer_id);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vector4f) * vertColor.size(), &vertColor[0], GL_STATIC_DRAW);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 4, GL_FLOAT, false, 0, 0);
+    m_DebugBuffers.push_back(buffer_id);
+
+    lineStruct.vao   = vao;
+    lineStruct.count = vertices.size();
+    lineStruct.mode  = GL_LINES;
+
+    m_DebugVertex.push_back(lineStruct);
+
+    glBindVertexArray(0);  // reset vertex array to 0
 }
 void OpenGLGraphicsManagerCommonBase::DEBUG_DrawDebug() {
-    // TODO: unimplemented
+    // Prepare & Bind per frame constant buffer
+    uint32_t blockIndex = glGetUniformBlockIndex(m_CurrentShader, "PerFrameConstants");
+
+    if (blockIndex != GL_INVALID_INDEX) {
+        glUniformBlockBinding(m_CurrentShader, blockIndex, 10);
+
+        glBindBufferBase(GL_UNIFORM_BUFFER, 10, m_uboDrawFrameConstant[m_nFrameIndex]);
+    }
+
+    for (auto &vertStruct : m_DebugVertex) {
+        glBindVertexArray(vertStruct.vao);
+        glDrawArrays(vertStruct.mode, 0, vertStruct.count);
+    }
 }
 void OpenGLGraphicsManagerCommonBase::DEBUG_DrawOverlay(const int32_t shadowmap,
                                                         const int32_t layerIndex,
