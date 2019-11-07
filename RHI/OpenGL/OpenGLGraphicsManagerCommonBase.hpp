@@ -9,6 +9,11 @@
 #include "geommath.hpp"
 
 namespace newbieGE {
+static const float TERRAIN_PATCH_SIZE   = 32.0;
+static const int32_t TERRAIN_PATCH_ROW  = 10;  // must be even number
+static const int32_t TERRAIN_PATCH_COL  = 10;  // must be even number
+static const uint32_t TERRAIN_MAX_LEVEL = 7;   // how many col/row tessellation could create, MAX_NUM = 2^(TERRAIN_MAX_LEVEL-1)
+
 struct OpenGLDrawBatchContext : public DrawBatchConstant {
     uint32_t vao;
     uint32_t mode;
@@ -17,9 +22,13 @@ struct OpenGLDrawBatchContext : public DrawBatchConstant {
 };
 
 struct OpenGLDrawTerrainPatchContext : public PerTerrainPatchConstants {
+    uint32_t level;
+};
+
+struct OpenGLTerrainLevelBind {
     uint32_t vao;
     uint32_t mode;
-    uint32_t type;
+    uint32_t bufferID;
     int32_t count;
 };
 
@@ -113,7 +122,7 @@ class OpenGLGraphicsManagerCommonBase : public GraphicsManager {
     void InitializeSkyBox(const Scene &scene);
     void InitializeTerrain(const Scene &scene);
 
-    std::vector<Vector4f> cpuTerrainQuadTessellation(const std::array<Vector4f, 4> &controlPts, const Matrix4X4f &patchTransM);
+    uint32_t getTerrainPatchLevel(const std::array<Vector4f, 4> &controlPts, const Matrix4X4f &patchTransM);
 
     // --------------------
     // Private Variables
@@ -131,7 +140,7 @@ class OpenGLGraphicsManagerCommonBase : public GraphicsManager {
     std::unordered_map<std::string, uint32_t> m_Textures;  // Textures
 
     std::vector<OpenGLDrawTerrainPatchContext> m_TerrainPPC;
-    std::vector<uint32_t> m_TerrainBuffers;  // Terrain Vertex buffer
-    uint32_t m_TerrainHeightMap;             // Currently only 1 height map
+    std::array<OpenGLTerrainLevelBind, TERRAIN_MAX_LEVEL> m_TerrainVertex;  // Terrain Vertex struct
+    uint32_t m_TerrainHeightMap;                                            // Currently only 1 height map
 };
 }  // namespace newbieGE

@@ -603,6 +603,7 @@ void OpenGLGraphicsManagerCommonBase::InitializeSkyBox(const Scene &scene) {
     // TODO: unimplemented
 }
 
+// Using GL_LINE_STRIP way to draw
 void evenQuadTessellation(const std::array<Vector4f, 4> &controlPts, const uint32_t row, const uint32_t col, std::vector<Vector4f> &outPts) {
     Vector4f colStep = (controlPts[1] - controlPts[0]) / float(col);
     Vector4f rowStep = (controlPts[2] - controlPts[1]) / float(row);
@@ -644,10 +645,7 @@ void evenQuadTessellation(const std::array<Vector4f, 4> &controlPts, const uint3
     }
 }
 
-// Using GL_LINE_STRIP way to draw
-std::vector<Vector4f> OpenGLGraphicsManagerCommonBase::cpuTerrainQuadTessellation(const std::array<Vector4f, 4> &controlPts, const Matrix4X4f &patchTransM) {
-    std::vector<Vector4f> outPts;
-
+uint32_t OpenGLGraphicsManagerCommonBase::getTerrainPatchLevel(const std::array<Vector4f, 4> &controlPts, const Matrix4X4f &patchTransM) {
     Vector4f centerPt = {0.0, 0.0, 0.0, 0.0};
     for (int i = 0; i < controlPts.size(); ++i) {
         centerPt = centerPt + controlPts[i];
@@ -659,26 +657,52 @@ std::vector<Vector4f> OpenGLGraphicsManagerCommonBase::cpuTerrainQuadTessellatio
 
     float distanceTerrain = Length(centerPt - m_Frames[m_nFrameIndex].frameContext.m_camPos);
 
-    int32_t distLevel = int32_t(250.0 / distanceTerrain);
+    int32_t distLevel = int32_t(350.0 / distanceTerrain);
     if (distLevel > 6) {
         distLevel = 6;
     }
 
-    uint32_t distRate = 1 << distLevel;
-
-    evenQuadTessellation(controlPts, distRate, distRate, outPts);
-
-    return outPts;
+    return distLevel;
 }
 
-static const float TERRAIN_PATCH_SIZE  = 32.0;
-static const int32_t TERRAIN_PATCH_ROW = 10;  // must be even number
-static const int32_t TERRAIN_PATCH_COL = 10;  // must be even number
+static const Vector4f a_                        = {0.0, TERRAIN_PATCH_SIZE, 0.0, 1.0};
+static const Vector4f b_                        = {0.0, 0.0, 0.0, 1.0};
+static const Vector4f c_                        = {TERRAIN_PATCH_SIZE, 0.0, 0.0, 1.0};
+static const Vector4f d_                        = {TERRAIN_PATCH_SIZE, TERRAIN_PATCH_SIZE, 0.0, 1.0};
+static const std::array<Vector4f, 4> controlPts = {a_, b_, c_, d_};
 
 void OpenGLGraphicsManagerCommonBase::InitializeTerrain(const Scene &scene) {
+    // Create VAO for each terrain level
+    for (uint32_t i = 0; i < TERRAIN_MAX_LEVEL; ++i) {
+        uint32_t vao;
+        glGenVertexArrays(1, &vao);
+        glBindVertexArray(vao);
+
+        uint32_t buffer_id;
+        glGenBuffers(1, &buffer_id);
+
+        uint32_t distRate = 1 << i;
+
+        std::vector<Vector4f> vertices;
+        vertices.clear();
+        evenQuadTessellation(controlPts, distRate, distRate, vertices);
+
+        glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(Vector4f) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 4, GL_FLOAT, false, 0, 0);
+
+        m_TerrainVertex[i].vao      = vao;
+        m_TerrainVertex[i].bufferID = buffer_id;
+        m_TerrainVertex[i].count    = vertices.size();
+        m_TerrainVertex[i].mode     = GL_LINE_STRIP;
+
+        glBindVertexArray(0);  // reset vertex array to 0
+    }
+
+    // Create per-patch constants
     m_TerrainPPC.resize(TERRAIN_PATCH_ROW * TERRAIN_PATCH_COL);
 
-    // Generate vertex array buffer
     CalculateCameraMatrix();
     Matrix4X4f toCameraMatrix;
     int32_t tmpCount = 0;
@@ -687,34 +711,9 @@ void OpenGLGraphicsManagerCommonBase::InitializeTerrain(const Scene &scene) {
             // Fill PerTerrainPatchConstants
             MatrixTranslation(m_TerrainPPC[tmpCount].patchLocalMatrix, TERRAIN_PATCH_SIZE * i, TERRAIN_PATCH_SIZE * j, 0.0f);
 
-            // Create vao
-            uint32_t vao;
-            glGenVertexArrays(1, &vao);
-            glBindVertexArray(vao);
+            toCameraMatrix = m_TerrainPPC[tmpCount].patchLocalMatrix;
 
-            uint32_t buffer_id;
-            glGenBuffers(1, &buffer_id);
-
-            Vector4f a                         = {0.0, TERRAIN_PATCH_SIZE, 0.0, 1.0};
-            Vector4f b                         = {0.0, 0.0, 0.0, 1.0};
-            Vector4f c                         = {TERRAIN_PATCH_SIZE, 0.0, 0.0, 1.0};
-            Vector4f d                         = {TERRAIN_PATCH_SIZE, TERRAIN_PATCH_SIZE, 0.0, 1.0};
-            std::array<Vector4f, 4> controlPts = {a, b, c, d};
-
-            toCameraMatrix                 = m_TerrainPPC[tmpCount].patchLocalMatrix;
-            std::vector<Vector4f> vertices = cpuTerrainQuadTessellation(controlPts, toCameraMatrix);
-            glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(Vector4f) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
-            glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 4, GL_FLOAT, false, 0, 0);
-
-            m_TerrainBuffers.push_back(buffer_id);
-
-            glBindVertexArray(0);  // reset vertex array to 0
-
-            m_TerrainPPC[tmpCount].vao   = vao;
-            m_TerrainPPC[tmpCount].mode  = GL_LINE_STRIP;
-            m_TerrainPPC[tmpCount].count = vertices.size();
+            m_TerrainPPC[tmpCount].level = getTerrainPatchLevel(controlPts, toCameraMatrix);
 
             ++tmpCount;
         }
@@ -832,14 +831,15 @@ void OpenGLGraphicsManagerCommonBase::EndScene() {
         glDeleteTextures(1, &it.second);
     }
 
-    for (auto &buf : m_TerrainBuffers) {
-        glDeleteBuffers(1, &buf);
+    for (auto &sVert : m_TerrainVertex) {
+        glDeleteBuffers(1, &sVert.bufferID);
     }
 
     glDeleteTextures(1, &m_TerrainHeightMap);
 
     m_Buffers.clear();
     m_Textures.clear();
+    m_TerrainPPC.clear();
 
     GraphicsManager::EndScene();
 }
@@ -1091,8 +1091,10 @@ void OpenGLGraphicsManagerCommonBase::DrawTerrain() {
             glBindBufferRange(GL_UNIFORM_BUFFER, 13, m_uboDrawTerrainPatchConstant[m_nFrameIndex],
                               tmpCount * kSizePerTerrainConstant, kSizePerTerrainConstant);
 
-            glBindVertexArray(m_TerrainPPC[tmpCount].vao);
-            glDrawArrays(m_TerrainPPC[tmpCount].mode, 0, m_TerrainPPC[tmpCount].count);
+            m_TerrainPPC[tmpCount].level = getTerrainPatchLevel(controlPts, m_TerrainPPC[tmpCount].patchLocalMatrix);
+            uint32_t level               = m_TerrainPPC[tmpCount].level;
+            glBindVertexArray(m_TerrainVertex[level].vao);
+            glDrawArrays(m_TerrainVertex[level].mode, 0, m_TerrainVertex[level].count);
 
             ++tmpCount;
         }
